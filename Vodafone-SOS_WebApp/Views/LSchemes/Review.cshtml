@@ -1,0 +1,151 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSchemeViewModel
+@{
+    ViewBag.Title = "Create";
+}
+
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+
+<script>
+
+    //This variable is defined to store value if form has any changes since it has loaded
+    var isChanged = false;
+    var PortfolioArray = [];
+    $(document).ready(function () {
+
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+
+          var TransactionId='@Model.Id'
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' },
+            ],
+            id: "Id",
+            data: { TransactionId: TransactionId, EntityType:'LSchemes' },
+            url: "/Home/GetPortfolioGridForEdit"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '40%',
+           // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel',width:'30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+        $('*', 'form').attr('disabled', 'disabled');
+        $(':button').removeAttr('disabled')
+        //$('#AddComments').removeAttr('disabled')  // to make it disable on review page
+        document.getElementById('PortfolioDiv').style.pointerEvents = 'none';
+
+
+    })
+
+
+
+
+
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+{
+
+<div class="form-horizontal">
+
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.LsName, htmlAttributes: new { @class = "control-label required col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.LsName, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LsName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.WFComments, htmlAttributes: new { @class = "control-label  col-md-2" })
+        <div class="col-md-10">
+            @Html.TextAreaFor(model => model.WFComments, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.WFComments, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-2 required" })
+        <br>
+        <div class="col-md-10" id="PortfolioDiv">
+            <div id="jqxgrid"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Add Comments", htmlAttributes: new { @class = "control-label  col-md-2" })
+        <div class="col-md-10">
+            <textarea id="AddComments" name="AddComments" class="form-control" style="height:100px" onchange="FnAttachComments(this.value)"></textarea><br>
+        </div>
+    </div>
+
+    <div class="form-group" id="formPage">
+        <div class="col-md-10">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            @if (ViewBag.ActionItems != null)
+            {
+                @Html.Raw(ViewBag.ActionItems)
+            }
+        </div>
+
+    </div>
+
+
+</div>
+}
+
+<br>
+<div class="col-md-12" id="AttachedFiles"></div>
+<br>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

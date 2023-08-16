@@ -1,0 +1,59 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.RStatusViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RsOwnerId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @if (Enumerable.Count(ViewBag.RsOwnerId) == 0)
+                {
+                    @Html.DropDownListFor(model => model.RsOwnerId, null, "No Records Found", new { @class = "form-control" })
+                }
+                else
+                {
+                    @Html.DropDownListFor(model => model.RsOwnerId, null, "-- Select Here --", new { @class = "form-control" })
+                }
+
+
+                @Html.ValidationMessageFor(model => model.RsOwnerId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.RsStatus, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RsStatus, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RsStatus, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RsStatusDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.RsStatusDescription, new { @class = "form-control"  })
+                @Html.ValidationMessageFor(model => model.RsStatusDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; </button>
+            <button type="submit" class="btn btn-red btn-cons">Submit&nbsp;</button>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

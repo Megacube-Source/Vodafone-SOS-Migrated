@@ -1,0 +1,537 @@
+﻿
+@{
+    ViewBag.Title = "ManagerDashboard";
+}
+
+<h2>ManagerDashboard</h2>
+
+
+<script>
+    var ManagerValue = "";
+    var AnalyticValue = "";
+    var PayeeValue = "";
+    $(document).ready(function () {
+        if ('@TempData["ErrorMessage"]')
+        {
+            alert('@TempData["ErrorMessage"]')
+        }
+
+        var data = [
+           {
+               "id": "12",
+               "text": "<b>Commission</b>",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           },
+           {
+               "text": "<b>Claims</b>",
+               "id": "1",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           }, {
+               "id": "3",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Allocate</a>"
+           },
+           {
+               "id": "30",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Approve</a>"
+           },
+           {
+               "id": "2",
+               "parentid": "-1",
+               "text": "<a href='#' onclick='return Alerts()'><b>KPIs</b></a>"
+           },
+           {
+               "id": "34",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Finalize</a>"
+           }, {
+               "id": "6",
+               "text": "<b>Reports</b>",
+               "parentid": "-1",
+               "subMenuWidth": '200px'
+           }, {
+               "id": "13",
+               "text": "<a href='#'onclick='return Alerts()'>Approve</a>",
+               "parentid": "12"
+           }]
+        // prepare the data
+        var source =
+        {
+            datatype: "json",
+            datafields: [
+                { name: 'id' },
+                { name: 'parentid' },
+                { name: 'text' },
+                { name: 'subMenuWidth' }
+            ],
+            id: 'id',
+            localdata: data
+        };
+        // create data adapter.
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        // perform Data Binding.
+        dataAdapter.dataBind();
+        // get the menu items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+        // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+        // specifies the mapping between the 'text' and 'label' fields.
+        var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+        $('#jqxWidget').jqxMenu({ source: records, width: '100%', animationShowDuration: 900 });
+
+        //display tabs in members dashboard
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true, height: '60vh' });
+
+        //display grid
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'TradingName', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'ParentsCode', type: 'string' },
+                { name: 'Channel', type: 'string' },
+                { name: 'SubChannel', type: 'string' },
+                { name: 'Phone', type: 'string' },
+                { name: 'EmailAddress', type: 'string' },
+                { name: 'Address', type: 'string' },
+                { name: 'ManagerComments', type: 'string' },
+                { name: 'AnalystComments', type: 'string' },
+                { name: 'PayeeComments', type: 'string' },
+                { name: 'SFID', type: 'string' },
+                { name: 'Segment', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetPayeeFormsForManager"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+                var leftcolumnC = $('<br/><div ></div><br/>');
+                var rightcolumn = $('<div></div>');
+                container.append(leftcolumn);
+
+                container.append(rightcolumn);
+                container.append(leftcolumnC);
+                if (datarecord.SFID == null) {
+                    datarecord.SFID = ""
+                }
+                if (datarecord.Channel == null) {
+                    datarecord.Channel = ""
+                }
+                if (datarecord.SubChannel == null) {
+                    datarecord.SubChannel = ""
+                }
+                if (datarecord.ManagerComments == null) {
+                    datarecord.ManagerComments = ""
+                } else {
+                    ManagerValue = datarecord.ManagerComments;
+                }
+
+                if (datarecord.AnalystComments == null) {
+                    datarecord.AnalystComments = ""
+                } else {
+                    AnalyticValue = datarecord.AnalystComments;
+                }
+
+                if (datarecord.PayeeComments == null) {
+                    datarecord.PayeeComments = ""
+                }
+                else {
+                    PayeeValue = datarecord.PayeeComments;
+                }
+
+
+
+
+                var OfficeName = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Email: </b> " + datarecord.EmailAddress + " </div><div class='col-md-4'> <b>Phone: </b>" + datarecord.Phone + "</div><div class='col-md-4'> <b>Sales Force ID: </b>" + datarecord.SFID + "</div></div>";
+                var Adress = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Channel: </b> " + datarecord.Channel + " </div><div class='col-md-4'> <b>SubChannel: </b>" + datarecord.SubChannel + "</div><div class='col-md-4'> <b>Address: </b>" + datarecord.Address + "</div></div>";
+                var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Requestor Comments:&emsp;&emsp;</b><br/><textarea disabled='disabled' id='AComments'  placehol style='height:100px;width:100%'></textarea></div><div class='col-md-4'><b>Analyst Comments: </b></div><div class='col-md-4'><b>Manager Comments: </b></div><div class='col-md-4'></div><div class='col-md-4'></div><div class='col-md-4'><textarea disabled='disabled' id='PComments'  style='height:100px;width:100%'></textarea></div><div class='col-md-4'><textarea id='Manager' placeholder='Enter your comments here'  style='height:100px;width:100%'></textarea></div></div>";
+                //var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-6'><b>Payee Comments:" + datarecord.PayeeComments + "</div><div class='col-md-6'><b>Analyst Comments: </b>" + datarecord.AnalystComments + "</div></div>";
+                var GcIsdCode = "<br/><div style = 'margin: 10px;'></div><div style = 'margin: 10px;' class='col-md-6'><button class='btn btn-success' onclick='return Review(1," + datarecord.Id + ")'>Approve</button> <button class='btn btn-danger' onclick='return Review(2," + datarecord.Id + ")'>Reject</button> <button class='btn btn-warning' onclick='return Review(3," + datarecord.Id + ")'>Review Again</button></div>";
+                $(leftcolumn).append(OfficeName);
+
+                $(leftcolumn).append(Adress);
+                $(rightcolumn).append(Comments);
+                $(leftcolumnC).append(GcIsdCode);
+                // var notescontainer = $('<div style = "white-space: normal; margin: 5px;"><span>notes will appear here</span></div>');
+                // $(notes).append(notescontainer);
+                $(tabsdiv).jqxTabs({ width: '97%', height: 350 });
+
+            }
+
+        }
+
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return Review()">Review</button>';
+        };
+        $('#jqxgrid').jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <ul style='margin-left: 30px;'><li class='title'>Payee Information</li></ul><div class='information'></div>", rowdetailsheight: 360 },
+            initrowdetails: initrowdetails,
+            columnsresize: true,
+            columnsreorder: true,
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Trading Name', datafield: 'TradingName' },
+                { text: 'Type', datafield: 'Type' },
+                { text: 'Segment', datafield: 'Segment' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Parents/manager Code', datafield: 'ParentsCode' }
+            ]
+        });
+
+
+
+        //display grid of rejected Payees
+        var sourceR = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'TradingName', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'ParentsCode', type: 'string' },
+                { name: 'Channel', type: 'string' },
+                { name: 'SubChannel', type: 'string' },
+                { name: 'Phone', type: 'string' },
+                { name: 'EmailAddress', type: 'string' },
+                { name: 'Address', type: 'string' },
+                 { name: 'ManagerComments', type: 'string' },
+                { name: 'AnalystComments', type: 'string' },
+                { name: 'PayeeComments', type: 'string' },
+                { name: 'SFID', type: 'string' },
+                { name: 'Segment', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetRejectedPayeeFormsForManager"
+        };
+        var dataAdapterR = new $.jqx.dataAdapter(sourceR)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return Review()">Review</button>';
+        };
+        var initrowdetails2 = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+                var leftcolumnC = $('<br/><div ></div><br/>');
+                var rightcolumn = $('<div></div>');
+                container.append(leftcolumn);
+
+                container.append(rightcolumn);
+                container.append(leftcolumnC);
+                if (datarecord.SFID == null) {
+                    datarecord.SFID = ""
+                }
+                if (datarecord.Channel == null) {
+                    datarecord.Channel = ""
+                }
+                if (datarecord.SubChannel == null) {
+                    datarecord.SubChannel = ""
+                }
+                //if (datarecord.ManagerComments == null) {
+                //    datarecord.ManagerComments = ""
+                //} else {
+                //    ManagerValue = datarecord.ManagerComments;
+                //}
+
+                //if (datarecord.AnalystComments == null) {
+                //    datarecord.AnalystComments = ""
+                //} else {
+                //    AnalyticValue = datarecord.AnalystComments;
+                //}
+
+                //if (datarecord.PayeeComments == null) {
+                //    datarecord.PayeeComments = ""
+                //}
+                //else {
+                //    PayeeValue = datarecord.PayeeComments;
+                //}
+
+
+
+
+                var OfficeName = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Email: </b> " + datarecord.EmailAddress + " </div><div class='col-md-4'> <b>Phone: </b>" + datarecord.Phone + "</div><div class='col-md-4'> <b>Sales Force ID: </b>" + datarecord.SFID + "</div></div>";
+                var Adress = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Channel: </b> " + datarecord.Channel + " </div><div class='col-md-4'> <b>SubChannel: </b>" + datarecord.SubChannel + "</div><div class='col-md-4'> <b>Address: </b>" + datarecord.Address + "</div></div>";
+               // var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Requestor Comments:&emsp;&emsp;</b><textarea disabled='disabled' id='PComments'  style='height:100px'></textarea></div><div class='col-md-4'><b>Analyst Comments: </b><textarea disabled='disabled' id='AComments'  placehol style='height:100px'></textarea></div><div class='col-md-4'><b>Manager Comments: </b><textarea id='Manager' placeholder='Enter your comments here'  style='height:100px'></textarea></div></div>";
+                //var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-6'><b>Payee Comments:" + datarecord.PayeeComments + "</div><div class='col-md-6'><b>Analyst Comments: </b>" + datarecord.AnalystComments + "</div></div>";
+               // var GcIsdCode = "<br/><div style = 'margin: 10px;'></div><div style = 'margin: 10px;' class='col-md-6'><button class='btn btn-success' onclick='return Review(1," + datarecord.Id + ")'>Approve</button> <button class='btn btn-danger' onclick='return Review(2," + datarecord.Id + ")'>Reject</button> <button class='btn btn-warning' onclick='return Review(3," + datarecord.Id + ")'>Review Again</button></div>";
+                $(leftcolumn).append(OfficeName);
+
+                $(leftcolumn).append(Adress);
+               // $(rightcolumn).append(Comments);
+               // $(leftcolumnC).append(GcIsdCode);
+                // var notescontainer = $('<div style = "white-space: normal; margin: 5px;"><span>notes will appear here</span></div>');
+                // $(notes).append(notescontainer);
+                $(tabsdiv).jqxTabs({ width: '97%', height: 350 });
+
+            }
+
+        }
+
+        $('#jqxgridR').jqxGrid({
+            source: dataAdapterR,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <ul style='margin-left: 30px;'><li class='title'>Payee Information</li></ul><div class='information'></div>", rowdetailsheight: 200 },
+            initrowdetails: initrowdetails2,
+            columnsresize: true,
+            columnsreorder: true,
+
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Trading Name', datafield: 'TradingName' },
+                { text: 'Type', datafield: 'Type' },
+                { text: 'Segment', datafield: 'Segment' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Parents/manager Code', datafield: 'ParentsCode' }
+            ]
+        });
+        //list of approved users
+
+        //display grid of rejected Payees
+        var sourceAp = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'TradingName', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'ParentsCode', type: 'string' },
+                { name: 'Channel', type: 'string' },
+                { name: 'SubChannel', type: 'string' },
+                { name: 'Phone', type: 'string' },
+                { name: 'EmailAddress', type: 'string' },
+                { name: 'Address', type: 'string' },
+                 { name: 'ManagerComments', type: 'string' },
+                { name: 'AnalystComments', type: 'string' },
+                { name: 'PayeeComments', type: 'string' },
+                { name: 'SFID', type: 'string' },
+                { name: 'Segment', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetAcceptedPayeeFormsForManager"
+        };
+        var dataAdapterAp = new $.jqx.dataAdapter(sourceAp)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return Review()">Review</button>';
+        };
+
+        var initrowdetails1 = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+                var leftcolumnC = $('<br/><div ></div><br/>');
+                var rightcolumn = $('<div></div>');
+                container.append(leftcolumn);
+
+                container.append(rightcolumn);
+                container.append(leftcolumnC);
+                if (datarecord.SFID == null) {
+                    datarecord.SFID = ""
+                }
+                if (datarecord.Channel == null) {
+                    datarecord.Channel = ""
+                }
+                if (datarecord.SubChannel == null) {
+                    datarecord.SubChannel = ""
+                }
+                //if (datarecord.ManagerComments == null) {
+                //    datarecord.ManagerComments = ""
+                //} else {
+                //    ManagerValue = datarecord.ManagerComments;
+                //}
+
+                //if (datarecord.AnalystComments == null) {
+                //    datarecord.AnalystComments = ""
+                //} else {
+                //    AnalyticValue = datarecord.AnalystComments;
+                //}
+
+                //if (datarecord.PayeeComments == null) {
+                //    datarecord.PayeeComments = ""
+                //}
+                //else {
+                //    PayeeValue = datarecord.PayeeComments;
+                //}
+
+
+
+
+                var OfficeName = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Email: </b> " + datarecord.EmailAddress + " </div><div class='col-md-4'> <b>Phone: </b>" + datarecord.Phone + "</div><div class='col-md-4'> <b>Sales Force ID: </b>" + datarecord.SFID + "</div></div>";
+                var Adress = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Channel: </b> " + datarecord.Channel + " </div><div class='col-md-4'> <b>SubChannel: </b>" + datarecord.SubChannel + "</div><div class='col-md-4'> <b>Address: </b>" + datarecord.Address + "</div></div>";
+              //  var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-4'><b>Requestor Comments:&emsp;&emsp;</b><textarea disabled='disabled' id='PComments'  style='height:100px'></textarea></div><div class='col-md-4'><b>Analyst Comments: </b><textarea disabled='disabled' id='AComments'  placehol style='height:100px'></textarea></div><div class='col-md-4'><b>Manager Comments: </b><textarea id='Manager' placeholder='Enter your comments here'  style='height:100px'></textarea></div></div>";
+                //var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-6'><b>Payee Comments:" + datarecord.PayeeComments + "</div><div class='col-md-6'><b>Analyst Comments: </b>" + datarecord.AnalystComments + "</div></div>";
+               // var GcIsdCode = "<br/><div style = 'margin: 10px;'></div><div style = 'margin: 10px;' class='col-md-6'><button class='btn btn-success' onclick='return Review(1," + datarecord.Id + ")'>Approve</button> <button class='btn btn-danger' onclick='return Review(2," + datarecord.Id + ")'>Reject</button> <button class='btn btn-warning' onclick='return Review(3," + datarecord.Id + ")'>Review Again</button></div>";
+                $(leftcolumn).append(OfficeName);
+
+                $(leftcolumn).append(Adress);
+               // $(rightcolumn).append(Comments);
+               // $(leftcolumnC).append(GcIsdCode);
+                // var notescontainer = $('<div style = "white-space: normal; margin: 5px;"><span>notes will appear here</span></div>');
+                // $(notes).append(notescontainer);
+                $(tabsdiv).jqxTabs({ width: '97%', height: 350 });
+
+            }
+
+        }
+
+        $('#jqxgridAp').jqxGrid({
+            source: dataAdapterAp,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <ul style='margin-left: 30px;'><li class='title'>Payee Information</li></ul><div class='information'></div>", rowdetailsheight: 200 },
+            initrowdetails: initrowdetails1,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+
+
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Trading Name', datafield: 'TradingName' },
+                { text: 'Type', datafield: 'Type' },
+                { text: 'Segment', datafield: 'Segment' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Parents/manager Code', datafield: 'ParentsCode' }
+            ]
+        });
+        setTimeout(function(){
+        //add data to manager comment
+       // alert(ManagerValue)
+            document.getElementById('Manager').value = ManagerValue
+            document.getElementById('AComments').value = PayeeValue
+            document.getElementById('PComments').value = AnalyticValue
+    },2000)
+
+    });
+
+
+    //to redirect to reviewPage and change payee status
+    function Review(dat, xx) {
+        var ManagerComments = document.getElementById('Manager').value;
+        //alert(ManagerComments)
+        // alert(xx)
+        //var selectedrowindex = $('#jqxgridR').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridR').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            if (dat == 1) {
+                window.location.href = '/Vodafone/UpdatePayeeStatus/'+xx+'?Status=Approved&ManagerComments='+ManagerComments;
+            }
+            if (dat == 2) {
+                window.location.href = '/Vodafone/UpdatePayeeStatus/' + xx + '?Status=Rejected&ManagerComments=' + ManagerComments;
+            }
+            if (dat == 3) {
+                window.location.href = '/Vodafone/UpdatePayeeStatus/' + xx + '?Status=ReviewAgain&ManagerComments=' + ManagerComments;
+            }
+        }
+    }
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+</script>
+<div id='jqxWidget'>
+</div>
+
+<div style="padding:10px;">
+
+    <br />
+    <h4>Review Passed</h4>
+    <div id="jqxgrid">
+
+    </div>
+    <br /><br />
+
+    <div id='jqxTabs'>
+        <ul>
+            <li style="margin-left: 30px;">Approved</li>
+            <li>Rejected</li>
+        </ul>
+
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridAp">
+
+            </div>
+        </div>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridR">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+

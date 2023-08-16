@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "Manage WorkFlow Configurations";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        //save return url
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+
+    });
+
+    function GetGrid() {
+        var Form1 = $("#frm")
+        $.ajax({
+            data: Form1.serialize(),
+            //data: { RoleId: RoleId },
+            url: "/LWorkFlowConfig/GetGrid",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var sourcea = {
+                    dataType: "json",
+                    dataFields: [
+                       // { name: 'LcsrdcId', type: 'string' },
+                        { name: 'Id', type: 'int' },                        
+                        { name: 'LwfcRoleId', type: 'int' },
+                        { name: 'Name', type: 'int' },
+                         { name: 'LwfcOrdinalNumber', type: 'int' },
+                        { name: 'LwfcActingAs', type: 'string' },
+                        { name: 'LwfcCanCreate', type: 'bool' },
+                        { name: 'LwfcDoNotNotify', type: 'bool' },
+                        { name: 'LwfcDescription', type: 'string' },
+                        { name: 'LwfcSkip', type: 'bool' },
+                        { name: 'LwfcSkipFunctionName', type: 'string' },
+                      //  { name: 'DataType', type: 'string' }
+                    ],
+                   id:"Id",
+                    localdata: data
+                };
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+                    return '<button onclick="return Fndelete()" class="GridButton">Delete</button>&emsp;<button onclick="return Fnedit()" class="GridButton">Edit</button>'+
+                        ' <button id="Columns" onclick="FnGetColumns()" class="btn btn-success">Columns&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>&emsp;'+
+                        ' <button id="Actions" onclick="FnGetActions()" class="btn btn-success">Actions&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>&emsp;';
+                };
+
+                var ActingAsSource = [ "Manager","Analyst","Requester"];
+
+                $('#jqxgrid').jqxGrid({
+                    source: sourcea,
+                    width: '100%',
+                    autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    showtoolbar: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    showstatusbar: true,
+                    //editable: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+
+                    ready: function () {
+                    },
+                    columns: [
+                         { text: 'Ordinal Number', datafield: 'LwfcOrdinalNumber', width: '10%' },
+                         { text: 'Role', datafield: 'Name' },
+                          {
+                              text: 'ActingAs', datafield: 'LwfcActingAs', columntype: 'dropdownlist', width: '10%',
+                              initeditor: function (row, cellvalue, editor) {
+
+                                  editor.jqxDropDownList({ source: ActingAsSource, dropDownWidth: 320, dropDownHeight: 250 });
+                              }
+                          },
+                          { text: 'CanCreate', datafield: 'LwfcCanCreate', columntype: 'checkbox', width: '10%' },
+                          { text: 'DoNotNotify', datafield: 'LwfcDoNotNotify', columntype: 'checkbox', width: '10%' },
+                          { text: 'Skip', datafield: 'LwfcSkip', columntype: 'checkbox', width: '5%' },
+                          { text: 'SkipFunctionName', datafield: 'LwfcSkipFunctionName' },
+                          { text: 'Description', datafield: 'LwfcDescription' },
+                          { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width: '20%' }
+
+                    ]
+                });
+                //disable textboxes after Go button click
+                $('#CompanyId').prop('disabled', true);
+                $('#WFID').prop('disabled', true);
+                document.getElementById('grd').style.display = 'block';
+                //  document.getElementById('SubmitButton').style.display = 'block' //displaysubmit button AutofillButton
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    }
+
+    function Fnedit() {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+
+        if (xx) {
+            var url = '@Url.Action("Edit", "LWorkFlowConfig", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function Fndelete() {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "LWorkFlowConfig", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function FnCreate() {
+        var CompanyId = document.getElementById('CompanyId').value;
+        var WFId = document.getElementById('WFID').value;
+        window.location.href = '@Url.Action("Create", "LWorkFlowConfig")?CompanyId=' + CompanyId + '&WFId=' + WFId ;
+
+    }
+
+    function FnGetColumns() {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var CompanyId = document.getElementById('CompanyId').value;
+        var WFId = document.getElementById('WFID').value;
+        var RoleId = rowData.LwfcRoleId;
+        var Role = rowData.Name;
+       
+        if (xx) {
+            window.location.href = '@Url.Action("Index","LWorkflowGridColumn")?ConfigId=' + xx + '&RoleId=' + RoleId + '&CompanyId=' + CompanyId + '&WFId=' + WFId +'&Role=' + Role;
+
+        }
+    }
+    function FnGetActions() {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var CompanyId = document.getElementById('CompanyId').value;
+        var WFId = document.getElementById('WFID').value;
+        var RoleId = rowData.LwfcRoleId;
+        var Role = rowData.Name;
+        if (xx) {
+            window.location.href = '@Url.Action("Index", "LWorkFlowActionItem")?ConfigId=' + xx + '&RoleId=' + RoleId + '&CompanyId=' + CompanyId + '&WFId=' + WFId +'&Role=' + Role;
+        }
+    }
+
+
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.Hidden("model")
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.Label("Select Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+            <div class="col-md-9" id="cid" name="cid" style="width:20%">
+                @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style ="width: 70%" })
+            </div>
+            @Html.Label("Select WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+            <div class="col-md-9" style="width:20%">
+                @Html.DropDownList("WFID", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%" })
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button"  class="btn btn-red btn-cons"  value="Go" onclick="return GetGrid()">
+                            
+            </div>
+        
+        </div>
+
+    </div>
+}
+
+
+
+<div id="grd" class="boxes" style="display:none;" >
+    <h4 class="vodafone_txt">
+        Workflow Tabs
+    </h4>
+    <span>
+        <a href="#" onclick="FnCreate();"><u>Create New Configuration</u></a>
+    </span>
+    <!-- <a class="top_links" href="/LWorkFlowConfig/Create">  <i class="glyphicon glyphicon-pencil"></i> Create New Configuration</a>-->
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+    <div>
+        <button type="button" class="btn btn-borderRed btn-cons" style="align-self:center" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+    </div>
+</div>
+

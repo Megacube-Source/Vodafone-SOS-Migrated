@@ -1,0 +1,541 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.Sp_UpdateStatusViewModel
+@{
+    ViewBag.Title = "AnalystIndex";
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        //This method saves the url of the current page in session variable which would be url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //To display message from controller as popup
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+        // Method to load jqxtabs in view.
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        //This function loads grid in the tab as per tabName passed as parameter
+        FnGetGrid("PendingInvestigation")//pending investigation
+        FnGetGrid("ReInvestigate")//reinvestigation
+        FnGetGrid("Rejected")//rejected
+       FnGetGrid("PendingManagerApproval")//pending manager approval
+        FnGetGrid("Approved")//approved
+        FnGetGrid("Paid")//paid
+
+        //This method is called on double click of row
+        $('#jqxgridPendingInvestigation').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPendingInvestigation').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPendingInvestigation').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridReInvestigate').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridReInvestigate').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridReInvestigate').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridRejected').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridRejected').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridRejected').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridPendingManagerApproval').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPendingManagerApproval').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPendingManagerApproval').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+
+        $('#jqxgridApproved').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridApproved').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridApproved').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridPaid').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPaid').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPaid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+
+        //This method is called when data binding is complete in a grid
+        $("#jqxgridPendingInvestigation").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingInvestigation').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        $("#jqxgridReInvestigate").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridReInvestigate').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations) {
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        //$("#jqxgridRejected").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridRejected').jqxGrid('getdatainformation');
+        //    if (datainformations) {
+        //        // alert(data22.Count)
+        //        document.getElementById('b3').innerHTML = datainformations.rowscount;
+        //    }
+
+        //});
+
+        $("#jqxgridPendingManagerApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingManagerApproval').jqxGrid('getdatainformation');
+            if (datainformations) {
+                // alert(data22.Count)
+                document.getElementById('b4').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        //$("#jqxgridApproved").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridApproved').jqxGrid('getdatainformation');
+        //    if (datainformations) {
+        //        // alert(data22.Count)
+        //        document.getElementById('b5').innerHTML = datainformations.rowscount;
+        //    }
+
+
+        //});
+
+        //$("#jqxgridPaid").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridPaid').jqxGrid('getdatainformation');
+        //    if (datainformations) {
+        //        // alert(data22.Count)
+        //        document.getElementById('b6').innerHTML = datainformations.rowscount;
+        //    }
+
+
+        //});
+
+        //$('#jqxgrid1').on('rowdoubleclick', function (event) {
+        //    var selectedrowindex = $('#jqxgrid1').jqxGrid('selectedrowindex');
+        //    var xx = $('#jqxgrid1').jqxGrid("getrowid", selectedrowindex);
+        //    if (xx) {
+        //        // window.location.href = "/LRawData/Index/" + xx;
+        //    }
+        //});
+        //$('#jqxgrid2').on('rowdoubleclick', function (event) {
+        //    var selectedrowindex = $('#jqxgrid2').jqxGrid('selectedrowindex');
+        //    var xx = $('#jqxgrid2').jqxGrid("getrowid", selectedrowindex);
+        //    if (xx) {
+        //        // window.location.href = "/LRawData/Index/" + xx;
+        //    }
+        //});
+
+    });
+
+    //This method loads data in the grid as per tab name passes as parameter
+    function FnGetGrid(TabName) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                 { name: 'LcPaymentBatchId', type: 'string' },
+                { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcAllocatedToId', type: 'string' },
+                { name: 'LcApprovedById', type: 'string' },
+                { name: 'LcSentForApprovalBy', type: 'string' },
+                 { name: 'RrrRejectionReason', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+                  { name: 'LcClawbackAmount', type: 'string' },
+                { name: 'LcApprovalDate', type: 'date' },
+                { name: 'LcPaymentAmount', type: 'string' },
+                  { name: 'LcPaymentDate', type: 'date' },
+                { name: 'LcAllocationDate', type: 'date' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LClaims/GetClaimsForAnalyst"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        //This method is used to change class of column
+        var cellclassname = function (row, column, value, data) {
+            //alert(data)
+            return 'HeatMap1';
+
+        }
+
+        //This method loads buttons in the action column of the grid
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            return '<button onclick="FnReview(' + xx + ')" class="GridButton">Review</button>&ensp;';
+
+        };
+
+
+
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+            //selectionmode: 'none',
+            ready: function () {
+
+            },
+
+            columns: [
+                 { text: '', datafield: 'selects', columntype: 'checkbox', width: '3%' },
+                { text: 'Claim Id', datafield: 'LcClaimId', editable: false },
+                { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+                { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                //{ text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode', editable: false },
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+                 { text: 'Payement Batch', datafield: 'LcPaymentBatchId', editable: false },
+                  { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                   { text: 'Sent For Approval By', datafield: 'LcSentForApprovalById', editable: false },
+                  { text: 'Approval Date', datafield: 'LcApprovalDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                   { text: 'Rejection Reason', datafield: 'RrRejectionReason', editable: false },
+                    { text: 'Allocated To', datafield: 'LcAllocatedToId', editable: false },
+                      { text: 'Actions', datafield: 'Id', editable: false, cellsrenderer: cellsrenderer,width:'10%' },
+            ]
+        });
+
+
+    }
+
+    //This method is called when analyst clicks on review button on the grid
+    function FnReview(Id)
+    {
+        //alert(dat)
+        if (Id) {
+            var url = '@Url.Action("Edit", "LClaims", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", Id);
+        }
+    }
+
+    //This array is defined to store list of claims
+    var arr = [];
+    //This method is called when analyst clicks on withdraw button which sets the status of claim to reinvestigate
+    function FnReInvestigateClaim(TabName) {
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            window.location.href = '/LClaims/ReInvestigateClaim?ClaimId='+arr;
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    //This method is called when analyst clicks on the Reject button in the view
+    function FnRejectClaim(TabName) {
+       var RejectionReason= document.getElementById('RejectionReasonId'+TabName).value
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            if (RejectionReason) {
+                window.location.href = '/LClaims/RejectedClaim?ClaimId=' + arr + '&RejectionReasonId=' + RejectionReason
+            }
+            else {
+                alert("Please select Rejection reason")
+            }
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    //This method is called when analyst clicks on rexamine button
+    function FnReExamine(TabName) {
+        var Comment = document.getElementById('comment' + TabName).value
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+
+        //Check if comments are provided by the user
+        if (arr.length != 0) {
+            if (Comment) {
+                var offset = new Date().getTimezoneOffset();
+                window.location.href = '/LClaims/ReExamine?ClaimId=' + arr + '&Comments=' + Comment + '&offset=' + offset
+            }
+            else {
+                alert("Please provide comment")
+            }
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    //This method is called when
+    function FnPendingApproval(TabName) {
+
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var Comment = document.getElementById('comment' + TabName).value
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                //commenting this line as payement amount is null while creating claim in every case will disscuss with VG
+               // if (xx[i].LcPaymentAmount > 0) {
+                    arr[count] = xx[i].Id;
+                    count = count + 1;
+               // }
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+
+            if (Comment) {
+                var offset = new Date().getTimezoneOffset();
+                window.location.href = '/LClaims/PendingApproval?ClaimId=' + arr + '&Comments=' + Comment + '&offset=' + offset
+            }
+            else {
+                alert("Please provide comment")
+            }
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    ////method to down load files as per batch number
+
+    //function FnDownLoadBatch(dat)
+    //{
+    //    window.location.href = '/Content/RawFiles/' + dat + '/InputData.csv'
+    //}
+
+    ////method to download pdf files
+    //function DownLoadPDF(dat) {
+    //    setTimeout(function () {
+    //        var Win1 = window.open("/Content/RawFiles/" + dat + "/Validation_Report.pdf", "_blank")
+    //        // Win1.saveAs();
+    //        //  Win1.close();
+    //    }, 1000);
+
+    //    //setTimeout(function () {
+    //    //    var Win2 = window.open("/Content/RawFiles/" + dat + "/PC10.pdf", "_blank")
+    //    //}, 1000);
+
+    //    //setTimeout(function () {
+    //    //    var Win3 = window.open("/Content/RawFiles/" + dat + "/PC11.pdf", "_blank")
+    //    //}, 1000);
+    //}
+     //This method is called when we click on glymph to download the grid data
+    function FnDownloadGrid()
+    {
+        var TabName = "";
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        switch(selectedItem)
+        {
+            case 0: TabName = "PendingInvestigation"; break;
+            case 1: TabName = "ReInvestigate"; break;
+            case 2: TabName = "Rejected"; break;
+            case 3: TabName = "PendingApproval"; break;
+            case 4: TabName = "Approved"; break;
+            case 5: TabName = "Upload"; break;
+        }
+        window.location.href = '/LClaims/DownloadClaimsGridByTabName?TabName=' + TabName;
+        //$.ajax({
+        //    data: {TabName:TabName },
+        //    url: "/LClaims/DownloadClaimsGridByTabName",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+
+        //        window.open(data)
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+    }
+
+</script>
+
+</script>
+
+<div class="boxes">
+    <h4 class="vodafone_txt">CLAIMS GRID <i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" style="cursor:pointer;"></i></h4>
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Pending Investigation <span class="badge" id="b1">0</span></li>
+            <li>ReInvestigate <span class="badge" id="b2">0</span></li>
+            <li>Rejected </li>
+            <li>Pending Manager <span class="badge" id="b4">0</span></li>
+            <li>Approved </li>
+            <li>Paid </li>
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+           
+                    <div id="jqxgridPendingInvestigation">
+
+                    </div>
+                  
+            <div class="row date">
+                <div>
+                    <font class="col-md-1 control-label">Comments</font>
+                    <textarea id="commentPendingInvestigation" class="col-md-11 form-control" style="width:100%;" placeholder="Enter comments here"></textarea>
+                </div>
+                <div id="Rejection1" style="">
+                    <font class="col-md-2 control-label" style="text-align:right">Rejection Reason</font>
+                    @Html.DropDownList("RejectionReasonIdPendingInvestigation", null, "-- Selet Here --", new { @class = "form-control" })
+                </div>
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        <button class="btn btn-red btn-cons" onclick="FnRejectClaim('PendingInvestigation')">Reject &nbsp; <i class="fa fa-times" aria-hidden="true"></i></button>
+                        &emsp;<button class="btn btn-success btn-cons" onclick="FnReExamine('PendingInvestigation')">Send To Payee&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>&emsp;<button class="btn btn-success btn-cons" onclick="FnPendingApproval('PendingInvestigation')">Send For Approval&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button><br />&emsp;
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+
+        <div class="tab-content" style="padding:10px;">
+           
+            <div id="jqxgridReInvestigate">
+
+            </div>
+            
+            <div class="row date"><div>
+                <font class="col-md-1 control-label">Comments</font>
+                <textarea id="commentReInvestigate" class="col-md-11 form-control" style="width:100%;" placeholder="Enter comments here"></textarea>
+            </div>
+            
+            <div id="Rejection2">
+                <font class="col-md-2 control-label" style="text-align:right">Rejection Reason</font>
+                @Html.DropDownList("RejectionReasonIdReInvestigate", null, "-- Selet Here --", new { @class = "form-control" })
+            </div>
+            <div class="row no_margin">
+                <div class="col-xs-12 buttons">
+                    <button class="btn btn-red btn-cons" onclick="FnRejectClaim('ReInvestigate')">Reject&nbsp; <i class="fa fa-times" aria-hidden="true"></i></button>
+                    &emsp;<button class="btn btn-orange btn-cons" onclick="FnReExamine('ReInvestigate')">Send To Payee&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+                    &emsp;<button class="btn btn-success btn-cons" onclick="FnPendingApproval('ReInvestigate')">Send For Approval&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                </div>
+                </div>
+            </div>
+            </div>
+            <div class="tab-content" style="padding:10px;">
+
+                <div id="jqxgridRejected">
+
+                </div>
+
+            </div>
+        <div class="tab-content" style="padding:10px;">
+            @*//Withdraw button will set status to reinvestigate*@
+           
+            <div id="jqxgridPendingManagerApproval">
+
+            </div>
+            <div class="row no_margin">
+                <div class="col-xs-12 buttons">
+                    <button type="button" class="btn btn-withdraw btn-cons"
+                            onclick="return FnReInvestigateClaim('PendingManagerApproval')">
+                        Withdraw&nbsp; <i class="fa fa-undo" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridApproved">
+
+                    </div>
+
+                </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridPaid">
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+

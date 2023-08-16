@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" id="cid" name="cid" style="width:20%">
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+        @Html.Label("WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" style="width:20%">
+            @Html.DropDownList("WFId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+          
+        </div>
+    </div>
+</div>
+
+
+
+<div class="boxes">
+    <h4 class="vodafone_txt">
+        Columns Tab : @ViewBag.Role
+    </h4>
+    <span>
+        <a href="#" onclick="FnCreate()"><u>Create New Grid Column</u></a>
+    </span>
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+    <div>
+        <button type="button" class="btn btn-borderRed btn-cons" style="align-self:center" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        var ConfigId = '@ViewBag.ConfigId';
+        var RoleId = '@ViewBag.RoleId';
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'LwfgcColumnName', type: 'string' },
+                { name: 'LwfgcUILabel', type: 'string' },
+                { name: 'LwfgcShouldBeVisible', type: 'bool' },
+                { name: 'LwfgcOrderByOrdinal', type: 'int' },
+                { name: 'LwfgcAscDesc', type: 'string' },
+                { name: 'LwfgcWfConfigId', type: 'int' },
+                { name: 'LwfgcOrdinal', type: 'int' },
+                { name: 'LwfgcFunctionName', type: 'string' },
+                { name: 'ActingAs', type: 'string' },
+                { name: 'Role', type: 'string' },
+                { name: 'RoleId', type: 'int' },
+
+            ],
+            data: { ConfigId: ConfigId, RoleId: RoleId},
+            id: "Id",
+            url: "/LWorkflowGridColumn/GetColumns"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return CGdelete()" class="GridButton">Delete</button>&emsp;<button onclick="return CGedit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: true,
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'WFGrid Column  Name', datafield: 'LwfgcColumnName' },
+                { text: 'UI Label  Name', datafield: 'LwfgcUILabel' },
+                { text: 'Should Be Visible', columntype: 'checkbox', datafield: 'LwfgcShouldBeVisible' },
+                { text: 'OrderByOrdinal', datafield: 'LwfgcOrderByOrdinal' },
+                { text: 'Asc Desc', datafield: 'LwfgcAscDesc' },
+                { text: 'Config', datafield: 'Role' },
+                { text: 'Ordinal', datafield: 'LwfgcOrdinal' },
+                { text: 'FunctionName', datafield: 'LwfgcFunctionName' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+    });
+    function FnError() {
+        alert("Can not change the field value");
+        return;
+    }
+    function FnCreate() {
+        var WFId = document.getElementById('WFId').value;
+        var Role = '@ViewBag.Role';
+        var RoleId = '@ViewBag.RoleId';
+        var CompanyId = document.getElementById('CompanyId').value;
+        var ConfigId = '@ViewBag.ConfigId';
+        window.location.href = '@Url.Action("Create", "LWorkflowGridColumn")?Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+    }
+
+    function CGedit()
+    {
+        var WFId = document.getElementById('WFId').value;
+        var CompanyId = document.getElementById('CompanyId').value;
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var Role = rowData.Role;
+        var RoleId = rowData.RoleId;
+        var ConfigId = '@ViewBag.ConfigId';
+        if (xx) {
+            window.location.href = '@Url.Action("Edit", "LWorkFlowGridColumn")?Id=' + xx + '&Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+
+        }
+    }
+    function CGdelete()
+    {
+        var WFId = document.getElementById('WFId').value;
+        var CompanyId = document.getElementById('CompanyId').value;
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var Role = rowData.Role;
+        var RoleId = rowData.RoleId;
+        var ConfigId = '@ViewBag.ConfigId';
+        if (xx) {
+           // var url = '@Url.Action("Delete", "LWorkFlowGridColumn", new {Id = "__id__" })';
+           // window.location.href = url.replace("__id__", xx);
+
+             window.location.href = '@Url.Action("Delete", "LWorkFlowGridColumn")?Id=' + xx + '&Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+        }
+    }
+</script>

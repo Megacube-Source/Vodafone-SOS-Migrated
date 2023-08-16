@@ -1,0 +1,74 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LEmailTemplateViewModel
+
+@{
+    ViewBag.Title = "Create Template";
+}
+<script type="text/javascript">
+        $(document).ready(function () {
+            $('#EditorBody').jqxEditor({
+                height: "200px",
+                width: '400px'
+            });
+            $('#EditorSignature').jqxEditor({
+                height: "200px",
+                width: '400px'
+            });
+    });
+
+ 
+</script>
+
+
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form1", name = "form1", @encType = "multipart/form-data" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h3>@ViewBag.Title</h3>
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+     
+        <div class="form-group">
+            @Html.LabelFor(model => model.LetTemplateName, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LetTemplateName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LetTemplateName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LetEmailSubject, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LetEmailSubject, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LetEmailSubject, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LetEmailBody, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                <textarea id="EditorBody" name="EditorBody">
+                </textarea>
+            </div>
+           
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LetSignature, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <textarea id="EditorSignature" name="EditorSignature">
+                </textarea>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-borderRed btn-cons" />
+                <input type="submit" value="Save" class="btn btn-red btn-cons" />
+
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

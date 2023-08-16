@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" id="cid" name="cid" style="width:20%">
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+        @Html.Label("WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" style="width:20%">
+            @Html.DropDownList("WFId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+
+        </div>
+    </div>
+</div>
+
+<div class="boxes">
+    <h4 class="vodafone_txt">
+        Action Item Tab : @ViewBag.Role
+    </h4>
+    <span>
+        <a href="#" onclick="FnCreate()"><u>Create New Action Item</u></a>
+    </span>
+    <br>
+
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+    <div>
+        <button type="button" class="btn btn-borderRed btn-cons" style="align-self:center" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        var ConfigId = '@ViewBag.ConfigId';
+        var RoleId = '@ViewBag.RoleId';
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'LwfaiActionItemName', type: 'string' },
+                { name: 'LwfaiUILabel', type: 'string' },
+                { name: 'LwfaiActionDescription', type: 'string' },
+                { name: 'LwfaiLoginWFConfigId', type: 'int' },
+                { name: 'LwfaiIsButtonOnWfGrid', type: 'bool' },
+                { name: 'LwfaiIsButtonOnForm', type: 'bool' },
+                 { name: 'LwfaiActionURL', type: 'string' },
+                  { name: 'LwfaiShowInTabWFConfigId', type: 'int' },
+                  { name: 'LwfaiOrdinal', type: 'int' },
+                  { name: 'ActingAs', type: 'string' },
+                  { name: 'Role', type: 'string' },
+                  { name: 'RoleId', type: 'int' },
+                  { name: 'LoginConfigName', type: 'string' },
+                  { name: 'ShowInTabConfigName', type: 'string' },
+            ],
+            data: { ConfigId: ConfigId,RoleId:RoleId },
+            id: "Id",
+            url: "/LWorkFlowActionItem/GetActions"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return CGdelete()" class="GridButton">Delete</button>&emsp;<button onclick="return CGedit()" class="GridButton">Edit</button>'+
+                '&emsp;<button id="Parameters" onclick="return CGParameters()" class="btn btn-success">Parameters&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: true,
+            showtoolbar: true,
+            pagesize: 20,
+            pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            ready: function () {
+
+            },
+            columns: [
+                { text: 'Action Item  Name', datafield: 'LwfaiActionItemName' },
+                { text: 'UI Label  Name', datafield: 'LwfaiUILabel' },
+                { text: 'Description', datafield: 'LwfaiActionDescription' },
+                { text: 'Login WorkFlow Config Id', datafield: 'LoginConfigName',width:'10%' },
+                { text: 'Show In Tab Config Id', datafield: 'ShowInTabConfigName', width: '10%'  },
+                  { text: 'Button On Grid', columntype: 'checkbox', datafield: 'LwfaiIsButtonOnWfGrid',width:'5%' },
+                  { text: 'Button On Form', columntype: 'checkbox', datafield: 'LwfaiIsButtonOnForm', width: '5%' },
+                { text: 'Action URL', datafield: 'LwfaiActionURL' },
+                { text: 'Ordinal', datafield: 'LwfaiOrdinal', width: '5%' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width: '10%' }
+            ]
+        });
+    });
+
+    function FnCreate() {
+
+        var WFId = document.getElementById('WFId').value;
+        var Role = '@ViewBag.Role';
+        var RoleId = '@ViewBag.RoleId';
+        var CompanyId = document.getElementById('CompanyId').value;
+        var ConfigId = '@ViewBag.ConfigId';
+        window.location.href = '@Url.Action("Create", "LWorkFlowActionItem")?Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+    }
+
+
+    function CGedit()
+    {
+        var WFId = document.getElementById('WFId').value;
+        var CompanyId = document.getElementById('CompanyId').value;
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var Role = rowData.Role;
+        var RoleId = rowData.RoleId;
+        var ConfigId = '@ViewBag.ConfigId';
+        if (xx) {
+            window.location.href = '@Url.Action("Edit", "LWorkFlowActionItem")?Id=' + xx + '&Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+
+        }
+    }
+
+    function CGdelete()
+    {
+        var WFId = document.getElementById('WFId').value;
+        var CompanyId = document.getElementById('CompanyId').value;
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var Role = rowData.Role;
+        var RoleId = rowData.RoleId;
+        var ConfigId = '@ViewBag.ConfigId';
+        if (xx) {
+             window.location.href = '@Url.Action("Delete", "LWorkFlowActionItem")?Id=' + xx + '&Role=' + Role + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&RoleId=' + RoleId + '&ConfigId=' + ConfigId;
+        }
+    }
+
+    function CGParameters() {
+        var WFId = document.getElementById('WFId').value;
+        var CompanyId = document.getElementById('CompanyId').value;
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        var rowData = $('#jqxgrid').jqxGrid('getrowdata', selectedrowindex);
+        var Role = rowData.Role;
+        var RoleId = rowData.RoleId;
+       
+        if (xx) {
+          //  var url = '@Url.Action("Index", "LWorkFlowActionParameter", new { ActionItemId = "__id__" })';
+           // window.location.href = url.replace("__id__", xx);
+            window.location.href = '@Url.Action("Index", "LWorkFlowActionParameter")?ActionItemId=' + xx + '&WFId=' + WFId + '&CompanyId=' + CompanyId + '&Role=' + Role + '&RoleId=' + RoleId;
+        }
+    }
+
+</script>

@@ -1,0 +1,1731 @@
+﻿
+@model Vodafone_SOS_WebApp.ViewModels.AuditFormViewModel
+
+@{
+    ViewBag.Title = "Claims report";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+    var CompanySpecificData = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompanySpecificData;
+}
+
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+
+<script>
+    var PayeeCheckedIndexes = undefined;
+    var StartDateJS = undefined;
+    var EndDateJS = undefined;
+    var BrandIdsList = undefined;
+    var CommissionTypeIdsList = undefined;
+    var DeviceTypeIdsList = undefined;
+    var PaymentCommissionTypeIdsList = undefined;
+    var ProductCodeIdsList = undefined;
+    var CreatedByIdsList = undefined;
+    var ActivityTypeIdsList = undefined;
+    var RejectionReasonIdsList = undefined;
+    var AllocationDateFromJS = undefined;
+    var AllocationDateToJS = undefined;
+    var AlreadyPaidDateFromJS = undefined;
+    var AlreadyPaidDateToJS = undefined;
+    var ConnectionDateFromJS = undefined;
+    var ConnectionDateToJS = undefined;
+    var LastReclaimDateFromJS = undefined;
+    var LastReclaimDateToJS = undefined;
+    var OrderDateFromJS = undefined;
+    var OrderDateToJS = undefined;
+    var datafields = new Array();
+    //NOTE: In all jqxdatetime controls one is added in month while converting from jqxdatetime to razor and vise versa because months are counted from 0 in JS date
+    function ShowHideControls(FilterName, ControlToShow) {
+        //Function to show controls on dropdown change
+        var Filterval = FilterName.val();
+        if (Filterval == 'Between')
+        { ControlToShow.show(); }
+        else { ControlToShow.hide(); }
+    }
+    $(document).ready(function () {
+        SetReportFilters();
+        $('#AllocationDateFilter').on('change', function () { ShowHideControls($('#AllocationDateFilter'), $('#AllocationDateTo')) });
+        $('#AlreadyPaidDateFilter').on('change', function () { ShowHideControls($('#AlreadyPaidDateFilter'), $('#AlreadyPaidDateTo')) });
+        $('#ConnectionDateFilter').on('change', function () { ShowHideControls($('#ConnectionDateFilter'), $('#ConnectionDateTo')) });
+        $('#LastReclaimDateFilter').on('change', function () { ShowHideControls($('#LastReclaimDateFilter'), $('#LastReclaimDateTo')) });
+        $('#OrderDateFilter').on('change', function () { ShowHideControls($('#OrderDateFilter'), $('#OrderDateTo')) });
+
+        $('#AlreadyPaidAmountFilter').on('change', function () { ShowHideControls($('#AlreadyPaidAmountFilter'), $('#AlreadyPaidAmountToDiv')) });
+        $('#ClawbackAmountFilter').on('change', function () { ShowHideControls($('#ClawbackAmountFilter'), $('#ClawbackAmountToDiv')) });
+        $('#ExpectedCommissionAmountFilter').on('change', function () { ShowHideControls($('#ExpectedCommissionAmountFilter'), $('#ExpectedCommissionAmountToDiv')) });
+        $('#PaymentAmountFilter').on('change', function () { ShowHideControls($('#PaymentAmountFilter'), $('#PaymentAmountToDiv')) });
+        function SetReportFilters()
+            {
+                var DataArray = @Html.Raw(Json.Encode(CompanySpecificData));
+
+                //var columns = [];
+                for (var i = 0; i < DataArray.length; ++i) {
+                    var ColumnLabel = DataArray[i].LcscColumnName;
+                    var ColLable = DataArray[i].LcscLabel;
+                    if (ColLable == null) { ColLable = ColumnLabel;}
+                    var blnFilterShow = DataArray[i].LcscIsReportParameter;
+                    if (blnFilterShow == true)
+                    {
+                        //&& ColumnLabel !='ExpectedCommissionAmount'
+                        if (ColumnLabel != 'PayeeId' && ColumnLabel != 'CreatedDateTime' )
+                        {
+                            $('#' + ColumnLabel+'Div').show();
+                            document.getElementById(ColumnLabel + "Label").textContent = ColLable;
+                            //document.getElementById(ColumnLabel+'Label').value = 'Alpha';
+                        }
+
+                    }
+                }
+
+            }
+        //This call is made to save url of current page which would be the url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        var Payeesource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LCalc/GetPayeeList"
+        };
+        var PayeedataAdapter = new $.jqx.dataAdapter(Payeesource)
+        // Create a jqxListBox
+        //$("#listboxPayee").jqxDropDownList({ checkboxes: true, source: PayeedataAdapter, displayMember: "FullName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        //$("#listboxPayee").on('checkChange', function (event) {
+        //    var args = event.args;
+
+        //    var items = $("#listboxPayee").jqxDropDownList('getCheckedItems');
+        //    var checkedItems = "";
+        //    PayeeCheckedIndexes = '';
+        //    $.each(items, function (index) {
+        //        if (index < items.length - 1) {
+        //            checkedItems += this.value + ",";
+        //            PayeeCheckedIndexes += this.index + ",";
+        //        }
+        //        else {
+        //            checkedItems += this.value;
+        //            PayeeCheckedIndexes += this.index;
+        //        }
+
+        //    });
+        //    document.getElementById('PayeeId').value = checkedItems;
+        //});
+        //Creating BrandList
+        var BrandSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RbName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetBrandsList"
+        };
+        var BrandAdaptor = new $.jqx.dataAdapter(BrandSource)
+        $("#BrandIds").jqxDropDownList({ checkboxes: true, source: BrandAdaptor, displayMember: "RbName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#BrandIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#BrandIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            BrandIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    BrandIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    BrandIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcBrandId').value = checkedItems;
+        });
+        //Creating CommissionType List
+        var CommissionTypeSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RctName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetCommissionTypeList"
+        };
+        var CommissionTypeAdaptor = new $.jqx.dataAdapter(CommissionTypeSource)
+        $("#CommissionTypeIds").jqxDropDownList({ checkboxes: true, source: CommissionTypeAdaptor, displayMember: "RctName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#CommissionTypeIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#CommissionTypeIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            CommissionTypeIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    CommissionTypeIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    CommissionTypeIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcCommissionTypeId').value = checkedItems;
+        });
+        //Creating DeviceType List
+        var DeviceTypeSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RdtName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetDeviceTypeList"
+        };
+        var DeviceTypeAdaptor = new $.jqx.dataAdapter(DeviceTypeSource)
+        $("#DeviceTypeIds").jqxDropDownList({ checkboxes: true, source: DeviceTypeAdaptor, displayMember: "RdtName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#DeviceTypeIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#DeviceTypeIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            DeviceTypeIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    DeviceTypeIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    DeviceTypeIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcDeviceTypeId').value = checkedItems;
+        });
+        //Creating Payment commissionType List
+        var PaymentCommissionTypeSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RctName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetPaymentCommissionTypeList"
+        };
+        var PaymentCommissionTypeAdaptor = new $.jqx.dataAdapter(PaymentCommissionTypeSource)
+        $("#PaymentCommissionTypeIds").jqxDropDownList({ checkboxes: true, source: PaymentCommissionTypeAdaptor, displayMember: "RctName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#PaymentCommissionTypeIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#PaymentCommissionTypeIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            PaymentCommissionTypeIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    PaymentCommissionTypeIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    PaymentCommissionTypeIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcPaymentCommissionTypeId').value = checkedItems;
+        });
+        //Creating Product Code List
+        var ProductCodeSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RpcProductCode', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetProductCodeList"
+        };
+        var ProductCodeAdaptor = new $.jqx.dataAdapter(ProductCodeSource)
+        $("#ProductCodeIds").jqxDropDownList({ checkboxes: true, source: ProductCodeAdaptor, displayMember: "RpcProductCode", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#ProductCodeIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#ProductCodeIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            ProductCodeIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    ProductCodeIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    ProductCodeIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcProductCodeId').value = checkedItems;
+        });
+        //Creating Activity Type List
+        var ActivityTypeSource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RatName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetActivityTypeList"
+        };
+        var ActivityTypeAdaptor = new $.jqx.dataAdapter(ActivityTypeSource)
+        $("#ActivityTypeIds").jqxDropDownList({ checkboxes: true, source: ActivityTypeAdaptor, displayMember: "RatName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#ActivityTypeIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#ActivityTypeIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            ActivityTypeIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    ActivityTypeIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    ActivityTypeIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcActivityTypeId').value = checkedItems;
+        });
+        //Creating Rejection Reason List : RejectionReasonIds
+
+        var RejectionReasonSource = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'RrrReason', type: 'string' }
+                ],
+                id: "Id",
+                url: "/LClaims/GetRejectionReasonList"
+            };
+
+            var RejectionReasonAdaptor = new $.jqx.dataAdapter(RejectionReasonSource)
+            $("#RejectionReasonIds").jqxDropDownList({ checkboxes: true, source: RejectionReasonAdaptor, displayMember: "RrrReason", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+            $("#RejectionReasonIds").on('checkChange', function (event) {
+                var args = event.args;
+                var items = $("#RejectionReasonIds").jqxDropDownList('getCheckedItems');
+
+                var checkedItems = "";
+                RejectionReasonIdsList = '';
+                $.each(items, function (index) {
+                    if (index < items.length - 1) {
+                        checkedItems += this.value + ",";
+                        RejectionReasonIdsList += this.index + ",";
+                    }
+                    else {
+                        checkedItems += this.value;
+                        RejectionReasonIdsList += this.index;
+                    }
+
+                });
+                document.getElementById('LcRejectionReasonId').value = checkedItems;
+            });
+
+        //Creating Created By List
+        var CreatedBySource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'UserName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LClaims/GetCreatedByList"
+        };
+        var CreatedByAdaptor = new $.jqx.dataAdapter(CreatedBySource)
+        $("#CreatedByIds").jqxDropDownList({ checkboxes: true, source: CreatedByAdaptor, displayMember: "UserName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+        $("#CreatedByIds").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#CreatedByIds").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            CreatedByIdsList = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    CreatedByIdsList += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    CreatedByIdsList += this.index;
+                }
+
+            });
+            document.getElementById('LcCreatedById').value = checkedItems;
+        });
+
+        //This line adds jqxDattime control to get start date value
+        $("#Startdate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Startdate').on('change', function (event) {
+            var jsDate = event.args.date;
+            StartDateJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('StartDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+            //var EndDate = jsDate.setMonth(jsDate.getMonth()+3)
+           // $('#Enddate').jqxDateTimeInput('setMinDate', jsDate);
+            //$('#Enddate').jqxDateTimeInput('setMaxDate', new Date(year, month + 4, day));
+
+        });
+
+      //  DisplayButtons()
+        $("#Enddate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Enddate').on('change', function (event) {
+            var jsDate = event.args.date;
+            EndDateJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('EndDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+           // var StartDate = jsDate.setMonth(jsDate.getMonth() -3)
+           // $('#Startdate').jqxDateTimeInput('setMaxDate', jsDate);
+            //$('#Startdate').jqxDateTimeInput('setMinDate', new Date(year, month - 4, day));
+        });
+
+        $("#AllocationDateFrom").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#AllocationDateFrom').on('change', function (event) {
+            var jsDate = event.args.date;
+            AllocationDateFromJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AllocationDateFrom').value = date
+        });
+
+        $("#AllocationDateTo").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#AllocationDateTo').on('change', function (event) {
+            var jsDate = event.args.date;
+            AllocationDateToJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AllocationDateTo').value = date
+        });
+
+        $("#AlreadyPaidDateFrom").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#AlreadyPaidDateFrom').on('change', function (event) {
+            var jsDate = event.args.date;
+            AlreadyPaidDateFromJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AlreadyPaidDateFrom').value = date
+        });
+
+        $("#AlreadyPaidDateTo").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#AlreadyPaidDateTo').on('change', function (event) {
+            var jsDate = event.args.date;
+            AlreadyPaidDateToJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AlreadyPaidDateTo').value = date
+        });
+
+        $("#ConnectionDateFrom").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#ConnectionDateFrom').on('change', function (event) {
+            var jsDate = event.args.date;
+            ConnectionDateFromJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            document.getElementById('ConnectionDateFrom').value = date
+        });
+
+        $("#ConnectionDateTo").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#ConnectionDateTo').on('change', function (event) {
+            var jsDate = event.args.date;
+            ConnectionDateToJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('ConnectionDateTo').value = date
+        });
+
+        $("#LastReclaimDateFrom").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#LastReclaimDateFrom').on('change', function (event) {
+            var jsDate = event.args.date;
+            LastReclaimDateFromJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LastReclaimDateFrom').value = date
+        });
+
+        $("#LastReclaimDateTo").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#LastReclaimDateTo').on('change', function (event) {
+            var jsDate = event.args.date;
+            LastReclaimDateToJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LastReclaimDateTo').value = date
+        });
+
+        $("#OrderDateFrom").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#OrderDateFrom').on('change', function (event) {
+            var jsDate = event.args.date;
+            OrderDateFromJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('OrderDateFrom').value = date
+        });
+
+        $("#OrderDateTo").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#OrderDateTo').on('change', function (event) {
+            var jsDate = event.args.date;
+            OrderDateToJS = jsDate;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('OrderDateTo').value = date
+        });
+
+        var d = new Date();
+        d.setMonth(d.getMonth() - 3);
+        if (sessionStorage.StartDateInClaims) {
+            $('#Startdate').jqxDateTimeInput('setDate', new Date(sessionStorage.StartDateInClaims));
+        }
+        else {
+            $('#Startdate').jqxDateTimeInput('setDate', d);//three months before date
+        }
+
+        if (sessionStorage.EndDateInClaims) {
+            $('#Enddate').jqxDateTimeInput('setDate', new Date(sessionStorage.EndDateInClaims));
+        }
+        else {
+            $('#Enddate').jqxDateTimeInput('setDate', new Date());//present date
+        }
+        $("#StartDate").prop('required', true);
+        $("#EndDate").prop('required', true);
+        if (sessionStorage.AllocationDateFrom) {
+            $('#AllocationDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.AllocationDateFrom));
+        }
+        if (sessionStorage.AllocationDateTo) {
+            $('#AllocationDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.AllocationDateTo));
+        }
+        if (sessionStorage.AlreadyPaidDateFrom) {
+            $('#AlreadyPaidDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.AlreadyPaidDateFrom));
+        }
+        if (sessionStorage.AlreadyPaidDateTo) {
+            $('#AlreadyPaidDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.AlreadyPaidDateTo));
+        }
+        if (sessionStorage.ConnectionDateFrom) {
+            $('#ConnectionDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.ConnectionDateFrom));
+        }
+        if (sessionStorage.ConnectionDateTo) {
+            $('#ConnectionDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.ConnectionDateTo));
+        }
+        if (sessionStorage.LastReclaimDateFrom) {
+            $('#LastReclaimDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.LastReclaimDateFrom));
+        }
+        if (sessionStorage.LastReclaimDateTo) {
+            $('#LastReclaimDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.LastReclaimDateTo));
+        }
+        if (sessionStorage.OrderDateFrom) {
+            $('#OrderDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.OrderDateFrom));
+        }
+        if (sessionStorage.OrderDateTo) {
+            $('#OrderDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.OrderDateTo));
+        }
+
+
+        if (sessionStorage.SelectedPayeeIndexesInClaims)
+        {
+            document.getElementById('PayeeId').value = sessionStorage.SelectedPayeeDropdownListInClaims;
+            document.getElementById('AllocationDateFilter').value = sessionStorage.AllocationDateFilter;
+            ShowHideControls($('#AllocationDateFilter'), $('#AllocationDateTo'));
+            //if (sessionStorage.AllocationDateFrom) { $('#AllocationDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.AllocationDateFrom)); }
+            //if (sessionStorage.AllocationDateTo) { $('#AllocationDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.AllocationDateTo)); }
+            document.getElementById('AlreadyPaidDateFilter').value = sessionStorage.AlreadyPaidDateFilter;
+            ShowHideControls($('#AlreadyPaidDateFilter'), $('#AlreadyPaidDateTo'));
+            //if (sessionStorage.AlreadyPaidDateFrom) { $('#AlreadyPaidDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.AlreadyPaidDateFrom)); }
+            //if (sessionStorage.AlreadyPaidDateTo) { $('#AlreadyPaidDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.AlreadyPaidDateTo)); }
+            document.getElementById('ConnectionDateFilter').value = sessionStorage.ConnectionDateFilter;
+            ShowHideControls($('#ConnectionDateFilter'), $('#ConnectionDateTo'));
+            //if (sessionStorage.ConnectionDateFrom) { $('#ConnectionDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.ConnectionDateFrom)); }
+            //if (sessionStorage.ConnectionDateTo) { $('#ConnectionDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.ConnectionDateTo)); }
+            document.getElementById('LastReclaimDateFilter').value = sessionStorage.LastReclaimDateFilter;
+            ShowHideControls($('#LastReclaimDateFilter'), $('#LastReclaimDateTo'));
+            //if (sessionStorage.LastReclaimDateFrom) { $('#LastReclaimDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.LastReclaimDateFrom)); }
+            //if (sessionStorage.LastReclaimDateTo) { $('#LastReclaimDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.LastReclaimDateTo)); }
+            document.getElementById('OrderDateFilter').value = sessionStorage.OrderDateFilter;
+            ShowHideControls($('#OrderDateFilter'), $('#OrderDateTo'));
+            //if (sessionStorage.OrderDateFrom) { $('#OrderDateFrom').jqxDateTimeInput('setDate', new Date(sessionStorage.OrderDateFrom)); }
+            //if (sessionStorage.OrderDateTo) { $('#OrderDateTo').jqxDateTimeInput('setDate', new Date(sessionStorage.OrderDateTo)); }
+
+            document.getElementById('AlreadyPaidAmountFilter').value = sessionStorage.AlreadyPaidAmountFilter;
+            ShowHideControls($('#AlreadyPaidAmountFilter'), $('#AlreadyPaidAmountToDiv'));
+            document.getElementById('AlreadyPaidAmountFrom').value = sessionStorage.AlreadyPaidAmountFrom;
+            document.getElementById('AlreadyPaidAmountTo').value = sessionStorage.AlreadyPaidAmountTo;
+            document.getElementById('ClawbackAmountFilter').value = sessionStorage.ClawbackAmountFilter;
+            ShowHideControls($('#ClawbackAmountFilter'), $('#ClawbackAmountToDiv'));
+            document.getElementById('ClawbackAmountFrom').value = sessionStorage.ClawbackAmountFrom;
+            document.getElementById('ClawbackAmountTo').value = sessionStorage.ClawbackAmountTo;
+            document.getElementById('ExpectedCommissionAmountFilter').value = sessionStorage.ExpectedCommissionAmountFilter;
+            ShowHideControls($('#ExpectedCommissionAmountFilter'), $('#ExpectedCommissionAmountToDiv'));
+            document.getElementById('ExpectedCommissionAmountFrom').value = sessionStorage.ExpectedCommissionAmountFrom;
+            document.getElementById('ExpectedCommissionAmountTo').value = sessionStorage.ExpectedCommissionAmountTo;
+            document.getElementById('PaymentAmountFilter').value = sessionStorage.PaymentAmountFilter;
+            ShowHideControls($('#PaymentAmountFilter'), $('#PaymentAmountToDiv'));
+            document.getElementById('PaymentAmountFrom').value = sessionStorage.PaymentAmountFrom;
+            document.getElementById('PaymentAmountTo').value = sessionStorage.PaymentAmountTo;
+
+            document.getElementById('A01Filter').value = sessionStorage.ParamA01Filter;
+            document.getElementById('A01').value = sessionStorage.ParamA01;
+            document.getElementById('A02Filter').value = sessionStorage.ParamA02Filter;
+            document.getElementById('A02').value = sessionStorage.ParamA02;
+            document.getElementById('A03Filter').value = sessionStorage.ParamA03Filter;
+            document.getElementById('A03').value = sessionStorage.ParamA03;
+            document.getElementById('A04Filter').value = sessionStorage.ParamA04Filter;
+            document.getElementById('A04').value = sessionStorage.ParamA04;
+            document.getElementById('A05Filter').value = sessionStorage.ParamA05Filter;
+            document.getElementById('A05').value = sessionStorage.ParamA05;
+            document.getElementById('A06Filter').value = sessionStorage.ParamA06Filter;
+            document.getElementById('A06').value = sessionStorage.ParamA06;
+            document.getElementById('A07Filter').value = sessionStorage.ParamA07Filter;
+            document.getElementById('A07').value = sessionStorage.ParamA07;
+            document.getElementById('A08Filter').value = sessionStorage.ParamA08Filter;
+            document.getElementById('A08').value = sessionStorage.ParamA08;
+            document.getElementById('A09Filter').value = sessionStorage.ParamA09Filter;
+            document.getElementById('A09').value = sessionStorage.ParamA09;
+            document.getElementById('A10Filter').value = sessionStorage.ParamA10Filter;
+            document.getElementById('A10').value = sessionStorage.ParamA10;
+
+            document.getElementById('BANFilter').value = sessionStorage.BANFilter;
+            document.getElementById('BAN').value = sessionStorage.BAN;
+            document.getElementById('CustomerNameFilter').value = sessionStorage.CustomerNameFilter;
+            document.getElementById('CustomerName').value = sessionStorage.CustomerName;
+            document.getElementById('IMEIFilter').value = sessionStorage.IMEIFilter;
+            document.getElementById('IMEI').value = sessionStorage.IMEI;
+            document.getElementById('MSISDNFilter').value = sessionStorage.MSISDNFilter;
+            document.getElementById('MSISDN').value = sessionStorage.MSISDN;
+            document.getElementById('OrderNumberFilter').value = sessionStorage.OrderNumberFilter;
+            document.getElementById('OrderNumber').value = sessionStorage.OrderNumber;
+            document.getElementById('PaymentBatchNumberFilter').value = sessionStorage.PaymentBatchNumberFilter;
+            document.getElementById('PaymentBatchNumber').value = sessionStorage.PaymentBatchNumber;
+            document.getElementById('ReasonNonAutoPaymentFilter').value = sessionStorage.ReasonNonAutoPaymentFilter;
+            document.getElementById('ReasonNonAutoPayment').value = sessionStorage.ReasonNonAutoPayment;
+            document.getElementById('ClaimBatchNumberFilter').value = sessionStorage.ClaimBatchNumberFilter;
+            document.getElementById('ClaimBatchNumber').value = sessionStorage.ClaimBatchNumber;
+            document.getElementById('ClawbackPayeeCodeFilter').value = sessionStorage.ClawbackPayeeCodeFilter;
+            document.getElementById('ClawbackPayeeCode').value = sessionStorage.ClawbackPayeeCode;
+
+            document.getElementById('LcBrandId').value = sessionStorage.BrandId;
+            document.getElementById('LcCommissionTypeId').value = sessionStorage.CommissionTypeID;
+            document.getElementById('LcDeviceTypeId').value = sessionStorage.DeviceTypeId;
+            document.getElementById('LcPaymentCommissionTypeId').value = sessionStorage.PaymentCommissionTypeId;
+            document.getElementById('LcProductCodeId').value = sessionStorage.ProductCodeId;
+            document.getElementById('LcCreatedById').value = sessionStorage.CreatedById;
+            document.getElementById('LcActivityTypeId').value = sessionStorage.ActivityTypeId;
+            document.getElementById('LcRejectionReasonId').value = sessionStorage.RejectionReasonId;
+            document.getElementById('StatusFilter').value = sessionStorage.StatusFilter;
+            document.getElementById('Status').value = sessionStorage.Status;
+            document.getElementById('AlreadyPaidDealer').value = sessionStorage.AlreadyPaidDealer;
+
+            PayeeCheckedIndexes = String(sessionStorage.SelectedPayeeIndexesInClaims);
+            BrandIdsList = String(sessionStorage.BrandIdsList);
+            CommissionTypeIdsList = String(sessionStorage.CommissionTypeIdsList);
+            DeviceTypeIdsList = String(sessionStorage.DeviceTypeIdsList);
+            PaymentCommissionTypeIdsList = String(sessionStorage.PaymentCommissionTypeIdsList);
+            ProductCodeIdsList = String(sessionStorage.ProductCodeIdsList);
+            CreatedByIdsList = String(sessionStorage.CreatedByIdsList);
+            ActivityTypeIdsList = String(sessionStorage.ActivityTypeIdsList);
+            RejectionReasonIdsList = String(sessionStorage.RejectionReasonIdsList);
+            sessionStorage.removeItem('SelectedPayeeDropdownListInClaims');
+            sessionStorage.removeItem('SelectedPayeeIndexesInClaims');
+            sessionStorage.removeItem('EndDateInClaims');
+            sessionStorage.removeItem('StartDateInClaims');
+
+            sessionStorage.removeItem('AllocationDateFilter');
+            sessionStorage.removeItem('AllocationDateFrom');
+            sessionStorage.removeItem('AllocationDateTo');
+            sessionStorage.removeItem('AlreadyPaidDateFilter');
+            sessionStorage.removeItem('AlreadyPaidDateFrom');
+            sessionStorage.removeItem('AlreadyPaidDateTo');
+            sessionStorage.removeItem('ConnectionDateFilter');
+            sessionStorage.removeItem('ConnectionDateFrom');
+            sessionStorage.removeItem('ConnectionDateTo');
+            sessionStorage.removeItem('LastReclaimDateFilter');
+            sessionStorage.removeItem('LastReclaimDateFrom');
+            sessionStorage.removeItem('LastReclaimDateTo');
+            sessionStorage.removeItem('OrderDateFilter');
+            sessionStorage.removeItem('OrderDateFrom');
+            sessionStorage.removeItem('OrderDateTo');
+
+            sessionStorage.removeItem('AlreadyPaidAmountFilter');
+            sessionStorage.removeItem('AlreadyPaidAmountFrom');
+            sessionStorage.removeItem('AlreadyPaidAmountTo');
+            sessionStorage.removeItem('ClawbackAmountFilter');
+            sessionStorage.removeItem('ClawbackAmountFrom');
+            sessionStorage.removeItem('ClawbackAmountTo');
+            sessionStorage.removeItem('ExpectedCommissionAmountFilter');
+            sessionStorage.removeItem('ExpectedCommissionAmountFrom');
+            sessionStorage.removeItem('ExpectedCommissionAmountTo');
+            sessionStorage.removeItem('PaymentAmountFilter');
+            sessionStorage.removeItem('PaymentAmountFrom');
+            sessionStorage.removeItem('PaymentAmountTo');
+
+            sessionStorage.removeItem('ParamA01Filter');
+            sessionStorage.removeItem('ParamA01');
+            sessionStorage.removeItem('ParamA02Filter');
+            sessionStorage.removeItem('ParamA02');
+            sessionStorage.removeItem('ParamA03Filter');
+            sessionStorage.removeItem('ParamA03');
+            sessionStorage.removeItem('ParamA04Filter');
+            sessionStorage.removeItem('ParamA04');
+            sessionStorage.removeItem('ParamA05Filter');
+            sessionStorage.removeItem('ParamA05');
+            sessionStorage.removeItem('ParamA06Filter');
+            sessionStorage.removeItem('ParamA06');
+            sessionStorage.removeItem('ParamA07Filter');
+            sessionStorage.removeItem('ParamA07');
+            sessionStorage.removeItem('ParamA08Filter');
+            sessionStorage.removeItem('ParamA08');
+            sessionStorage.removeItem('ParamA09Filter');
+            sessionStorage.removeItem('ParamA09');
+            sessionStorage.removeItem('ParamA010Filter');
+            sessionStorage.removeItem('ParamA010');
+
+            sessionStorage.removeItem('BANFilter');
+            sessionStorage.removeItem('BAN');
+            sessionStorage.removeItem('CustomerNameFilter');
+            sessionStorage.removeItem('CustomerName');
+            sessionStorage.removeItem('IMEIFilter');
+            sessionStorage.removeItem('IMEI');
+            sessionStorage.removeItem('MSISDNFilter');
+            sessionStorage.removeItem('MSISDN');
+            sessionStorage.removeItem('OrderNumberFilter');
+            sessionStorage.removeItem('OrderNumber');
+            sessionStorage.removeItem('PaymentBatchNumberFilter');
+            sessionStorage.removeItem('PaymentBatchNumber');
+            sessionStorage.removeItem('ReasonNonAutoPaymentFilter');
+            sessionStorage.removeItem('ReasonNonAutoPayment');
+            sessionStorage.removeItem('ClaimBatchNumberFilter');
+            sessionStorage.removeItem('ClaimBatchNumber');
+            sessionStorage.removeItem('ClawbackPayeeCodeFilter');
+            sessionStorage.removeItem('ClawbackPayeeCode');
+            sessionStorage.removeItem('StatusFilter');
+            sessionStorage.removeItem('Status');
+            sessionStorage.removeItem('AlreadyPaidDealer');
+
+            sessionStorage.removeItem('BrandId');
+            sessionStorage.removeItem('CommissionTypeID');
+            sessionStorage.removeItem('DeviceTypeId');
+            sessionStorage.removeItem('PaymentCommissionTypeId');
+            sessionStorage.removeItem('ProductCodeId');
+            sessionStorage.removeItem('CreatedById');
+            sessionStorage.removeItem('ActivityTypeId');
+            sessionStorage.removeItem('RejectionReasonId');
+            FnGetGrid();
+        }
+
+        $("#listboxPayee").on('bindingComplete', function (event) {
+            if (PayeeCheckedIndexes) {
+                var PayeeArray = String(PayeeCheckedIndexes).split(',');
+                for (var i = 0; i < PayeeArray.length; ++i) {
+                    $("#listboxPayee").jqxDropDownList('checkIndex', Number(PayeeArray[i]));
+                }
+            }
+        });
+        $("#BrandIds").on('bindingComplete', function (event) {
+            if (BrandIdsList) {
+                var BrandArray = String(BrandIdsList).split(',');
+                for (var i = 0; i < BrandArray.length; ++i) {
+                    $("#BrandIds").jqxDropDownList('checkIndex', Number(BrandArray[i]));
+                }
+            }
+        });
+        $("#CommissionTypeIds").on('bindingComplete', function (event) {
+            if (CommissionTypeIdsList) {
+                var ComTypeArray = String(CommissionTypeIdsList).split(',');
+                for (var i = 0; i < ComTypeArray.length; ++i) {
+                    $("#CommissionTypeIds").jqxDropDownList('checkIndex', Number(ComTypeArray[i]));
+                }
+            }
+        });
+        $("#DeviceTypeIds").on('bindingComplete', function (event) {
+            if (DeviceTypeIdsList) {
+                var DeviceArray = String(DeviceTypeIdsList).split(',');
+                for (var i = 0; i < DeviceArray.length; ++i) {
+                    $("#DeviceTypeIds").jqxDropDownList('checkIndex', Number(DeviceArray[i]));
+                }
+            }
+        });
+        $("#PaymentCommissionTypeIds").on('bindingComplete', function (event) {
+            if (PaymentCommissionTypeIdsList) {
+                var PaycomArray = String(PaymentCommissionTypeIdsList).split(',');
+                for (var i = 0; i < PaycomArray.length; ++i) {
+                    $("#PaymentCommissionTypeIds").jqxDropDownList('checkIndex', Number(PaycomArray[i]));
+                }
+            }
+        });
+        $("#ProductCodeIds").on('bindingComplete', function (event) {
+            if (ProductCodeIdsList) {
+                var ProdcodeArray = String(ProductCodeIdsList).split(',');
+                for (var i = 0; i < ProdcodeArray.length; ++i) {
+                    $("#ProductCodeIds").jqxDropDownList('checkIndex', Number(ProdcodeArray[i]));
+                }
+            }
+        });
+        $("#CreatedByIds").on('bindingComplete', function (event) {
+            if (CreatedByIdsList) {
+                var createdbyArray = String(CreatedByIdsList).split(',');
+                for (var i = 0; i < createdbyArray.length; ++i) {
+                    $("#CreatedByIds").jqxDropDownList('checkIndex', Number(createdbyArray[i]));
+                }
+            }
+        });
+        $("#ActivityTypeIds").on('bindingComplete', function (event) {
+            if (ActivityTypeIdsList) {
+                var ActTypeArray = String(ActivityTypeIdsList).split(',');
+                for (var i = 0; i < ActTypeArray.length; ++i) {
+                    $("#ActivityTypeIds").jqxDropDownList('checkIndex', Number(ActTypeArray[i]));
+                }
+            }
+        });
+        $("#RejectionReasonIds").on('bindingComplete', function (event) {
+            if (RejectionReasonIdsList) {
+                var RejReasonArray = String(RejectionReasonIdsList).split(',');
+                for (var i = 0; i < RejReasonArray.length; ++i) {
+                    $("#RejectionReasonIds").jqxDropDownList('checkIndex', Number(RejReasonArray[i]));
+                }
+            }
+        });
+    });
+
+
+    //this function will load grid in view
+
+
+    function FnGetGrid()
+    {
+
+        var StartDatetime = document.getElementById('StartDate').value;
+        var EndDatetime = document.getElementById('EndDate').value ;
+
+        var PayeeId = document.getElementById('PayeeId').value;
+
+
+        //var A01Filter = document.getElementById('A01Filter').value;
+        //var A01 = document.getElementById('A01').value;
+            //Convert companySpecificData to Array
+            var DataArray = @Html.Raw(Json.Encode(CompanySpecificData));
+
+
+            var columns = [];
+            columns.push({ text: 'Reclaim', datafield: 'Reclaim', editable: false, width: '15%' });
+            columns.push({ text: 'Claim Number', datafield: 'ClaimNumber', editable: false, width: '15%' });
+            columns.push({ text: 'Payee Firstname', datafield: 'Payeefirstname', editable: false, width: '15%' });
+            columns.push({ text: 'Payee Lastname', datafield: 'PayeeLastname', editable: false, width: '15%' });
+            for (var i = 0; i < DataArray.length; ++i)
+            {
+                var ColumnLabel = DataArray[i].LcscColumnName;
+                datafields.push({ name: DataArray[i].LcscColumnName, type: DataArray[i].DataType });
+                if (DataArray[i].LcscLabel)
+                {
+                    ColumnLabel = DataArray[i].LcscLabel;
+                }
+
+                if (DataArray[i].LcscColumnName == 'PayeeId')
+                {
+                    columns.push({ text: ColumnLabel, datafield: 'PayeeName', editable: false, width: '15%' });
+                }
+                if (DataArray[i].LcscColumnName !== 'PayeeId')
+                {
+                    columns.push({ text: ColumnLabel, datafield: DataArray[i].LcscColumnName, editable: false, width: '15%' });
+                }
+
+            }
+            datafields.push({ name: 'Reclaim', type: 'string' });
+            datafields.push({ name: 'ClaimNumber', type: 'string' });
+            datafields.push({ name: 'Payeefirstname', type: 'string' });
+            datafields.push({ name: 'PayeeLastname', type: 'string' });
+            datafields.push({ name: 'CreatedBy', type: 'string' });
+            datafields.push({ name: 'CurrentOwner', type: 'string' });
+            datafields.push({ name: 'CreatedDateTime', type: 'string' });
+            datafields.push({ name: 'Status', type: 'string' });
+            datafields.push({ name: 'PayeeName', type: 'string' });
+            datafields.push({ name: 'Comments', type: 'string' });
+            
+            columns.push({ text: 'CreatedBy', datafield: 'CreatedBy', editable: false, width: '15%' });
+            columns.push({ text: 'CurrentOwner', datafield: 'CurrentOwner', editable: false, width: '15%' });
+            columns.push({ text: 'Created On', datafield: 'CreatedDateTime', editable: false, width: '15%' });
+            columns.push({ text: 'Status', datafield: 'Status', editable: false, width: '15%' });
+            columns.push({ text: 'Comments', datafield: 'Comments', editable: false, width: '25%' });
+
+            $.ajax({
+                data: { PayeeId: PayeeId, StartDate: StartDatetime, EndDate: EndDatetime },//, CompanyId: CompanyId },
+                url: "/LClaims/GetClaimsReportscounts",
+                dataType: "json",
+                type: "POST",
+                success: function (counts) {
+                    //    $.ajax({
+                    //        data: { PayeeId: PayeeId, StartDate: StartDatetime, EndDate: EndDatetime},
+                    //url: "/LClaims/GetClaimsReports",
+                    //dataType: "json",
+                    //type: "POST",
+                    //success: function (data) {
+                    var sourcea = {
+                        dataType: "json",
+                        //dataFields: [
+                        //    { name: 'Id', type: 'int' },
+                        //    { name: 'Status', type: 'string' },
+                        //    { name: 'A01', type: 'string' },
+                        //    { name: 'A02', type: 'string' },
+                        //    { name: 'A03', type: 'string' },
+                        //    { name: 'A04', type: 'string' },
+                        //    { name: 'A05', type: 'string' },
+                        //    { name: 'A06', type: 'string' },
+                        //    { name: 'A07', type: 'string' },
+                        //    { name: 'A08', type: 'string' },
+                        //    { name: 'A09', type: 'string' },
+                        //    { name: 'A10', type: 'string' },
+                        //    { name: 'AlreadyPaidDate', type: 'date' },
+                        //    { name: 'AlreadyPaidDealer', type: 'string' },
+                        //    { name: 'BAN', type: 'string' },
+                        //    { name: 'BrandId', type: 'string' },
+                        //    { name: 'ClaimBatchNumber', type: 'int' },
+                        //    { name: 'ClawbackAmount', type: 'decimal' },
+                        //    { name: 'ClawbackPayeeCode', type: 'string' },
+                        //    { name: 'CommissionTypeId', type: 'string' },
+                        //    { name: 'ConnectionDate', type: 'date' },
+                        //    { name: 'CreatedById', type: 'string' },
+                        //    { name: 'CustomerName', type: 'string' },
+                        //    { name: 'DeviceTypeId', type: 'string' },
+                        //    { name: 'ExpectedCommissionAmount', type: 'decimal' },
+                        //    { name: 'IMEI', type: 'string' },
+                        //    { name: 'LastReclaimDate', type: 'date' },
+                        //    { name: 'MSISDN', type: 'string' },
+                        //    { name: 'OrderDate', type: 'date' },
+                        //    { name: 'OrderNumber', type: 'string' },
+                        //    { name: 'ParentCode', type: 'string' },
+                        //    { name: 'ParentName', type: 'Int' },
+                        //    { name: 'PayeeCode', type: 'string' },
+                        //    { name: 'PayeeName', type: 'string' },
+                        //    { name: 'PaymentAmount', type: 'decimal' },
+                        //    { name: 'PaymentBatchNumber', type: 'int' },
+                        //    { name: 'PaymentCommissionTypeId', type: 'string' },
+                        //    { name: 'ProductCode', type: 'string' },
+                        //    { name: 'ReasonNonAutoPayment', type: 'string' },
+                        //    { name: 'ActivityTypeId', type: 'string' },
+                        //    { name: 'AllocationDate', type: 'date' },
+                        //    { name: 'AlreadyPaidAmount', type: 'decimal' },
+                        //    { name: 'WFStatus', type: 'string' },
+                        //    { name: 'RejectionReasonId', type: 'string' },
+                        //],
+                        // localdata: data,
+                        dataFields: datafields,
+                        data: {
+                            PayeeId: PayeeId, StartDate: StartDatetime, EndDate: EndDatetime,
+                            A01Filter: document.getElementById('A01Filter').value, A01: document.getElementById('A01').value, A02Filter: document.getElementById('A02Filter').value, A02: document.getElementById('A02').value,
+                            A03Filter: document.getElementById('A03Filter').value, A03: document.getElementById('A03').value, A04Filter: document.getElementById('A04Filter').value, A04: document.getElementById('A04').value,
+                            A05Filter: document.getElementById('A05Filter').value, A05: document.getElementById('A05').value, A06Filter: document.getElementById('A06Filter').value, A06: document.getElementById('A06').value,
+                            A07Filter: document.getElementById('A07Filter').value, A07: document.getElementById('A07').value, A08Filter: document.getElementById('A08Filter').value, A08: document.getElementById('A08').value,
+                            A09Filter: document.getElementById('A09Filter').value, A09: document.getElementById('A09').value, A10Filter: document.getElementById('A10Filter').value, A10: document.getElementById('A10').value,
+                            AllocationDateFilter: document.getElementById('AllocationDateFilter').value, AllocationDateFrom: document.getElementById('AllocationDateFrom').value, AllocationDateTo: document.getElementById('AllocationDateTo').value,
+                            AlreadyPaidDateFilter: document.getElementById('AlreadyPaidDateFilter').value, AlreadyPaidDateFrom: document.getElementById('AlreadyPaidDateFrom').value, AlreadyPaidDateTo: document.getElementById('AlreadyPaidDateTo').value,
+                            ConnectionDateFilter: document.getElementById('ConnectionDateFilter').value, ConnectionDateFrom: document.getElementById('ConnectionDateFrom').value, ConnectionDateTo: document.getElementById('ConnectionDateTo').value,
+                            LastReclaimDateFilter: document.getElementById('LastReclaimDateFilter').value, LastReclaimDateFrom: document.getElementById('LastReclaimDateFrom').value, LastReclaimDateTo: document.getElementById('LastReclaimDateTo').value,
+                            OrderDateFilter: document.getElementById('OrderDateFilter').value, OrderDateFrom: document.getElementById('OrderDateFrom').value, OrderDateTo: document.getElementById('OrderDateTo').value,
+                            AlreadyPaidAmountFilter: document.getElementById('AlreadyPaidAmountFilter').value, AlreadyPaidAmountFrom: document.getElementById('AlreadyPaidAmountFrom').value, AlreadyPaidAmountTo: document.getElementById('AlreadyPaidAmountTo').value,
+                            ClawbackAmountFilter: document.getElementById('ClawbackAmountFilter').value, ClawbackAmountFrom: document.getElementById('ClawbackAmountFrom').value, ClawbackAmountTo: document.getElementById('ClawbackAmountTo').value,
+                            ExpectedCommissionAmountFilter: document.getElementById('ExpectedCommissionAmountFilter').value, ExpectedCommissionAmountFrom: document.getElementById('ExpectedCommissionAmountFrom').value, ExpectedCommissionAmountTo: document.getElementById('ExpectedCommissionAmountTo').value,
+                            PaymentAmountFilter: document.getElementById('PaymentAmountFilter').value, PaymentAmountFrom: document.getElementById('PaymentAmountFrom').value, PaymentAmountTo: document.getElementById('PaymentAmountTo').value,
+                            BANFilter: document.getElementById('BANFilter').value, BAN: document.getElementById('BAN').value, CustomerNameFilter: document.getElementById('CustomerNameFilter').value, CustomerName: document.getElementById('CustomerName').value,
+                            IMEIFilter: document.getElementById('IMEIFilter').value, IMEI: document.getElementById('IMEI').value, MSISDNFilter: document.getElementById('MSISDNFilter').value, MSISDN: document.getElementById('MSISDN').value,
+                            OrderNumberFilter: document.getElementById('OrderNumberFilter').value, OrderNumber: document.getElementById('OrderNumber').value, PaymentBatchNumberFilter: document.getElementById('PaymentBatchNumberFilter').value, PaymentBatchNumber: document.getElementById('PaymentBatchNumber').value,
+                            ReasonNonAutoPaymentFilter: document.getElementById('ReasonNonAutoPaymentFilter').value, ReasonNonAutoPayment: document.getElementById('ReasonNonAutoPayment').value, ClaimBatchNumberFilter: document.getElementById('ClaimBatchNumberFilter').value, ClaimBatchNumber: document.getElementById('ClaimBatchNumber').value,
+                            ClawbackPayeeCodeFilter: document.getElementById('ClawbackPayeeCodeFilter').value, ClawbackPayeeCode: document.getElementById('ClawbackPayeeCode').value, BrandIds: document.getElementById('LcBrandId').value, CommissionTypeIds: document.getElementById('LcCommissionTypeId').value,
+                            DeviceTypeIds: document.getElementById('LcDeviceTypeId').value, PaymentCommissionTypeIds: document.getElementById('LcPaymentCommissionTypeId').value, ProductCodeIds: document.getElementById('LcProductCodeId').value, StatusFilter: document.getElementById('StatusFilter').value,
+                            Status: document.getElementById('Status').value, CreatedByIds: document.getElementById('LcCreatedById').value, ActivityTypeIds: document.getElementById('LcActivityTypeId').value, AlreadyPaidDealer: document.getElementById('AlreadyPaidDealer').value,RejectionReasonIds:document.getElementById('LcRejectionReasonId').value
+
+                        },
+                        url: "/LClaims/GetClaimsReports",
+
+                        // update the grid and send a request to the api
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#ClaimsGrid").jqxGrid('updatebounddata', 'filter');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#ClaimsGrid").jqxGrid('updatebounddata', 'sort');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            sourcea.totalrecords = 0;
+                        }
+
+                    };
+                    var dataAdaptera = new $.jqx.dataAdapter(sourcea);
+
+                    //This method loads the buttons/links displayed in the action column of the grid
+                    var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                        return '<button onclick="FnDownloadFiles()" class="GridButton">Download</button>&ensp;';
+                    };
+
+                    $('#ClaimsGrid').jqxGrid({
+                        source: dataAdaptera,
+                        width: '100%',
+                        autoheight: true,
+                        pageable: true,
+                        theme: 'bootstrap',
+                        sortable: true,
+                        showtoolbar: true,
+                        editable: false,
+                        filterable: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        virtualmode: true,
+                        pagesize: 20,
+                        pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                        rowdetails: true,
+                        enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                        rendertoolbar: function (toolbar) {
+                            var container = $('<div style="margin: 5px;"></div>');
+                            toolbar.append(container);
+                            var Names = $("<div style='margin: 10px;'><b> Claims created during the period</b></div>");
+                            container.append(Names);
+
+                        },
+                        ready: function () {
+
+                        },
+                        columns:columns,
+
+                        rendergridrows: function () {
+                            return dataAdaptera.records;
+                        },
+
+                    });
+
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+    //        error: function (reponse) {
+    //            //  alert("error : " + reponse);
+    //        }
+    //    });
+
+    //}
+
+    //This method is called when auditor clicks on download button
+    function FnDownloadcsv() {
+        var StartDatetime = document.getElementById('StartDate').value
+        var EndDatetime = document.getElementById('EndDate').value
+        var PayeeId = document.getElementById('PayeeId').value;
+        var hlink = '?PayeeId=' + PayeeId + '&StartDate=' + StartDatetime + '&EndDate=' + EndDatetime ;
+        hlink = hlink + ' &A01Filter=' + document.getElementById('A01Filter').value + '&A01=' + document.getElementById('A01').value;
+        hlink = hlink + ' &A02Filter=' + document.getElementById('A02Filter').value + '&A02=' + document.getElementById('A02').value;
+        hlink = hlink + ' &A03Filter=' + document.getElementById('A03Filter').value + '&A03=' + document.getElementById('A03').value;
+        hlink = hlink + ' &A04Filter=' + document.getElementById('A04Filter').value + '&A04=' + document.getElementById('A04').value;
+        hlink = hlink + ' &A05Filter=' + document.getElementById('A05Filter').value + '&A05=' + document.getElementById('A05').value;
+        hlink = hlink + ' &A06Filter=' + document.getElementById('A06Filter').value + '&A06=' + document.getElementById('A06').value;
+        hlink = hlink + ' &A07Filter=' + document.getElementById('A07Filter').value + '&A07=' + document.getElementById('A07').value;
+        hlink = hlink + ' &A08Filter=' + document.getElementById('A08Filter').value + '&A08=' + document.getElementById('A08').value;
+        hlink = hlink + ' &A09Filter=' + document.getElementById('A09Filter').value + '&A09=' + document.getElementById('A09').value;
+        hlink = hlink + ' &A10Filter=' + document.getElementById('A10Filter').value + '&A10=' + document.getElementById('A10').value;
+        hlink = hlink + ' &AllocationDateFilter=' + document.getElementById('AllocationDateFilter').value + '&AllocationDateFrom=' + document.getElementById('AllocationDateFrom').value + '&AllocationDateTo=' + document.getElementById('AllocationDateTo').value;
+        hlink = hlink + ' &AlreadyPaidDateFilter=' + document.getElementById('AlreadyPaidDateFilter').value + '&AlreadyPaidDateFrom=' + document.getElementById('AlreadyPaidDateFrom').value + '&AlreadyPaidDateTo=' + document.getElementById('AlreadyPaidDateTo').value;
+        hlink = hlink + ' &ConnectionDateFilter=' + document.getElementById('ConnectionDateFilter').value + '&ConnectionDateFrom=' + document.getElementById('ConnectionDateFrom').value + '&ConnectionDateTo=' + document.getElementById('ConnectionDateTo').value;
+        hlink = hlink + ' &LastReclaimDateFilter=' + document.getElementById('LastReclaimDateFilter').value + '&LastReclaimDateFrom=' + document.getElementById('LastReclaimDateFrom').value + '&LastReclaimDateTo=' + document.getElementById('LastReclaimDateTo').value;
+        hlink = hlink + ' &OrderDateFilter=' + document.getElementById('OrderDateFilter').value + '&OrderDateFrom=' + document.getElementById('OrderDateFrom').value + '&OrderDateTo=' + document.getElementById('OrderDateTo').value;
+        hlink = hlink + ' &AlreadyPaidAmountFilter=' + document.getElementById('AlreadyPaidAmountFilter').value + '&AlreadyPaidAmountFrom=' + document.getElementById('AlreadyPaidAmountFrom').value + '&AlreadyPaidAmountTo=' + document.getElementById('AlreadyPaidAmountTo').value;
+        hlink = hlink + ' &ClawbackAmountFilter=' + document.getElementById('ClawbackAmountFilter').value + '&ClawbackAmountFrom=' + document.getElementById('ClawbackAmountFrom').value + '&ClawbackAmountTo=' + document.getElementById('ClawbackAmountTo').value;
+        hlink = hlink + ' &ExpectedCommissionAmountFilter=' + document.getElementById('ExpectedCommissionAmountFilter').value + '&ExpectedCommissionAmountFrom=' + document.getElementById('ExpectedCommissionAmountFrom').value + '&ExpectedCommissionAmountTo=' + document.getElementById('ExpectedCommissionAmountTo').value;
+        hlink = hlink + ' &PaymentAmountFilter=' + document.getElementById('PaymentAmountFilter').value + '&PaymentAmountFrom=' + document.getElementById('PaymentAmountFrom').value + '&PaymentAmountTo=' + document.getElementById('PaymentAmountTo').value;
+        hlink = hlink + ' &BANFilter=' + document.getElementById('BANFilter').value + '&BAN=' + document.getElementById('BAN').value + '&CustomerNameFilter=' + document.getElementById('CustomerNameFilter').value + '&CustomerName=' + document.getElementById('CustomerName').value;
+        hlink = hlink + ' &IMEIFilter=' + document.getElementById('IMEIFilter').value + '&IMEI=' + document.getElementById('IMEI').value + '&MSISDNFilter=' + document.getElementById('MSISDNFilter').value + '&MSISDN=' + document.getElementById('MSISDN').value;
+        hlink = hlink + ' &OrderNumberFilter=' + document.getElementById('OrderNumberFilter').value + '&OrderNumber=' + document.getElementById('OrderNumber').value + '&PaymentBatchNumberFilter=' + document.getElementById('PaymentBatchNumberFilter').value + '&PaymentBatchNumber=' + document.getElementById('PaymentBatchNumber').value;
+        hlink = hlink + ' &ReasonNonAutoPaymentFilter=' + document.getElementById('ReasonNonAutoPaymentFilter').value + '&ReasonNonAutoPayment=' + document.getElementById('ReasonNonAutoPayment').value + '&ClaimBatchNumberFilter=' + document.getElementById('ClaimBatchNumberFilter').value + '&ClaimBatchNumber=' + document.getElementById('ClaimBatchNumber').value;
+        hlink = hlink + ' &ClawbackPayeeCodeFilter=' + document.getElementById('ClawbackPayeeCodeFilter').value + '&ClawbackPayeeCode=' + document.getElementById('ClawbackPayeeCode').value + '&BrandIds=' + document.getElementById('LcBrandId').value + '&CommissionTypeIds=' + document.getElementById('LcCommissionTypeId').value;
+        hlink = hlink + ' &DeviceTypeIds=' + document.getElementById('LcDeviceTypeId').value + '&PaymentCommissionTypeIds=' + document.getElementById('LcPaymentCommissionTypeId').value + '&ProductCodeIds=' + document.getElementById('LcProductCodeId').value + '&StatusFilter=' + document.getElementById('StatusFilter').value;
+        hlink = hlink + ' &DeviceTypeIds=' + document.getElementById('LcDeviceTypeId').value + '&PaymentCommissionTypeIds=' + document.getElementById('LcPaymentCommissionTypeId').value + '&ProductCodeIds=' + document.getElementById('LcProductCodeId').value + '&StatusFilter=' + document.getElementById('StatusFilter').value;
+        hlink = hlink + ' &Status=' + document.getElementById('Status').value + '&CreatedByIds=' + document.getElementById('LcCreatedById').value + '&ActivityTypeIds=' + document.getElementById('LcActivityTypeId').value + '&AlreadyPaidDealer=' + document.getElementById('AlreadyPaidDealer').value +'&RejectionReasonIds=' + document.getElementById('LcRejectionReasonId').value;
+
+            //window.location.href = '/LClaims/DownloadClaimsReport?PayeeId=' + PayeeId + '&StartDate=' + StartDatetime + '&EndDate=' + EndDatetime;
+        window.location.href = '/LClaims/DownloadClaimsReport' + hlink + '';
+
+         @*var Form1 = $("#frm")
+       $.ajax({
+            data: Form1.serialize(),
+            url: "/LPayeeAuditLogs/ExportPayeecsv",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                window.location.href = '@FilePath' + '/ExportPayee.csv';
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+        $.ajax({
+            data: Form1.serialize(),
+            url: "/LPayeeAuditLogs/ExportChangeRequestCsv",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+
+                window.location.href = '@FilePath' + '/ExportChangeRequest.csv';
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });*@
+
+    }
+
+    //This function will be called on clicking Go button and will load the grid as per the current selection
+    function FnGo() {
+        /*Section to store the currect payee  in session storage*/
+        if (typeof (Storage) !== "undefined") {
+            //ParA01Val = document.getElementById('A01').value;
+            //ParA01Filter = document.getElementById('A01Filter').value;
+
+            //store Payeelist  in Session storage before leaving the page.
+            var PId = document.getElementById('PayeeId').value;
+            sessionStorage.SelectedPayeeDropdownListInClaims = PId == undefined ? '' : PId;
+            sessionStorage.AllocationDateFilter = document.getElementById('AllocationDateFilter').value;
+            sessionStorage.AllocationDateFrom = AllocationDateFromJS;// document.getElementById('AllocationDateFrom').value;
+            sessionStorage.AllocationDateTo = AllocationDateToJS;// document.getElementById('AllocationDateTo').value;
+            sessionStorage.AlreadyPaidDateFilter = document.getElementById('AlreadyPaidDateFilter').value;
+            sessionStorage.AlreadyPaidDateFrom = AlreadyPaidDateFromJS;// document.getElementById('AlreadyPaidDateFrom').value;
+            sessionStorage.AlreadyPaidDateTo = AlreadyPaidDateToJS;// document.getElementById('AlreadyPaidDateTo').value;
+            sessionStorage.ConnectionDateFilter = document.getElementById('ConnectionDateFilter').value;
+            sessionStorage.ConnectionDateFrom = ConnectionDateFromJS;// document.getElementById('ConnectionDateFrom').value;
+            sessionStorage.ConnectionDateTo = ConnectionDateToJS;//document.getElementById('ConnectionDateTo').value;
+            sessionStorage.LastReclaimDateFilter = document.getElementById('LastReclaimDateFilter').value;
+            sessionStorage.LastReclaimDateFrom = LastReclaimDateFromJS;// document.getElementById('LastReclaimDateFrom').value;
+            sessionStorage.LastReclaimDateTo = LastReclaimDateToJS;// document.getElementById('LastReclaimDateTo').value;
+            sessionStorage.OrderDateFilter = document.getElementById('OrderDateFilter').value;
+            sessionStorage.OrderDateFrom = OrderDateFromJS;// document.getElementById('OrderDateFrom').value;
+            sessionStorage.OrderDateTo = OrderDateToJS;// document.getElementById('OrderDateTo').value;
+
+            sessionStorage.AlreadyPaidAmountFilter = document.getElementById('AlreadyPaidAmountFilter').value;
+            sessionStorage.AlreadyPaidAmountFrom = document.getElementById('AlreadyPaidAmountFrom').value;
+            sessionStorage.AlreadyPaidAmountTo = document.getElementById('AlreadyPaidAmountTo').value;
+            sessionStorage.ClawbackAmountFilter = document.getElementById('ClawbackAmountFilter').value;
+            sessionStorage.ClawbackAmountFrom = document.getElementById('ClawbackAmountFrom').value;
+            sessionStorage.ClawbackAmountTo = document.getElementById('ClawbackAmountTo').value;
+            sessionStorage.ExpectedCommissionAmountFilter = document.getElementById('ExpectedCommissionAmountFilter').value;
+            sessionStorage.ExpectedCommissionAmountFrom = document.getElementById('ExpectedCommissionAmountFrom').value;
+            sessionStorage.ExpectedCommissionAmountTo = document.getElementById('ExpectedCommissionAmountTo').value;
+            sessionStorage.PaymentAmountFilter = document.getElementById('PaymentAmountFilter').value;
+            sessionStorage.PaymentAmountFrom = document.getElementById('PaymentAmountFrom').value;
+            sessionStorage.PaymentAmountTo = document.getElementById('PaymentAmountTo').value;
+
+            sessionStorage.ParamA01Filter = document.getElementById('A01Filter').value;
+            sessionStorage.ParamA01 = document.getElementById('A01').value;
+            sessionStorage.ParamA02Filter = document.getElementById('A02Filter').value;
+            sessionStorage.ParamA02 = document.getElementById('A02').value;
+            sessionStorage.ParamA03Filter = document.getElementById('A03Filter').value;
+            sessionStorage.ParamA03 = document.getElementById('A03').value;
+            sessionStorage.ParamA04Filter = document.getElementById('A04Filter').value;
+            sessionStorage.ParamA04 = document.getElementById('A04').value;
+            sessionStorage.ParamA05Filter = document.getElementById('A05Filter').value;
+            sessionStorage.ParamA05 = document.getElementById('A05').value;
+            sessionStorage.ParamA06Filter = document.getElementById('A06Filter').value;
+            sessionStorage.ParamA06 = document.getElementById('A06').value;
+            sessionStorage.ParamA07Filter = document.getElementById('A07Filter').value;
+            sessionStorage.ParamA07 = document.getElementById('A07').value;
+            sessionStorage.ParamA08Filter = document.getElementById('A08Filter').value;
+            sessionStorage.ParamA08 = document.getElementById('A08').value;
+            sessionStorage.ParamA09Filter = document.getElementById('A09Filter').value;
+            sessionStorage.ParamA09 = document.getElementById('A09').value;
+            sessionStorage.ParamA10Filter = document.getElementById('A10Filter').value;
+            sessionStorage.ParamA10 = document.getElementById('A10').value;
+
+            sessionStorage.BANFilter = document.getElementById('BANFilter').value;
+            sessionStorage.BAN = document.getElementById('BAN').value;
+            sessionStorage.CustomerNameFilter = document.getElementById('CustomerNameFilter').value;
+            sessionStorage.CustomerName = document.getElementById('CustomerName').value;
+            sessionStorage.IMEIFilter = document.getElementById('IMEIFilter').value;
+            sessionStorage.IMEI = document.getElementById('IMEI').value;
+            sessionStorage.MSISDNFilter = document.getElementById('MSISDNFilter').value;
+            sessionStorage.MSISDN = document.getElementById('MSISDN').value;
+            sessionStorage.OrderNumberFilter = document.getElementById('OrderNumberFilter').value;
+            sessionStorage.OrderNumber = document.getElementById('OrderNumber').value;
+            sessionStorage.PaymentBatchNumberFilter = document.getElementById('PaymentBatchNumberFilter').value;
+            sessionStorage.PaymentBatchNumber = document.getElementById('PaymentBatchNumber').value;
+            sessionStorage.ReasonNonAutoPaymentFilter = document.getElementById('ReasonNonAutoPaymentFilter').value;
+            sessionStorage.ReasonNonAutoPayment = document.getElementById('ReasonNonAutoPayment').value;
+            sessionStorage.ClaimBatchNumberFilter = document.getElementById('ClaimBatchNumberFilter').value;
+            sessionStorage.ClaimBatchNumber = document.getElementById('ClaimBatchNumber').value;
+            sessionStorage.ClawbackPayeeCodeFilter = document.getElementById('ClawbackPayeeCodeFilter').value;
+            sessionStorage.ClawbackPayeeCode = document.getElementById('ClawbackPayeeCode').value;
+
+            var BrandId = document.getElementById('LcBrandId').value;
+            sessionStorage.BrandId = BrandId == undefined ? '' : BrandId;
+            var CommissionTypeID = document.getElementById('LcCommissionTypeId').value;
+            sessionStorage.CommissionTypeID = CommissionTypeID == undefined ? '' : CommissionTypeID;
+            var DeviceTypeId = document.getElementById('LcDeviceTypeId').value;
+            sessionStorage.DeviceTypeId = DeviceTypeId == undefined ? '' : DeviceTypeId;
+            var PaymentCommissionTypeId = document.getElementById('LcPaymentCommissionTypeId').value;
+            sessionStorage.PaymentCommissionTypeId = PaymentCommissionTypeId == undefined ? '' : PaymentCommissionTypeId;
+            var ProductCodeId = document.getElementById('LcProductCodeId').value;
+            sessionStorage.ProductCodeId = ProductCodeId == undefined ? '' : ProductCodeId;
+            sessionStorage.StatusFilter = document.getElementById('StatusFilter').value;
+            sessionStorage.Status = document.getElementById('Status').value;
+            var CreatedById = document.getElementById('LcCreatedById').value;
+            sessionStorage.CreatedById = CreatedById == undefined ? '' : CreatedById;
+            var ActivityTypeId = document.getElementById('LcActivityTypeId').value;
+            sessionStorage.ActivityTypeId = ActivityTypeId == undefined ? '' : ActivityTypeId;
+            var RejectionReasonId = document.getElementById('LcRejectionReasonId').value;
+            sessionStorage.RejectionReasonId = RejectionReasonId == undefined ? '' : RejectionReasonId;
+            //sessionStorage.ActivityTypeIds = document.getElementById('ActivityTypeIds').value;
+            sessionStorage.AlreadyPaidDealer = document.getElementById('AlreadyPaidDealer').value;
+
+            sessionStorage.SelectedPayeeIndexesInClaims = PayeeCheckedIndexes == undefined ? 9999 : PayeeCheckedIndexes;
+            sessionStorage.BrandIdsList = BrandIdsList == undefined ? 9999 : BrandIdsList;
+            sessionStorage.CommissionTypeIdsList = CommissionTypeIdsList == undefined ? 9999 : CommissionTypeIdsList;
+            sessionStorage.DeviceTypeIdsList = DeviceTypeIdsList == undefined ? 9999 : DeviceTypeIdsList;
+            sessionStorage.PaymentCommissionTypeIdsList = PaymentCommissionTypeIdsList == undefined ? 9999 : PaymentCommissionTypeIdsList;
+            sessionStorage.ProductCodeIdsList = ProductCodeIdsList == undefined ? 9999 : ProductCodeIdsList;
+            sessionStorage.CreatedByIdsList = CreatedByIdsList == undefined ? 9999 : CreatedByIdsList;
+            sessionStorage.ActivityTypeIdsList = ActivityTypeIdsList == undefined ? 9999 : ActivityTypeIdsList;
+            sessionStorage.RejectionReasonIdsList = RejectionReasonIdsList = undefined ? 9999 : RejectionReasonIdsList;
+            sessionStorage.StartDateInClaims = StartDateJS;
+            sessionStorage.EndDateInClaims = EndDateJS;
+            window.location.href = '/LClaims/ClaimsReport';
+        }
+
+        /*section ends here*/
+    }
+
+
+</script>
+
+<div class="boxes">
+    <h3 style="color:#e60000;">Claims Report</h3>
+    @using (Html.BeginForm("AuditorDashboard", "Home", FormMethod.Post, new { id = "frm", name = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.Hidden("StartDate", null)
+        @Html.Hidden("EndDate", null)
+        @Html.Hidden("PayeeId")
+        @Html.Hidden("LcBrandId")
+        @Html.Hidden("LcCommissionTypeId")
+        @Html.Hidden("LcDeviceTypeId")
+        @Html.Hidden("LcPaymentCommissionTypeId")
+        @Html.Hidden("LcProductCodeId")
+        @Html.Hidden("LcCreatedById")
+        @Html.Hidden("LcActivityTypeId")
+        @Html.Hidden("LcRejectionReasonId")
+
+        <div class="row date">
+
+            <div class="col-md-4">
+                @Html.Label("Payee", htmlAttributes: new { @class = "control-label col-md-3 required" })
+                <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search col-md-2" aria-hidden="true" title="zoom to select payee" style="color:#e60000;"></i></a>
+                <div class="col-md-7">
+                    @*<div id="listboxPayee">
+                        </div>*@
+                    @Html.Editor("PayeeName", new { htmlAttributes = new { @class = "", style = "pointer-Events:none;background:lightgray;", title = "this.value" } })
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                @Html.Label("Created Date", htmlAttributes: new { @class = "control-label col-md-3 " })
+                <div class="col-md-9 ">
+                    <div class="col-md-6 ">
+                        <div id="Startdate"></div>
+
+                    </div>@*<div class="col-md-2">&emsp; to &emsp;</div>*@
+                    <div class="col-md-6">
+                        <div id="Enddate"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="AllocationDateDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.AllocationDateFilter, htmlAttributes: new { id = "AllocationDateLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.AllocationDateFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "AllocationDateFilter" })
+            </div>
+            <div class="col-md-2">
+                <div id="AllocationDateFrom"></div>
+            </div>
+            <div class="col-md-2" style="display:block;">
+                <div id=AllocationDateTo style="display:none"></div>
+            </div>
+        </div>
+        <div id="AlreadyPaidDateDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.AlreadyPaidDateFilter, htmlAttributes: new { id = "AlreadyPaidDateLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.AlreadyPaidDateFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "AlreadyPaidDateFilter" })
+            </div>
+            <div class="col-md-2">
+                <div id="AlreadyPaidDateFrom"></div>
+            </div>
+            <div class="col-md-2" style="display:block;">
+                <div id=AlreadyPaidDateTo style="display:none"></div>
+            </div>
+        </div>
+        <div id="ConnectionDateDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ConnectionDateFilter, htmlAttributes: new { id = "ConnectionDateLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ConnectionDateFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "ConnectionDateFilter" })
+            </div>
+            <div class="col-md-2">
+                <div id="ConnectionDateFrom"></div>
+            </div>
+            <div class="col-md-2" style="display:block;">
+                <div id=ConnectionDateTo style="display:none"></div>
+            </div>
+        </div>
+        <div id="LastReclaimDateDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.LastReclaimDateFilter, htmlAttributes: new { id = "LastReclaimDateLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.LastReclaimDateFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "LastReclaimDateFilter" })
+            </div>
+            <div class="col-md-2">
+                <div id="LastReclaimDateFrom"></div>
+            </div>
+            <div class="col-md-2" style="display:block;">
+                <div id=LastReclaimDateTo style="display:none"></div>
+            </div>
+        </div>
+        <div id="OrderDateDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.OrderDateFilter, htmlAttributes: new { id = "OrderDateLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.OrderDateFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "OrderDateFilter" })
+            </div>
+            <div class="col-md-2">
+                <div id="OrderDateFrom"></div>
+            </div>
+            <div class="col-md-2" style="display:block;">
+                <div id=OrderDateTo style="display:none"></div>
+            </div>
+        </div>
+        //Decimal Controls
+        <div id="AlreadyPaidAmountDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.AlreadyPaidAmountFilter, htmlAttributes: new { id = "AlreadyPaidAmountLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.AlreadyPaidAmountFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "AlreadyPaidAmountFilter" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.AlreadyPaidAmountFrom, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-2" id="AlreadyPaidAmountToDiv" style="display:none;">
+                @Html.EditorFor(model => model.AlreadyPaidAmountTo, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div id="ClawbackAmountDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ClawbackAmountFilter, htmlAttributes: new { id = "ClawbackAmountLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ClawbackAmountFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "ClawbackAmountFilter" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.ClawbackAmountFrom, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-2" id="ClawbackAmountToDiv" style="display:none;">
+                @Html.EditorFor(model => model.ClawbackAmountTo, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div id="ExpectedCommissionAmountDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ExpectedCommissionAmountFilter, htmlAttributes: new { id = "ExpectedCommissionAmountLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ExpectedCommissionAmountFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "ExpectedCommissionAmountFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.ExpectedCommissionAmountFrom, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-2" id="ExpectedCommissionAmountToDiv" style="display:none;">
+                @Html.EditorFor(model => model.ExpectedCommissionAmountTo, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div id="PaymentAmountDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.PaymentAmountFilter, htmlAttributes: new { id = "PaymentAmountLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.PaymentAmountFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Between", Value = "Between" } }, new { @class = "form-control", id = "PaymentAmountFilter" })
+            </div>
+
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.PaymentAmountFrom, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-2" id="PaymentAmountToDiv" style="display:none;">
+                @Html.EditorFor(model => model.PaymentAmountTo, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        //A01-A10 Contrls
+        <div id="A01Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A01Filter, htmlAttributes: new { id = "A01Label" })
+            </div>
+            <div class="col-md-2  style=" width:250px"">
+                @Html.DropDownListFor(model => model.A01Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A01Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A01, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div id="A02Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A02Filter, htmlAttributes: new { id = "A02Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A02Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A02Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A02, new { htmlAttributes = new { @class = "form-control", id = "A02" } })
+            </div>
+        </div>
+        <div id="A03Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A03Filter, htmlAttributes: new { id = "A03Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A03Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A03Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A03, new { htmlAttributes = new { @class = "form-control", id = "A03" } })
+            </div>
+        </div>
+        <div id="A04Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A04Filter, htmlAttributes: new { id = "A04Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A04Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A04Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A04, new { htmlAttributes = new { @class = "form-control", id = "A04" } })
+            </div>
+        </div>
+        <div id="A05Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A05Filter, htmlAttributes: new { id = "A05Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A05Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A05Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A05, new { htmlAttributes = new { @class = "form-control", id = "A05" } })
+            </div>
+        </div>
+        <div id="A06Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A06Filter, htmlAttributes: new { id = "A06Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A06Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A06Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A06, new { htmlAttributes = new { @class = "form-control", id = "A06" } })
+            </div>
+        </div>
+        <div id="A07Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A07Filter, htmlAttributes: new { id = "A07Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A07Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A07Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A07, new { htmlAttributes = new { @class = "form-control", id = "A07" } })
+            </div>
+        </div>
+        <div id="A08Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A08Filter, htmlAttributes: new { id = "A08Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A08Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A08Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A08, new { htmlAttributes = new { @class = "form-control", id = "A08" } })
+            </div>
+        </div>
+        <div id="A09Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A09Filter, htmlAttributes: new { id = "A09Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A09Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A09Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A09, new { htmlAttributes = new { @class = "form-control", id = "A09" } })
+            </div>
+        </div>
+        <div id="A10Div" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.A10Filter, htmlAttributes: new { id = "A10Label" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.A10Filter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "A10Filter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.A10, new { htmlAttributes = new { @class = "form-control", id = "A10" } })
+            </div>
+        </div>
+
+        <div id="BANDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.BANFilter, htmlAttributes: new { id = "BANLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.BANFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "BANFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.BAN, new { htmlAttributes = new { @class = "form-control", id = "BAN" } })
+            </div>
+        </div>
+        <div id="CustomerNameDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.CustomerNameFilter, htmlAttributes: new { id = "CustomerNameLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.CustomerNameFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "CustomerNameFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control", id = "CustomerName" } })
+            </div>
+        </div>
+        <div id="IMEIDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.IMEIFilter, htmlAttributes: new { id = "IMEILabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.IMEIFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "IMEIFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.IMEI, new { htmlAttributes = new { @class = "form-control", id = "IMEI" } })
+            </div>
+        </div>
+        <div id="MSISDNDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.MSISDNFilter, htmlAttributes: new { id = "MSISDNLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.MSISDNFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "MSISDNFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.MSISDN, new { htmlAttributes = new { @class = "form-control", id = "MSISDN" } })
+            </div>
+        </div>
+        <div id="OrderNumberDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.OrderNumberFilter, htmlAttributes: new { id = "OrderNumberLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.OrderNumberFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "OrderNumberFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.OrderNumber, new { htmlAttributes = new { @class = "form-control", id = "OrderNumber" } })
+            </div>
+        </div>
+        <div id="PaymentBatchNumberDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.PaymentBatchNumberFilter, htmlAttributes: new { id = "PaymentBatchNumberLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.PaymentBatchNumberFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "PaymentBatchNumberFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.PaymentBatchNumber, new { htmlAttributes = new { @class = "form-control", id = "PaymentBatchNumber" } })
+            </div>
+        </div>
+        <div id="ReasonNonAutoPaymentDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ReasonNonAutoPaymentFilter, htmlAttributes: new { id = "ReasonNonAutoPaymentLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ReasonNonAutoPaymentFilter, new List<SelectListItem> { new SelectListItem { Text = "Equals", Value = "Equals" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values)", Value = "In" } }, new { @class = "form-control", id = "ReasonNonAutoPaymentFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.ReasonNonAutoPayment, new { htmlAttributes = new { @class = "form-control", id = "ReasonNonAutoPayment" } })
+            </div>
+        </div>
+
+        <div id="ClaimBatchNumberDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ClaimBatchNumberFilter, htmlAttributes: new { id = "ClaimBatchNumberLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ClaimBatchNumberFilter, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control", id = "ClaimBatchNumberFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.ClaimBatchNumber, new { htmlAttributes = new { @class = "form-control", id = "ClaimBatchNumber" } })
+            </div>
+        </div>
+        <div id="ClawbackPayeeCodeDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ClawbackPayeeCodeFilter, htmlAttributes: new { id = "ClawbackPayeeCodeLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.ClawbackPayeeCodeFilter, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control", id = "ClawbackPayeeCodeFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.ClawbackPayeeCode, new { htmlAttributes = new { @class = "form-control", id = "ClawbackPayeeCode" } })
+            </div>
+        </div>
+        <div id="StatusDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.StatusFilter, htmlAttributes: new { id = "StatusLabel" })
+            </div>
+            <div class="col-md-2" style="width:250px">
+                @Html.DropDownListFor(model => model.StatusFilter, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control", id = "StatusFilter" })
+            </div>
+            <div class="col-md-2">
+                @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control", id = "Status" } })
+            </div>
+        </div>
+
+        <div id="BrandIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.BrandIds, htmlAttributes: new { id = "BrandIdLabel" })
+            </div>
+            <div id="BrandIds">
+                @*@Html.DropDownListFor(model => model.BrandIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="CommissionTypeIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.CommissionTypeIds, htmlAttributes: new { id = "CommissionTypeIdLabel" })
+            </div>
+            <div id="CommissionTypeIds">
+                @*@Html.DropDownListFor(model => model.CommissionTypeIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="DeviceTypeIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.DeviceTypeIds, htmlAttributes: new { id = "DeviceTypeIdLabel" })
+            </div>
+            <div id="DeviceTypeIds">
+                @*@Html.DropDownListFor(model => model.DeviceTypeIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="PaymentCommissionTypeIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.PaymentCommissionTypeIds, htmlAttributes: new { id = "PaymentCommissionTypeIdLabel" })
+            </div>
+            <div id="PaymentCommissionTypeIds">
+                @*@Html.DropDownListFor(model => model.PaymentCommissionTypeIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="ProductCodeIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ProductCodeIds, htmlAttributes: new { id = "ProductCodeIdLabel" })
+            </div>
+            <div id="ProductCodeIds">
+                @*@Html.DropDownListFor(model => model.ProductCodeIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="CreatedByIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.CreatedByIds, htmlAttributes: new { id = "CreatedByIdLabel" })
+            </div>
+            <div id="CreatedByIds">
+                @*@Html.DropDownListFor(model => model.CreatedByIds, new List<SelectListItem> { new SelectListItem { Text = "Contains", Value = "Contains" }, new SelectListItem { Text = "Not Contains", Value = "Not Contains" }, new SelectListItem { Text = "Like", Value = "Like" }, new SelectListItem { Text = "In (comma seprated values", Value = "In" } }, new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div id="ActivityTypeIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.ActivityTypeIds, htmlAttributes: new { id = "ActivityTypeIdLabel" })
+            </div>
+            <div id="ActivityTypeIds">
+
+            </div>
+        </div>
+        <div id="RejectionReasonIdDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.RejectedReasonIds, htmlAttributes: new { id = "RejectionReasonIdLabel" })
+            </div>
+            <div id="RejectionReasonIds">
+            </div>
+        </div>
+        <div id="AlreadyPaidDealerDiv" class="row date" style="border:none; display:none;">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.AlreadyPaidDealer, htmlAttributes: new { id = "AlreadyPaidDealerLabel" })
+            </div>
+            <div class="col-md-2">
+                @Html.CheckBoxFor(model => model.AlreadyPaidDealer, htmlAttributes: new { id = "AlreadyPaidDealer" })
+            </div>
+        </div>
+        <div class="col-md-4 pull-left">
+            <br>
+
+            <button type="button" class="btn btn-red btn-cons" onclick="FnGo()">View</button>
+            <button type="button" onclick="FnDownloadcsv()" class="btn btn-red btn-cons">Download </button>
+            <br>
+        </div>
+        <br>
+        <div id="ClaimsGrid"></div>
+        <br>
+
+
+    }
+
+    <br>
+    <br>
+</div>
+@Html.Partial("_GlobalPayeeGrid")
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

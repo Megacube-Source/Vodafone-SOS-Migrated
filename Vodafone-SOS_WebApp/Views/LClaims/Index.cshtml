@@ -1,0 +1,452 @@
+﻿@{
+    bool CanRaiseClaim = ViewBag.CanRaiseClaim;
+}
+
+@*<script src="/Scripts/ProjectScripts/ClaimsScript.js" type="text/javascript"></script>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+       
+        //This ajax call saves the url of current page which will be the url of back buttons in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //display error message as popup
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+        // Load jqxTabs in the view
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        //This functions is called  to load grid in the tab whose name is passed as parameter
+        FnGetGrid("Open")//open
+        FnGetGrid("ReExamine")//reexamine
+        FnGetGrid("Withdrawn")//withdrawn
+        FnGetGrid("Rejected")//rejected
+        FnGetGrid("Approved")//approved
+        FnGetGrid("Paid")//paid
+       // RowDoubleClick();//method defined in Claims script when row is double clicked
+        //This method is called when we double click on the grid rows
+        $('#jqxgridOpen').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridOpen').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridOpen').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridReExamine').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridReExamine').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridReExamine').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridWithdrawn').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridWithdrawn').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridWithdrawn').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridRejected').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridRejected').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridRejected').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridApproved').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridApproved').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridApproved').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+
+        $('#jqxgridPaid').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPaid').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPaid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+
+        //This method is called when data binding is complete in a grid
+        $("#jqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+            //Hide columns which are not shown in this tab
+            $("#jqxgridOpen").jqxGrid('hidecolumn', 'LcApprovedById');
+            $("#jqxgridOpen").jqxGrid('hidecolumn', 'LcApprovalDate');
+            $("#jqxgridOpen").jqxGrid('hidecolumn', 'LcPaymentDate');
+            $("#jqxgridOpen").jqxGrid('hidecolumn', 'LcPaymentAmount');
+        });
+
+        $("#jqxgridReExamine").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridReExamine').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations) {
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+            }
+            $("#jqxgridReExamine").jqxGrid('hidecolumn', 'LcApprovedById');
+            $("#jqxgridReExamine").jqxGrid('hidecolumn', 'LcApprovalDate');
+            $("#jqxgridReExamine").jqxGrid('hidecolumn', 'LcPaymentDate');
+            $("#jqxgridReExamine").jqxGrid('hidecolumn', 'LcPaymentAmount');
+        });
+
+        $("#jqxgridWithdrawn").on("bindingcomplete", function (event) {
+            $("#jqxgridWithdrawn").jqxGrid('hidecolumn', 'selects');
+            $("#jqxgridWithdrawn").jqxGrid('hidecolumn', 'LcApprovedById');
+            $("#jqxgridWithdrawn").jqxGrid('hidecolumn', 'LcApprovalDate');
+            $("#jqxgridWithdrawn").jqxGrid('hidecolumn', 'LcPaymentDate');
+            $("#jqxgridWithdrawn").jqxGrid('hidecolumn', 'LcPaymentAmount');
+        });
+
+        $("#jqxgridRejected").on("bindingcomplete", function (event) {
+            $("#jqxgridRejected").jqxGrid('hidecolumn', 'LcApprovedById');
+            $("#jqxgridRejected").jqxGrid('hidecolumn', 'LcApprovalDate');
+            $("#jqxgridRejected").jqxGrid('hidecolumn', 'LcPaymentDate');
+            $("#jqxgridRejected").jqxGrid('hidecolumn', 'LcPaymentAmount');
+        });
+
+        $("#jqxgridApproved").on("bindingcomplete", function (event) {
+            $("#jqxgridApproved").jqxGrid('hidecolumn', 'selects');
+            $("#jqxgridApproved").jqxGrid('hidecolumn', 'LcAllocatedToId');
+            $("#jqxgridApproved").jqxGrid('hidecolumn', 'LcAllocationDate');
+            $("#jqxgridApproved").jqxGrid('hidecolumn', 'LcPaymentDate');
+            $("#jqxgridApproved").jqxGrid('hidecolumn', 'LcPaymentAmount');
+        });
+
+        
+
+        $("#jqxgridPaid").on("bindingcomplete", function (event) {
+            $("#jqxgridPaid").jqxGrid('hidecolumn', 'selects');
+            $("#jqxgridPaid").jqxGrid('hidecolumn', 'LcAllocatedToId');
+            $("#jqxgridPaid").jqxGrid('hidecolumn', 'LcAllocationDate');
+          
+        });
+
+        
+
+    });
+
+    //This method loads the data in grid of tab as per  the tab name passed
+    function FnGetGrid(TabName)
+    {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                 { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+                { name: 'LcAllocationDate', type: 'date' },
+                 { name: 'LcApprovalDate', type: 'date' },
+                  { name: 'ApprovedBy', type: 'string' },
+                 { name: 'AllocatedTo', type: 'string' },
+                  { name: 'LcPaymentDate', type: 'date' },
+                   { name: 'LcPaymentAmount', type: 'string' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName:TabName},
+            url: "/LClaims/GetClaimsForPayeeOrSalesOp"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        //This function is defined to cchange colour of row of grid but this function is not is not working correctly .Need to rework and remove this comment
+        //var cellclassname = function (row, column, value, data) {
+        //    var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+        //    //alert(yy.LcIsReclaim)
+        //    if (yy.LcIsReclaim==true) {
+        //        return 'GridCell';
+        //    }
+            
+        //}
+        //This method loads the buttons/links displayed in the action column of the grid 
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid'+TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Id = yy.Id
+
+            if (TabName == "Open" || TabName == "ReExamine") {
+                return '<button onclick="FnEdit(' + Id + ')" class="GridButton">Edit</button>&ensp;';
+            }
+            else {
+                //This isan hidden button to display blank cell otherwise id will start displaying in cell with no button
+                return '<button style="display:none" onclick="" class="GridButton">Download</button>';
+            }
+            };
+
+
+
+        $('#jqxgrid'+TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+            //selectionmode: 'none',
+            ready: function () {
+
+                },
+
+            columns: [
+                 { text: '', datafield: 'selects',columntype:'checkbox',width:'3%' },
+                { text: 'Claim Id', datafield: 'LcClaimId', editable: false },
+               // { text: 'Aletryx Batch Number', datafield: 'LbAlteryxBatchNumber' },
+               // { text: 'Batch Type', datafield: 'LbBatchType' },
+               // { text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode' ,editable:false},
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                   { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                  { text: 'Approval Date', datafield: 'LcApprovalDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+               { text: 'Allocated To', datafield: 'LcAllocatedToId', width: ' 10%' },
+               { text: 'Actions', datafield: 'Id', editable: false, cellsrenderer: cellsrenderer, width: '10%' },
+            ]
+        });
+
+
+    }
+
+    //This method is called when Payee/SalesOp clicks on the edit button in action column of the grid
+    function FnEdit(Id) {
+        //alert(dat)
+        if (Id) {
+            var url = '@Url.Action("Edit", "LClaims", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", Id);
+        }
+    }
+
+    //This array variable is stored to store the selected rows of claims
+    var arr = [];
+    function FnWithdraw(TabName) {
+        var selectedrowindex = $('#jqxgrid'+TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++)
+        {
+            if(xx[i].selects)
+            {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        if (arr.length!=0) {
+            window.location.href = '/LClaims/WithdrawClaims?ClaimId='+arr
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    //This method is called when user clicks on  resubmit button
+    function FnReSubmitClaim(TabName) {
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            window.location.href = '/LClaims/ReSubmitClaim?ClaimId='+arr
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    //This method is called when user clicks on  reClaim button
+    function FnReClaim(TabName) {
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            window.location.href = '/LClaims/ReClaimClaim?ClaimId=' + arr
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+    
+
+    ////method to down load files as per batch number
+    //function DownLoadBatch(SOSBatchNumber)
+    //{
+    //    window.location.href = '/Content/RawFiles/' + SOSBatchNumber + '/InputData.csv'
+    //}
+
+    ////method to download pdf files
+    //function DownLoadPDF(dat) {
+    //    setTimeout(function () {
+    //        var Win1 = window.open("/Content/RawFiles/" + dat + "/Validation_Report.pdf", "_blank")
+    //        // Win1.saveAs();
+    //        //  Win1.close();
+    //    }, 1000);
+
+    //    //setTimeout(function () {
+    //    //    var Win2 = window.open("/Content/RawFiles/" + dat + "/PC10.pdf", "_blank")
+    //    //}, 1000);
+
+    //    //setTimeout(function () {
+    //    //    var Win3 = window.open("/Content/RawFiles/" + dat + "/PC11.pdf", "_blank")
+    //    //}, 1000);
+    //}
+
+    //This method is called when we click on glymph to download the grid data
+    function FnDownloadGrid()
+    {
+        var TabName = "";
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        switch(selectedItem)
+        {
+            case 0:TabName="Open"; break;
+            case 1: TabName = "ReExamine"; break;
+            case 2: TabName = "Withdrawn"; break;
+            case 3: TabName = "Rejected"; break;
+            case 4: TabName = "Approved"; break;
+            case 5: TabName = "Paid"; break;
+        }
+        window.location.href = '/LClaims/DownloadClaimsGridByTabName?TabName=' + TabName;
+        //$.ajax({
+        //    data: {TabName:TabName },
+        //    url: "/LClaims/DownloadClaimsGridByTabName",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+
+        //        window.open(data)
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+    }
+
+</script>
+
+<div class="boxes">
+     <h4 class="vodafone_txt">CLAIMS GRID <i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" style="cursor:pointer;"></i></h4>
+        @if (CanRaiseClaim)
+        {
+         <span>  <a  href="/LClaims/Create"><u>Create Claim</u></a>&emsp;&emsp;<a  href="/LClaims/UploadClaims"><u>Upload Claims</u></a>&emsp;&emsp;<a  href="~/Content/ClaimsTemplate.xlsx" ><u>Download Claims Template</u></a></span><br />
+ }                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                 
+   @*//The above code loads tabs in the view and each tab contains a grid as per its status*@
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Open <span class="badge" id="b1">0</span> </li>
+            <li>Re-Examine <span class="badge" id="b2">0</span> </li>
+            <li>Withdrawn  </li>
+            <li>Rejected  </li>
+            <li>Approved  </li>
+            <li>Paid </li>
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+            
+                    <div id="jqxgridOpen">
+
+                    </div>
+                    
+            <div class="row no_margin">
+                <div class="col-xs-12 buttons">
+                    <button class="btn btn-gray btn-cons" onclick="return FnWithdraw('Open')">Withdraw&ensp;<i class="fa fa-undo" aria-hidden="true"></i></button>
+                </div>
+            </div>
+                </div>
+        <div class="tab-content" style="padding:10px;">
+          
+                    <div id="jqxgridReExamine">
+
+                    </div>
+            <div class="row no_margin">
+                <div class="col-xs-12 buttons">
+                    <button class="btn btn-gray btn-cons" onclick="return FnWithdraw('ReExamine')">Withdraw&ensp;<i class="fa fa-undo" aria-hidden="true"></i></button>
+                    &emsp;<button type="button" class="btn btn-orange btn-cons" onclick="FnReSubmitClaim('ReExamine')">Re-Submit&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+                </div>
+            </div>
+                </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridWithdrawn">
+
+            </div>
+
+        </div>
+        <div class="tab-content" style="padding:10px;">
+           
+                    <div id="jqxgridRejected">
+
+                    </div>
+                    <div class="row no_margin">
+    <div class="col-xs-12 buttons">
+        <button type="button" class="btn btn-gray btn-cons" onclick="return FnWithdraw('Rejected')">Withdraw&nbsp; <i class="fa fa-undo" aria-hidden="true"></i></button>
+        &emsp;<button type="button" class="btn btn-orange btn-cons" onclick="FnReClaim('Rejected')">Re-Claim&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+    </div>
+</div></div>
+                <div class="section" style="padding:10px;">
+                    <div id="jqxgridApproved">
+
+                    </div>
+
+                </div>
+                <div class="section" style="padding:10px;">
+                    <div id="jqxgridPaid">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>

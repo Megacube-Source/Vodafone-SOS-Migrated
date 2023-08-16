@@ -1,0 +1,293 @@
+﻿
+@{
+    ViewBag.Title = "AnalystDashboard";
+}
+
+<h2>AnalystDashboard</h2>
+
+
+<script>
+    $(document).ready(function () {
+        if('@TempData["Message"]')
+        {
+            alert('@TempData["Message"]')
+        }
+        
+
+        //display tabs in Analyser dashboard
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true, height: '40vh' });
+
+
+        //display grid for new payee
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'TradingName', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'ParentsCode', type: 'string' },
+                { name: 'PayeeStatus', type: 'string' },
+                { name: 'Segment', type: 'string' },
+                { name: 'Count', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetNewPayeeFormsForAnalyzer"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return Review()" class="btn-info">Review</button>';
+        };
+        $('#jqxgrid').jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+
+            ready: function () {
+
+                @*$('.delete').click(function () {
+                    var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                    var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                    var url = '@Url.Action("Delete", "ADesignations", new {Id = "__id__" })';
+                    window.location.href = url.replace("__id__", xx);
+                });
+                $('.edit').click(function () {
+                    var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                    var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                    var url = '@Url.Action("Edit", "ADesignations", new {Id = "__id__" })';
+                    window.location.href = url.replace("__id__", xx);
+                });*@
+
+            },
+
+            columns: [
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Trading Name', datafield: 'TradingName' },
+                { text: 'Type', datafield: 'Type' },
+                { text: 'Segment', datafield: 'Segment' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Parents/manager Code', datafield: 'ParentsCode' },
+
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+
+        //display grid for review Again payee
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'TradingName', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'ParentsCode', type: 'string' },
+                { name: 'PayeeStatus', type: 'string' },
+                { name: 'Segment', type: 'string' },
+                { name: 'Count', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetAgainPayeeFormsForAnalyzer"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return ReviewR()" class="btn-info">Review</button>';
+        };
+        $('#jqxgridR').jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+
+            ready: function () {
+
+                @*$('.delete').click(function () {
+                    var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                    var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                    var url = '@Url.Action("Delete", "ADesignations", new {Id = "__id__" })';
+                    window.location.href = url.replace("__id__", xx);
+                });
+                $('.edit').click(function () {
+                    var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                    var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                    var url = '@Url.Action("Edit", "ADesignations", new {Id = "__id__" })';
+                    window.location.href = url.replace("__id__", xx);
+                });*@
+
+                },
+
+            columns: [
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Trading Name', datafield: 'TradingName' },
+                { text: 'Type', datafield: 'Type' },
+                { text: 'Segment', datafield: 'Segment' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Parents/manager Code', datafield: 'ParentsCode' },
+
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+        $('#jqxgrid').on('rowdoubleclick', function (event) {
+
+            Review();
+            var args = event.args;
+            // row's bound index.
+            var boundIndex = args.rowindex;
+            // row's visible index.
+            var visibleIndex = args.visibleindex;
+            // right click.
+            var rightclick = args.rightclick;
+            // original event.
+            var ev = args.originalEvent;
+        });
+        $('#jqxgridR').on('rowdoubleclick', function (event) {
+
+            ReviewR();
+            var args = event.args;
+            // row's bound index.
+            var boundIndex = args.rowindex;
+            // row's visible index.
+            var visibleIndex = args.visibleindex;
+            // right click.
+            var rightclick = args.rightclick;
+            // original event.
+            var ev = args.originalEvent;
+        });
+
+        $("#jqxgridR").on("bindingcomplete", function (event) {
+            //display counts
+            var data22 = $('#jqxgridR').jqxGrid('getrowdata', 0);
+            // alert(data22.Count)
+            document.getElementById('b2').innerHTML = data22.Count;
+        });
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            //display counts
+            var data22 = $('#jqxgrid').jqxGrid('getrowdata', 0);
+            // alert(data22.Count)
+            document.getElementById('b1').innerHTML = data22.Count;
+        });
+
+        //dummy grid master data
+
+        //display grid for review Again payee
+        var sourceM = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'SchemeNumber', type: 'string' },
+                { name: 'SchemeTitle', type: 'string' },
+                { name: 'ProductCode', type: 'string' },
+                { name: 'Status', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetDummyMasterData"
+        };
+        var dataAdapterM = new $.jqx.dataAdapter(sourceM)
+
+        $('#jqxgridM').jqxGrid({
+            source: dataAdapterM,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+
+            ready: function () {
+                },
+
+            columns: [
+                { text: 'Scheme Number', datafield: 'SchemeNumber' },
+                { text: 'Scheme Title', datafield: 'SchemeTitle' },
+                { text: 'Product Code', datafield: 'ProductCode' },
+                { text: 'Status', datafield: 'Status' },
+               // { text: 'Segment', datafield: 'Segment' },
+                //{ text: 'Payee Code', datafield: 'PayeeCode' },
+                //{ text: 'Parents/manager Code', datafield: 'ParentsCode' }
+
+            ]
+        });
+
+    });
+    //to redirect to reviewPage
+    function Review()
+    {
+        //alert("N")
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("AnalystReview", "Vodafone", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function ReviewR() {
+       // alert("R")
+        var selectedrowindex = $('#jqxgridR').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgridR').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("AnalystReview", "Vodafone", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+
+</script>
+
+
+
+
+<div style="padding:10px;">
+    <h3>Pending Actions</h3>
+    <h4>Master Data</h4>
+    <div id='jqxTabs'>
+        <ul>
+            <li style="margin-left: 30px;">New <span class="badge" id="b1">0</span></li>
+            <li>Review Again <span class="badge" id="b2">0</span></li>
+        </ul>
+
+        <div class="section" style="padding:10px;">
+
+            <div id="jqxgrid">
+
+            </div>
+        </div>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridR">
+
+            </div>
+
+        </div>
+    </div>
+    <br />
+    <h4>Referance Data</h4>
+    <div id="jqxgridM">
+
+    </div>
+</div>
+

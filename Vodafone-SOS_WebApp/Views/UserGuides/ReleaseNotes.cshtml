@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = "ReleaseNotes";
+}
+<script type="text/javascript">
+    function download(file) {
+        window.location = '/UserGuides/DownloadReleaseNotes?ReleaseNotesName='+file;
+    }
+</script>
+<h2>ReleaseNotes</h2>
+@Html.Raw((string)ViewBag.ReleaseNotesHTML)
+

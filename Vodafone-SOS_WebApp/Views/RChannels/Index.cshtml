@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="boxes">
+    <a class="top_links" href="/RChannels/Create">  <i class="glyphicon glyphicon-pencil"></i> Create New Channel</a>
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'RcDescription', type: 'string' },
+                { name: 'RcIsActive', type: 'bool' }
+            ],
+            id: "Id",
+            url: "/RChannels/GetChannels",
+            // update the grid and send a request to the server.
+        //    filter: function () {
+        //    $("#jqxgrid").jqxGrid('updatebounddata', 'filter');
+        //},
+        //// update the grid and send a request to the server.
+        //sort: function () {
+        //    $("#jqxgrid").jqxGrid('updatebounddata', 'sort');
+        //},
+        //root: 'Rows',
+        //beforeprocessing: function (data) {
+        //    source.totalrecords = data.TotalRows;
+        //}
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '&emsp;<button onclick="return FnEdit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            //virtualmode: true,
+            //rendergridrows: function (obj) {
+            //    return obj.data;
+            //},
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Channel Name', datafield: 'RcName' },
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Channel Description', datafield: 'RcDescription' },
+                  { text: 'Is Active', datafield: 'RcIsActive', columntype: 'checkbox' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'10%' }
+            ]
+        });
+    });
+
+    function FnEdit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "RChannels", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function CGdelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "RChannels", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

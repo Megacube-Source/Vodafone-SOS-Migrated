@@ -1,0 +1,218 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+@{
+    ViewBag.Title = "Cancel Payment Batch";
+
+}
+
+<h2>Are you sure you want to Cancel this Ready To Payment Batch</h2>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '80vh' });
+        var Irtpid = @Model.Id;
+        //Calc Grid
+        $("#jqxCalcGrid").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxCalcGrid').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bCalculations').innerHTML = datainformations.rowscount;
+        });
+        var sourceCalc = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetBatches",
+            data: { iRTPID: Irtpid,strType:"Calc",strAction:"Review"},
+        };
+
+        var calcdataAdapter = new $.jqx.dataAdapter(sourceCalc)
+        $('#jqxCalcGrid').jqxGrid({
+            source: calcdataAdapter,
+            width: '700',
+            autoheight: true,
+            theme: 'bootstrap',
+            editable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: true,
+            pageable: true,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                //{ text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+                { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false},
+                { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+            ]
+        });
+        $("#jqxCalcGrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxCalcGrid').jqxGrid('getrows')
+            for (var i = 0; i < GridRows.length; ++i) {
+                //alert(GridRows[i].Select);
+                if (GridRows[i].Select == true) {
+
+                    $('#jqxCalcGrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+        //Manual Grid
+        $("#jqxManualGrid").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxManualGrid').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bManualAdjustments').innerHTML = datainformations.rowscount;
+        });
+        var sourceMA = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetBatches",
+            data: { iRTPID: Irtpid,strType:"ManualAdjustment",strAction:"Review"},
+        };
+        var MAdataAdapter = new $.jqx.dataAdapter(sourceMA)
+        $('#jqxManualGrid').jqxGrid({
+            source: MAdataAdapter,
+            width: '700',
+            autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            editable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+            columns: [
+                { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+                { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false,},
+                { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+            ]
+        });
+        //Claims Grid
+        $("#jqxClaimsGrid").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxClaimsGrid').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bClaims').innerHTML = datainformations.rowscount;
+        });
+        var sourceCL = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'ClaimNumber', type: 'int' },
+                { name: 'PayeeName', type: 'string' },
+                { name: 'PaymentAmount', type: 'decimal' },
+                { name: 'RejectedReason', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetBatches",
+            data: { iRTPID: Irtpid,strType:"Claims",strAction:"Review"},
+
+        };
+        var CLdataAdapter = new $.jqx.dataAdapter(sourceCL)
+        $('#jqxClaimsGrid').jqxGrid({
+            source: CLdataAdapter,
+            width: '1100',
+            autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: true,
+            pageable: true,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            editable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+            columns: [
+                { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+                { text: 'Claim Number', datafield: 'ClaimNumber', width: 200 ,editable: false},
+                { text: 'Payee Name', datafield: 'PayeeName', width: 400, editable: false },
+                { text: 'Payment Amount', datafield: 'PaymentAmount', width: 200, editable: false },
+                { text: 'Rejected Reason', datafield: 'RejectedReason', width: 200, editable: false }
+            ]
+        });
+    });
+</script>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div style="padding:10px;">
+            <div class="form-horizontal" id="FrmHorizontal">
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.PaymentBatchName)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.PaymentBatchName)
+                    </dd>
+
+                    <dt>
+                        @Html.DisplayNameFor(model => model.PeriodName)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.PeriodName)
+                    </dd>
+                </dl>
+
+            </div>
+            <div id='jqxTabs'>
+                <ul class="nav nav-tabs tabs tabs-container-border ">
+                    <li style="margin-left: 30px;">Calculations <span class="badge" id="bCalculations">0</span></li>
+                    <li style="margin-left: 30px;">Manual Adjustments <span class="badge" id="bManualAdjustments">0</span></li>
+                    <li style="margin-left: 30px;">Claims <span class="badge" id="bClaims">0</span></li>
+                </ul>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxCalcGrid">
+                    </div>
+                </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxManualGrid">
+                    </div>
+                </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxClaimsGrid">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="submit" class="btn btn-red btn-cons" >Confirm&nbsp;</button> 
+        </div>
+    }
+    </div>
+
+
+
+
+
+
+

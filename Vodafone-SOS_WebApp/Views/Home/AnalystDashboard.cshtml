@@ -1,0 +1,23 @@
+﻿<div class="row">
+<div class="col-md-8 col-lg-8">
+<h3>Welcome Reporting Analyst</h3>
+    </div>
+   
+    </div>
+
+<script>
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    })
+    </script>

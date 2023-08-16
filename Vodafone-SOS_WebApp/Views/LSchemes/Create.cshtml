@@ -1,0 +1,278 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSchemeViewModel
+@{
+    ViewBag.Title = "Create";
+}
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/jqxprogressbar.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+
+<script>
+
+    //variables defined here are global which can be used in multiple functions
+    var FormDat = new FormData();
+    //This variable is defined to store value if form has any changes since it has loaded
+    //var isChanged = false;
+    var PortfolioArray = [];
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '40%',
+           // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode:'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel',width:'30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+
+
+        var renderText = function (text, Value) {
+            if (Value < 55) {
+                return "<span style='color: #333;'>" + text + "</span>";
+            }
+            return "<span style='color: #fff;'>" + text + "</span>";
+        }
+        $("#jqxProgressBar2").jqxProgressBar({ animationDuration: 10, showText: true, renderText: renderText, template: 'primary', width: '70%', height: 15, Value: 0 });
+
+
+        document.getElementById('Upload').addEventListener('click', function () {
+            var Form1 = $('#frm');
+            Form1.validate();
+            if (Form1.valid()) {
+                if (document.getElementById('File1').value) {
+
+                    //get selected rows in portfolios
+                    var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+                    for (var i = 0; i < rowindexes.length; ++i) {
+                        var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                        PortfolioArray[i] = data.Id;
+                    }
+
+                    if (PortfolioArray.length > 0) {
+                        document.getElementById('formPage').style.display = 'none'
+                        document.getElementById('progressPage').style.display = 'block'
+
+                        jQuery.each(jQuery('#File1')[0].files, function (i, file) {
+                            FormDat.append('File1', file);
+                        });
+
+                        jQuery.each(jQuery('#FileUpload')[0].files, function (i, file) {
+                            FormDat.append('FileUpload', file);
+                        });
+
+                        FormDat.append("LsName", document.getElementById('LsName').value)
+                        FormDat.append("WFComments", document.getElementById('WFComments').value)
+                        FormDat.append("PortfolioList", PortfolioArray)
+
+                        var xhr = UploadFile();
+                        isChanged = false;
+                        xhr.send(FormDat);
+                    }
+                    else
+                    {
+                        alert("Please choose Portfolio")
+                    }
+                }
+                else {
+                    alert("Please choose file")
+                    document.getElementById('File1').focus()
+                }
+            }
+
+            },false)
+    })
+
+
+
+
+    //This method is called on upload button click on the create page
+    function UploadFile() {
+        var xhr = new window.XMLHttpRequest();
+                document.getElementById('formPage').style.display = 'none'
+                document.getElementById('progressPage').style.display = 'block'
+
+                xhr.open('POST', "/LSchemes/UploadScheme", true);
+
+                xhr.upload.addEventListener("progress", function (evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total * 100;
+                        var PrecisionValue = percentComplete.toPrecision(4) + '%';
+                        document.getElementById('Progress').innerHTML = PrecisionValue
+                        $('#jqxProgressBar2').jqxProgressBar({ Value: percentComplete });
+                        if (percentComplete == 100)
+                        {
+                            $('#jqxLoader').jqxLoader('open');
+                        }
+                    }
+
+                }, false);
+
+                //xhr.onreadystatechange = function () {
+                //    if (xhr.readyState == XMLHttpRequest.DONE) {
+                //        alert(xhr.responseText);
+                //    }
+                //}
+                xhr.onload = function (evt, data) {
+                        if (xhr.status == 200 && xhr.readyState == 4) {
+                            if (xhr.responseText) {
+                            var ResponseObj = JSON.parse(xhr.responseText);
+                            if (ResponseObj.ErrorMessage) {
+                                document.getElementById('ErrorMessage').innerHTML = ResponseObj.ErrorMessage;
+                            }
+                            else if (ResponseObj.PopupMessage) {
+                                alert(ResponseObj.PopupMessage)
+                            }
+                            if (ResponseObj.RedirectToUrl) {
+                                window.location.href = ResponseObj.RedirectToUrl;
+                            }
+                            document.getElementById('formPage').style.display = 'block'
+                            document.getElementById('progressPage').style.display = 'none'
+                            $('#jqxLoader').jqxLoader('close');
+                        }
+                        else {
+                            //Any unhanded error has been caught
+                            window.location.href = "/Home/Error";
+                        }
+
+                        }
+                        else {
+                            $('#jqxLoader').jqxLoader('close');
+                        }
+
+                };
+
+                xhr.onabort = function (evt) {
+                    alert("upload cancelled")
+                    //window.location.href = window.location.href
+                };
+
+        return xhr;
+    }
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+
+    }
+
+</script>
+
+<div id="jqxLoader">
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+
+        <h4 id="ErrorMessage" style="color:red;"></h4>
+        <div class="form-group">
+                @Html.LabelFor(model => model.LsName, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.LsName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LsName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.WFComments, htmlAttributes: new { @class = "control-label  col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.WFComments, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.WFComments, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.Label("Choose File", htmlAttributes: new { @class = "control-label  col-md-2 required" })
+            <div class="col-md-10">
+                <input type="file" name="File1" id="File1" class="form-control" multiple="multiple">
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-2 required" })
+            <br>
+            <div class="col-md-10">
+                <div id="jqxgrid"></div>
+            </div>
+        </div>
+
+        <div class="form-group" id="formPage">
+            <div class="col-md-10">
+                <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+                <button type="button" id="Upload" name="Upload" class="btn btn-red btn-cons">Upload&nbsp;</button>
+                <label for="FileUpload" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)"><br />
+            </div>
+
+        </div>
+
+
+        <div class="form-group" style="padding-left:20px;">
+
+            <div id="progressPage" style="display:none;">
+                <br>
+                <div id="jqxProgressBar2"></div>
+                <span id="Progress" class="badge">0%</span>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+<br>
+<div class="col-md-12" id="AttachedFiles"></div>
+<br>
+<style>
+    #FileUpload {
+        display: none;
+    }
+</style>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

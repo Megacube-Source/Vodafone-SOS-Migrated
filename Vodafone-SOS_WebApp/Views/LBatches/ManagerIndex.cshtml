@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "Manager Index";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["RawDataDocumentPath"].ToString();
+}
+<script>
+      //method to down load files as per batch number
+    function DownLoadBatch(dat) {
+        window.location.href = '@ViewBag.DashboardFilePath' + "/" + dat + '/InputData.csv'
+
+    }
+
+    //method to download pdf files
+    function DownLoadPDF(BtNumber, RdtName) { //SOS batch Number and RawDataTableName
+
+        window.location.href = '/Lbatches/DownloadRawDataDashboardFile?SOSBatchNumber=' + BtNumber + '&RawDataTableName=' + RdtName;
+    }
+
+    $(document).ready(function () {
+        // Create jqxTabs.
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        GetGrid("PendingApproval") //Parameter being passed in this code is case# in the controller method
+        GetGrid("ReExamine") //Parameter being passed in this code is case# in the controller method
+        GetGrid("Approved") //Parameter being passed in this code is case# in the controller method
+
+        $("#jqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingApproval').jqxGrid('getdatainformation');
+            if (datainformations) {
+                // alert(data22.Count)
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+        });
+
+        $("#jqxgridReExamine").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridReExamine').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations) {
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+            }
+        });
+
+        $("#jqxgridApproved").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridApproved').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b3').innerHTML = datainformations.rowscount;
+            }
+        });
+
+        @*$('#jqxgrid4').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgrid4').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid4').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Index", "LRawData", new {Id = "__id__" })';
+                window.location.href = url.replace("__id__", xx);
+            }
+        });*@
+        @*$('#jqxgrid2').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgrid2').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid2').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Index", "LRawData", new {Id = "__id__" })';
+                window.location.href = url.replace("__id__", xx);
+            }
+        });*@
+    });
+
+    function GetGrid(TabName)
+    {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LbRawDataTableId', type: 'int' },
+                { name: 'LbCommissionPeriod', type: 'string' },
+                { name: 'LrdtName', type: 'string' },
+                { name: 'LbRawDataTableId', type: 'string' },
+                { name: 'LbBatchNumber', type: 'string' },
+                { name: 'LbUploadStartDateTime', type: 'date' },
+                { name: 'LbRecordCount', type: 'string' },
+                { name: 'count', type: 'string' },
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LBatches/GetBatchGrid"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var BtNumber = yy.LbBatchNumber;
+            var RawDataTableId = yy.LbRawDataTableId;
+            var RawDataTableName = yy.LrdtName;
+
+
+            if (TabName == "PendingApproval") {
+                return '<button onclick="FnReview(' + BtNumber + ',' + RawDataTableId + ')" class="GridButton">Review</button>&ensp;<button onclick="return DownLoadBatch(' + BtNumber + ')" class="GridButton">Download</button>&ensp;<button onclick="DownLoadPDF(' + BtNumber + ', \'' + RawDataTableName + '\')" class="GridButton">Dashboard</button>';
+            }
+            else {
+                return '<button onclick="return DownLoadBatch(' + BtNumber + ')" class="GridButton">Download</button>&ensp;<button onclick="return DownLoadPDF(' + BtNumber + ', \'' + RawDataTableName + '\')" class="GridButton">Dashboard</button>';
+            }
+        };
+
+
+        $('#jqxgrid'+TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+                },
+
+            columns: [
+
+                { text: 'Commission Period', datafield: 'LbCommissionPeriod' },
+                { text: 'Raw Data Type', datafield: 'LrdtName' },
+                { text: 'Batch Number', datafield: 'LbBatchNumber' },
+                { text: 'Record Count', datafield: 'LbRecordCount' },
+                { text: 'Created Date', datafield: 'LbUploadStartDateTime', cellsformat: "dd/MM/yyyy hh:mm" },
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: ' 20%' }
+            ]
+        });
+
+
+    }
+
+    //This function executes when user clicks on "Review" button/link on ReportingAnalyst RawData batches grid
+    function FnReview(SOSBatchNumber, RawDataTableId) {
+        if (SOSBatchNumber) {
+            window.location.href = '/LRawData/Index?SOSBatchNumber=' + SOSBatchNumber + '&RawDataTableId=' + RawDataTableId
+        }
+    }
+
+</script>
+
+<div class="boxes">
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Pending Approval <span class="badge" id="b1">0</span></li>
+            <li>Returned for Re-Examine <span class="badge" id="b2">0</span></li>
+            <li>Approved <span class="badge" id="b3">0</span></li>
+        </ul>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridPendingApproval">
+            </div>
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridReExamine">
+            </div>
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridApproved">
+            </div>
+        </div>
+    </div>
+</div>

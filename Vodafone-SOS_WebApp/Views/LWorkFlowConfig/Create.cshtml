@@ -1,0 +1,157 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LWorkflowConfigViewModel
+@{
+    ViewBag.Title = "Create WorkFlow Configuration";
+}
+
+<script>
+
+
+
+    //method to get roles by companyId
+    function GetRoles(CompanyId) {
+        $("#LwfcRoleId").empty()
+        if (CompanyId) {
+            var procemessage = "<option value=null> Please wait...</option>";
+            $("#LwfcRoleId").html(procemessage).show();
+
+            var url = "/LWorkFlowConfig/GetRolesByCompanyId/";
+
+            $.ajax({
+                url: url,
+                data: { CompanyId: CompanyId },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    if (data.length != 0) {
+                        var markup = "<option value=null>-- Select Here --</option>";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+
+                        }
+                        $("#LwfcRoleId").html(markup).show();
+                    } else {
+                        var procemessage = "<option value=0> No Records Found..</option>";
+                        $("#LwfcRoleId").html(procemessage).show();
+                    }
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+        }
+    }
+
+
+    function FnBack() {
+
+        var CompanyId = document.getElementById('LwfcCompanyId').value;
+        var WFId = document.getElementById('LwfcWorkFlowId').value;
+        alert(CompanyId + WFId);
+        window.location.href = '@Url.Action("Index", "LWorkFlowConfig")?CompanyId=' + CompanyId + '&WFId=' + WFId ;
+    }
+
+    function FnError() {
+        alert("Can not change the field value");
+        return;
+    }
+
+</script>
+
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label required col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownListFor(model => model.LwfcCompanyId, null, "-- Select Here --", new { @class = "form-control required", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+
+        @Html.LabelFor(model => model.LwfcWorkFlowId, htmlAttributes: new { @class = "control-label required col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownListFor(model => model.LwfcWorkFlowId, null, "-- Select Here --", new { @class = "form-control required ", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+    </div>
+</div>
+
+
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+    {
+
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+            <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+            <h3>Create Workflow Configuration</h3>
+
+            <div class="form-group">
+                @Html.Label("Role", htmlAttributes: new { @class = "control-label required col-md-2 " })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.LwfcRoleId, null, "-- Select Here --", new { @class = "form-control required" })
+                    @Html.ValidationMessageFor(model => model.LwfcRoleId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcDescription, htmlAttributes: new { @class = "control-label  col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.LwfcDescription, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LwfcDescription, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcActingAs, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.LwfcActingAs, null, "-- Select Here --", new { @class = "form-control required " })
+                    @Html.ValidationMessageFor(model => model.LwfcActingAs, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcOrdinalNumber, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.LwfcOrdinalNumber, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LwfcOrdinalNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcCanCreate, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.CheckBoxFor(model => model.LwfcCanCreate)
+                    @Html.ValidationMessageFor(model => model.LwfcCanCreate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcDoNotNotify, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.CheckBoxFor(model => model.LwfcDoNotNotify)
+                    @Html.ValidationMessageFor(model => model.LwfcDoNotNotify, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcSkip, htmlAttributes: new { @class = "control-label required col-md-2" })
+                <div class="col-md-10">
+                    @Html.CheckBoxFor(model => model.LwfcSkip)
+                    @Html.ValidationMessageFor(model => model.LwfcSkip, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.LwfcSkipFunctionName, htmlAttributes: new { @class = "control-label  col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.LwfcSkipFunctionName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LwfcSkipFunctionName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+                    <input type="submit" value="Save" class="btn btn-red btn-cons" />
+
+                </div>
+            </div>
+
+        </div>
+
+    }
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }

@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewBag.Title = "AttachTestResults";
+}
+
+
+<script>
+
+    //This method checks the type of file which is being uploaded while submitting form
+    function Fnchecksubmit() {
+        var xx = document.getElementById('File1').value
+        if (xx) {
+            document.getElementById('UploadButton').disabled = true;
+            document.getElementById('Message').style.display='block'
+    document.getElementById('frm').submit()
+        } else {
+            alert("Please choose file")
+        }
+    }
+    </script>
+
+<div style="padding:10px;">
+
+
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+    {
+        @Html.Hidden("TransactionId")
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10">
+                    <input type="file" name="File1" id="File1" multiple="multiple" class="form-control">
+                </div>
+                <div class="col-md-5">
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button type="button" class="btn btn-borderRed btn-cons" id="UploadButton" title="click here to attach test results" onclick="if (document.getElementById('File1').value) { return Fnchecksubmit() } else { alert('Please choose a file') }">Upload File&nbsp;</button>
+                </div>
+                <div class="col-md-11" id="Message" style="display:none;"><b>Please Wait</b> ! while Attachments is being uploaded</div><br>
+            </div>
+
+        </div>
+
+    }
+   
+</div>
+
+
+
+
+

@@ -1,0 +1,667 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LCalcForReportsViewModel
+
+@{
+    ViewBag.Title = "Calculations report";
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script src="~/Scripts/jqxslider.js"></script>
+
+<script>
+    //Global Variables
+     var datafields = new Array();
+    var columns = new Array();
+    var PeriodCheckedIndexes='';
+    //NOTE: In all jqxdatetime controls one is added in month while converting Min jqxdatetime Max razor and vise versa because months are counted Min 0 in JS date
+    $(document).ready(function () {
+        //This call is made Max save url of current page which would be the url of back butMaxn in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+      //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach (var d in CompanySpecificColumns)
+        {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+            if(d.LcscDisplayOnForm==true && d.ColumnName != "PayeeAttachmentId")
+            {
+            @: if("@d.DataType"=='bool')
+            @:{
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%',columntype:'checkbox'});
+        @:}
+        @:else
+        @:{
+        @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+    @:}
+    }
+                                                                                                        }
+    if(datafields.indexOf('XAlteryxTransactionNumber')==-1)
+    {
+    datafields.push({ name: "XAlteryxTransactionNumber", type: "string" });
+    }
+        //This line adds jqxDattime control Max get start date value
+        $("#MinOrder").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MinOrder').on('change', function (event) {
+            var jsDate = event.args.date;
+            var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('FromOrderDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+            //var ToOrderDate = jsDate.setMonth(jsDate.getMonth()+3)
+            $('#MaxOrder').jqxDateTimeInput('setMinDate', jsDate);
+            if(!document.getElementById('ToOrderDate').value)
+            {
+                $('#MaxOrder').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+      //  DisplayButMaxns()
+        $("#MaxOrder").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MaxOrder').on('change', function (event) {
+            var jsDate = event.args.date;
+          var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('ToOrderDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+           // var FromOrderDate = jsDate.setMonth(jsDate.getMonth() -3)
+            $('#MinOrder').jqxDateTimeInput('setMaxDate', jsDate);
+            if (!document.getElementById('FromOrderDate').value) {
+                $('#MinOrder').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+        @*@if (Model.FromOrderDate.HasValue) {
+           @: var Start = new Date('@Model.FromOrderDate.Value.Year', '@Model.FromOrderDate.Value.Month'-1, '@Model.FromOrderDate.Value.Day')
+           @: $('#FromOrderDate').jqxDateTimeInput('setDate', Start);
+        }
+        @if (Model.ToOrderDate.HasValue) {
+           @: var End = new Date('@Model.ToOrderDate.Value.Year', '@Model.ToOrderDate.Value.Month'-1, '@Model.ToOrderDate.Value.Day')
+           @: $('#ToOrderDate').jqxDateTimeInput('setDate', End);
+        }*@
+        //if()
+
+        $("#MinOrder").prop('', true);
+        $("#MaxOrder").prop('', true);
+
+        $("#MinConnection").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MinConnection').on('change', function (event) {
+            var jsDate = event.args.date;
+           var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('FromConnectionDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+            //var ToOrderDate = jsDate.setMonth(jsDate.getMonth()+3)
+            $('#MaxConnection').jqxDateTimeInput('setMinDate', jsDate);
+            if (!document.getElementById('ToConnectionDate').value) {
+                $('#MaxConnection').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+        //  DisplayButMaxns()
+        $("#MaxConnection").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MaxConnection').on('change', function (event) {
+            var jsDate = event.args.date;
+            var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('ToConnectionDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+            // var FromOrderDate = jsDate.setMonth(jsDate.getMonth() -3)
+            $('#MinConnection').jqxDateTimeInput('setMaxDate', jsDate);
+            if (!document.getElementById('FromConnectionDate').value) {
+                $('#MinConnection').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+        $("#MinTermination").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MinTermination').on('change', function (event) {
+            var jsDate = event.args.date;
+           var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('FromTerminationDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+            //var ToOrderDate = jsDate.setMonth(jsDate.getMonth()+3)
+            $('#MaxTermination').jqxDateTimeInput('setMinDate', jsDate);
+            if (!document.getElementById('ToTerminationDate').value) {
+                $('#MaxTermination').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+        //  DisplayButMaxns()
+        $("#MaxTermination").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#MaxTermination').on('change', function (event) {
+            var jsDate = event.args.date;
+           var d = String('0'+jsDate.getDate());        // yields date
+           var  day=d.substring(d.length - 2, d.length)
+            var m = 0+String(parseInt(jsDate.getMonth()) + 1);
+             var month=  m.substring(m.length - 2, m.length)      // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "-" + month + "-" + day
+            //alert(jsDate)
+            document.getElementById('ToTerminationDate').value = date//$('#ShiftFromOrderDateTime').jqxDateTimeInput('getText');;
+            // var FromOrderDate = jsDate.setMonth(jsDate.getMonth() -3)
+            $('#MinTermination').jqxDateTimeInput('setMaxDate', jsDate);
+            if (!document.getElementById('FromTerminationDate').value) {
+                $('#MinTermination').jqxDateTimeInput('setDate', jsDate);
+            }
+        });
+
+     //These lines add the value to  dates if present in model
+        @if (Model.FromConnectionDate.HasValue) {
+            @: var Connection = new Date('@Model.FromConnectionDate.Value.Year', '@Model.FromConnectionDate.Value.Month'-1, '@Model.FromConnectionDate.Value.Day')
+            @: $('#MinConnection').jqxDateTimeInput('setDate', Connection);
+        }
+        @if (Model.FromOrderDate.HasValue) {
+            @: var Order = new Date('@Model.FromOrderDate.Value.Year', '@Model.FromOrderDate.Value.Month'-1, '@Model.FromOrderDate.Value.Day')
+            @: $('#MinOrder').jqxDateTimeInput('setDate', Order);
+        }
+        @if (Model.ToConnectionDate.HasValue) {
+            @: var ConDate = new Date('@Model.ToConnectionDate.Value.Year', '@Model.ToConnectionDate.Value.Month'-1, '@Model.ToConnectionDate.Value.Day')
+            @: $('#MaxConnection').jqxDateTimeInput('setDate', ConDate);
+        }
+        @if (Model.ToOrderDate.HasValue) {
+            @: var DT = new Date('@Model.ToOrderDate.Value.Year', '@Model.ToOrderDate.Value.Month' - 1, '@Model.ToOrderDate.Value.Day')
+            @: $('#MaxOrder').jqxDateTimeInput('setDate', DT);
+        }
+        @if (Model.FromTerminationDate.HasValue) {
+            @: var FromTerm = new Date('@Model.FromTerminationDate.Value.Year', '@Model.FromTerminationDate.Value.Month' - 1, '@Model.FromTerminationDate.Value.Day')
+            @: $('#MinTermination').jqxDateTimeInput('setDate', FromTerm);
+        }
+         @if (Model.ToTerminationDate.HasValue) {
+            @: var TOTerm = new Date('@Model.ToTerminationDate.Value.Year', '@Model.ToTerminationDate.Value.Month' - 1, '@Model.ToTerminationDate.Value.Day')
+            @: $('#MaxTermination').jqxDateTimeInput('setDate', TOTerm);
+        }
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var GridLoading = '@Model.IsGridLoading';
+        if (GridLoading) {
+            FnGetGrid();
+        }
+
+    var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcpStatus', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LCalc/GetCommissionPeriod"
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        // Create a jqxListBox for Commissionperiod multi selection
+        $("#listboxCommPeriod").jqxDropDownList({ checkboxes: false, source: dataAdapter2, displayMember: "LcpStatus", valueMember: "Id", dropDownWidth: 350, placeHolder: "-- Select Here --", width: '170px' });
+        $("#listboxCommPeriod").on('select', function (event) {
+            var args = event.args;
+            if (args.checked) {
+                $("#Events").text("Checked: " + args.label);
+            }
+            else {
+                $("#Events").text("Unchecked: " + args.label);
+            }
+            var items = $("#listboxCommPeriod").jqxDropDownList('getSelectedItem');//$("#listboxPortfolio").jqxDropDownList('getCheckedItems');
+            var checkedItems = items.value;
+            PeriodCheckedIndexes = items.index;
+            document.getElementById('CommissionPeriod').value = checkedItems;
+        });
+    });
+
+
+    //this function will load grid in view
+    function FnGetGrid()
+    {
+
+        var Form1 = $("#frm")
+        $.ajax({
+            data: Form1.serialize(),
+            url: "/LCalc/GetCalcReportsCountsJson",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+    /*b. Select count(*) from XCalc. If count > 100,000, give message 'More than 100,000 rows returned. Please apply more restrictive filters and re-run'*/
+    if(Number(counts)>100000)
+    {
+    alert('Please apply more restrictive filters and re-run')
+    return;
+    }
+                //passing parameters instead of model as this method Max get data works in a get type method
+                var PrimaryChannel = document.getElementById('PrimaryChannel').value
+                var PayeeId = document.getElementById('PayeeId').value
+                var MinIMEI = document.getElementById('MinIMEI').value
+                var MaxIMEI = document.getElementById('MaxIMEI').value;
+                var MinBAN = document.getElementById('MinBAN').value
+                var MaxBAN = document.getElementById('MaxBAN').value
+                var MinContractDuration = document.getElementById('MinContractDuration').value
+                var MaxContractDuration = document.getElementById('MaxContractDuration').value
+                var MinCommissionAmount = document.getElementById('MinCommissionAmount').value
+                var MaxCommissionAmount = document.getElementById('MaxCommissionAmount').value
+                var FromOrderDate = document.getElementById('FromOrderDate').value
+                var ToOrderDate = document.getElementById('ToOrderDate').value
+                var FromConnectionDate = document.getElementById('FromConnectionDate').value
+                var ToConnectionDate = document.getElementById('ToConnectionDate').value
+                var FromTerminationDate = document.getElementById('FromTerminationDate').value
+                var ToTerminationDate = document.getElementById('ToTerminationDate').value;
+     var MinSubscriberNumber = document.getElementById('MinSubscriberNumber').value
+                var MaxSubscriberNumber = document.getElementById('MaxSubscriberNumber').value;
+                var CalcSource = document.getElementById('Source').value;
+             var ProductCode=document.getElementById('ProductCode').value;
+      var CommissionType = document.getElementById('CommissionType').value;
+             var ActivityType=document.getElementById('ActivityType').value;
+    var CommissionPeriod=document.getElementById('CommissionPeriod').value;
+                var source = {
+                    dataType: "json",
+                    type: "GET",
+                    dataFields: datafields,
+    /*[
+                         { name: 'Id', type: 'int' },
+                { name: 'LcOpCoCode', type: 'string' },
+                { name: 'LcSource', type: 'string' },
+                { name: 'LcAdjustmenCode', type: 'string' },
+                { name: 'LcSOSBatchNumber', type: 'Int' },
+                { name: 'LcAlteryxTransactionNumber', type: 'Int' },
+                { name: 'LcPrimaryChannel', type: 'string' },
+                { name: 'LcPayee', type: 'string' },
+                { name: 'LcParentPayee', type: 'string' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcTerminationDate', type: 'date' },
+                { name: 'LcSubscriberNumber', type: 'string' },
+                { name: 'LcBAN', type: 'string' },
+                { name: 'LcActivityType', type: 'string' },
+                { name: 'LcPlanDescrition', type: 'string' },
+                { name: 'LcProductCode', type: 'string' },
+                { name: 'LcUpgradeCode', type: 'string' },
+                { name: 'LcIMEI', type: 'string' },
+                { name: 'LcDevieCode', type: 'string' },
+                { name: 'LcDeviceType', type: 'string' },
+                { name: 'LcCommType', type: 'string' },
+                { name: 'LcContractDuration', type: 'Int' },
+                { name: 'LcContractId', type: 'string' },
+                { name: 'LcCommAmtExTax', type: 'decimal' },
+                { name: 'LcTax', type: 'decimal' },
+                { name: 'LcCommAmtIncTax', type: 'decimal' }
+                    ],
+    */
+                    data: {CommissionPeriod:CommissionPeriod,ProductCode:ProductCode,CommissionType:CommissionType,ActivityType:ActivityType,MinSubscriberNumber:MinSubscriberNumber,MaxSubscriberNumber:MaxSubscriberNumber, Source: CalcSource,PrimaryChannel:PrimaryChannel,PayeeId:PayeeId,MinIMEI:MinIMEI,MaxIMEI:MaxIMEI,MinBAN:MinBAN,MaxBAN:MaxBAN,MinContractDuration:MinContractDuration,MaxContractDuration:MaxContractDuration,MinCommissionAmount:MinCommissionAmount,MaxCommissionAmount:MaxCommissionAmount,FromOrderDate:FromOrderDate,ToOrderDate:ToOrderDate,FromConnectionDate:FromConnectionDate,ToConnectionDate:ToConnectionDate,FromTerminationDate:FromTerminationDate,ToTerminationDate:ToTerminationDate},
+                    url: '/LCalc/GetCalcReportsJson',
+                    // update the grid and send a request Max the api
+                    filter: function () {
+                        //$("#" + GridId).jqxGrid('clear');
+                       $('#CalcGrid').jqxGrid('updatebounddata', 'filter');
+                    },
+                    // update the grid and send a request Max the api
+                    sort: function () {
+                        // $("#" + GridId).jqxGrid('clear');
+                        $('#CalcGrid').jqxGrid('updatebounddata', 'sort');
+                    },
+                    update: function () {
+                        $('#CalcGrid').jqxGrid('updatebounddata', 'cells');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                       source.totalrecords = counts;
+                    }
+                };
+
+
+
+                var dataAdapter = new $.jqx.dataAdapter(source)
+              //  dataAdapter.dataBind();
+               // alert(dataAdapter.records)
+               // if (dataAdapter.records[0] > 0) {
+
+
+                /* source: dataAdapter,
+                        width: '100%',
+                        autoheight: true,
+                        theme: 'bootstrap',
+                        showtoolbar: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        pageable: true,
+                        pagesize: 200,
+                        editable: false,
+                        filterable: true,
+                        sortable: true,
+                        pagesizeoptions: [10, 20, 50, 100, 200, 500, 1000],
+                        rowdetails: true,
+                        rendertoolbar: function (toolbar) {
+                            var container = $('<div style="margin: 5px;"></div>');
+                            toolbar.append(container);
+                            var Names = $("<div style='margin: 10px;'><b> Calculations</b></div>");
+                            container.append(Names);
+                        },
+                        virtualmode: true,
+                        rendergridrows: function () {
+                            return dataAdapter.records;
+                        },*/
+
+                    $('#CalcGrid').jqxGrid({
+
+                        source: dataAdapter,
+                        width: "100%",
+                        columnsresize: true,
+                        pageable: true,
+                        pagesize: 200,
+                        editable: false,
+                        filterable: true,
+                        autoshowcolumnsmenubutton: false,
+                        sortable: true,
+                        enablebrowserselection: true,
+                        pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+                        virtualmode: true,
+                        enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                       // // rtl: true,
+                       //// selectionmode: 'checkbox',
+                        rendergridrows: function () {
+                           return dataAdapter.records;
+                        },
+                        columns:columns
+    /*[
+                            { text: 'OpCo', datafield: 'LcOpCoCode', width: '10%' },
+                            { text: 'Source', datafield: 'LcSource', width: '10%' },
+                            { text: 'Adjustment Code', datafield: 'LcAdjustmenCode', width: '10%' },
+                            { text: 'Batch#', datafield: 'LcSOSBatchNumber', width: '10%' },
+                            { text: 'Transaction#', datafield: 'LcAlteryxTransactionNumber', width: '10%' },
+                            { text: 'Pri Channel', datafield: 'LcPrimaryChannel', width: '10%' },
+                            { text: 'Payee', datafield: 'LcPayee', width: '10%' },
+                            { text: 'Parent Payee', datafield: 'LcParentPayee', width: '10%' },
+                            { text: 'Order Date', datafield: 'LcOrderDate', width: '10%', cellsformat: "dd/MM/yyyy" },
+                            { text: 'Conn Date', datafield: 'LcConnectionDate', width: '10%', cellsformat: "dd/MM/yyyy" },
+                            { text: 'Term Date', datafield: 'LcTerminationDate', width: '10%', cellsformat: "dd/MM/yyyy" },
+                            { text: 'Subscriber#', datafield: 'LcSubscriberNumber', width: '10%' },
+                            { text: 'BAN', datafield: 'LcBAN', width: '10%' },
+                            { text: 'Activity Type', datafield: 'LcActivityType', width: '10%' },
+                            { text: 'Plan Description', datafield: 'LcPlanDescrition', width: '10%' },
+                            { text: 'Product Code', datafield: 'LcProductCode', width: '10%' },
+                            { text: 'Upgrade Code', datafield: 'LcUpgradeCode', width: '10%' },
+                            { text: 'IMEI', datafield: 'LcIMEI', width: '10%' },
+                            { text: 'Device Code', datafield: 'LcDevieCode', width: '10%' },
+                            { text: 'Device Type', datafield: 'LcDeviceType', width: '10%' },
+                            { text: 'Comm Type', datafield: 'LcCommType', width: '10%' },
+                            { text: 'Contract Duration', datafield: 'LcContractDuration', width: '10%' },
+                            { text: 'Contract Id', datafield: 'LcContractId', width: '10%' },
+                            { text: 'Comm Ex Tax', datafield: 'LcCommAmtExTax', width: '10%' },
+                            { text: 'Tax', datafield: 'LcTax', width: '10%' },
+                            { text: 'Comm Inc tax', datafield: 'LcCommAmtIncTax', width: '10%' }
+                        ]*/
+                    });
+
+               // }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    }
+
+    //This method will refresh the Page to load the grid
+    function FnReLoadGrid()
+    {
+    if(document.getElementById('CommissionPeriod').value)
+    {
+        document.getElementById('IsGridLoading').value = true;
+        document.getElementById('frm').action = '/LCalc/GetCalcReports'
+        document.getElementById('frm').submit()
+    }
+    else
+    {
+    alert('Please choose Commission Period')
+    }
+    }
+
+    //This method is called when user clicks on download butMaxn
+    function FnDownloadcsv() {
+     if(document.getElementById('CommissionPeriod').value)
+    {
+        document.getElementById('frm').action ='/LCalc/DownloadCalcReportsJson'
+       document.getElementById('frm').submit();
+     }
+    else
+    {
+    alert('Please choose Commission Period')
+    }
+        //submit the form and export data as csv
+
+    }
+    //This function will be called  when a user input any field in Min / Max of any item them other one would be auMax filled\
+    function AuMaxfillMaxMin(FormName,FormValue)
+    {
+        //alert(FormName)
+        var MinFormName = 'Min' + FormName;
+        var MaxFormName = 'Max' + FormName;
+        if (!document.getElementById(MinFormName).value) {
+            document.getElementById(MinFormName).value = FormValue;
+        }
+        if (!document.getElementById(MaxFormName).value) {
+            document.getElementById(MaxFormName).value = FormValue;
+        }
+    }
+
+</script>
+
+<div class="boxes">
+    <h3 style="color:#e60000;">Calculation Report</h3>
+    @using (Html.BeginForm(null,null, FormMethod.Post, new { id = "frm", name = "frm" }))
+    {
+        @*@Html.AntiForgeryToken()*@
+        @Html.HiddenFor(m=>m.IsGridLoading)
+        @Html.Hidden("FromOrderDate", null)
+        @Html.Hidden("ToOrderDate", null)
+        @Html.Hidden("FromConnectionDate", null)
+        @Html.Hidden("ToConnectionDate", null)
+        @Html.Hidden("FromTerminationDate", null)
+        @Html.Hidden("ToTerminationDate", null)
+        @Html.Hidden("CommissionPeriod")
+        @Html.Hidden("PayeeId")
+        <div class="row date">
+
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Source", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8">
+                    @Html.DropDownList("Source", null, "-- Select Here --", new { @class = "form-control" })
+
+                </div>
+            </div>
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Primary Channel", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(m => m.PrimaryChannel, null, "-- Select Here --", new { @class = "form-control" })
+
+                </div>
+            </div>
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Activity Type", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(m => m.ActivityType, null, "-- Select Here --", new { @class = "form-control" })
+
+                </div>
+            </div>
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Commission Type", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8">
+                    @Html.DropDownList("CommissionType", null, "-- Select Here --", new { @class = "form-control" })
+
+                </div>
+            </div>
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Product Code", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8">
+                    @Html.DropDownList("ProductCode", null, "-- Select Here --", new { @class = "form-control" })
+
+                </div>
+            </div>
+
+            <div class="col-md-4" style="min-height:60px;">
+                @Html.Label("Payee", htmlAttributes: new { @class = "control-label col-md-3 " })
+                <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search col-md-2" aria-hidden="true" title="zoom to select payee" style="color:#e60000;"></i></a>
+                <div class="col-md-7">
+                    @*@Html.DropDownListFor(m => m.PayeeId, null, "-- Select Here --", new { @class = "form-control" })*@
+                  @Html.Editor("PayeeName", new { htmlAttributes = new { @class = "", style = "pointer-Events:none;background:lightgray;",title="this.value" } })
+                </div>
+
+            </div>
+
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Subscriber Number", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MinSubscriberNumber, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('SubscriberNumber',this.value)" } })
+
+                </div>
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MaxSubscriberNumber, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('SubscriberNumber',this.value)" } })
+
+                </div>
+            </div>
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("BAN", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MinBAN, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('BAN',this.value)" } })
+
+                </div>
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MaxBAN, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('BAN',this.value)" } })
+
+                </div>
+            </div>
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("IMEI", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MinIMEI, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('IMEI',this.value)" } })
+
+                </div>
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MaxIMEI, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('IMEI',this.value)" } })
+
+                </div>
+            </div>
+
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Contract Duration", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MinContractDuration, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('ContractDuration',this.value)" } })
+
+                </div>
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MaxContractDuration, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('ContractDuration',this.value)" } })
+
+                </div>
+            </div>
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Commission Amount", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MinCommissionAmount, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('CommissionAmount',this.value)" } })
+
+                </div>
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.MaxCommissionAmount, new { htmlAttributes = new { @class = "form-control", onchange = "AuMaxfillMaxMin('CommissionAmount',this.value)" } })
+
+                </div>
+            </div>
+
+
+
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Order Date", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8 ">
+                    <div class="col-md-6 ">
+                        <div id="MinOrder"></div>
+
+                    </div>@*<div class="col-md-2">&emsp; Max &emsp;</div>*@
+                    <div class="col-md-6">
+                        <div id="MaxOrder"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Connection Date", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8 ">
+                    <div class="col-md-6 ">
+                        <div id="MinConnection"></div>
+
+                    </div>@*<div class="col-md-2">&emsp; Max &emsp;</div>*@
+                    <div class="col-md-6">
+                        <div id="MaxConnection"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" style="min-height:60px;">
+                @Html.Label("Termination Date", htmlAttributes: new { @class = "control-label col-md-4 " })
+                <div class="col-md-8 ">
+                    <div class="col-md-6 ">
+                        <div id="MinTermination"></div>
+
+                    </div>@*<div class="col-md-2">&emsp; Max &emsp;</div>*@
+                    <div class="col-md-6">
+                        <div id="MaxTermination"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Commission Period", htmlAttributes: new { @class = "control-label col-md-3 required" })
+                <div class="col-md-9">
+                    <div id="listboxCommPeriod">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    }
+    <div class="col-md-4 pull-left">
+        <br>
+        <butMaxn type="butMaxn" class="btn btn-red btn-cons" id="View" onclick="FnReLoadGrid()">View&nbsp;</butMaxn>
+        <butMaxn type="butMaxn" onclick="FnDownloadcsv()" id="download" class="btn btn-red btn-cons">Download &nbsp;</butMaxn>
+    </div>
+    <br>
+    <div id="CalcGrid"></div>
+    <br>
+    <br>
+    <br>
+
+    </div>
+@Html.Partial("_GlobalPayeeGrid")
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }

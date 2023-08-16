@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="599f41335e1a4938b3ce4ce838cfc058" Name="Diagram1">
+        <EntityTypeShape EntityType="SOSEDMV10Model.AspNetRole" Width="1.5" PointX="3.75" PointY="171" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="103.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="106.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.AspNetUserRole" Width="1.5" PointX="5.25" PointY="108.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.AspNetUser" Width="1.5" PointX="3" PointY="98.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.Debug" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GAuthorizableObject" Width="1.5" PointX="6.75" PointY="178.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GCompany" Width="1.5" PointX="0.75" PointY="122.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GEmailConfiguration" Width="1.5" PointX="6" PointY="99.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GErrorLog" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GKeyValue" Width="1.5" PointX="3" PointY="95.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GMenu" Width="1.5" PointX="5.75" PointY="163.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GSecurityQuestion" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.GUserActivityLog" Width="1.5" PointX="5.25" PointY="113.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LAccrual" Width="1.5" PointX="8.25" PointY="109.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LAllocationRule" Width="1.5" PointX="8.25" PointY="117.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LAttachment" Width="1.5" PointX="5.25" PointY="126.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LAudit" Width="1.5" PointX="5.25" PointY="118.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LBatch" Width="1.5" PointX="8.25" PointY="120.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LBatchFile" Width="1.5" PointX="10.5" PointY="148.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LChangeRequest" Width="1.5" PointX="11.25" PointY="113.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LClaim" Width="1.5" PointX="11.25" PointY="129" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LCommissionBatchAllocationRule" Width="1.5" PointX="11.25" PointY="109" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LCommissionPeriod" Width="1.5" PointX="11.25" PointY="122.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LCompanySpecificColumn" Width="1.5" PointX="14.25" PointY="130.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LCompanySpecificRawDataColumn" Width="1.5" PointX="5.25" PointY="138.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDashboardConfig" Width="1.5" PointX="14.25" PointY="115.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDatabas" Width="1.5" PointX="9" PointY="98" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDelegation" Width="1.5" PointX="14.25" PointY="121" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDocumentSet" Width="1.5" PointX="14.25" PointY="106.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDropDown" Width="1.5" PointX="3" PointY="130.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LDropDownValue" Width="1.5" PointX="5.25" PointY="130.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LEmailBucket" Width="1.5" PointX="8.25" PointY="101.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LEmailTemplate" Width="1.5" PointX="3" PointY="126.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LMessageAllowedRole" Width="1.5" PointX="6" PointY="175.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LMessageRecipient" Width="1.5" PointX="11.25" PointY="105.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LMessage" Width="1.5" PointX="17.25" PointY="115.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LPasswordHistory" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LPasswordPolicy" Width="1.5" PointX="6.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LPayeeParent" Width="1.5" PointX="18.75" PointY="133.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LPayee" Width="1.5" PointX="16.5" PointY="125.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LPortfolio" Width="1.5" PointX="5.25" PointY="134.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LRawDataTable" Width="1.5" PointX="3" PointY="138.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LReadyToPay" Width="1.5" PointX="14.25" PointY="125.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LReadyToPayDetail" Width="1.5" PointX="16.5" PointY="122.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LReadyToPayPortfolio" Width="1.5" PointX="7.5" PointY="142.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LRefFile" Width="1.5" PointX="17.25" PointY="108.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LRefFileType" Width="1.5" PointX="14.25" PointY="102.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LScheme" Width="1.5" PointX="17.25" PointY="100.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSMSBucket" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSupportingDocument" Width="1.5" PointX="5.25" PointY="252.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSupportRespons" Width="1.5" PointX="11.25" PointY="101.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSupportTicketAssignment" Width="1.5" PointX="19.5" PointY="117" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSupportTicket" Width="1.5" PointX="8.25" PointY="133" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LUser" Width="1.5" PointX="19.25" PointY="120.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LWorkFlowActionItem" Width="1.5" PointX="10.25" PointY="152" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LWorkFlowActionParameter" Width="1.5" PointX="12.5" PointY="152.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LWorkFlowConfig" Width="1.5" PointX="8" PointY="147.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LWorkflowGridColumn" Width="1.5" PointX="10.25" PointY="156.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MAspnetRolesGAuthorizableObject" Width="1.5" PointX="9" PointY="172.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MAspnetUsersGSecurityQuestion" Width="1.5" PointX="0.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MDocumentSetsPayee" Width="1.5" PointX="21.75" PointY="121.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MEntityPortfolio" Width="1.5" PointX="13.5" PointY="135.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MGMenusAspnetRole" Width="1.5" PointX="8" PointY="169.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.MSupportTicketPortfolio" Width="1.5" PointX="7.5" PointY="145.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RActivityType" Width="1.5" PointX="3" PointY="141.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RBrand" Width="1.5" PointX="3" PointY="144.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RChannel" Width="1.5" PointX="3" PointY="147.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RCommissionType" Width="1.5" PointX="3" PointY="151.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RDeviceType" Width="1.5" PointX="3" PointY="154.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RPayPublishEmail" Width="1.5" PointX="3" PointY="158" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RProductCode" Width="1.5" PointX="3" PointY="160.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RRejectionReason" Width="1.5" PointX="3" PointY="163.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RStatus" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RStatusOwner" Width="1.5" PointX="0.75" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RSubChannel" Width="1.5" PointX="5.25" PointY="147.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RSupportCategory" Width="1.5" PointX="3" PointY="166.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RSupportQuickTicket" Width="1.5" PointX="5.25" PointY="167" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RsupportTeam" Width="1.5" PointX="6" PointY="172.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RWorkFlow" Width="1.5" PointX="3" PointY="123" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.XBatchChildren" Width="1.5" PointX="2.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.XBatch" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.XBatchPortfolio" Width="1.5" PointX="4.75" PointY="8.75" IsExpanded="true" />
+        <AssociationConnector Association="SOSEDMV10Model.FK__LMessageA__Sende__737017C0" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LAccruals_RequesterRoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LAudit" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LBatches" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LChangeRequests" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LDocumentSets_RequesterRoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspNetRoles_LMessageAllowedRoles_ReciepientRoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LRefFiles_RequesterRoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LSchemes_RequesterRoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LUsers" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_LWorkFlowConfig" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_MAspnetRolesGAuthorizableObjects" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_MEntityPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_ASpnetRoles_MGMenusAspnetRoles" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetRoles_RSupportTeams" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDashboardConfig_AspNetRoles_RoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK__AspNetUse__GcCom__63A3C44B" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUser_LChangeRequests_WFAnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_GUserActivityLog_UelActionBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_GUserActivityLog_UelUserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_AnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_CurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_ManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_RequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAccruals_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAllocationRules" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAttachments_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAttachments_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LAudit_ActionedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LBatches" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LBatches_WFAnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LBatches_WFCurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LBatches_WFManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LBatches_WFRequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LChangeRequests_RequestedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LChangeRequests_RequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LChangeRequests_ReviewerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LChangeRequests_WFCurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LChangeRequests_WFManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_AllocatedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_AllocatedTo" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_ApprovedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_CreatedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_RejectedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_SentForApprovalBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_WFAnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_WFCurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_WFManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_WFRequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LClaims_WithdrawnBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LCommissionBatchAllocationRules" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LCommissionPeriods_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LCommissionPeriods_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDelegations_DelegationFrom" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDelegations_DeletationTo" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_AnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_CurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_ManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_RequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LDocumentSets_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LEmailBucket_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LEmailBucket_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_LastUpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_WFAnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_WFCurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_WFManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LPayees_WFRequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFiles_AnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFiles_CurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFiles_ManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFiles_RequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFileTypes_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LRefFileTypes_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_AnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_CurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_ManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_RequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemes_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportingDocuments_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportingDocuments_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportrtResponses" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTicket_LstCreatedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTicketAssignments" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTicketAssignments_LstaAssignedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_CurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_L1Id" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_L2Id" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_L3Id" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_LstCreatedOnBehalfOf" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSupportTickets_LstLastUpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_LuCreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_LuReportsToId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_LuUpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_LuUserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_WFAnalystId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_WFCurrentOwnerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_WFManagerId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LUsers_WFRequesterId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_AspnetUsers" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDashboardConfig_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessageRecipients_AspNetUsers" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessages_AspNetUsers_CreatedByID" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessages_AspNetUsers_SenderID" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessages_AspNetUsers_UpdatedByID" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LReadyToPay_AspNetUsers_CreatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LReadyToPay_AspNetUsers_UpdatedById" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GAuthorizableObjects_MAspnetRolesGAuthorizableObjects" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_GKeyValues" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_GUserActivitytLog" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LAccruals_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LAllocationRules" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LAudit" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LBatches" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LBatches_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LChangeRequests" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LChangeRequests_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LClaims_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LCommissionBatchAllocationRules" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LCommissionPeriods" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LCompanyspecificLabels" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LDelegations" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LDocumentSets_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LDropDowns" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LEmailTemplates" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LPayees_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LRefFiles_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LRefFileTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LSchemes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LSchemes_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LUsers" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LUsers_WFCopanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RActiveTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RBrands" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RChannels" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RCommissionTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RDeviceTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RPayPublishEmails" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RProductCodes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RRejectionReasons" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_RSupportCategories_RscCompanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LCompanies_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LCompanies_LRawDataTypes" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDashboardConfig_GCompanies_CompanyId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessages_GCompanies" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LReadyToPay_GCompanies_CompanyID" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GEmailConfigurations_LEmailBucket" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GMenus_MGMenusAspnetRoles" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GMenusGMenus_Id" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RWorkflows_LAudit" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LBatches_LBatches_LbParentBatchId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LBatches_LBatchFiles" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LRawDataTypes_LBatches" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPayees_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RActivityTypes_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RBrands_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RCommissionTypes_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RCommissionTypes_LClaims_Clawback" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RCommissionTypes_LClaims_Payment" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RDeviceTypes_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RProductCodes_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RRejectionReasons_LClaims" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDatabases_LCommissionPeriods_LcDatabaseId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LCompanySpecificColumns_LDropDowns" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LRawDataTables_LCompanySpecificRawDataColumns" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDocumentSets_MDocumentSetsPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LDropDowns_LDropDownValues" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LMessageRecipients_LMessages" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPayees_LPayeeParents_ParentPayeeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPayees_LPayeeParents_PayeeId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPayees_MDocumentSetsPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RChannels_Layees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RSubChannels_LPayees" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPortfolios_LReadyToPayPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPortfolios_MEntityPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LPortfolios_MSupportTicketPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RChannels_LPortfolios" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LReadyToPayDetails_LReadyToPay_ReadyToPayID" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LSupportTickets_LSupportResponses" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LSupportTickets_LSupportTicketAssignments" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RSupportTeams_RSupportTicketAssignments" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RSupportCategories_LSupportTickets" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RSupportTeams_LSupportTickets" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LWorkFlowActionItems_LWorkFlowActionParameters" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LWorkFlowConfig_LWorkFlowActionItems" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LWorkFlowConfig_LWorkFlowActionItems_LwfaiShowInTabWFConfigId" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LWorkFlowConfiguration_LWorkFlowGridColumns" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RWorkFlows_LWorkFlowConfig" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RChannels_RSubChannels" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RStatusOwners_RStatuses" ManuallyRouted="false" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RSupportCategories_RSupportQuickTickets" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LNotification" Width="1.5" PointX="14.25" PointY="143.375" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.RTicketStage" Width="1.5" PointX="6" PointY="153.125" />
+        <AssociationConnector Association="SOSEDMV10Model.FK__LNotifica__Recip__6AA5C795" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_CompanyID" />
+        <AssociationConnector Association="SOSEDMV10Model.FK__LNotifica__Email__68BD7F23" />
+        <AssociationConnector Association="SOSEDMV10Model.FK__LNotifica__Landi__69B1A35C" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_RTicketStages_LSupportTickets" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LCompanySpecificForm" Width="1.5" PointX="3" PointY="134.75" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_LCompanySpecificForms_GCompanies" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LUserLobby" Width="1.5" PointX="7.375" PointY="9.75" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LUserPreference" Width="1.5" PointX="9.375" PointY="9.75" />
+        <EntityTypeShape EntityType="SOSEDMV10Model.LSchemeOwner" Width="1.5" PointX="20.25" PointY="113.125" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemeOwner_CreatedById" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_AspnetUsers_LSchemeOwner_UpdatedById" />
+        <AssociationConnector Association="SOSEDMV10Model.FK_GCompanies_LSchemeOwner" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

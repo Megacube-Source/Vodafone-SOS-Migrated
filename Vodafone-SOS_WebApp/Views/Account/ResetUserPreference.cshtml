@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Reset Preference User";
+}
+
+<script>
+    
+
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "/Home/GetRolesList",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                $("#RoleDropDown1").jqxDropDownList({ source: data, width: 200 })
+                $.ajax({
+                    url: "/Account/GetSelectedLandingPage",
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+
+                        $("#RoleDropDown1").jqxDropDownList('selectItem', data)
+                    },
+                    error: function (reponse) {
+                        //  alert("error : " + reponse);
+                    }
+                    //displayMember:'Name',valueMember:'Id',
+
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+        //$("#RoleDropDown1").on('change', function (event) {
+        //    var item = event.args.item;
+        //    if (item.label) {
+        //        if (UserRole != item.label) {
+        //            UserRole = item.label;
+        //            sessionStorage.removeItem('CurrentTab')//remove entry for session storage for the currently selected tab
+        //            sessionStorage.removeItem('Workflow')
+        //            window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+        //            ShowHideMessageIcon();
+        //        }
+        //    }
+        //    if ($("#CompanyDropdown").length != 0) {
+        //        if (item.label == "Auditor") {
+        //            $("#CompanyDropdown").show();
+        //        } else {
+        //            $("#CompanyDropdown").hide();
+        //        }
+        //    }
+
+        //});
+
+    });
+
+    function SaveForm() {
+
+        var selectedRole = $("#RoleDropDown1").val();
+        $.ajax({
+            url: "/Account/UpdatSelectedLandingPage",
+            dataType: "json",
+            type: "POST",
+            data: { SelectedRole: selectedRole},
+            success: function (data) {
+                $("#RoleDropDown1").jqxDropDownList('selectItem', data)
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+            //displayMember:'Name',valueMember:'Id',
+
+        }); 
+        window.location.href = '/Account/UserSetting?Email=@ViewBag.Email';
+    }
+     
+</script>
+<h4 style="color:red;">User Settings -> Set default role</h4>
+
+
+
+Select Role: <div id="RoleDropDown1" style="background-color:white;color:#e60000; vertical-align:middle; display:inline-block;"></div> &nbsp; &nbsp;&nbsp;
+<button class="btn btn-red btn-cons" type="button" onclick="SaveForm();" id="SaveButton">Save&nbsp;</button>
+<br />

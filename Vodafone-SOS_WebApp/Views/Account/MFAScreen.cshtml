@@ -1,0 +1,28 @@
+﻿@model Vodafone_SOS_WebApp.Models.LoginViewModel
+@{
+    ViewBag.Title = "MFAScreen";
+}
+<h4 class="text-danger">@TempData["Message"]</h4>
+<h3>Multi-factor Authentication</h3>
+@using (Html.BeginForm("PostMFAScreen", "Account", FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.HiddenFor(p => p.Email)
+    @Html.HiddenFor(p => p.Password)
+    @Html.HiddenFor(p => p.Password)
+    <div class="form-horizontal">
+        
+        <p>Please Enter an MFA code to complete sign-in</p>
+        <div class="col-md-4" style="min-height:80px">
+            <label class="col-md-12"><strong>MFA Code</strong></label>
+            <div class="col-md-11">
+                @Html.Editor("MFAOTP", new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <div class="col-md-11" style="min-height:40px;padding-left:25px;">
+            <button class="btn btn-red col-md-3">Submit</button>
+        </div>
+        <div class="col-md-11" style="min-height:40px;padding-left:25px;">
+            <a href="/Home/Index"><u>Cancel</u></a>
+        </div>
+    </div>
+}

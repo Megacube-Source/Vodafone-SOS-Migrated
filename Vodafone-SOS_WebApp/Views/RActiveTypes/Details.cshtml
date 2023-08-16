@@ -1,0 +1,42 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.RActiveTypeViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>RActiveTypeViewModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.RatCompanyId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RatCompanyId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RatActiveTypeName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RatActiveTypeName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RatActiveTypeDescription)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RatActiveTypeDescription)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

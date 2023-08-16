@@ -1,0 +1,463 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    //save the current page url in a session variable which will be the url for the Back button in subsequent pages
+    $.ajax({
+        data: { path: window.location.pathname },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+    });
+
+    //These lines of code are added to display message from controller as popup
+    if ('@TempData["Message"]')
+    {
+        alert('@TempData["Message"]')
+    }
+        //This command loads tab in the view
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true, height: '80vh' });
+
+        //The function GetGrid loads the grid in tabs by passing tab name as parameter.
+        //Disable Withdraw and Open tab if User role is manager
+        @*var Role = '@HttpContext.Current.Session["UserRole"]'
+        Role=Role.toString
+        if (Role == "Manager") {
+            $('#jqxTabs').jqxTabs('removeAt', 0)
+            $('#jqxTabs').jqxTabs('removeAt', 2)
+            FnGetGrid("PendingApproval")
+            FnGetGrid("Rejected")
+            FnGetGrid("Approved")
+        }
+        //else if (Role == "Sales Operations" || Role == "System Analyst") {
+        else {*@
+            FnGetGrid("Open")
+            FnGetGrid("PendingApproval")
+            FnGetGrid("Withdrawn")
+            FnGetGrid("Rejected")
+            FnGetGrid("Approved")
+       // }
+
+        //This method is called when data binding is complete in a grid
+        $("#jqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bOpen').innerHTML = datainformations.rowscount;
+
+        });
+        $("#jqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingApproval').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bPendingApproval').innerHTML = datainformations.rowscount
+        });
+
+        //$("#jqxgridWithdrawn").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridWithdrawn').jqxGrid('getdatainformation');
+        //    // alert(data22.Count)
+        //    if (datainformations)
+        //        document.getElementById('bWithdrawn').innerHTML = datainformations.rowscount
+        //});
+
+        //$("#jqxgridRejected").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridRejected').jqxGrid('getdatainformation');
+        //    // alert(data22.Count)
+        //    if (datainformations)
+        //        document.getElementById('bRejected').innerHTML = datainformations.rowscount
+        //});
+
+        //$("#jqxgridApproved").on("bindingcomplete", function (event) {
+        //    //display counts
+        //    var datainformations = $('#jqxgridApproved').jqxGrid('getdatainformation');
+        //    // alert(data22.Count)
+        //    if (datainformations)
+        //        document.getElementById('bApproved').innerHTML = datainformations.rowscount
+        //});
+        var Role = '@HttpContext.Current.Session["UserRole"]'
+        if(Role=="Manager")
+        {
+            $("#jqxTabs").jqxTabs('removeAt', 0)
+            $("#jqxTabs").jqxTabs('removeAt', 1)
+        }
+      
+    })
+
+   // This method loads grid in view
+    function FnGetGrid(TabName) {
+
+        //variable defined to filter the uploaded files as per upload type
+      var UploadType='@ViewBag.UploadType'
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LufFileName', type: 'string' },
+                 { name: 'LrftName', type: 'string' },
+                { name: 'LufUserFriendlyFileName', type: 'string' },
+                { name: 'LufDescription', type: 'string' },
+                { name: 'LufYear', type: 'string' },
+                { name: 'LufMonth', type: 'string' },
+                { name: 'LufComments', type: 'string' },
+                 { name: 'LufCreatedDateTime', type: 'date',format:'dd/MM/yyyy hh:mm tt' },
+                  { name: 'CreatedBy', type: 'string' },
+                  { name: 'LrfCreatedById', type: 'string' },
+                  { name: 'LufIsSchemeTested', type: 'bool' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'LufUpdatedDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+             { name: 'Comments', type: 'string' }
+            ],
+            id: "Id",
+            data: { TabName: TabName, UploadType: UploadType },
+            url: "/LUploadedFiles/GetUploadedFiles"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        //This method loads the  buttons in Action column of the grid
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+            var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+           // var Comments = xx.Comments;
+            var FileName = xx.LufFileName
+            var IsTested = xx.LufIsSchemeTested;
+            var Id = xx.Id;
+            var selctedTab = 0;
+            switch(TabName)
+            {
+                case "Open":
+                    selctedTab = 1;
+                    break;
+                case "PendingApproval":
+                    selctedTab = 2;
+                    break;
+            }
+            if (TabName == "Open") {
+
+                if (Userrole == "System Analyst") {
+                    if ('@ViewBag.UploadType' == "Scheme") {
+                        if(IsTested==true)
+                        {
+                            return '<button onclick="return FnDownloadFile(' + Id + ')" class="GridButton">Download</button>&emsp;<button onclick="return FnWithdrawFile(' + selctedTab + ')" class="GridButton">Withdraw</button>&emsp;<button onclick="return FnSubmitForApprovalFile(' + selctedTab + ')" class="GridButton">Send For Approval</button>&emsp;<button onclick="return FnRejectFile(' + selctedTab + ')" class="GridButton">Reject</button>&emsp';
+                        } else {
+                            return '<button onclick="return FnDownloadFile(' + Id + ')" class="GridButton">Download</button>&emsp;<button onclick="return FnWithdrawFile(' + selctedTab + ')" class="GridButton">Withdraw</button>&emsp;<button onclick="return FnAttachTestResults(' + selctedTab + ')" class="GridButton">Attach Test Results</button>&emsp;<button onclick="return FnRejectFile(' + selctedTab + ')" class="GridButton">Reject</button>&emsp';
+                        }
+                    } else {
+                        return '<button onclick="return FnDownloadFile(' + Id + ')" class="GridButton">Download</button>&emsp;<button onclick="return FnWithdrawFile(' + selctedTab + ')" class="GridButton">Withdraw</button>&emsp;<button onclick="return FnSubmitForApprovalFile(' + selctedTab + ')" class="GridButton">Send For Approval</button>&emsp;<button onclick="return FnRejectFile(' + selctedTab + ')" class="GridButton">Reject</button>&emsp';
+                    }
+                }
+                else {
+
+                    return '<button onclick="return FnDownloadFile(' + Id + ')" class="GridButton">Download</button>&emsp;<button onclick="return FnWithdrawFile(' + selctedTab + ')" class="GridButton">Withdraw</button>&emsp;';
+                }
+
+
+            }
+
+            if (TabName == "PendingApproval") {
+                if (Userrole == "System Analyst" || Userrole == "Sales Operations") {
+                    return '<button onclick="return FnDownloadFile(' + xx.Id + ')" class="GridButton">Download</button>&emsp;<button onclick="return FnWithdrawFile(' + selctedTab + ')" class="GridButton">Withdraw</button>&emsp;';
+                }
+                if (Userrole == "Manager") {
+                    return '<button onclick="return FnApproveFile(' + selctedTab + ')" class="GridButton">Approve</button>&emsp;<button onclick="return FnRejectFile(' + selctedTab + ')" class="GridButton">Reject</button>&emsp;';
+                }
+            }
+            return '<button style="display:none" onclick="" class="GridButton">Download</button>&emsp;';
+        };
+
+
+        //This method loads the expander in the grid
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LufComments == null) {
+                    datarecord.LufComments = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+                if (datarecord.LufUpdatedDateTime == null) {
+                    datarecord.LufUpdatedDateTime = ""
+                }
+
+
+                var WhoWhen = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Created Date Time: </b> " + datarecord.LufCreatedDateTime + " </div><div class='col-md-4'> <b>Updated By: </b>" + datarecord.UpdatedBy + "</div><div class='col-md-4'> <b>Updated Date Time: </b>" + datarecord.LufUpdatedDateTime + "</div></div>";
+                var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-8'><b>Existing Comments:&emsp;&emsp;</b><br/><textarea rows='5' style='width:100%' placeHolder='" + datarecord.LufComments + "' disabled='disabled'></textarea></div><div class='col-md-4'><b>Created By: </b> " + datarecord.CreatedBy + " </div>";
+
+                $(leftcolumn).append(Comments);
+                $(leftcolumn).append(WhoWhen);
+
+                $(tabsdiv).jqxTabs({ width: '97%', height: 200 });
+
+            }
+
+        }
+
+
+       //This method loads the grid in the view
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <ul style='margin-left: 30px;'><li class='title'>File Information</li></ul><div class='information'></div>", rowdetailsheight: 360 },
+            initrowdetails: initrowdetails,
+            editable: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'File Type', datafield: 'LrftName' },
+                { text: 'File Name', datafield: 'LufFileName', editable: false },
+              //  { text: 'User Friendly File Name', datafield: 'LrfUserFriendlyFileName', editable: false },
+                { text: 'Description', datafield: 'LufDescription', editable: false },
+                  { text: 'Month', datafield: 'LufMonth', editable: false },
+                { text: 'Year', datafield: 'LufYear', editable: false },
+                { text: 'Comments', datafield: 'Comments', width: '10%' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '20%', editable: false }
+            ]
+        });
+
+    }
+
+    //This function is called when user clicks on Withdraw button against any file
+    function FnWithdrawFile(selctedTab)
+    {
+        var TabName="";
+        switch (selctedTab) {
+            case 1:
+                TabName="Open";
+                break;
+            case 2:
+                TabName = "PendingApproval";
+                break;
+        }
+        var Selectedindex = $('#jqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", Selectedindex);
+        if(xx.Id)
+        {
+            window.location.href = '/LUploadedFiles/UpdateUploadStatus?Id='+xx.Id+'&Status=Withdrawn&Comments='+xx.Comments
+        }
+    }
+
+    //This function is called when user clicks on Reject button against any file
+    function FnRejectFile(selctedTab) {
+
+        var TabName = "";
+        switch (selctedTab) {
+            case 1:
+                TabName = "Open";
+                break;
+            case 2:
+                TabName = "PendingApproval";
+                break;
+        }
+        var Selectedindex = $('#jqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", Selectedindex);
+        if (xx.Id) {
+            window.location.href = '/LUploadedFiles/UpdateUploadStatus?Id=' + xx.Id + '&Status=Rejected&Comments=' + xx.Comments
+        }
+    }
+    //This function is called when user clicks on Submit For Approval button against any file
+    function FnSubmitForApprovalFile(selctedTab) {
+        var TabName = "";
+        switch (selctedTab) {
+            case 1:
+                TabName = "Open";
+                break;
+            case 2:
+                TabName = "PendingApproval";
+                break;
+        }
+        var Selectedindex = $('#jqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", Selectedindex);
+        if (xx.Id) {
+            window.location.href = '/LUploadedFiles/UpdateUploadStatus?Id=' + xx.Id + '&Status=PendingApproval&Comments=' + xx.Comments;
+        }
+    }
+
+    //This method is called when a manager clicks the approve button against any file
+    function FnApproveFile(selctedTab)
+    {
+        var TabName = "";
+        switch (selctedTab) {
+            case 1:
+                TabName = "Open";
+                break;
+            case 2:
+                TabName = "PendingApproval";
+                break;
+        }
+        var Selectedindex = $('#jqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", Selectedindex);
+        if (xx.Id) {
+            window.location.href = '/LUploadedFiles/UpdateUploadStatus?Id=' + xx.Id + '&Status=Approved&Comments=' + xx.Comments;
+        }
+    }
+
+    //This function downloads the file on click of download button from actions column in grid
+    function FnDownloadFile(UploadedFileId)
+    {
+        if (UploadedFileId)
+        {
+            document.getElementById('UploadedFileId').value = UploadedFileId;
+            document.getElementById('frm2').submit()
+        }
+    }
+
+    //thid method is called when we click on attach test result method
+    function FnAttachTestResults(selctedTab)
+    {
+        var TabName = "";
+        switch (selctedTab) {
+            case 1:
+                TabName = "Open";
+                break;
+            case 2:
+                TabName = "PendingApproval";
+                break;
+        }
+        var Selectedindex = $('#jqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", Selectedindex);
+        document.getElementById('Id').value = xx.Id;
+        document.getElementById('Comments').value = xx.Comments;
+        document.getElementById('Status').value = 'Accepted'
+        $("#myModal1").modal();
+       
+    }
+
+    </script>
+
+<div style="padding:5px;">
+    @if ((HttpContext.Current.Session["UserRole"] as string == "Sales Operations" || HttpContext.Current.Session["UserRole"] as string == "System Analyst") && ViewBag.UploadType == "Reference")
+    { 
+    <a  href="/LUploadedFiles/Create?UploadType=@ViewBag.UploadType"><u>Upload Reference</u></a><br>
+    }
+    @if ((HttpContext.Current.Session["UserRole"] as string == "Sales Operations" || HttpContext.Current.Session["UserRole"] as string == "System Analyst") && ViewBag.UploadType == "PayeeDocument")
+    {
+        <a href="/LUploadedFiles/Create?UploadType=@ViewBag.UploadType"><u>Upload Payee Document</u></a><br>
+    }
+    @if(HttpContext.Current.Session["UserRole"] as string == "Sales Operations" && ViewBag.UploadType == "Scheme")
+    {
+        <a href="/LUploadedFiles/Create?UploadType=@ViewBag.UploadType"><u>Upload Scheme</u></a><br>
+    }
+<div id='jqxTabs' class="inner-tabs">
+    <ul class="nav nav-tabs tabs tabs-container-border ">
+        <li style="margin-left: 30px;">Open <span class="badge" id="bOpen">0</span></li>
+        <li>Pending Approval <span class="badge" id="bPendingApproval">0</span></li>
+        <li>Withdrawn </li>
+        <li>Rejected </li>
+        <li>Approved </li>
+    </ul>
+
+    <div class="tab-content" style="padding:10px;">
+
+        <div id="jqxgridOpen">
+
+        </div>
+
+    </div>
+    <div class="tab-content" style="padding:10px;">
+        <div id="jqxgridPendingApproval">
+
+        </div>
+
+    </div>
+
+    <div class="tab-content" style="padding:10px;">
+        <div id="jqxgridWithdrawn">
+
+        </div>
+
+    </div>
+
+    <div class="tab-content" style="padding:10px;">
+        <div id="jqxgridRejected">
+
+        </div>
+
+    </div>
+    <div class="tab-content" style="padding:10px;">
+        <div id="jqxgridApproved">
+
+        </div>
+
+    </div>
+   
+  
+</div>
+</div>
+@using (Html.BeginForm("Index", "LUploadedFiles", FormMethod.Post, new { id = "frm2", name = "frm2", @encType = "multipart/form-data" }))
+{
+
+    @Html.Hidden("UploadedFileId")
+}
+@using (Html.BeginForm("UpdateUploadStatus","LUploadedFiles",FormMethod.Post,new {id="frm",name="frm", @encType = "multipart/form-data" })) {
+
+    @Html.Hidden("Status")
+    @Html.Hidden("Id")
+    @Html.Hidden("Comments")
+    
+@*//This code will open a popup on screen asking for files to upload if upload type id schema*@
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Attach Test Results</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                       &emsp; <input type="file" name="TestResults" id="TestResults" multiple="multiple" class="form-control" required="required">
+                    </div>
+                    <div class="form-group">&emsp;<input type="submit" value="Attach" class="btn btn-borderRed btn cons" ></div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>*@
+        </div>
+
+    </div>
+</div>
+}

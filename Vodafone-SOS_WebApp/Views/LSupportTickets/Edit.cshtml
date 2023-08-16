@@ -1,0 +1,552 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSupportTicketContextModel
+@{
+    ViewBag.Title = "Edit Ticket";
+    var SupportingDocument = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LSupportingDocumentViewModel>)ViewBag.SupportingDocument;
+    //var LstStageId = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.SupportSystemStagesViewModel>)ViewBag.LstStageId;
+    // var iStageID = ViewBag.TicketStage;
+}
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script type="text/javascript">
+    //This variable is defined to store value if form has any changes
+    var isChanged = false;
+
+    var stageid = 0;
+    function fnGetStageId() {
+        //stageid = document.getElementById('sys').value;
+        stageid = $('#LstStageId').val;
+        //alert(stageid);
+    }
+
+    //function GetStageId() {
+    //    stageid = document.getElementById('#LstStageId').value;
+    //    alert(stageid);
+    //}
+
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+        //The below code checks for changes in form
+        $('input,select,textarea').change(function ()
+        {
+            isChanged = true;
+        })
+
+        var TransactionId = '@Model.Id'
+
+        @{
+            @: var End = '@Model.LstLastUpdatedDateTime.Day' + '/' + Number('@Model.LstLastUpdatedDateTime.Month') + '/' + '@Model.LstLastUpdatedDateTime.Year';
+            @: if (document.getElementById('LstLastUpdatedDateTime'))
+            @: document.getElementById('LstLastUpdatedDateTime').value = End;
+        }
+
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' },
+            ],
+            id: "Id",
+            data: { TransactionId: TransactionId, EntityType:'LSupportTickets' },
+            url: "/Home/GetPortfolioGridForEdit"
+
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height:'40%',
+           // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode:'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel',width:'30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+    });
+
+    var PortfolioArray = [];
+    //var iStageID = null;
+    //var stageName = "";
+
+    function FnSave() {
+        //iStageID = $('#LstStageId').val();
+        //var iStageID = document.getElementById('sys').value;
+        //alert(iStageID);
+        //alert(stageid);
+        //get selected rows in portfolios
+        var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < rowindexes.length; ++i) {
+            var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+            PortfolioArray[i] = data.Id;
+        }
+
+        // var STGID = document.getElementById('sys').value;
+        var STGID = $('#LstStageId').val;
+        //alert("ID of Stage: " + STGID);
+        //            var url = "/SupportSystem/GetRTicketStageDetails";//?Id=" + ID;
+
+        //$.ajax(
+        //    {
+        //        data: { Id: STGID },
+        //        url: url,
+        //        dataType: "json",
+        //        type: "GET",
+        //        success: function (data) {
+        //            alert(data["RtsName"]);
+        //            //document.getElementById('stgid').value = data.Id;
+        //            //document.
+        //            var obj = JSON.parse(data);
+        //            console.log(obj);
+        //            stageName = data["RtsName"];
+        //            $('sys').val(data["Id"]);
+
+        //        },
+        //        error: function () {
+        //            // alert("error");
+        //        }
+        //    });
+
+
+
+
+
+
+        var SupportLevel = '@ViewBag.strSupportLevel';
+        if (PortfolioArray.length > 0 || SupportLevel == 'L2') {
+            $("#frm").validate();
+            if ($("#frm").valid()) {
+                document.getElementById('PortfolioList').value = PortfolioArray;
+
+                //document.getElementById('sys').text = stageName;
+                //alert(stageName);
+
+                document.getElementById('frm').submit();
+            }
+        }
+        else {
+            alert('Please select Portfolio')
+
+            //if ($("#frm").valid()) {
+            //    document.getElementById('frm').submit();
+        }
+    }
+
+    //$("#LstStageId").on("change", function () {
+    //$('#LstStageId').change(function () {
+    //    debugger;
+    //    var Form1 = $("#frm");
+    //    var STGID = $(this).val();
+    //    //alert("ID of Stage: " + STGID)
+    //    var url = "/SupportSystem/GetRTicketStageDetails";//?Id=" + ID;
+
+    //    $.ajax(
+    //        {
+    //            data: { Id: STGID },
+    //            url: url,
+    //            dataType: "json",
+    //            type: "GET",
+    //            success: function (data) {
+    //                //alert(data["RtsName"]);
+    //                //document.getElementById('stgid').value = data.Id;
+    //                //document.
+    //                var obj = JSON.parse(data);
+    //                console.log(obj);
+    //                $("#LstStageId").val(data["Id"])
+    //            },
+    //            error: function () {
+    //                // alert("error");
+    //            }
+    //        });
+    //});
+
+    function FnDownload()
+    {
+    var Id = '@Model.Id'
+    window.location.href = '/Home/DownloadSupportingDocument?EntityId=' + Id + '&EntityType=LSupportTickets';
+    }
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <h5 style="color:maroon"> </h5>
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LstCompanyId)
+    @Html.HiddenFor(m => m.LstTeamId)
+    @Html.HiddenFor(m => m.LstTicketNumber)
+    @Html.HiddenFor(m => m.LstCreatedById)
+    @Html.HiddenFor(m => m.LstCreatedDateTime)
+    @Html.HiddenFor(m => m.LstLastUpdatedById)
+    @Html.HiddenFor(m => m.LstCreatedOnBehalfOfId)
+    @Html.HiddenFor(m => m.LstCurrentOwnerId)
+    @Html.HiddenFor(m => m.LstL1Id)
+    @Html.HiddenFor(m => m.LstL2Id)
+    @Html.HiddenFor(m => m.LstL3Id)
+    @Html.HiddenFor(m => m.LstLastUpdatedById)
+    @Html.HiddenFor(m => m.LstStatus)
+    @Html.HiddenFor(m => m.Ordinal)
+    @Html.Hidden("PortfolioList")
+    @Html.HiddenFor(m => m.LstSeverity)
+    @Html.HiddenFor(m => m.LstCategoryId)
+    @*@Html.HiddenFor(m => m.LstStageId)*@
+
+    <div class="col-md-12 col-lg-12"></div>
+
+    <div class="form-horizontal" id="FrmHorizontal">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstTicketNumber, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstTicketNumber, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstTicketNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstLastUpdatedById, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstLastUpdatedUserName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstLastUpdatedUserName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstLastUpdatedDateTime, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstLastUpdatedDateTime, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstLastUpdatedDateTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstCategoryId, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.Editor("Category", new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+
+                @Html.ValidationMessageFor(model => model.LstCategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstPhone, htmlAttributes: new { @class = "col-md-8", Title = " Should be optional, used to Clarify the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstPhone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstPhone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.HiddenFor(model => model.LstImpact, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.HiddenFor(model => model.LstImpact, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstImpact, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstRequestor, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstRequestor, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstRequestor, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstEmail, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstEmail, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstPhone, htmlAttributes: new { @class = "col-md-8", Title = " Should be optional, used to Clarify the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstPhone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstPhone, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstCC, htmlAttributes: new { @class = "col-md-8 ", Title = "can be used to provide knowledge about the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstCC, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstCC, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstType, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstType, new List<SelectListItem> { new SelectListItem { Text = "SOS", Value = "SOS" }, new SelectListItem { Text = "Alteryx", Value = "Alteryx" } ,new SelectListItem { Text = "Infra", Value = "Infra" }}, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstSeverity, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstSeverity, new List<SelectListItem> {  new SelectListItem { Text = "Non-Period Close", Value = "S2" }, new SelectListItem { Text = "Period Close", Value = "S1" } }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstSeverity, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstPriority, htmlAttributes: new { @class = "col-md-8 required", Title = "Low - Describes a cosmetic issue , Medium - Describes an issue that does'nt impact operation , High - Describes an issue that impact operation" })
+            <div class="col-md-8">
+                @*@Html.DropDownListFor(model => model.LstPriority, new List<SelectListItem> {  new SelectListItem { Text = "Low", Value = "Describes a cosmetic issue" }, new SelectListItem { Text = "Medium", Value = "Describes an issue that does'nt impact operation" }, new SelectListItem { Text = "High", Value = "Describes an issue that impact operation" }, }, new { @class = "form-control" })*@
+                @Html.DropDownListFor(model => model.LstPriority, new List<SelectListItem> { new SelectListItem { Text = "Low", Value = "Low" }, new SelectListItem { Text = "Medium", Value = "Medium" }, new SelectListItem { Text = "High", Value = "High" }, }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstPriority, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstStatus, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstStatus, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.Editor("TicketStage", new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstStageId, (SelectList)ViewBag.LstStageID, "-- Select Here --", new { @class = "form-control", @onchange = "fnGetStageId();" })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstStageId, (SelectList)ViewBag.LstStageID,"-- Select Here --", new { @class = "form-control" , id = "sys", @onchange = "fnGetStageId();" })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+
+
+        @*<div class="col-md-10">
+            @Html.DropDownListFor(m => m.State,
+                   new SelectList(ViewBag.StateList, "StateId", "StateName"),
+                   "Select state",
+                   new { @class = "form-control", @onchange = "FillCity()" })
+            @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
+        </div>*@
+
+
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @*@Html.DropDownListFor(model => model.LstStageId, null, "-- Select Here --", new { htmlAttributes = new { @class = "form-control" } })*@
+                @Html.DropDownListFor(model => model.LstStageId, null, "-- Select Here --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, new { @class = "required" })
+        </div>
+        <div class="col-sm-10 col-md-10 col-lg-10">
+            @Html.DropDownList("ListOfLstStageID", null, "-- Select Here --", new { @class = "form-control", id = "sys", @onchange = "fnGetStageId();" })
+            @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+        </div>*@
+
+
+        <div class="col-md-12">
+            <br>
+            @Html.LabelFor(model => model.LstSummary, htmlAttributes: new { @class = "col-md-4 required", Title = "Short Description Of The Error" })
+            <br>
+            <div class="col-md-12">
+                @Html.TextAreaFor(model => model.LstSummary, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:20px" })
+                @Html.ValidationMessageFor(model => model.LstSummary, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-12 col-lg-12" id="CommentsDiv">
+
+            @*@Html.LabelFor(model => model.LsrDescription, htmlAttributes: new { @class = "col-md-8 required", Title = "Full Description Of the issue, add screen shot using attach button" })*@
+            @Html.Label("Description", htmlAttributes: new { @class = "col-md-8 required", Title = "Add More Description Of the issue, add screen shot using attach button" })
+
+            <div class="col-md-12 col-lg-12">
+                @Html.TextAreaFor(model => model.LsrDescription, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:80px" })
+                @Html.ValidationMessageFor(model => model.LsrDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12" id="ExCommentsDiv">
+            @*@Html.LabelFor(model => model.LstExDescription, htmlAttributes: new { @class = "col-md-8 " })*@
+            @Html.Label("Existing Descriptions", htmlAttributes: new { @class = "col-md-8 " })
+
+            <div class="col-md-12 col-lg-12">
+                @Html.TextAreaFor(model => model.LstExDescription, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:120px", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LstExDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-12" id="PortfolioDiv">
+            <br>
+            @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-2 required " })
+            <br>
+            <div class="col-md-12">
+                <div id="jqxgrid"></div>
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.Label("Attachments", htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                <input type="file" name="File1" id="File1" class="form-control" multiple="multiple">
+            </div>
+        </div>*@
+
+    </div>
+    <br>
+    
+
+    <div class="col-md-12">
+        @Html.Label(" ", htmlAttributes: new { @class = " col-md-8 " })
+    </div>
+
+    <div class="form-group col-md-12">
+        <br>
+
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+
+        <label for="FileUpload" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+        @*<input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">*@
+
+        <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedCommon(this,@Model.Id,'LSupportTickets')">
+
+        @*<input type="file" name="FileUpload" multiple="multiple" id="txtUploadFile" class="makethispretty" />*@
+
+        @*@if (ViewBag.strSupportLevel == ViewBag.AllocatedToTeam && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+            {
+                 <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/SelfAssign" class="btn btn-red btn-cons">Self Assign&nbsp;</button>
+            }*@
+        @if ((ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" onclick="FnSave()" class="btn btn-red btn-cons">Save&nbsp;</button>
+        }
+
+        @if (ViewBag.strSupportLevel == "L1" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/BackToRequestor" class="btn btn-red btn-cons">Send To Requestor&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/BackToRequestor" class="btn btn-red btn-cons">Send To Requestor&nbsp;</button>
+
+        }
+        @if (ViewBag.strSupportLevel == "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/BackToL1" class="btn btn-red btn-cons">Send To L1&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel != "L1" && ViewBag.strSupportLevel != "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/ForwardToL1" class="btn btn-red btn-cons">Send To L1&nbsp;</button>
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/ForwardToL2" class="btn btn-red btn-cons">Send To L2&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L1" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/ForwardToL2" class="btn btn-red btn-cons">send To L2&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L1" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/Close" class="btn btn-red btn-cons">Close Ticket&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/Close" class="btn btn-red btn-cons">Close Ticket&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel != "L1" && ViewBag.strSupportLevel != "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/Withdraw" class="btn btn-red btn-cons">Close Ticket&nbsp;</button>
+        }
+        @if (System.Web.HttpContext.Current.Session["userId"].ToString().ToLower() == Model.LstCreatedById && (ViewBag.LstTicketStatus == "Closed" || ViewBag.LstTicketStatus == "Withdraw"))
+        {
+            <button type="submit" id="btnSubmit" name="Command" formaction="~/LSupportTickets/ReOpen" class="btn btn-red btn-cons">ReOpen&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L1" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel != "L1" && ViewBag.strSupportLevel != "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+
+
+    </div>
+    <div class="col-md-12">
+        <table class="col-md-12 col-lg-12">
+
+            @if (SupportingDocument != null)
+            {
+                if (SupportingDocument.Count() > 0)
+                {
+                    <tr><td>Existing Attachments</td></tr>
+                }
+                foreach (var Files in SupportingDocument)
+                {
+                    <tr><td><b>@Files.LsdFileName</b>&emsp; &emsp;<a href="/GenericGrid/DeleteSupportingDocument?id=@Files.Id&EntityId=@Model.Id&EntityType=LSupportTickets&FormType=@ViewBag.FormType"><i class="glyphicon glyphicon-remove" style="color:red;"></i></a></td></tr>
+                }
+            }
+        </table>
+        </div>
+        @*This div will display uploaded file*@
+        <br />
+        <br /><br />
+        <div class="col-md-12">
+            <span>Attached Attachments</span>
+
+        </div>
+
+        <div class="col-md-12" id="AttachedFiles">
+
+
+        </div>
+        <br>
+
+        <style>
+            input[type="file"] {
+                display: none;
+            }
+        </style>
+
+
+    }
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

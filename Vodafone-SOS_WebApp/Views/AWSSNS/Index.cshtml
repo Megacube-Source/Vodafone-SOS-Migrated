@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Send Message</h2>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+    <div class="col-md-8" style="min-height:50px">
+
+        @Html.Label("Phone Number", htmlAttributes: new { @class = "col-md-2",title="Type Phone Number with ISD code here"})
+
+        <div class="col-md-10">
+            @Html.TextBox("PhoneNumber")
+        </div>
+    </div>
+
+    <div class="col-md-8" style="min-height:50px">
+
+        @Html.Label("Message", htmlAttributes: new { @class = "col-md-2", id = "LblPayeeId" })
+
+        <div class="col-md-10">
+            @Html.TextArea("TextMessage", new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="col-md-8" style="min-height:80px">
+        <input type="submit" class="btn btn-red" value="Send"/>
+        </div>
+    </div>
+    }

@@ -1,0 +1,205 @@
+﻿
+@{
+    ViewBag.Title = "KPI Graph";
+
+}
+@*<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+@*<script type="text/javascript" src="~/Scripts/jqxcore.js"></script>*@
+<script type="text/javascript" src="~/Scripts/jqxdraw.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxchart.core.js"></script>
+@*<script type="text/javascript" src="~/Scripts/demos.js"></script>*@
+@*<script type="text/javascript" src="~/Scripts/jqxdata.js"></script>*@
+
+<script type="text/javascript">
+    function FnSampleGraph()
+    {
+    var sampleData = [
+                    { Payee: 'Jonh', Upfront: 331, Bonous: 256 },
+                    { Payee: 'Albert', Upfront: 215, Bonous: 325},
+                    { Payee: 'Alpacino', Upfront: 309, Bonous: 298 },
+                    { Payee: 'Silviya', Upfront: 210, Bonous: 409 },
+                    { Payee: 'Christie', Upfront: 315, Bonous: 209 },
+                    { Payee: 'Ric', Upfront: 301, Bonous: 210},
+                    { Payee: 'Travolta', Upfront: 296, Bonous: 202 },
+                    { Payee: 'Smith', Upfront: 258, Bonous: 315},
+                    { Payee: 'Cindy', Upfront: 312, Bonous: 296 },
+                    { Payee: 'Jimmy', Upfront: 298, Bonous: 215 },
+                    { Payee: 'Alex', Upfront: 309, Bonous: 297 },
+                    { Payee: 'Blake', Upfront: 410, Bonous: 165},
+                    { Payee: 'Steve', Upfront: 297, Bonous: 210 },
+                    { Payee: 'Tamara', Upfront: 265, Bonous: 251},
+                    { Payee: 'Lindy', Upfront: 302, Bonous: 170 },
+                    { Payee: 'Grace', Upfront: 310, Bonous: 276 },
+                    { Payee: 'Belly', Upfront: 340, Bonous: 210 },
+                    { Payee: 'Joy', Upfront: 294, Bonous: 190 },
+                    { Payee: 'Karen', Upfront: 289, Bonous: 270 },
+                    { Payee: 'Robin', Upfront: 317, Bonous: 287},
+                    { Payee: 'Eva', Upfront: 345, Bonous: 262 },
+                    { Payee: 'Ady', Upfront: 265, Bonous: 319 },
+                    { Payee: 'Ami', Upfront: 210, Bonous: 359 },
+                    { Payee: 'Joi', Upfront: 165, Bonous: 410},
+                    { Payee: 'Sam', Upfront: 310, Bonous: 295 }
+                ];
+            // prepare jqxChart settings
+            var settings = {
+                title: "Upfront and Bonous Commission scorecard for Payees",
+                description: "",
+                enableAnimations: true,
+                showLegend: true,
+                padding: { left: 5, top: 5, right: 5, bottom: 5 },
+                titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+                source: sampleData,
+                xAxis:
+                    {
+                        dataField: 'Payee',
+                        unitInterval: 1,
+                        axisSize: 'auto',
+                        tickMarks: {
+                            visible: true,
+                            interval: 1,
+                            color: '#BCBCBC'
+                        },
+                        gridLines: {
+                            visible: true,
+                            interval: 1,
+                            color: '#BCBCBC'
+                        }
+                    },
+                valueAxis:
+                {
+                    unitInterval: 100,
+                    minValue: 0,
+                    maxValue: 1000,
+                    title: { text: 'Commission Amount' },
+                    labels: { horizontalAlignment: 'right' },
+                    tickMarks: { color: '#BCBCBC' }
+                },
+                colorScheme: 'scheme06',
+                seriesGroups:
+                    [
+                        {
+                            type: 'stackedcolumn',
+                            columnsGapPercent: 50,
+                            seriesGapPercent: 0,
+                            series: [
+                                    { dataField: 'Upfront', displayText: 'Upfront' },
+                                    { dataField: 'Bonous', displayText: 'Bonous' }
+
+                                ]
+                        }
+                    ]
+            };
+            // setup the chart
+            $('#chartContainer').jqxChart(settings);
+    }
+    function FnLoadGraph()
+    {
+    var kpival = document.getElementById('KPI').value;
+    var kpitheme = document.getElementById('KPITheme').value;
+    if (kpival !== "Select")
+    {
+                $.ajax({
+            type: "GET",
+            url: '@Url.Action("LoadKPIData", "Reports")',
+            //contentType: "application/json; charset=utf-8",
+            dataFields: [{ name: 'PayeeName',type: 'string' },{ name: 'KPIValue',type: 'string' }],
+            data:{KPIName:kpival},
+            dataType: "json",
+            success: function(result) {
+
+                var sampleData1 = result;
+
+                var settings = {
+                title: kpival,
+                description: "",//"Statistics for 2011",
+                showLegend: true,
+                enableAnimations: true,
+                padding: { left: 20, top: 5, right: 20, bottom: 5 },
+                titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+                source: sampleData1,
+                xAxis:
+                {
+                    dataField: 'PayeeName',
+                    gridLines: { visible: true },
+                    flip: false
+                },
+                valueAxis:
+                {
+                    flip: false,
+                    labels: {
+                        visible: true,
+                        title: { text: 'Payees' },
+                        formatFunction: function (value) {
+                            return parseInt(value);// / 10000);
+                        }
+                    }
+                },
+                colorScheme: kpitheme, //'scheme09',//1-blue,2-green,3-orange,4-pink,5-lightblue,6-Darkbrown
+                seriesGroups:
+                    [
+                        {
+                            type: 'column',
+                            orientation: 'vertical',
+                            columnsGapPercent: 50,
+                            toolTipFormatSettings: { thousandsSeparator: ',' },
+                            series: [
+                                    { dataField: 'KPIValue', displayText: 'Payees' }
+                                ]
+                        }
+                    ]
+            };
+            // setup the chart
+            $('#chartContainer').jqxChart(settings);
+                }
+
+            });
+
+
+
+    }
+    }
+        $(document).ready(function () {
+            FnSampleGraph();
+            $('#KPI').on('change', function () { FnLoadGraph() });
+            $('#KPITheme').on('change', function () { FnLoadGraph() });
+        });
+</script>
+
+<div class="row">
+    <div class="col-md-8 col-lg-8">
+        <h3>KPI Graph</h3>
+
+    </div>
+
+
+</div>
+<div class="col-md-1">
+    @Html.Label("Select KPI", "Select KPI")
+</div>
+<div class="col-md-2" style="width:250px">
+    @Html.DropDownList("KPI", new List<SelectListItem>
+        {
+            new SelectListItem{ Text="--Select--", Value = "Select" },
+            new SelectListItem{ Text="Upfront Commission", Value = "Upfront Commission" },
+            new SelectListItem{ Text="Bonus Commission", Value = "Bonus Commission" },
+         }, new { @class = "form-control", id = "KPI" })
+</div>
+<div class="col-md-1">
+    @Html.Label("Theme", "Theme")
+</div>
+<div class="col-md-2" style="width:135px">
+    @Html.DropDownList("KPITheme", new List<SelectListItem>
+        {
+            new SelectListItem{ Text="Blue", Value = "scheme01" },
+            new SelectListItem{ Text="Green", Value = "scheme02" },
+            new SelectListItem{ Text="Orange", Value = "scheme03" },
+            new SelectListItem{ Text="Pink", Value = "scheme04" },
+            new SelectListItem{ Text="Grey", Value = "scheme06" },
+         }, new { @class = "form-control", id = "KPITheme" })
+</div>
+
+
+
+<div id='chartContainer' style="width:1150px; height:500px;">
+</div>
+

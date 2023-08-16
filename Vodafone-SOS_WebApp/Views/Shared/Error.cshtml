@@ -1,0 +1,22 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+}
+
+<script>
+    window.onload = function ()
+    {
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+    }
+</script>
+
+<h2 class="text-danger">Error</h2>
+<h3 class="text-danger">We apologise for the error which occurred while processing your request.</h3>
+@*<h4 class="text-danger">The issue has been reported and will be resolved soon</h4>*@
+@*<h4 class="text-danger"> Please send an email to support@vodafonelite.com explain the sceanrio when this error occured. A screenshot (or values of fields) that caused this error would help the techinical team to replicate/troubleshoot </h4>*@
+<h4 class="text-danger"> please send an email to support@vodafonelite.com explaining the scenario when this error occurred. A screenshot (or values of fields) that caused this error would help the technical team to replicate/troubleshoot </h4>
+

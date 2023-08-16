@@ -1,0 +1,442 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSupportTicketContextModel
+@{
+    ViewBag.Title = "Create New Ticket";
+
+}
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+       // FnLoadAspnetUserGrid();
+        LoadUserGrid();
+
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '40%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel', width: '30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+        //function showModal() {
+        //    $("#AspnetUserModal").modal();
+        //}
+
+        $("#LstCategoryId").on("change", function () {
+            var Form1 = $("#frm");
+            var ID = $(this).val();
+            var url = "/SupportSystem/GetCategoryDetails";//?Id=" + ID;
+            $.ajax(
+                {
+                    data: { Id: ID },
+                    url: url,
+                    dataType: "json",
+                    type: "GET",
+                    success: function (data) {
+
+                        $("#LsrDescription").val(data["RscTicketDescription"])
+                    },
+                    error: function () {
+                        // alert("error");
+                    }
+                });
+
+        });
+
+        $("#LstStageId").on("change", function () {
+            var Form1 = $("#frm");
+            var ID = $(this).val();
+            var url = "/SupportSystem/GetRTicketStageDetails";//?Id=" + ID;
+            $.ajax(
+                {
+                    data: { Id: ID },
+                    url: url,
+                    dataType: "json",
+                    type: "GET",
+                    success: function (data) {
+                        $("#LsrDescription").val(data["RtsDescription"])
+                    },
+                    error: function () {
+                        // alert("error");
+                    }
+                });
+        });
+
+
+    });
+
+    var PortfolioArray = [];
+    function FnSave() {     //get selected rows in portfolios
+        var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < rowindexes.length; ++i) {
+            var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+            PortfolioArray[i] = data.Id;
+        }
+ var SupportLevel='@ViewBag.strSupportLevel';
+    if (PortfolioArray.length > 0 || SupportLevel == 'L2') {
+            $("#frm").validate();
+            if ($("#frm").valid()) {
+                document.getElementById('PortfolioList').value = PortfolioArray;
+                document.getElementById('frm').submit();
+            }
+        }
+        else {
+            alert('Please select Portfolio')
+            //if ($("#frm").valid()) {
+            //    document.getElementById('frm').submit();
+            //}
+        }
+    }
+
+    function showModal() {
+
+        $("#AspnetUserModal").modal({ backdrop: 'static', keyboard: false }, 'show');
+        $('.modal-dialog').css('width', $(window).width() * 0.6);
+        $("#AspnetUserModal").jqxGrid('clearfilters'); //to clear filters before calling function
+        LoadUserGrid();
+    }
+
+    function LoadUserGrid() {
+
+        //debugger;
+
+        var Usersource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'UserName', type: 'string' },
+                { name: 'Email', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetAspnetUsers"
+        };
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return FnBehalfOf()" class="GridButton"></button>';
+        };
+
+        var UserdataAdapter = new $.jqx.dataAdapter(Usersource)
+
+        $('#jqxUserPopupgrid').jqxGrid({
+            source: UserdataAdapter,
+            width: '100%',
+            height: '40%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,
+            selectionmode: 'singlerow',
+            ready: function () {
+
+            },
+
+                columns: [
+                    {
+                        text: '', datafield: 'Id',
+                        cellsrenderer: cellsrenderer, width: '10%'
+                    },
+
+                { text: 'UserName', datafield: 'UserName', width: '30%' },
+                { text: 'Email', datafield: 'Email', width: '50%' }
+
+            ]
+        });
+    }
+
+    function FnBehalfOf() {
+
+        var rowindex = $('#jqxUserPopupgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            var data = $('#jqxUserPopupgrid').jqxGrid('getrowdata', rowindex);
+            document.getElementById('LstCreatedOnBehalfOfId').value = data.Id;
+            document.getElementById('LstRequestor').value = data.Email;
+            document.getElementById('LstEmail').value = data.Email;
+
+        }
+       
+    }
+
+</script>
+
+<!-- This code displays a popup to get Selected Payees-->
+<div class="modal fade" id="AspnetUserModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">Select User</h4>
+            </div>
+            <div class="modal-body">
+                <div id="jqxUserPopupgrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-red pull-left" onclick="FnBehalfOf()" data-dismiss="modal">Ok</button>&ensp;
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @*<h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>*@
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LstCompanyId)
+    @Html.HiddenFor(m => m.LstTeamId)
+    @Html.HiddenFor(m => m.LstTicketNumber)
+    @Html.HiddenFor(m => m.LstCreatedById)
+    @Html.Hidden("PortfolioList")
+    @Html.HiddenFor(m => m.LstImpact)
+    @Html.HiddenFor(m => m.LstSeverity)
+
+    <h2><b>Create New Ticket</b></h2>
+    <div class="col-md-10">
+        @Html.EditorFor(model => model.LstCreatedOnBehalfOfId, new { htmlAttributes = new { @class = "form-control hidden", style = "pointer-Events:none;background:lightgray;" } })
+    </div>
+
+    <div class="form-horizontal" id="FrmHorizontal">
+
+        <div class="col-md-4">
+            <br>
+            <a href="#" onclick="showModal()"><i class="fa fa-search" aria-hidden="true" title="Select New Requestor" style="color:#e60000;"></i></a>
+            @Html.LabelFor(model => model.LstRequestor, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstRequestor, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstRequestor, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstCategoryId, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstCategoryId, null, "-- Select Here --", new { @class = "form-control " })
+                @Html.ValidationMessageFor(model => model.LstCategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstSummary, htmlAttributes: new { @class = "col-md-8 required", Title = "Short Description Of The Error" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstSummary, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstSummary, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        @*<div class="col-md-4">
+            @Html.HiddenFor(model => model.LstImpact, htmlAttributes: new { @class = "col-md-8"})
+            <div class="col-md-8">
+                @Html.HiddenFor(model => model.LstImpact, new { htmlAttribute = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstImpact, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        @*<div class="col-md-4">
+            <br>
+            <a href="#" onclick="showModal()"><i class="fa fa-search" aria-hidden="true" title="Select New Requestor" style="color:#e60000;"></i></a>
+            @Html.LabelFor(model => model.LstRequestor, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstRequestor, new { htmlAttributes = new { @class = "form-control"} })
+                @Html.ValidationMessageFor(model => model.LstRequestor, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        @*<div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstEmail, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstEmail, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstPhone, htmlAttributes: new { @class = "col-md-8", Title = " Should be optional, used to Clarify the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstPhone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstPhone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstCreatedOnBehalfOfId, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstCreatedOnBehalfOfId, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstCreatedOnBehalfOfId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstCC, htmlAttributes: new { @class = "col-md-8 ", Title = "can be used to provide knowledge about the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstCC, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LstCC, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstType, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstType, new List<SelectListItem> { new SelectListItem { Text = "SOS", Value = "SOS" }, new SelectListItem { Text = "Alteryx", Value = "Alteryx" },new SelectListItem { Text = "Infra", Value = "Infra" } }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstSeverity, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstSeverity, new List<SelectListItem> { new SelectListItem { Text = "Non-Period Close", Value = "S2" }, new SelectListItem { Text = "Period Close", Value = "S1" } }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstSeverity, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstPriority, htmlAttributes: new { @class = "col-md-8 required", Title = "Low - Describes a cosmetic issue , Medium - Describes an issue that does'nt impact operation , High - Describes an issue that impact operation" })
+            <div class="col-md-8">
+                @*@Html.DropDownListFor(model => model.LstPriority, new List<SelectListItem> {  new SelectListItem { Text = "Low", Value = "Describes a cosmetic issue" }, new SelectListItem { Text = "Medium", Value = "Describes an issue that does'nt impact operation" }, new SelectListItem { Text = "High", Value = "Describes an issue that impact operation" }, }, new { @class = "form-control" })*@
+                @Html.DropDownListFor(model => model.LstPriority, new List<SelectListItem> { new SelectListItem { Text = "Low", Value = "Low" }, new SelectListItem { Text = "Medium", Value = "Medium" }, new SelectListItem { Text = "High", Value = "High" }, }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LstPriority, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstStatus, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstStatus, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <br>
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstStageId, null, "-- Select Here --", new { @class = "form-control " })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <br>
+            @Html.Label("Send to Next level", htmlAttributes: new { @class = "col-md-5" })
+            <div class="col-md-7">
+                @Html.CheckBox("SendtoNextlevel", true)
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <br>
+            @Html.LabelFor(model => model.LstSummary, htmlAttributes: new { @class = "col-md-4 required", Title = "Short Description Of The Error" })
+            <br>
+            <div class="col-md-12">
+                @Html.TextAreaFor(model => model.LstSummary, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:20px" })
+                @Html.ValidationMessageFor(model => model.LstSummary, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-12 " id="CommentsDiv">
+            <br>
+            @*@Html.LabelFor(model => model.LsrDescription, htmlAttributes: new { @class = "col-md-8 required", Title = "Full Description Of the issue, add screen shot using attach button" })*@
+            @Html.Label("Description", htmlAttributes: new { @class = "col-md-4 required", Title = "Add More Description Of the issue, add screen shot using attach button" })
+
+            <div class="col-md-12 ">
+                @Html.TextAreaFor(model => model.LsrDescription, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:100px" })
+                @Html.ValidationMessageFor(model => model.LsrDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <br>
+            @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-4 required" })
+            <br>
+            <div class="col-md-12">
+                <div id="jqxgrid"></div>
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.Label("Attachments", htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                <input type="file" name="File2" id="File2" class="form-control" multiple="multiple">
+            </div>
+        </div>*@
+    </div>
+    @*<div class="col-md-12 col-lg-12" id="SummaryDiv">
+            <br>
+            @Html.LabelFor(model => model.LstSummary, htmlAttributes: new { @class = "col-md-8 required", Title = "Short Description Of The Error" })
+        </div>
+        <div class="col-md-12 col-lg-12">
+            @Html.TextAreaFor(model => model.LstSummary, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:100px" })
+            @Html.ValidationMessageFor(model => model.LstSummary, "", new { @class = "text-danger" })
+        </div>*@
+    
+    <div class="col-md-12">
+        @Html.Label(" ", htmlAttributes: new { @class = " col-md-8 " })
+    </div>
+    <div class="col-md-12">
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+        <button type="button" onclick="FnSave()" class="btn btn-red btn-cons">Submit&nbsp;</button>
+        <label for="FileUpload" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+        <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)"><br />
+    </div>
+
+}
+<br>
+@*This div will display uploaded file*@
+<div class="col-md-12" id="AttachedFiles"></div>
+<br>
+
+<style>
+    input[type="file"] {
+        display: none;
+    }
+</style>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

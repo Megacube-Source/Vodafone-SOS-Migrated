@@ -1,0 +1,129 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LClaimViewModel
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+
+<h3>Are you sure you want to delete this Claim ?</h3>
+<div>
+  
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.LcClaimId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcClaimId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcPayeeCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcPayeeCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcBrandId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcBrandId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcConnectionDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcConnectionDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcOrderDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcOrderDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcMSISDN)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcMSISDN)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcBAN)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcBAN)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcOrderNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcOrderNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcCustomerName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcCustomerName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcProductCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcProductCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcExpectedCommissionAmount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcExpectedCommissionAmount)
+        </dd>
+
+      
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcPayeeComment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcPayeeComment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LcIMEI)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LcIMEI)
+        </dd>
+
+    
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> 
+            
+        </div>
+    }
+</div>

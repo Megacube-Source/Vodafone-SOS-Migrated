@@ -1,0 +1,288 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+@{
+    ViewBag.Title = "UploadPayeeHierarchy";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+
+}
+
+<script>
+
+    window.onload=function GetGridData()
+    {
+        //If any message is received from controller in temp then error grid will be loaded in view
+        if('@TempData["Message"]')
+        {
+            FnGetGrid()
+        }
+    }
+    
+    //This method checks the type of file which is being uploaded while submitting form
+    function Fnchecksubmit() {
+        var Form1 =$('#frm');
+        var xx = document.getElementById('File1').value
+        if (xx.split(".")[1].toLowerCase() == 'xls' || xx.split(".")[1].toLowerCase() == 'xlsx') {
+            document.getElementById('UploadButton').disabled = true;
+            document.getElementById('Message').style.display='block'
+    document.getElementById('frm').submit()
+        } else {
+            alert("File Format is not supported")
+        }
+    }
+
+    //This function is called if any message is received from controller while upload process to load data in error grid
+        function FnGetGrid()
+        {
+            $.ajax({
+                url: "/Lpayees/DisplayUploadPayeeHierarchyErrorGrid",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                  document.getElementById('err').style.display='block'
+                    var sourcea = {
+                        dataType: "json",
+                        dataFields: [
+                            { name: 'Id', type: 'string' },
+                            { name: 'LpFullName', type: 'string' },
+                            { name: 'LpTradingName', type: 'string' },
+                            { name: 'LpBusinessUnit', type: 'string' },
+                            { name: 'LpPayeeCode', type: 'string' },
+                            { name: 'ParentCode', type: 'string' },
+                            { name: 'LpComments', type: 'string' },
+                             { name: 'StartDate', type: 'string' },
+                              { name: 'EndDate', type: 'string' },
+                            { name: 'LpPrimaryChannel', type: 'string' },
+                             { name: 'LpCreatedDateTime', type: 'string' },
+                              { name: 'CreatedBy', type: 'string' },
+                              { name: 'LpCreatedById', type: 'string' },
+                               { name: 'UpdatedBy', type: 'string' },
+                                { name: 'LpUpdatedDateTime', type: 'string' },
+                        { name: 'Count', type: 'string' },
+                         { name: 'ErrorMessage', type: 'string' }
+                        ],
+                        localdata:data
+                    };
+                    var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+
+
+                    $('#jqxgrid').jqxGrid({
+                        source: dataAdaptera,
+                        width: '100%',
+                        autoheight: true,
+                        theme: 'bootstrap',
+                        sortable: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        //pagesize: 20,
+                        //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                       autorowheight:true,
+                        ready: function () {
+
+                        },
+
+                        columns: [
+                           // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                            { text: 'Payee Code', datafield: 'LpPayeeCode', editable: false },
+                            //{ text: 'Payee Name', datafield: 'LpFullName', editable: false },
+                            //{ text: 'Trading Name', datafield: 'LpTradingName', editable: false },
+
+
+                            //{ text: 'Parent Code', datafield: 'ParentCode', editable: false },
+                            //{ text: 'Parent Name', datafield: 'ParentName', editable: false },
+                            //  { text: 'Start Date', datafield: 'StartDate', editable: false },
+                            //{ text: 'End Date', datafield: 'EndDate', editable: false },
+                         //  { text: 'Payee Status', datafield: 'RsStatus', editable: false },
+                           { text: 'Error', datafield: 'ErrorMessage', editable: false,width:'80%' }
+                        ]
+                    });
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+    //This method is called when user clicks on download button above the error grid
+        function FnexportErrorGrid()
+        {
+            $.ajax({
+                url: "/LPayees/ExportUploadPayeeHierarchyErrorGrid",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    window.location.href = '@FilePath'+'/ExportPayeeErrorList.csv';
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+    //To change the label of button on basis of checkbox
+        function FnChangeLabel(checkboxElement)
+        {
+            if (checkboxElement.checked)
+            {
+                document.getElementById('UploadButton').innerHTML = 'Validate and Upload &nbsp; <i class="fa fa-fax" aria-hidden="true"></i>';
+            }
+            else {
+                document.getElementById('UploadButton').innerHTML = 'Validate &nbsp; <i class="fa fa-fax" aria-hidden="true"></i>';
+            }
+        }
+
+        function FnValidate()
+        {
+            if (document.getElementById('File1').value) {
+                return Fnchecksubmit()
+            }
+            else {
+                alert('Please choose a file')
+            }
+        }
+
+
+</script>
+
+<style>
+    /*//added by SB//*/
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+
+<div style="padding:10px;">
+
+
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+
+    {
+
+        @Html.AntiForgeryToken()//rk added while code review
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-2 control-label" })
+                <div class="col-md-10">
+                    <input type="file" name="File1" id="File1" accept=".xls,.xlsx" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.isUploadFile, new { @class = " col-md-2 control-label" })
+                <div class="col-md-10">
+                    @Html.CheckBoxFor(m => m.isUploadFile, new { onchange = "FnChangeLabel(this)" })
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                &emsp;&emsp;<button class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                @*<button class="btn btn-success btn-cons" id="ValidateButton" value ="validate" formaction="Validate" title="click here to validate  payees record using excel sheet" onclick="Javascript: if (document.getElementById('File1').value) { return Fnchecksubmit() } else { alert('Please choose a file') }">Validate File&nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>*@
+                @*<button class="btn btn-success btn-cons" id="UploadButton"   title="click here to add  payees record using excel sheet" onclick="Javascript: if (document.getElementById('File1').value) { return Fnchecksubmit() } else { alert('Please choose a file') }">Upload File&nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>*@
+                <button class="btn btn-red btn-cons" id="UploadButton" title="click here to add  payees record using excel sheet" onclick="FnValidate()">Validate &nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>
+                <button class="btn btn-red btn-cons" type="button" value="myBtn" id="myBtn" s>Instruction</button>
+                <h4 class="text-danger">To change existing payees, download populated template from Reports->MyPayees. Remove payees where there is no change and edit the ones that are changed and upload.</h4>
+            </div>
+
+            <div id="Message" style="display:none;"><b>Please Wait</b> ! while record is being validated/uploaded</div><br>
+        </div>
+
+    }
+
+    <!-- Trigger/Open The Modal -->                @*//Added by SB//*@
+    @*<button class="btn btn-red btn-cons" id="myBtn">Instruction</button>*@
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            @Html.Raw((string)ViewBag.PayeeUploadHelpHTML)
+
+        </div>
+
+    </div>
+
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div id="err" style="display:none;">
+                <h4 class="text-danger">Some Payee records seem to have errors. Please see comments for each error and fix it in the original file and reload</h4>
+                @*RK Commented the download button for the timebeing*@
+                @*<button class="btn btn-success btn-cons"  onclick="FnexportErrorGrid()">Download&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i> </button><br>*@
+                <button class="btn btn-success btn-cons" onclick="@("window.location.href='ExportUploadPayeeHierarchyErrorGrid'");">Download&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i> </button><br>
+
+            </div>
+            <div id="jqxgrid"></div>
+        </div>
+    </div>
+</div>
+
+
+<script >
+    //added by SB//
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+            
+           
+
+
+    }</script>

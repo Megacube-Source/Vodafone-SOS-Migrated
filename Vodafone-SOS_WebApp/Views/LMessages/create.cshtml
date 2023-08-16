@@ -1,0 +1,286 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LMessageBoardViewModel
+
+@{
+
+    ViewBag.Title = "create";
+}
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxswitchbutton.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxcheckbox.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxdata.export.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+
+<h2>Compose Message</h2>
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+
+    //This variable is defined to store value if form has any changes since it has loaded
+    var isChanged = false;
+    $(document).ready(function () {
+
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+    })
+    function FnFinalSubmit() {
+        var sucess = $("#frm").validate({})
+        if ($('#frm').valid()) {
+            isChanged = false;
+            document.getElementById('frm').submit()
+        }
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+    function FillUserList(Portfolios) {
+        document.getElementById('SelectedPortfolios').value = Portfolios;
+        var role = $("#RecipientRoleID option:selected").text();
+        document.getElementById('RecipientRoleName').value = role;
+        $.ajax({
+        url: '@Url.Action("GetUsersListToSendMessage", "LMessages")',
+        dataType: 'json',
+        data: { RoleName: role, Portfolios: Portfolios, ValueType: "Email" },
+        cache: false,
+        success: function (result) {
+
+            $("#LstUsers").jqxListBox({ source: result, width: 500, height: 200 });
+            document.getElementById('UsersDiv').style.display = 'block';
+
+        }
+        });
+
+    }
+
+    function PopulatePortfolioPopup() {
+        //var role = $('#RecipientRoleID:selected').text();
+        var role = $("#RecipientRoleID option:selected").text();
+        var roleId = $("#RecipientRoleID option:selected").val();
+        if (roleId == "") {
+            alert('Please select role first.');
+            return
+        }
+
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+
+        $('#jqxPopupgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 300,
+            // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+
+            ]
+        });
+
+        $("#myModal1").modal();
+
+    }
+    //To Select rows as per primary channel and BU selected above
+    function FnSelectPopupRows() {
+        var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+
+        for (var i = 0; i < GridRows.length; ++i) {
+            $('#jqxPopupgrid').jqxGrid('unselectrow', i);
+            var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+            var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+            if (PrimaryChannel == "indirect" && document.getElementById("PopupInDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            else if (PrimaryChannel == "direct" && document.getElementById("PopupDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            //Check for business unit
+            if (BusinessUnit == "cbu" && document.getElementById("PopupCBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            else if (BusinessUnit == "ebu" && document.getElementById("PopupEBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+        }
+    }
+    function FnSavePortfolio() {
+            var xx = $('#jqxPopupgrid').jqxGrid('getselectedrowindexes');
+            var PortfolioArray = [];
+            for (var i = 0; i <= xx.length; i++) {
+                var rowdata = $('#jqxPopupgrid').jqxGrid('getrowdata', xx[i]);//as i is starting from 1 and not zero
+                PortfolioArray[i] = rowdata.Id;
+            }
+            if (PortfolioArray.length == xx.length) {
+                PortfolioArray = [];
+            }
+
+            FillUserList(PortfolioArray.join(','));
+    }
+
+    function showIt() {
+        var x = document.getElementById("LstUsers");
+        x.style.display = "block";
+        var y = document.getElementById("UsersDiv");
+        y.style.display = "block";
+
+    }
+
+    function myToggle() {
+
+        var x = document.getElementById("LstUsers");
+        x.style.display = "none";
+        var y = document.getElementById("UsersDiv");
+        y.style.display = "none";
+       
+    }
+    //$(document).ready(function(){
+    //$("xyz").click(function(){
+    //    $("#LstUsers").toggle();
+    //    });
+    //});
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("SelectedPortfolios")
+    @Html.HiddenFor(m => m.RecipientRoleName)
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Message, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Message, new { @class = "TextAreaShapeSize form-control" })
+                @Html.ValidationMessageFor(model => model.Message, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IsImportant, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.IsImportant)
+                @Html.ValidationMessageFor(model => model.IsImportant, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.RecipientRoleID, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-3" onclick="myToggle()">
+                @Html.DropDownListFor(model => model.RecipientRoleID, null, "-- Select Here --", new { @class = "form-control " })
+                @Html.ValidationMessageFor(model => model.RecipientRoleID, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-2">
+                <a href="#" onclick="PopulatePortfolioPopup(); myToggle()"><u>Select Portfolios</u></a>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <div id="UsersDiv" style="display:none">
+
+                @Html.Label("Based on selected portfolios, the message will be sent to following users:", htmlAttributes: new { @class = "control-label col-md-6" });
+            </div>
+        </div>
+        <div class="form-group">
+            <div id="LstUsers" class="control-label col-md-6" style="margin-left:200px">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+        <button type="button" onclick="FnFinalSubmit()" class="btn btn-red btn-cons">Submit&nbsp;</button>
+    </div>
+}
+<!-- This code displays a popup to get Selected Portfolios-->
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">Select Portfolios send message</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12" id="PortfolioDIV">
+
+                    <br>
+                    <div class="col-md-12">
+                        @Html.Label("Direct", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupInDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("EBU", htmlAttributes: new { @class = " col-md-2 col-lg-2 " })
+                        @Html.CheckBox("PopupEBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                        @Html.CheckBox("PopupCBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                    </div>
+                    <br>
+
+                    <div id="jqxPopupgrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <br>&ensp;<br>
+                <button type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio(); showIt();" data-dismiss="modal">Save</button>&ensp;
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal" onclick="showIt()">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="jqxLoader">
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

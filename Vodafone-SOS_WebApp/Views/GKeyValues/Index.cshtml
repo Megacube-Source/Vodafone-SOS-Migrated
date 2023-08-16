@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+@Html.ActionLink("Create New Key Value", "Create", "GKeyValues")
+<br>
+
+<div id="jqxgrid">
+
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'GcCompanyName', type: 'string' },
+                { name: 'GkvKey', type: 'string' },
+                { name: 'GkvValue', type: 'string' },
+
+            ],
+            id: "Id",
+            url: "/GKeyValues/GetKeyValues"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return CGdelete()" class="GridButton">Delete</button>&emsp;<button onclick="return CGedit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            showstatusbar: true,
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Company', datafield: 'GcCompanyName' },
+                { text: 'Key', datafield: 'GkvKey' },
+                { text: 'Value', datafield: 'GkvValue' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+    });
+
+    function CGedit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "GKeyValues", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function CGdelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "GKeyValues", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

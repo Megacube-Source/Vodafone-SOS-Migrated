@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewBag.Title = "PayeeCalcGraph";
+}
+<script src="~/Scripts/jqxdraw.js"></script>
+<script src="~/Scripts/jqxchart.core.js"></script>
+
+@*<script type='text/javascript' src='http://52.49.148.194/javascripts/api/viz_v1.js'></script>
+    <div class='tableauPlaceholder' style='width: 1273px; height: 919px;'><object class='tableauViz' width='1273' height='919' style='display:none;'>
+        <param name='host_url' value='http%3A%2F%2F52.49.148.194%2F' /> <param name='site_root' value='' />
+        <param name='name' value='LITECommissionsReportingPoC_v1_0&#47;OverallPerformanceDashboard' />
+        <param name='tabs' value='yes' /><param name='toolbar' value='yes' />
+        <param name='showShareOptions' value='true' />
+             </object></div>*@
+
+@*Iframe URL*@
+   @Html.Raw(ViewBag.QlickUrl)
+
+@*<h2>Payee Calc Graph</h2>
+<div class="form-horizontal">
+    <div class="col-md-10">
+        @Html.Label("Payee", htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.DropDownList("Payee", null, "-- Select Here --", new { @class = "form-control" })
+        </div>
+
+    </div>
+    <div class="col-md-10">
+        <br>
+        @Html.Label("Commision Period Count", htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.DropDownList("CommissionPeriodCount", new List<SelectListItem> { new SelectListItem { Text = "10", Value = "10" }, new SelectListItem { Text = "20", Value = "20" }, new SelectListItem { Text = "30", Value = "30" }, new SelectListItem { Text = "40", Value = "40" }, new SelectListItem { Text = "50", Value = "50" } }, new { @class = "form-control" })
+        </div>
+
+    </div>
+    <div class="col-md-10">
+        <button class="btn btn-red" onclick="FnDisplayChart()">Go</button>
+    </div>
+    <br>
+    <div id='chartContainer' style="width:550px; height:350px;">
+    </div>
+</div>
+
+<script>
+
+    function FnDisplayChart() {
+        var PayeeId = document.getElementById('Payee').value
+        var CommCount = document.getElementById('CommissionPeriodCount').value
+        if (PayeeId) {
+            $.ajax({
+                data: { CommissionPeriodCount: CommCount, PayeeId: PayeeId },
+                url: "/LPayees/GetPayeeDashboardChartData",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    var source =
+                        {
+                            datatype: "json",
+                            datafields: [
+                                { name: 'CommissionPeriod', type: 'string' },
+                                { name: 'PrelimCount', type: 'string' },
+                                { name: 'CompletedCount', type: 'string' },
+                                { name: 'RowNumber', type: 'string' }
+                            ],
+                            localdata: data
+                        };
+
+                    var dataAdapter = new $.jqx.dataAdapter(source, {
+                        async: false, autoBind: true, beforeLoadComplete: function (records) {
+                            var colorsArray = new Array();
+                            colorsArray.push("#DFDFDF");
+                            colorsArray.push("#FFA600");
+                            colorsArray.push("#1691D6");
+
+
+                            $.jqx._jqxChart.prototype.colorSchemes.push({ name: 'myScheme', colors: colorsArray });
+                        }, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); }
+                    });
+
+
+                    // prepare jqxChart settings
+                    var settings = {
+                        title: "",
+                        description: "",
+                        enableAnimations: true,
+                        showLegend: true,
+                        padding: { left: 5, top: 5, right: 5, bottom: 5 },
+                        titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+                        source: dataAdapter,
+                        colorScheme: 'myScheme',
+                        borderLineColor: '#888888',
+                        xAxis:
+                        {
+                            dataField: 'CommissionPeriod',
+                            labels:
+                            {
+                                angle: -45,
+                                horizontalAlignment: 'center',
+                                verticalAlignment: 'center',
+                                rotationPoint: 'center',
+                                offset: { x: 5, y: 0 }
+                            },
+                            unitInterval: 1,
+                            tickMarks:
+                            {
+                                visible: true,
+                                interval: 1,
+                                color: '#888888'
+                            },
+                            gridLines: {
+                                visible: false,
+                                interval: 1,
+                                color: '#888888'
+                            },
+                            axisSize: 'auto'
+                        },
+                        valueAxis:
+                        {
+                            visible: true,
+                            unitInterval: 1000,
+                            minValue: 0,
+                            maxValue: 10000,
+                            title: { text: 'Calculations (in dollars)' },
+                            tickMarks: { color: '#888888' },
+                            gridLines: { color: '#888888' },
+                            axisSize: 'auto'
+                        },
+                        seriesGroups:
+                        [
+                            {
+                                type: 'splinearea',
+                                series: [
+                                    { dataField: 'Target', displayText: 'Target', opacity: 0.7 }
+                                ]
+                            },
+                            {
+                                type: 'stackedcolumn',
+                                columnsGapPercent: 50,
+                                seriesGapPercent: 5,
+                                series: [
+                                    { dataField: 'PrelimCount', displayText: 'Prelim' },
+                                    { dataField: 'CompletedCount', displayText: 'Completed' }
+                                ]
+                            }
+                        ]
+                    };
+                    // setup the chart
+                    $('#chartContainer').jqxChart(settings);
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+        else {
+            alert('Please select Payee')
+        }
+    }
+    </script>*@
+

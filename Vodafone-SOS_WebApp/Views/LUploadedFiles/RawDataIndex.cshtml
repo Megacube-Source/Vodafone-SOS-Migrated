@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "RawDataIndex";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    //save the current page url in a session variable which will be the url for the Back button in subsequent pages
+    $.ajax({
+        data: { path: window.location.pathname },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+    });
+
+    //These lines of code are added to display message from controller as popup
+    if ('@TempData["Message"]')
+    {
+        alert('@TempData["Message"]')
+    }
+       
+            FnGetGrid("Open")
+          
+        //This method is called when data binding is complete in a grid
+            $("#jqxgridOpen").on("bindingcomplete", function (event) {
+                //display counts
+                var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+                // alert(data22.Count)
+                if (datainformations)
+                    document.getElementById('bOpen').innerHTML = datainformations.rowscount;
+            })
+      
+
+    })
+
+   // This method loads grid in view
+    function FnGetGrid(TabName) {
+
+        //variable defined to filter the uploaded files as per upload type
+      var UploadType='@ViewBag.UploadType'
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LrfFileName', type: 'string' },
+                { name: 'LrfUserFriendlyFileName', type: 'string' },
+                { name: 'LrfDescription', type: 'string' },
+                { name: 'LrfYear', type: 'string' },
+                { name: 'LrfMonth', type: 'string' },
+                { name: 'LrfComments', type: 'string' },
+                 { name: 'LrfCreatedDateTime', type: 'date',format:'dd/MM/yyyy hh:mm tt' },
+                  { name: 'CreatedBy', type: 'string' },
+                  { name: 'LrfCreatedById', type: 'string' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'LrfUpdatedDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+             { name: 'Comments', type: 'string' }
+            ],
+            id: "Id",
+            data: { TabName: TabName, UploadType: UploadType },
+            url: "/LUploadedFiles/GetUploadedRawFiles"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        //This method loads the  buttons in Action column of the grid
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+            var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Comments = xx.Comments;
+            var FileName = xx.LrfFileName
+          
+                    return '<button onclick="return FnDownloadFile(' + xx.Id + )" class="GridButton">Download</button>';
+             
+        };
+
+
+        //This method loads the expander in the grid
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LrfComments == null) {
+                    datarecord.LrfComments = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+                if (datarecord.LrfUpdatedDateTime == null) {
+                    datarecord.LrfUpdatedDateTime = ""
+                }
+
+
+                var WhoWhen = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Created Date Time: </b> " + datarecord.LrfCreatedDateTime + " </div><div class='col-md-4'> <b>Updated By: </b>" + datarecord.UpdatedBy + "</div><div class='col-md-4'> <b>Updated Date Time: </b>" + datarecord.LrfUpdatedDateTime + "</div></div>";
+                var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-8'><b>Existing Comments:&emsp;&emsp;</b><br/><textarea rows='5' style='width:100%' placeHolder='" + datarecord.LrfComments + "' disabled='disabled'></textarea></div><div class='col-md-4'><b>Created By: </b> " + datarecord.CreatedBy + " </div>";
+
+                $(leftcolumn).append(Comments);
+                $(leftcolumn).append(WhoWhen);
+
+                $(tabsdiv).jqxTabs({ width: '97%', height: 200 });
+
+            }
+
+        }
+
+
+       //This method loads the grid in the view
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <ul style='margin-left: 30px;'><li class='title'>File Information</li></ul><div class='information'></div>", rowdetailsheight: 360 },
+            initrowdetails: initrowdetails,
+            editable: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                { text: 'File Name', datafield: 'LrfFileName', editable: false },
+              //  { text: 'User Friendly File Name', datafield: 'LrfUserFriendlyFileName', editable: false },
+                { text: 'Description', datafield: 'LrfDescription', editable: false },
+                  { text: 'Month', datafield: 'LrfMonth', editable: false },
+                { text: 'Year', datafield: 'LrfYear', editable: false },
+                { text: 'Comments', datafield: 'Comments', width: '10%' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '20%', editable: false }
+            ]
+        });
+
+    }
+
+
+    //This function downloads the file on click of download button from actions column in grid
+    function FnDownloadFile(UploadedFileId)
+    {
+        if (UploadedFileId) {
+            document.getElementById('UploadedFileId').value = UploadedFileId;
+            document.getElementById('frm2').submit()
+        }
+    }
+
+</script>
+
+@using (Html.BeginForm("Index", "LUploadedFiles", FormMethod.Post, new { id = "frm2", name = "frm2", @encType = "multipart/form-data" }))
+{
+
+    @Html.Hidden("UploadedFileId")
+}
+<div style="padding:5px;">
+    <a  href="/LUploadedFiles/Create?UploadType=RawData"><u>Upload RawData File for Alteryx</u></a><br>
+   
+            <div id="jqxgridOpen">
+
+            </div>
+
+     </div>

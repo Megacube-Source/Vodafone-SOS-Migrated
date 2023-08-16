@@ -1,0 +1,45 @@
+﻿@model Vodafone_SOS_WebApp.Models.ChangePasswordBindingModel
+@{
+    ViewBag.Title = "GenerateOTP";
+}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <h3> An email with One Time Password (OTP) has been sent to your registered email id.<br/>
+            The OTP is valid upto @ViewBag.OTPValidity minutes.
+        </h3>
+        @Html.Hidden("UserId")
+        @Html.Hidden("Email")
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        <h4 class="text-danger">@TempData["ErrorMessage"]</h4>
+            
+        <div class="form-group">
+            @Html.LabelFor(model => model.OTP, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.OTP, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Verify" class="btn btn-red btn-cons" />
+
+            </div>
+        </div>
+
+    </div>
+
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+

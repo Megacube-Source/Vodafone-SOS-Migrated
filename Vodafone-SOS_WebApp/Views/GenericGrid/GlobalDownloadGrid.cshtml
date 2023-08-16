@@ -1,0 +1,167 @@
+﻿@model List<Vodafone_SOS_WebApp.ViewModels.GenericModelFilesViewModel>
+@{
+    ViewBag.Title = "Download";
+}
+<script type="text/javascript">
+    var totalcount = 0;
+    //console.log(@Model.Count());
+     var SectionItemsData = @Html.Raw(Json.Encode(Model));
+    $(document).ready(function () {
+        if (SectionItemsData != null) {
+            FnDocumntGrid();
+        }
+
+    });
+
+    function FnDocumntGrid() {
+        console.log(SectionItemsData);
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'DisplayFileName', type: 'string' },
+                { name: 'FilePath', type: 'string' }
+            ],
+
+            id: "Id",
+            localdata: SectionItemsData
+        };
+
+        //totalcount = SectionItemsData.length;
+        //var Parentsource = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Id', type: 'string' },
+        //        { name: 'FileName', type: 'string' },
+        //        { name: 'FilePath', type: 'string' }
+        //    ],
+        //    data: SectionItemsData,
+        //    //id: "Id",
+        //    //data: { ID: GridSectionItems.files },
+        //    //url: "/LReadyToPay/GetRTPBatch",
+        //    // update the grid and send a request to the api
+        //    filter: function () {
+        //        // $("#jqxPopupgridNew").jqxGrid('clear');
+        //        $('#jqxPopupgridNew').jqxGrid('updatebounddata', 'filter');
+        //        $('#jqxPopupgridNew').jqxGrid('clearselection');
+        //    },
+        //    // update the grid and send a request to the api
+        //    sort: function () {
+        //        // $("#jqxPopupgridNew").jqxGrid('clear');
+        //        $('#jqxPopupgridNew').jqxGrid('updatebounddata', 'sort');
+        //        $('#jqxPopupgridNew').jqxGrid('clearselection');
+        //    },
+        //    root: 'Rows',
+        //    beforeprocessing: function (data) {
+        //        Parentsource.totalrecords = totalcount;
+        //    }
+        //};
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        console.log(dataAdapter);
+
+        $('#jqxPopupgridNew').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            filterable: true,
+            pagesize: 100,
+            pagesizeoptions: ['100', '200', '500'],
+            autoshowcolumnsmenubutton: false,//down arrow always visible for filter and sorting
+            // selectionmode: 'checkbox',
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+            },
+            columns: [
+                //{ text: 'Id#', datafield: 'Id' },
+                { text: 'Download', datafield: 'FilePath' , width:100 },
+                { text: 'FileName', datafield: 'DisplayFileName' },
+                
+
+
+            ]
+        });
+
+        //$('#jqxPopupgridNew').jqxGrid({
+        //    source: ParentdataAdapter,
+        //    width: '100%',
+        //    height: '50%',
+        //    // autoheight: true,
+        //    theme: 'bootstrap',
+        //    sortable: true,
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    pageable: true,
+        //    pagesize: 100,
+        //    pagesizeoptions: ['50', '100'],
+        //    filterable: true,
+        //    autoshowcolumnsmenubutton: false,
+        //    showstatusbar: false,
+        //    virtualmode: true,
+        //    //selectionmode: 'checkbox',
+        //    //ready: function () {
+
+        //    //},
+        //    rendergridrows: function () {
+        //        return ParentdataAdapter.records;
+        //    },
+        //    columns: [
+        //        { text: 'FileName', datafield: 'FileName' },
+        //        { text: 'FilePath', datafield: 'FilePath' }
+
+        //    ]
+        //});
+
+    }
+
+    function DownloadfileTemp(filename, filepath) {
+        window.location.href = '/GenericGrid/DownLoadCommon?FilePath=' + filepath + '&FileName=' + filename +'&from=a2s';
+    }
+
+
+</script>
+
+<!-- This code displays a popup to get Selected Payees-->
+<div id='jqxTabs'>
+    <ul class="nav nav-tabs tabs tabs-container-border ">
+        <h2><li style="margin-left: 30px;">Dashboard Files <span class="badge" id="bPort"></span></li></h2>
+
+    </ul>
+    <div class="tab-content" style="padding:05px;">
+
+        <div id="jqxPopupgridNew" style="height:250px"></div>
+
+    </div>
+    <br /><br /> <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; </button>
+
+
+</div>
+
+@*<div id="GlobalFilesModal">
+    <div>
+
+         Modal content
+        <div class="content">
+            <div class="header">
+
+                <h4 class="title" id="PopupHeader">Download Files</h4>
+            </div>
+            <div class="body">
+                <div id="jqxPopupgridNew"></div>
+            </div>
+            <div class="footer">
+               
+                <br /><br /> <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; </button>
+            </div>
+        </div>
+
+    </div>
+</div>*@

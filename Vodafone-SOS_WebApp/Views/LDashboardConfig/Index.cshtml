@@ -1,0 +1,215 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LDashboardConfigViewModel
+@{
+    ViewBag.Title = "Index";
+}
+<script type="text/javascript">
+    var PortfolioCheckedIndexes = "";
+    var PayeeCheckedIndexes = "";
+    var KpiCheckedIndexes = "";
+    var SelectedKpis = "";
+    var SelectedPortfolios = "";
+    var SelectedPayees = "";
+
+    window.onbeforeunload = function () {
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        if (typeof (Storage) !== "undefined") {
+            sessionStorage.DashboardTab = selectedItem;
+        }
+    }
+    $(document).ready(function () {
+        
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+
+            }
+        });
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '80vh' });
+        if (sessionStorage.DashboardTab) {
+            $('#jqxTabs').jqxTabs('select', sessionStorage.DashboardTab)
+        }
+        
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'TileLabel', type: 'string' },
+                { name: 'TileType', type: 'string' },
+                { name: 'TileGroup', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LDashboardConfig/GetTilesList"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return FnEditTile()" class="GridButton"><i class=\"fa fa-edit\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Configure\"></i></button> <button onclick="return FnDeleteTile()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></button>';
+        };
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+            },
+            columns: [
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'5%' },
+                { text: 'Tile Label', datafield: 'TileLabel' },
+                { text: 'Type', datafield: 'TileType' },
+                { text: 'Group', datafield: 'TileGroup' }
+            ]
+        });
+        //Bind Graph
+        var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'TileLabel', type: 'string' },
+                { name: 'TileType', type: 'string' },
+                { name: 'TileGroup', type: 'string' },
+                { name: 'GraphType', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LDashboardConfig/GetGraphList"
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        var cellsrenderer2 = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return FnEditGraph()" class="GridButton"><i class=\"fa fa-edit\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Configure\"></i></button> <button onclick="return FnDeleteGraph()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></button>';
+        };
+
+        $('#jqxGraphGrid').jqxGrid({
+            source: dataAdapter2,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+            },
+            columns: [
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer2,width:'5%' },
+                { text: 'Graph Label', datafield: 'TileLabel' },
+                { text: 'Type', datafield: 'TileType' },
+                { text: 'Group', datafield: 'TileGroup' },
+                { text: 'Graph Type', datafield: 'GraphType' }
+            ]
+        });
+        //disabling link labels
+        $('#jqxGraphGrid').on('bindingcomplete', function (event) {
+             var rowscollection = $('#jqxGraphGrid').jqxGrid('getrows');
+            var rowscounts = rowscollection.length;
+            if(rowscounts>=4)
+            {
+                document.getElementById("AddGraphLbl").visibility = true;
+                $('#AddGraphLbl').hide();
+                //alert(rowscounts);
+            }
+
+         });
+        $('#jqxgrid').on('bindingcomplete', function (event) {
+            var rowscollection2 = $('#jqxgrid').jqxGrid('getrows');
+            var rowscounts2 = rowscollection2.length;
+            if(rowscounts2>=8)
+            {
+                document.getElementById("AddTileLbl").disabled = true;
+                $('#AddTileLbl').hide();
+                //var btn = document.getElementById("AddTileLbl");
+                //btn.disabled = true;
+            }
+        });
+    });
+
+    function FnEditTile()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("ConfigureTile", "LDashboardConfig", new {id = "__Id__" })';
+            window.location.href = url.replace("__Id__", xx);
+        }
+    }
+    function FnEditGraph()
+    {
+        var selectedrowindex = $('#jqxGraphGrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxGraphGrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("ConfigureGraph", "LDashboardConfig", new {id = "__Id__" })';
+            window.location.href = url.replace("__Id__", xx);
+        }
+    }
+    function FnDeleteTile()
+    {
+        if (confirm("Are you sure you want to cancel selected Tile?")) {
+            var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("DeleteConfiguration", "LDashboardConfig", new {ID = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+    }
+    function FnDeleteGraph() {
+        if (confirm("Are you sure you want to cancel selected Graph?")) {
+            var selectedrowindex = $('#jqxGraphGrid').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGraphGrid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("DeleteConfiguration", "LDashboardConfig", new {ID = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+    }
+    
+</script>
+<div class="form-horizontal" id="FrmHorizontal">
+    <div id='jqxTabs'>
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Graph Setting <span class="badge" id="bGraph"></span></li>
+            <li style="margin-left: 30px;">Tiles Setting <span class="badge" id="bTile"></span></li>
+        </ul>
+        <div class="tab-content" style="padding:10px;">
+            <a class="top_links" id="AddGraphLbl" href="/LDashboardConfig/AddGraph">  Add Dashboard Graph</a>
+            <br />
+            <br />
+            <div id="jqxGraphGrid">
+            </div>
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <a class="top_links" id="AddTileLbl" href="/LDashboardConfig/AddTile">  Add Dashboard Tile</a>
+            <br />
+            <br />
+            <div id="jqxgrid">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="jqxLoader">
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

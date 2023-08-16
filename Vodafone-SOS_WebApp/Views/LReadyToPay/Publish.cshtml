@@ -1,0 +1,153 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+@{
+    ViewBag.Title = "Publish Payment Batch";
+
+}
+
+<h4>Publish Ready To Payment Batch</h4>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var Irtpid = @Model.Id;
+
+     $.ajax({
+        data: { path: window.location.href },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+        });
+     //Validation Message Display
+    if('@TempData["Message"]')
+    {
+    alert('@TempData["Message"]')
+    }
+
+    });
+      //Method to download Dashboard file
+    function FnDownloadDashboard()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadDashboard?RTPId='+Irtpid;
+    }
+     //Method to download Payement file
+    function FnDownloadPayementFile()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadPayementFiles?RTPId='+Irtpid;
+    }
+     //Method to download PayeeDoc file
+    function FnDownloadPayeeDocumentFile()
+    {
+     var Irtpid = @Model.Id;
+   // window.location.href='/LReadyToPay/DownloadPayeeDocumentFiles?RTPId='+Irtpid;
+     window.location.href = '/LReadyToPay/DownloadPayeeDocument?RTPId=' + Irtpid;
+    }
+
+    function FnShowEmailDocs(checkboxElement)
+    {
+        var x = document.getElementById("EmailDocDiv");
+        if (checkboxElement.checked)
+        {
+            x.style.display = "block";
+        }
+        else {
+            x.style.display = "none";
+        }
+    }
+    function FnFinalSubmit() {
+      
+
+        var sucess = $("#frm").validate({})
+        if ($("#frm").valid()) {
+            isChanged = false;
+            document.getElementById("frm").submit()
+        }
+    }
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LbCommissionPeriod)
+    @Html.HiddenFor(m => m.PaymentBatchName)
+    @Html.HiddenFor(m => m.PaymentBatchNo)
+    @Html.HiddenFor(m => m.PeriodName)
+    @Html.HiddenFor(m => m.PayeeName)
+
+    <div>
+        <button class="btn btn-red btn-cons" type="button" id="btndownloadPay" title="click here to download" onclick="FnDownloadPayementFile()">Download Payment Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+        <button class="btn btn-red btn-cons" type="button" id="btndownloadPayee" title="click here to download" onclick="FnDownloadPayeeDocumentFile()">Download Payee Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+        <button class="btn btn-red btn-cons" type="button" id="btndownloadDashboard" title="click here to download" onclick="FnDownloadDashboard()">Download Dashboard &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+        <div class="col-xs-12 buttons">
+        </div>
+    </div>
+    <div class="col-md-12">
+        @Html.Label("Batch Name", htmlAttributes: new { @class = " col-md-3" })
+        <div class="col-md-9">
+            @Html.DisplayFor(model => model.PaymentBatchName)
+        </div>
+    </div>
+    <div class="col-md-12">
+        @Html.Label("Batch Number", htmlAttributes: new { @class = " col-md-3" })
+        <div class="col-md-9">
+            @Html.DisplayFor(model => model.PaymentBatchNo)
+        </div>
+    </div>
+    <div class="col-md-12">
+        @Html.Label("Commission Period", htmlAttributes: new { @class = " col-md-3" })
+        <div class="col-md-9">
+            @Html.DisplayFor(model => model.PeriodName)
+        </div>
+    </div>
+    <div class="col-md-12">
+        @Html.Label("Count of payee documents", htmlAttributes: new { @class = " col-md-3" })
+        <div class="col-md-9">
+            @Html.DisplayFor(model => model.CountPayment)
+        </div>
+    </div>
+    
+<div class="col-md-12">
+    @Html.Label("Select Acc Payables Email for Payment File", htmlAttributes: new { @class = " col-md-3" })
+    <div class="col-md-9">
+        @Html.DropDownListFor(model => model.PayPublishEmailIds, null, "-- Select Here --", new { @class = "form-control " })
+    </div>
+</div>
+<div class="col-md-12">
+    @Html.LabelFor(model => model.SendPayeeDocuments, new { @class = " col-md-3 control-label" })
+    <div class="col-md-9">
+        @Html.CheckBoxFor(m => m.SendPayeeDocuments, new { onchange = "FnShowEmailDocs(this)" })
+    </div>
+</div>
+<div id="EmailDocDiv" class="col-md-12" style="display:none">
+    @Html.LabelFor(model => model.EmailDocuments, new { @class = " col-md-3 control-label" })
+    <div class="col-md-9">
+        @Html.CheckBoxFor(m => m.EmailDocuments)
+    </div>
+</div>
+
+<div>
+    <button class="btn btn-borderRed btn-cons" type="button" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+    <button class="btn btn-red btn-cons" type="button" onclick="FnFinalSubmit()" title="click here to Publish Ready To Pay " >Publish &nbsp; <i class="fa fa-check" aria-hidden="true"></i></button>
+</div>
+}
+<div id="jqxLoader">
+</div>
+<br /><br /><br /><br /><br />
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+
+
+

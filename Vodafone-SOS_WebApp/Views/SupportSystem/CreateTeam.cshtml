@@ -1,0 +1,48 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.SupportSystemTeamsViewModel
+
+@{
+    ViewBag.Title = "Create Category";
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(Model => Model.RstTeamName, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RstTeamName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RstTeamName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RstRoleId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.RstRoleId, new { @class = "TextAreaShapeSize form-control" })
+                @Html.ValidationMessageFor(model => model.RstRoleId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="submit" class="btn btn-red btn-cons">Submit&nbsp;</button>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+

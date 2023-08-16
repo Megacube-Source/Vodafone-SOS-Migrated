@@ -1,0 +1,301 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+@{
+    ViewBag.Title = "Download Payee Document";
+    //var PayRowCount = ViewBag.PayRowCount;
+    // var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+
+<h2>Download Payee Document</h2>
+
+<script type="text/javascript">
+     var datafields = new Array();
+    var columns = new Array();
+    var batchnumber = "";
+    var totalcount = 0;
+
+    $(document).ready(function () {
+        FnPayeeDocumntGrid();
+
+        @*$('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: 'auto' });
+        var Irtpid = @Model.Id;
+        batchnumber = @Model.PaymentBatchNo;
+        var counts = @Model.CountPayment;
+        //Portfolio grid
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'XFileName', type: 'string' },
+                { name: 'XPayeeCode', type: 'string' },
+                { name: 'XFileLocation', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LReadyToPay/GetRTPBatch",
+            data: { RTPID: Irtpid },
+            filter: function () {
+
+                $('#jqxgrid').jqxGrid('updatebounddata', 'filter');
+                $('#jqxgrid').jqxGrid('clearselection');
+            },
+            // update the grid and send a request to the api
+            sort: function () {
+                // $("#" + GridId).jqxGrid('clear');
+                $('#jqxgrid').jqxGrid('updatebounddata', 'sort');
+                $('#jqxgrid').jqxGrid('clearselection');
+            },
+            root: 'Rows',
+            beforeprocessing: function (data) {
+                Portfoliosource.totalrecords = counts;
+            }
+
+        };
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '50%',
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            pagesize: 100,
+            pagesizeoptions: ['20', '50', '100'],
+            autoshowcolumnsmenubutton: false,
+            filterable: true,
+            showfilterrow: true,
+            showstatusbar: false,
+            virtualmode: true,
+            selectionmode: 'checkbox',
+            ready: function () {
+            },
+            rendergridrows: function () {
+                return PortfoliodataAdapter.records;
+            },
+            columns: [
+                { text: 'FileName', datafield: 'XFileName' },
+                { text: 'PayeeCode', datafield: 'XPayeeCode' }
+            ]
+        });*@
+    });
+
+    function FnPayeeDocumntGrid() {      
+        $.ajax({
+            data: { RTPId: @Model.Id},
+            url: "/LReadyToPay/GetPDCounts",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+                //alert(counts)
+                //The below code will load a grid of portfolios on this page
+                totalcount = counts;
+                var Parentsource = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'XFileName', type: 'string' },
+                        { name: 'XPayeeCode', type: 'string' },
+                        { name: 'XFileLocation', type: 'string' }
+                    ],
+                    id: "Id",
+                    data: { RTPID: @Model.Id },
+                    url: "/LReadyToPay/GetRTPBatch",
+                    // update the grid and send a request to the api
+                    filter: function () {
+                       // $("#jqxPopupgrid").jqxGrid('clear');
+                        $('#jqxPayeedocgrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxPayeedocgrid').jqxGrid('clearselection');
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                       // $("#jqxPopupgrid").jqxGrid('clear');
+                        $('#jqxPayeedocgrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxPayeedocgrid').jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        Parentsource.totalrecords = counts;
+                    }
+                };
+
+                var ParentdataAdapter = new $.jqx.dataAdapter(Parentsource)
+
+
+                $('#jqxPayeedocgrid').jqxGrid({
+                    source: ParentdataAdapter,
+                    width: '100%',
+                    height: '50%',
+                    // autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    altrows: true,
+                    pageable: true,
+                    pagesize: 100,
+                    pagesizeoptions: ['50', '100'],
+                    filterable: true,
+                    autoshowcolumnsmenubutton: false,
+                    showstatusbar: false,
+                    virtualmode: true,
+                    selectionmode: 'checkbox',
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    //ready: function () {
+
+                    //},
+                    rendergridrows: function () {
+                        return ParentdataAdapter.records;
+                    },
+                    columns: [
+                        { text: 'FileName', datafield: 'XFileName' },
+                        { text: 'PayeeCode', datafield: 'XPayeeCode' }
+
+                    ]
+                });
+
+            }
+        });
+    }
+
+    function DownloadPayeesFiles() {
+        var xx = $('#jqxPayeedocgrid').jqxGrid('getselectedrowindexes');
+        var FileNamewithpathArray = [];
+        FilePathArray = [];
+        for (var i = 1; i <= xx.length; i++) {
+            var rowdata = $('#jqxgrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+            FileNamewithpathArray[i - 1] = rowdata.XFileName + '$' + rowdata.XFileLocation + '$' + rowdata.XPayeeCode;
+        }
+        var CommaSeperatedFilename = FileNamewithpathArray.join(',');
+       $.ajax({
+         data: { filedata: CommaSeperatedFilename, PaymentBatchNo: batchnumber },
+         url: "/LReadyToPay/DownloadPayeeDocumentFilesNew",
+        dataType: "json",
+        type: "POST",
+        async: false,
+        success: function (data) {
+            alert('in');
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+        });
+    }
+    function SetValues() {
+        var xx = $('#jqxPayeedocgrid').jqxGrid('getselectedrowindexes');
+        //FileNamewithpathArray = [];
+        //var items = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+        //$.each(items, function (index) {
+        //    var rowdata = $('#jqxgrid').jqxGrid('getrowdata', this);
+        //    if (rowdata != null && rowdata != 'undefined') {
+        //        FileNamewithpathArray[i - 1] = rowdata.XFileName + '$' + rowdata.XFileLocation + '$' + rowdata.XPayeeCode;
+        //    }
+        //});
+
+        var FileNamewithpathArray = [];
+        var counter = 0;
+        for (var i = 1; i <= xx.length; i++) {
+            var rowdata = $('#jqxPayeedocgrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+            if (rowdata != null && rowdata != 'undefined'){
+                FileNamewithpathArray[counter] = rowdata.XFileName + '$' + rowdata.XFileLocation + '$' + rowdata.XPayeeCode;
+                counter = counter + 1;
+            }
+        }
+        $("#DocList").val(FileNamewithpathArray);
+        document.getElementById('frm').submit();
+    }
+
+
+     //Method to download Dashboard file
+    @*function FnDownloadDashboard()
+    {
+     var Irtpid = @Model.Id;
+     window.location.href ='/LReadyToPay/DownloadPayeeDocument?RTPId='+Irtpid;
+    }*@
+
+
+</script>
+<div style="padding:10px;">
+
+    <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select parent payee" style="color:#e60000;"></i></a>
+
+
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+        {
+            <div class="form-horizontal" id="FrmHorizontal">
+
+
+                <div class="form-group">
+                    @Html.HiddenFor(x => x.DocList)
+                    @Html.HiddenFor(x => x.PaymentBatchNo)
+                    @Html.HiddenFor(x => x.PaymentBatchName)
+                    @Html.HiddenFor(x => x.PeriodName)
+                    @Html.HiddenFor(x => x.CountPayment)
+                    @*@Html.HiddenFor(x => x.Id);*@
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            @Html.Label("Batch Name", htmlAttributes: new { @class = " col-md-3" })
+                            <div class="col-md-9">
+                                @Html.DisplayFor(model => model.PaymentBatchName)
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            @Html.Label("Batch Number", htmlAttributes: new { @class = " col-md-3" })
+                            <div class="col-md-9">
+                                @Html.DisplayFor(model => model.PaymentBatchNo)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            @Html.Label("Commission Period", htmlAttributes: new { @class = " col-md-3" })
+                            <div class="col-md-9">
+                                @Html.DisplayFor(model => model.PeriodName)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            @Html.Label("Count", htmlAttributes: new { @class = " col-md-3" })
+                            <div class="col-md-9">
+                                @Html.DisplayFor(model => model.CountPayment)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id='jqxTabs'>
+                <ul class="nav nav-tabs tabs tabs-container-border ">
+                    <li style="margin-left: 30px;">Payee Document List <span class="badge" id="bPort"></span></li>
+
+                </ul>
+                <div class="tab-content" style="padding:05px;">
+
+                    <div id="jqxPayeedocgrid" style="height:250px"></div>
+
+                </div>
+
+            </div>
+            <div>
+
+                @*<button onclick="return SaveAsDraft();" class="btn btn-red btn-cons" type="button" id="btndownloadPayee" title="click here to download" onclick="DownloadPayeesFiles()">Download Payee Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>*@
+                @*<input type="submit" onclick="return SetValues();" class="btn btn-red btn-cons" value="Download Payee Files" />*@
+                <button class="btn btn-borderRed btn-cons" type="button" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+
+                <button type="button" onclick="SetValues()" class="btn btn-red btn-cons">Download Payee Files&nbsp;</button>
+            </div>
+        }
+    </div>
+<br />
+<br />
+<div id="discalimer">
+    <span>Disclaimer: Please note, if number of payee documents is greater than 100, it might take few minutes to download.</span>
+</div>
+
+
+
+
+
+
+
+

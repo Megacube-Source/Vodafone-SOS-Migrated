@@ -1,0 +1,146 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.ClaimsFormsViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ClaimsFormsViewModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ClaimId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ClaimId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PayeeCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PayeeCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BrandId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.BrandId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ConnectionDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ConnectionDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OrderDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MSISDN)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MSISDN)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BAN)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.BAN)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OrderNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CustomerName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CustomerName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProductCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProductCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ExpectedCommissionAmount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ExpectedCommissionAmount)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ActivityTypeId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ActivityTypeId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CommissionType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CommissionType)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PayeeComment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PayeeComment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IMEI)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IMEI)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DeviceType)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

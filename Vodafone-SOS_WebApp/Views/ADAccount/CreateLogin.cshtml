@@ -1,0 +1,87 @@
+﻿@model Vodafone_SOS_WebApp.Models.CreateLoginViewModel
+@{
+    ViewBag.Title = "CreateLogin";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@TempData["ErrorMessage"]') {
+            alert('@TempData["ErrorMessage"]')
+
+        }
+
+        if ('@TempData["SuccessMessage"]') {
+            alert('@TempData["SuccessMessage"]')
+
+        }
+    });
+    function FnFinalSubmit()
+    {
+         $("#frm").validate();
+         var Form = $("#frm");
+         if ($('#frm').valid()) {
+             $.ajax({
+                 type: "POST",
+                 cache: false,
+                 data: Form.serialize() ,
+                 url: "/ADAccount/CreateLogin",
+                 success: function (data) {
+                     console.log(data);
+                     debugger;
+                     if (data.ErrorMessage) {
+                         alert("" + data.ErrorMessage);
+                     }
+                     else {
+                         alert("Data updated successfully");
+                     }
+                 },
+                 error: function (reponse) {
+                     Console.log(reponse);
+                 }
+             });
+        }
+         else {
+             event.stopPropagation();
+         }
+    }
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <h3>Create Login</h3>
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+
+
+        <div class="form-group col-md-10">
+            @Html.LabelFor(model => model.UserType, htmlAttributes: new { @class = "col-md-3 required", id = "UserType" })
+            <div class="col-md-8 col-lg-8">
+                @Html.DropDownList("UserType", ViewBag.UserType as SelectList, "-- Select Here --", new { @class = "form-control " })
+            </div>
+        </div>
+        <div class="form-group col-md-10">
+            @*@Html.Label("Email Address", new { @class = "col-md-2" })*@
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "col-md-3 required", id = "Email" })
+            <div class="col-md-8 col-lg-8">
+                @Html.TextBoxFor(model => model.Email, new { htmlAttributes = new { @class = "form-control " } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group col-md-10">
+            @Html.LabelFor(model => model.CreateLogin, htmlAttributes: new { @class = "col-md-3", id = "Email" })
+            <div class="col-md-8">
+                @Html.CheckBoxFor(model => model.CreateLogin, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.CreateLogin, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3"> 
+            <button class="btn btn-red btn-cons" type="button" onclick="FnFinalSubmit()" value="Update" id="btnsave">Update &nbsp;</button>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

@@ -1,0 +1,41 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.Sp_UpdateStatusViewModel
+
+@{
+    ViewBag.Title = "RejectedClaim";
+}
+
+@using (Html.BeginForm("ReJectingClaim","LClaims",FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        @Html.Hidden("ClaimsList")
+        @Html.Hidden("StatusName")
+        <div class="form-group">
+            @Html.LabelFor(model => model.RejectionReasonId, htmlAttributes: new { @class = "required control-label col-md-2" })
+            <div class="col-md-10">
+                @if (Enumerable.Count(ViewBag.RejectionReasonId) == 0)
+                {
+                    @Html.DropDownListFor(model => model.RejectionReasonId, null, "No Records Found", new { @class = "form-control" })
+                }
+                else
+                {
+                    @Html.DropDownListFor(model => model.RejectionReasonId, null, "-- Select Here --", new { @class = "form-control" })
+                }
+                @Html.ValidationMessageFor(model => model.RejectionReasonId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Reject" class="btn btn-info" />
+                <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-info" />
+            </div>
+        </div>
+</div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

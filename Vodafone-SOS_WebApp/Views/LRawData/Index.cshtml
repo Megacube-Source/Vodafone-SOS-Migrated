@@ -1,0 +1,418 @@
+﻿@*/*OLD Raw Data Code below*/*@
+@{
+    ViewBag.Title = "Index";
+    var comments = ViewBag.Comment as string;
+    var RawDataColumnList = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificRawDataColumnViewModel>)ViewBag.RawDataColumnList;
+    var StatusWiseRawDataCount = (List<Vodafone_SOS_WebApp.ViewModels.LRawDataRowCountsViewModel>)ViewBag.StatusWiseRowCounts;
+}
+
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.Hidden("TransactionId")
+    @Html.Hidden("WFConfigId")
+<div class="boxes" style="width:1250px;">
+    <h4 class="vodafone_txt">RAW DATA GRID <a onclick="CallDownloadMethodForRawDataSTatusWise()" href="#"><i class="fa fa-download" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Download"></i></a> </h4>
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Data <span class="badge" id="TabNA">0</span></li>
+            <li>Excluded <span class="badge" id="TabExclusion">0</span></li>
+            <li>Error <span class="badge" id="TabError">0</span></li>
+            @*<li>Change Requests <span class="badge" id="TabChangeRequests">0</span></li>*@
+        </ul>
+
+        @*Display Data Grid*@
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridNA"></div>
+            <br>&ensp;<br>
+            <div class="col-md-3"><b>Batch Level Comments</b></div>
+            <div class="col-md-9" style="width:95%"> <textarea id="NewComment" placeholder="Type Here" class="textarea1 form-control" onchange="FnAttachComments(this.value)"></textarea></div>
+            <br>&ensp;<br><br>
+            <div class="row" style="padding-left:20px">
+                @if (HttpContext.Current.Session["UserRole"].ToString() == "Reporting Analyst")
+                {
+                    <br /><br /><br /><button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; </button>
+                    <button type="button" class="btn btn-red btn-cons" onclick="return FnSaveExclusions()">Save Exclusions&nbsp;</button>
+                    @*<button type="button" class="btn btn-red btn-cons" onclick="return UpdateBatchStatus('RawDataCancelled')">Cancel Batch&nbsp; <i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('RawDataPendingApproval')">Submit For Approval&nbsp; <i class="fa fa-check" aria-hidden="true"></i></button>*@
+                }
+                else if (HttpContext.Current.Session["UserRole"].ToString() == "Manager")
+                {
+                    <br /><br /><br /> <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; </button>
+                    @*<button type="button" class="btn btn-orange btn-cons" onclick="return UpdateBatchStatus('RawDataReturnedForReExamine')">Return For ReExamine&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('RawDataApproved')">Approve &nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>*@
+                }
+                <label for="File1" style="height:18px;column-rule-width:inherit" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                <input id="File1" name="File1" type="file" multiple="multiple" onchange="document.getElementById('frm').submit();">
+                @if (ViewBag.ActionItems != null)
+                {
+                    @Html.Raw(ViewBag.ActionItems)
+                }
+            </div>
+
+        </div>
+
+        @*Display Excluded Grid*@
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridExclusion">
+            </div>
+            <br>
+            @if (HttpContext.Current.Session["UserRole"].ToString() == "Reporting Analyst")
+            {
+                <button type="button" class="btn btn-red btn-cons" onclick="return FnSaveInclusions()">Include Selected&nbsp;</button>
+                @*<button type="button" class="btn btn-payee btn-cons" onclick="return ExportExclusion()">Export Exclusions&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>*@
+            }
+        </div>
+
+        @*Display Error Grid*@
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridError">
+            </div>
+        </div>
+    </div>
+
+
+</div>
+}
+<br>
+@*Display existing comments on view in a disabled field*@
+<div class="col-md-2"><b>Existing Comments</b></div>
+<div class="col-md-10"><textarea id="LbComment" class="textarea1" style="height:200px" placeholder="@ViewBag.Comment" disabled="disabled"></textarea></div>
+<br>&emsp;
+<br>
+
+@*Below style is created to make the text darker in Existing comments text area. If removed text in the text area will look faded*@
+<style>
+    ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: black;
+    }
+
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: black;
+        opacity: 1;
+    }
+
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: black;
+        opacity: 1;
+    }
+
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: black;
+    }
+</style>
+
+@*Form to submit Exclusions*@
+@using (Html.BeginForm("SaveExclusions", "LRawData", FormMethod.Post, new { id = "frmSaveExclusions", name = "frmSaveExclusions" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("SOSBatchNumber")
+    @Html.Hidden("TransactionId")
+    @Html.Hidden("WFConfigId")
+    @Html.Hidden("ExcludedData")
+    @Html.Hidden("RawDataTableId")
+}
+
+@*Form to submit Inclusions*@
+@using (Html.BeginForm("SaveInclusions", "LRawData", FormMethod.Post, new { id = "frmSaveInclusions", name = "frmSaveInclusions" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("TransactionId")
+    @Html.Hidden("WFConfigId")
+    @Html.Hidden("SOSBatchNumber")
+    @Html.Hidden("IncludedData")
+    @Html.Hidden("RawDataTableId")
+}
+<br>
+
+
+<script type="text/javascript">
+
+    //Below variable (NewComment) will automaticlly get updated using 'OnChange' event of 'NewComment' Text Area control
+    var NewComment = "";
+    var datafields = new Array();
+    var columns = new Array();
+
+    //Redirect when manager sends the batch for re-examination to Reporting  Analyst
+    function UpdateBatchStatus(NewStatus) {
+        if(NewStatus=='RawDataCancelled'){
+            if (!confirm('If you do so, you will need to fix data at source and reimport raw files')){
+                return; //Return from here and do not do anything.
+            }
+        }
+        window.location.href = '/LRawData/UpdateBatchStatus?SOSBatchNumber=@ViewBag.SOSBatchNumber&BatchLevelComment=' + NewComment + '&NewStatus=' + NewStatus;
+    }
+
+
+    $(document).ready(function () {
+        //##TEMP Comment  because the current page url is being saved and previous page is not loaded on back button
+        ////This ajax call is being made to controller to save the current page url in session which will be the url of back button  in subsequent pages
+        //$.ajax({
+        //    data: { path: window.location.pathname },
+        //    url: "/Home/SaveReturnPath",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+
+        //This line adds tabs in the view
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+
+        //Populate data in different grids available on the page
+        FnGetGrid('NA'); //Populate RawData Grid
+        FnGetGrid('Exclusion'); //Populate RawData Exclusion Grid
+        FnGetGrid('Error'); //Populate RawData Error Grid
+
+        //this line is added to display any message from controller as popup
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+         if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+        ////This event gets called when data binding is complete in a data grid. It will show the counts on Tab Header.
+        //$("#jqxgridNA").on("bindingcomplete", function (event) {
+        //    var Griddata = $('#jqxgridNA').jqxGrid('getrowdata', 0);
+        //    if (Griddata) {
+        //        document.getElementById('b1').innerHTML = Griddata.Count;
+        //    }
+
+        //});
+
+        //Display RowCounts on tab headers
+        @foreach (var d in StatusWiseRawDataCount) {
+
+            switch (d.Status){
+                case "NA":
+                case null:
+                    @:document.getElementById('TabNA').innerHTML = @d.RowCounts;
+                                                                                                                    break;
+                case "Exclusion":
+                    @:document.getElementById('TabExclusion').innerHTML = @d.RowCounts;
+                                                                                                                    break;
+                case "Error":
+                    @:document.getElementById('TabError').innerHTML = @d.RowCounts;
+                                                                                                                    break;
+            }
+        }
+
+        //disable Excluded data column in Data grid if manager has logged in to application
+        if ('@HttpContext.Current.Session["UserRole"]' == "Manager") {
+            //$("#jqxgridNA").jqxGrid('hidecolumn', 'LrdExclusionComments');
+            $("#jqxgridNA").jqxGrid('selectionmode','none')
+        }
+
+        //Load the datafields of the grid and save them in an array
+        //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach(var d in RawDataColumnList) {
+            @: datafields.push({ name: "@d.LcsrdcXColumnName", type: "@d.LcsrdcDataType" });
+           @: columns.push({ text: "@d.LcsrdcDisplayLabel", datafield: "@d.LcsrdcXColumnName" ,editable:false,width:'10%'});
+                                                                                                        }
+    });
+    //Add Comments box in leftmost position as directed by VG
+    datafields.push({ name: 'XExclusionComments', type: 'string' });
+    datafields.push({ name: 'Comments', type: 'string' });
+    datafields.push({ name: 'XTransactionNumber', type: 'int' });
+    columns.push({ text: 'Comments', datafield: 'Comments',width:'10%' });
+
+    function FnGetGrid(Status) {
+        var SOSBatchNumber = '@ViewBag.SOSBatchNumber'
+        var RawDataTableId = '@ViewBag.RawDataTableId'
+
+        //New method to load dynamic grid
+
+        var source = {
+            dataType: "json",
+            dataFields: datafields,
+            id: "Id",
+            data: {
+                SOSBatchNumber: SOSBatchNumber,
+                RawDataTableId: RawDataTableId,
+                Status: Status
+            },
+            url: "/LRawData/GetLRawData",
+            root: 'Rows',
+            filter: function () {
+
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'filter');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+                //$("#" + GridId).jqxGrid('savestate');
+                //if (sessionStorage !== 'undefined') {
+                //    var CurrentFilterState = $("#" + GridId).jqxGrid('getstate')
+                //    sessionStorage.GridState = JSON.stringify(CurrentFilterState);
+                //    }
+            },
+            // update the grid and send a request to the api
+            sort: function () {
+                // $("#" + GridId).jqxGrid('clear');
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'sort');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+                //$("#" + GridId).jqxGrid('savestate');
+                //if (sessionStorage !== 'undefined') {
+                //    var CurrentSortState = $("#" + GridId).jqxGrid('getstate')
+                //    sessionStorage.GridState = JSON.stringify(CurrentSortState);
+                //}
+            },
+            beforeprocessing: function (data) {
+                //line added by shubham other than default method to add number of rows count from variable (StatusWiseRowsCounts) containg total counts and store this as jqxgrid count
+                //source.totalrecords = data.TotalRows;
+
+                switch(Status)
+                {
+                    case "NA":
+                        var NACount="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "NA").Count()"
+                        if(NACount>0)
+                        {
+                            var NaRowsCount="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "NA").FirstOrDefault().RowCounts"
+                            if(NaRowsCount!=null)
+                                source.totalrecords = NaRowsCount;
+                        }
+                        break;
+                    case "Exclusion":
+                        var ExclusionCount="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "Exclusion").Count()"
+                        if(ExclusionCount>0)
+                        {
+                            var ExclusionRowsCount="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "Exclusion").FirstOrDefault().RowCounts"
+                            source.totalrecords= ExclusionRowsCount;
+                        }
+                        break;
+                    case "Error":
+                        var ErrorCount ="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "Error").Count()";
+                        if(ErrorCount>0)
+                        {
+                            var ErrorRowsCount="@StatusWiseRawDataCount.Where(p => p.Status.ToString() == "Error").FirstOrDefault().RowCounts"
+                            source.totalrecords = ErrorRowsCount;
+                        }
+                        break;
+                    default:
+                        source.totalrecords=0;
+                }
+
+            }
+
+
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $("#jqxgrid" + Status).jqxGrid(
+        {
+            width: "100%",
+            source: dataAdapter,
+             theme: 'bootstrap',
+             columnsresize: true,
+             columnsreorder: true,
+             enablebrowserselection: true,
+            pageable: true,
+            pagesize:50,
+            editable:true,
+            filterable:true,
+            sortable: true,
+            autoshowcolumnsmenubutton: false,
+            pagesizeoptions:['50','100','200','500','1000'],
+            virtualmode: true,
+            selectionmode:'checkbox',
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+            columns: columns
+        });
+    }
+
+    //This variable is defined to store the details of excluded rows in an array
+    var arr = [];
+    //This method is called when Reporting Analyst clicks on Save Exclusions button after selecting rows from LRawData to include the rows in the data tab .
+    function FnSaveExclusions() {
+        var counts = 0;
+        var selectcount = 0;
+
+        //This methos returns all rows of the grid
+        var rows = $('#jqxgridNA').jqxGrid('getselectedrowindexes');
+
+        for (var i = 0; i < rows.length; i++) {
+            var rowData = $('#jqxgridNA').jqxGrid('getrowdata',rows[i]);
+
+            //Check if comments is NULL, if so, don't forward the request to save instead show error message and exit
+            if (rowData.Comments)
+            {
+                arr[counts] = [];
+                arr[counts][0] = rowData.XTransactionNumber;
+                arr[counts][1] = rowData.Comments;
+                counts = counts + 1;
+            }
+            else
+            {
+                alert("A comment is required with each excluded row")
+                return;
+            }
+        }
+        //This line adds data of array to  variable of form
+        document.getElementById('ExcludedData').value = arr;
+        // document.getElementById('BatchNumber').value = rows[0].;
+        if (arr.length == 0) {
+            alert("Please select Data")
+        } else {
+            document.getElementById('frmSaveExclusions').submit()
+        }
+    }
+
+    //variable defined to store data of excluded grid to be sent for inclusion
+    var arr1 = [];
+    //This method is called when Reporting Analyst clicks on SaveInclusions button in the Excluded data tab
+    function FnSaveInclusions() {
+        var counts = 0;
+        var selectcount = 0;
+        var rows = $('#jqxgridExclusion').jqxGrid('getselectedrowindexes');
+
+        for (var i = 0; i < rows.length; i++) {
+            var rowData = $('#jqxgridExclusion').jqxGrid('getrowdata',rows[i]);
+                arr1[counts] = [];
+                arr1[counts][0] = rowData.XTransactionNumber;
+                arr1[counts][1] = rowData.Comments;
+                counts = counts + 1;
+               // arr1[counts] = rowData.XTransactionNumber;
+                //counts = counts + 1;
+        }
+        document.getElementById('IncludedData').value = arr1;
+        // document.getElementById('BatchNumber').value = rows[0].;
+        if (arr1.length == 0) {
+            alert("Please select Data")
+        } else {
+            document.getElementById('frmSaveInclusions').submit()
+        }
+    }
+
+    function CallDownloadMethodForRawDataSTatusWise() {
+        debugger;
+        var statusdata = "";
+        if ($("#jqxgridNA").parent().closest('div').is(':visible')) {
+            window.location.href = '/GenericGrid/DownloadFileRawData?TransactionId=@ViewBag.TransactionId&status=NA';
+           // statusdata = "NA"
+        }
+        else if ($("#jqxgridExclusion").parent().closest('div').is(':visible'))
+        {
+            window.location.href = '/GenericGrid/DownloadFileRawData?TransactionId=@ViewBag.TransactionId&status=Exclusion';
+           // statusdata = "Exclusion"
+        } else {
+            window.location.href = '/GenericGrid/DownloadFileRawData?TransactionId=@ViewBag.TransactionId&status=Error';
+           // statusdata = "Error"
+        }
+       // window.location.href = '/GenericGrid/DownloadFileRawData?TransactionId=' +@ViewBag.TransactionId+'&status=' + statusdata;
+        //window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=SendToAnalyst&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+        //$("#jqxgridExclusion").parent().closest('div').is(':visible')
+        //$("#jqxgridNA").parent().closest('div').is(':visible')
+        //$("#jqxgridError").parent().closest('div').is(':visible')
+
+    }
+
+</script>
+
+<style>
+    input[type="file"] {
+        display: none;
+    }
+</style>

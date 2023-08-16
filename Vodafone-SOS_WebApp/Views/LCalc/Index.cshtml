@@ -1,0 +1,274 @@
+﻿@{
+    ViewBag.Title = "Index";
+    var comments = ViewBag.Comment as string;
+    var CalcRowCount = (int)ViewBag.CalcRowCount;
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+    var SupportingDocument = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LSupportingDocumentViewModel>)ViewBag.SupportingDocuments;
+}
+
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+@*@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{*@
+    @Html.Hidden("TransactionId")
+    @Html.Hidden("WFConfigId")
+    <div class="boxes">
+        <h4 class="vodafone_txt">CALC GRID  <a href="/GenericGrid/DownloadFile?TransactionId=@ViewBag.TransactionId"><i class="fa fa-download" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Download"></i></a> </h4>
+        <div id='jqxTabs' class="inner-tabs ">
+            <ul class="nav nav-tabs tabs tabs-container-border ">
+                <li style="margin-left: 30px;">Data </li>@*<span class="badge" id="TabNA">0</span>*@
+            </ul>
+
+            @*Display Data Grid*@
+            <div class="tab-content" style="padding:10px;">
+                <div id="jqxgridNA"></div>
+                <br>&ensp;<br>
+                <div class="col-md-3"><b>Batch Level Comments</b></div>
+                <div class="col-md-9" style=" width:95%"> <textarea id="NewComment" placeholder="Type Here" class="textarea1 form-control" onchange="FnAttachComments(this.value)"></textarea></div>
+
+                <br>&ensp;<br><br>
+                              <div class="row" style="padding-left:20px">
+                                  <br /><br /><br /> <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+                                  <label for="FileUpload" style="height:18px;column-rule-width:inherit" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                                 
+                                  @*<input id="File1" name="File1" type="file" multiple="multiple" onchange="document.getElementById('frm').submit();">*@
+                                  <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedCommon(this,@ViewBag.TransactionId,'LCalc','NA')">
+                                  @*@if (HttpContext.Current.Session["UserRole"].ToString() == "Reporting Analyst")
+        {
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-red btn-cons" onclick="return UpdateBatchStatus('CalcCancelled')">Cancel Batch&nbsp; <i class="fa fa-times" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('CalcPendingApproval')">Prelim OK&nbsp; <i class="fa fa-check" aria-hidden="true"></i></button>
+        }
+        else if (HttpContext.Current.Session["UserRole"].ToString() == "Manager")
+        {
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-orange btn-cons" onclick="return UpdateBatchStatus('CalcReExamine')">Return For ReExamine&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('CalcManagerApproved')">Approve &nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        }*@
+                                  @if (ViewBag.ActionItems != null)
+    {
+                              @Html.Raw(ViewBag.ActionItems)
+}
+                              </div>
+            </div>
+
+
+
+            @*@*Display Excluded Grid
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridExclusion">
+                    </div>
+                    <br>
+                    @if (HttpContext.Current.Session["UserRole"].ToString() == "Reporting Analyst")
+                    {
+                        <button type="button" class="btn btn-red btn-cons" onclick="return FnSaveInclusions()">Include Selected&nbsp;</button>
+                                @*<button type="button" class="btn btn-payee btn-cons" onclick="return ExportExclusion()">Export Exclusions&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                    }
+                </div>
+
+                @*Display Error Grid
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridError">
+                    </div>
+                </div>*@
+        </div>
+
+
+    </div>
+@*}*@
+<br>
+@*Display existing comments on view in a disabled field*@
+<div class="col-md-2"><b>Existing Comments</b></div>
+<div class="col-md-10"><textarea id="WFComments" class="textarea1" style="height:200px" placeholder="@ViewBag.Comment" disabled="disabled"></textarea></div>
+<br>
+<br>
+<div class="col-md-12">
+
+    <table class="col-md-12 col-lg-12">
+        <tr><td><b>Existing Attachments</b></td></tr>
+        @if (SupportingDocument != null)
+        {
+            foreach (var Files in SupportingDocument)
+            {
+                <tr><td> @Files.LsdFileName </td></tr>
+            }
+        }
+    </table>
+</div>
+
+<br><br>
+<div class="col-md-12">
+    <span>Attached Attachments</span>
+
+</div>
+
+<div class="col-md-12" id="AttachedFiles">
+
+
+</div>
+@*Below style is created to make the text darker in Existing comments text area. If removed text in the text area will look faded*@
+<style>
+    ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: black;
+    }
+
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: black;
+        opacity: 1;
+    }
+
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: black;
+        opacity: 1;
+    }
+
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: black;
+    }
+</style>
+
+<br>
+
+
+
+<script type="text/javascript">
+
+    //Below variable (NewComment) will automaticlly get updated using 'OnChange' event of 'NewComment' Text Area control
+    var NewComment = "";
+    var datafields = new Array();
+    var columns = new Array();
+    var cellsrenderer=undefined;
+    //Redirect when manager sends the batch for re-examination to Reporting  Analyst
+    function UpdateBatchStatus(NewStatus) {
+        if(NewStatus=='CalcCancelled'){
+            if (!confirm('If you do so, you will need to fix data at source and reimport raw files')){
+                return; //Return from here and do not do anything.
+            }
+        }
+        window.location.href = '/LCalc/UpdateBatchStatus?SOSBatchNumber=@ViewBag.SOSBatchNumber&BatchLevelComment=' + NewComment + '&NewStatus=' + NewStatus;
+    }
+
+    $(document).ready(function () {
+
+        //This call is made to save url of current page which would be the url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+     cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            if (value) {
+                return '&emsp;<a style="cursor:pointer;" onclick="window.location.href=\'/LCalc/DownloadAttachment?AttachmentId=' + value + '\'" class="GridButton">Download</a>';
+            }
+            else {
+                return '<a style="display:none;"></a>'
+            }
+        };
+      //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach(var d in CompanySpecificColumns) {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+            if(d.LcscDisplayOnForm==true && d.ColumnName != "PayeeAttachmentId")
+            {
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+           }
+            }
+
+
+                  columns.push({ text: 'Actions', datafield: 'PayeeAttachmentId', width: '10%', cellsrenderer: cellsrenderer });
+                    if(datafields.indexOf('PayeeAttachmentId')==-1)
+                    {
+                        datafields.push({ name: "PayeeAttachmentId", type: "string" });
+                    }
+                    if(datafields.indexOf('XAlteryxTransactionNumber')==-1)
+                    {
+                        datafields.push({ name: "XAlteryxTransactionNumber", type: "string" });
+                    }
+        //This line adds tabs in the view
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+
+            //Populate data in different grids available on the page
+            FnGetGrid('NA'); //Populate Calc Grid
+
+            //this line is added to display any message from controller as popup
+            if ('@TempData["Message"]') {
+                alert('@TempData["Message"]')
+            }
+
+            //Display RowCounts on tab headers
+            //document.getElementById('TabNA').innerHTML = CalcRowCount;
+
+            //disable Excluded data column in Data grid if manager has logged in to application
+            if ('@HttpContext.Current.Session["UserRole"]' == "Manager") {
+            //$("#jqxgridNA").jqxGrid('hidecolumn', 'LrdExclusionComments');
+            $("#jqxgridNA").jqxGrid('selectionmode','none')
+            }
+        });
+
+    function FnGetGrid(Status) {
+        var SOSBatchNumber = '@ViewBag.SOSBatchNumber'
+
+        var source = {
+            dataType: "json",
+            dataFields: datafields,
+            id: "Id",
+            data: {
+                SOSBatchNumber: SOSBatchNumber,
+                //RawDataTableId: RawDataTableId,
+                Status: Status
+            },
+            url: "/LCalc/GetLCalc",
+            // update the grid and send a request to the api
+            filter: function () {
+
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'filter');
+            },
+            // update the grid and send a request to the api
+            sort: function () {
+               // $("#" + GridId).jqxGrid('clear');
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'sort');
+            },
+            root: 'Rows',
+            beforeprocessing: function (data) {
+                source.totalrecords = '@CalcRowCount';
+            }
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source);
+
+        $("#jqxgrid" + Status).jqxGrid(
+        {
+            width: "100%",
+            source: dataAdapter,
+            enablebrowserselection : true,
+            columnsresize: true,
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            sortable: true,
+            pagesize: 50,
+            editable: false,
+            pagesizeoptions:['50','100','200','500','1000'],
+            virtualmode: true,
+           // selectionmode:'checkbox',
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+            columns:columns
+
+        });
+    }
+</script>
+<style>
+    input[type="file"] {
+        display: none;
+    }
+</style>
+

@@ -1,0 +1,135 @@
+﻿
+@{
+    ViewBag.Title = "UploadUsers";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+}
+
+
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+    //This variable is defined to store value if form has any changes
+    $(document).ready(function () {
+        document.getElementById('btnupload1').disabled = true;
+        document.getElementById('btnu').disabled = false;
+
+        if ('@TempData["Message"]') {
+            if ('@TempData["ErrorFilePath"]') { window.location.href = '/LUsers/DownloadErrorFile'; }
+            if ('@TempData["Status"]' == 'Validated') {
+                document.getElementById('btnupload1').disabled = false;
+                document.getElementById('btnu').disabled = true;
+            }
+            else {
+                document.getElementById('btnupload1').disabled = true;
+                document.getElementById('btnu').disabled = false;
+            }
+        }
+    });
+    var isChanged = false;
+    window.onload=function GetGridsData()
+    {
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 100, height: 100, imagePosition: 'center' });
+        //The below code checks for changes in form
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+
+    function checksubmit() {
+        var Form1 =$('#frm');
+        var xx = document.getElementById('File1').value
+        if (xx.split(".")[1].toLowerCase() == 'xls' || xx.split(".")[1].toLowerCase() == 'xlsx') {
+
+            document.getElementById('Msg').style.display = 'block'
+            isChanged = false;
+                    document.getElementById('frm').submit()
+        } else {
+            alert("File Format is not supported")
+        }
+    }
+
+
+        function Upload() {
+
+            $.ajax(
+                {
+                type: "POST",
+                url: '@Url.Action("UploadValidUsers", "LUsers")',
+                dataType: "json",
+                success: function (result) {
+                    window.location.href = '../GenericGrid/Index?WorkFlow=Users';
+                },
+                error: function (result) {
+                    window.location.href = '../GenericGrid/Index?WorkFlow=Users';
+                }
+
+            });
+        }
+        function exportError()
+        {
+            $.ajax({
+                url: "/LClaims/ExportUploadClaimsHierarchyErrorGrid",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    window.location.href = '@FilePath'+'/ExportUsersErrorList.csv';
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+</script>
+
+<div style="padding:10px;">
+
+    <div id="jqxLoader">
+    </div>
+
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+    {
+
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-1" })
+                <div class="col-md-11">
+                    <input type="file" name="File1" id="File1" accept=".xls,.xlsx" class="form-control">
+                </div>
+
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        <button class="btn btn-borderRed btn-cons" type="button" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;<i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                        <button class="btn btn-success btn-cons" id="btnu" title="click here to validate Users record using excel sheet" onclick="Javascript: if (document.getElementById('File1').value) { return checksubmit() } else { alert('Please choose a file') }">Validate File &nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>
+                        <button class="btn btn-success btn-cons" type="button" id="btnupload1" disabled="disabled" onclick="Upload();" title="click here to upload validate Users record using excel sheet">Upload File &nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-10 boxes" id="Msg" style="display:none;"><b>Please Wait</b> ! while record is being uploaded</div><br>
+            </div>
+
+        </div>
+
+
+
+    }
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div id="err" style="display:none;">
+                <h4 class="text-danger">Some Claims records seem to have errors. Please see comments for each error and fix it in the original file and reload</h4>
+                <input type="button" value="Download" class="btn btn-info" onclick="exportError()"><br>
+            </div>
+            <div id="jqxgrid"></div>
+        </div>
+    </div>
+</div>

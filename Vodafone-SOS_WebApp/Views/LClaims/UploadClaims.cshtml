@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewBag.Title = "UploadClaims";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+}
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+    //This variable is defined to store value if form has any changes
+    $(document).ready(function () {
+        document.getElementById('btnupload1').disabled = true;
+        document.getElementById('btnu').disabled = false;
+        if ('@TempData["Message"]') {
+            if ('@TempData["ErrorFilePath"]') { window.location.href = '/LClaims/DownloadErrorFile';}
+            if ('@TempData["ClaimsModelList"]' == 'Valid Data') {
+                document.getElementById('btnupload1').disabled = false;
+                document.getElementById('btnu').disabled = true;
+            }
+            else {
+                document.getElementById('btnupload1').disabled = true;
+                document.getElementById('btnu').disabled = false;
+            }
+        }
+    });
+    var isChanged = false;
+    window.onload=function GetGridsData()
+    {
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 100, height: 100, imagePosition: 'center' });
+        //The below code checks for changes in form
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+        //document.getElementById('btnupload').disabled = true;
+        //document.getElementById('btnu').disabled = false;
+        @*if('@TempData["Message"]')
+        {
+            if ('@TempData["ClaimsModelList"]') {
+                alert('yes');
+                document.getElementById('btnupload').disabled = false;
+                document.getElementById('btnu').disabled = true;
+                GetGrid()
+            }
+        }*@
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+
+    function checksubmit() {
+        var Form1 =$('#frm');
+        var xx = document.getElementById('File1').value
+        if (xx.split(".")[1].toLowerCase() == 'xls' || xx.split(".")[1].toLowerCase() == 'xlsx') {
+
+            document.getElementById('Msg').style.display = 'block'
+            isChanged = false;
+                    document.getElementById('frm').submit()
+        } else {
+            alert("File Format is not supported")
+        }
+    }
+
+        function GetGrid()
+        {
+            $.ajax({
+                url: "/LClaims/PostUploadClaimsHierarchyGrid",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                  document.getElementById('err').style.display='block'
+                    var sourcea = {
+                        dataType: "json",
+                        dataFields: [
+                            //{ name: 'Id', type: 'string' },
+                            //{ name: 'LpFullName', type: 'string' },
+                            { name: 'LcPayeeCode', type: 'string' },
+                            { name: 'LcExpectedCommissionAmount', type: 'string' },
+                        //    { name: 'LcClaimId', type: 'string' },
+                        //    { name: 'LcConnectionDate', type: 'string' },
+                        //    { name: 'LcOrderDate', type: 'string' },
+
+                        //{ name: 'Count', type: 'string' },
+                            { name: 'ErrorMessage', type: 'string' }
+                        ],
+                        localdata:data
+                    };
+                    var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+
+
+                    $('#jqxgrid').jqxGrid({
+                        source: dataAdaptera,
+                        width: '100%',
+                        autoheight: true,
+                        theme: 'bootstrap',
+                        sortable: true,
+                        filterable: true,
+                        enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                        autoshowcolumnsmenubutton: false,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        //pagesize: 20,
+                        //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                       autorowheight:true,
+                        ready: function () {
+
+                        },
+
+                        columns: [
+                           // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                            //{ text: 'Claims Id', datafield: 'LcClaimId', editable: false },
+                            //  { text: 'Order  Date', datafield: 'LcOrderDate', editable: false },
+                            //{ text: 'Connection Date', datafield: 'LcConnectionDate', editable: false },
+                         //  { text: 'Claims Status', datafield: 'RsStatus', editable: false },
+
+                            { text: 'Payee Code', datafield: 'LcPayeeCode', editable: false, width: '20%' },
+                            { text: 'Commission Amount', datafield: 'LcExpectedCommissionAmount', editable: false, width: '20%' },
+                            { text: 'Error', datafield: 'ErrorMessage', editable: false,width:'60%' }
+                        ]
+                    });
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+        function Upload() {
+
+            $.ajax(
+                {
+                type: "POST",
+                url: '@Url.Action("UploadValidClaims", "LClaims")',
+                dataType: "json",
+                success: function (result) {
+                    window.location.href = '../GenericGrid/Index?WorkFlow=Claims';
+                },
+                error: function (result) {
+                    window.location.href = '../GenericGrid/Index?WorkFlow=Claims';
+                }
+               
+            });
+        }
+        function exportError()
+        {
+            $.ajax({
+                url: "/LClaims/ExportUploadClaimsHierarchyErrorGrid",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    window.location.href = '@FilePath'+'/ExportClaimsErrorList.csv';
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+</script>
+
+<div style="padding:10px;">
+
+    <div id="jqxLoader">
+    </div>
+
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+    {
+
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-1" })
+                <div class="col-md-11">
+                    <input type="file" name="File1" id="File1" accept=".xls,.xlsx" class="form-control">
+                </div>
+
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        <button class="btn btn-borderRed btn-cons" type="button" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;<i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                        <button class="btn btn-success btn-cons" id="btnu" title="click here to validate Claims record using excel sheet" onclick="Javascript: if (document.getElementById('File1').value) { return checksubmit() } else { alert('Please choose a file') }">Validate File &nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>
+                        <button class="btn btn-success btn-cons" type="button" id="btnupload1" disabled="disabled" onclick="Upload();" title="click here to upload validate Claims record using excel sheet">Upload File &nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-10 boxes" id="Msg" style="display:none;"><b>Please Wait</b> ! while record is being uploaded</div><br>
+            </div>
+
+        </div>
+
+
+
+    }
+  
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div id="err" style="display:none;">
+                <h4 class="text-danger">Some Claims records seem to have errors. Please see comments for each error and fix it in the original file and reload</h4>
+                <input type="button" value="Download" class="btn btn-info" onclick="exportError()"><br>
+            </div>
+            <div id="jqxgrid"></div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,219 @@
+﻿
+@{
+    ViewBag.Title = "ReviewForCR";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Vodafone_SOS_WebApp.ViewModels.LChangeRequestViewModel
+
+<h2 id="hdrtxt"></h2>
+<div class="row">
+    <div class="container col-md-12 col-lg-12">
+        <div class="col-sm-6 col-md-6 col-lg-2" style="padding-left:0px;margin-top:10px">
+            Change For
+        </div>
+        <div id="emailPayee" class="col-sm-8 col-md-8 col-lg-10" style="margin-top:10px">
+            @Html.EditorFor(model => model.LChangeRequest.FirstOrDefault().EmailID, new { htmlAttributes = new { disabled = "disabled",@class = "form-control", @Value = @ViewBag.payeeEmail } })
+            <div></div>
+        </div>
+        <div id="emailUser" class="col-sm-8 col-md-8 col-lg-10" style="margin-top:10px">
+            @Html.EditorFor(model => model.LChangeRequest.FirstOrDefault().EmailID, new { htmlAttributes = new { disabled = "disabled", @class = "form-control", @Value = @ViewBag.userEmail } })
+            <div></div>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px;margin-top:10px">
+            Changed Item
+        </div>
+        <div class="col-sm-10 col-md-10 col-lg-10" style="margin-top:10px">
+            @Html.EditorFor(model => model.LcrColumnLabel, new { htmlAttributes = new { disabled = "disabled", @class = "form-control" } })
+        </div>
+    </div>
+
+    &nbsp;
+    <div class="container col-md-12 col-lg-12">
+        @Html.HiddenFor(model => model.LcrOldValue)
+        @Html.HiddenFor(model => model.LcrNewValue)
+        <table class="col-sm-2 col-md-2 col-lg-5" style="margin-right:5px">
+            <tbody>
+                <tr>
+                    <td id="listold"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="col-sm-2 col-md-2 col-lg-5" style="margin-left:5px">
+            <tbody>
+                <tr>
+                    <td id="listnew"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<script type="text/javascript">
+    var newvalues = "";
+    var oldvalues = "";
+    var oldvalarray = [];
+    var newvalarray = [];
+
+    function checkValue(value, arr) {
+        var status = 'Not exist';
+        for (var i = 0; i < arr.length; i++) {
+            var name = arr[i];
+            if (name == value) {
+                status = 'Exist';
+                break;
+            }
+        }
+        return status;
+    }
+
+    document.getElementById('LcrOldValue').value = '@ViewBag.oldvalue';
+    document.getElementById('LcrNewValue').value = '@ViewBag.newvalue';
+    document.getElementById('LcrColumnLabel').value = '@ViewBag.field';
+
+     if (document.getElementById('LcrNewValue').value != null) {
+         newvalues = document.getElementById('LcrNewValue').value.split(',');
+         for (var i = 0; i < newvalues.length; i++) {
+            
+             newvalarray.push(newvalues[i]);
+         }
+         
+     }
+
+     if (document.getElementById('LcrOldValue').value != null) {
+         oldvalues = document.getElementById('LcrOldValue').value.split(',');        
+
+         for (var i = 0; i < oldvalues.length; i++) {
+             oldvalues[i] = oldvalues[i].replace('.', "-").replace('.', "-");   
+
+             oldvalarray.push(oldvalues[i]);
+         }
+
+         
+     }
+
+
+     $(document).ready(function () {
+        var replacedoldvalue = "";
+        var columntextNew = "";
+        var columntextOld = "";
+        if ('@ViewBag.field' == "Roles") {
+
+
+           
+
+            if (newvalarray[0] == "") {
+                columntextNew = 'New Values';
+            }
+            else if (newvalarray[0] != null) {
+                columntextNew = 'New Values For ' + newvalarray[0];
+            }
+            
+          
+            if (oldvalarray[0] == "") {
+                columntextOld =  'Old Values';
+            }
+            else if (oldvalarray[0] != null){
+                columntextOld = 'Old Values For ' + oldvalarray[0];
+            }
+          
+        }
+
+        if ('@ViewBag.field' != "Roles") {
+            columntextNew = 'New Values';
+            columntextOld = 'Old Values';
+        }
+
+        if ('@ViewBag.EntityName'  == "LUsers") {
+            $("#emailPayee").hide();
+            $("#emailUser").show();
+            $("#hdrtxt").text("Users Change Request Review");
+        }
+        else {
+            $("#emailPayee").show();
+            $("#emailUser").hide();
+            $("#hdrtxt").text("Payees Change Request Review")
+        }
+
+         var dataoldvalues = new Array(); //array to add old values in localdata of grid.
+         var datanewvalues = new Array(); //array to add new values in localdata of grid.
+
+         //grid to display newvalues in list under Jqxgrid using array of comma separated values
+         if (document.getElementById('LcrNewValue').value != null) {
+         
+             for (var i = 0; i < newvalues.length; ++i) {
+                 newvalarray.push(newvalues[i]);
+                 var row = {};              
+                 var result = checkValue(newvalues[i], oldvalarray);
+                 if (result == 'Not exist') {
+                     newvalues[i] = '<span style="margin: 4px;  color: #008000;">' + newvalues[i] + '</span>';
+                 }
+                 row["newvalues"] = newvalues[i];
+                 datanewvalues[i] = row;
+             }
+            
+             var source =
+                 {
+                     localdata: datanewvalues,
+                     datatype: "array"
+                 };
+             var dataAdapter = new $.jqx.dataAdapter(source, {
+                 downloadComplete: function (data, status, xhr) { },
+                 loadComplete: function (data) { },
+                 loadError: function (xhr, status, error) { }
+             });
+
+             $("#listnew").jqxGrid(
+                 {
+                     width: '50%',
+                     autoHeight: true,
+                     altrows: true,
+                     source: dataAdapter,
+                     columns: [{ text: columntextNew, datafield: 'newvalues', width: '100%'}]/*, cellclassname: cellclassname*/
+                 });
+         }
+
+
+         ///grid to display oldvalues in list under Jqxgrid using array of comma separated values
+         if (document.getElementById('LcrOldValue').value != null) {
+            
+             for (var i = 0; i < oldvalues.length; ++i) {
+                 oldvalarray.push(oldvalues[i]);
+                 var row = {};
+                var result =  checkValue(oldvalues[i], newvalarray);
+
+                if (result == 'Not exist') {
+                    oldvalues[i] = '<span style="margin: 4px;  color: #ff0000;">' + oldvalues[i] + '</span>';
+                }
+
+
+                 row["oldvalues"] = oldvalues[i];
+                 dataoldvalues[i] = row;
+             }
+             var sourceold =
+                 {
+                     localdata: dataoldvalues,
+                     datatype: "array"
+                 };
+             var dataAdapterold = new $.jqx.dataAdapter(sourceold, {
+                 downloadComplete: function (data, status, xhr) { },
+                 loadComplete: function (data) { },
+                 loadError: function (xhr, status, error) { }
+             });
+
+             
+             $("#listold").jqxGrid(
+                 {
+                     width: '50%',
+                     autoHeight: true,
+                     altrows: true,
+                     source: dataAdapterold,
+                     columns: [{ text: columntextOld, datafield: 'oldvalues', width: '100%' }]
+                 });
+
+            
+         }
+     });
+     
+</script>

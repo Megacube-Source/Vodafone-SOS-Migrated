@@ -1,0 +1,177 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.AuditFormViewModel
+
+@{
+    ViewBag.Title = "AuditorDashboard";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+}
+
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+
+<script>
+    //NOTE: In all jqxdatetime controls one is added in month while converting from jqxdatetime to razor and vise versa because months are counted from 0 in JS date
+    $(document).ready(function () {
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]');
+            document.getElementById('Entity').value = '@Convert.ToString(TempData["Entity"])'
+            document.getElementById('Startdate').value = '@Convert.ToString(TempData["Startdate"])'
+            document.getElementById('Enddate').value = '@Convert.ToString(TempData["Enddate"])'
+
+
+            FnGetGrid();
+        }
+        //This call is made to save url of current page which would be the url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //This line adds jqxDattime control to get start date value
+        $("#Startdate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Startdate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('StartDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+            //var EndDate = jsDate.setMonth(jsDate.getMonth()+3)
+            $('#Enddate').jqxDateTimeInput('setMinDate', jsDate);
+            //$('#Enddate').jqxDateTimeInput('setMaxDate', new Date(year, month + 4, day));
+            DisplayButtons()
+        });
+
+        DisplayButtons()
+        $("#Enddate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Enddate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('EndDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+           // var StartDate = jsDate.setMonth(jsDate.getMonth() -3)
+            $('#Startdate').jqxDateTimeInput('setMaxDate', jsDate);
+            //$('#Startdate').jqxDateTimeInput('setMinDate', new Date(year, month - 4, day));
+            DisplayButtons()
+        });
+
+        @if (Model.StartDate.HasValue) {
+           @: var Start = new Date('@Model.StartDate.Value.Year', '@Model.StartDate.Value.Month'-1, '@Model.StartDate.Value.Day')
+           @: $('#Startdate').jqxDateTimeInput('setDate', Start);
+        }
+
+        @if (Model.EndDate.HasValue) {
+           @: var End = new Date('@Model.EndDate.Value.Year', '@Model.EndDate.Value.Month'-1, '@Model.EndDate.Value.Day')
+           @: $('#Enddate').jqxDateTimeInput('setDate', End);
+        }
+        //if()
+
+        //$("#StartDate").prop('required', true);
+        //$("#EndDate").prop('required', true);
+    });
+
+    function FnGetGrid()
+    {
+        if (document.getElementById('Entity').value) {
+            var Form1 = $("#frm")
+           // $("#frm").validate();
+           // if (Form1.valid({})) {
+                Form1.action = '/Home/AuditorDashboard'
+                Form1.submit();
+            //}
+        }
+        else {
+            alert('Please choose Control')
+        }
+    }
+
+    //This method is called when auditor clicks on download button
+    function FnDownloadGrid() {
+        if (document.getElementById('Entity').value) {
+            var Entity = '@Model.Entity';
+            var StartDate = '@Model.StartDate'
+            var EndDate = '@Model.EndDate'
+            window.location.href = '/LAudit/DownloadAuditReport?Entity=' + Entity + '&StartDate=' + StartDate + '&EndDate=' + EndDate
+        }
+        else {
+            alert('Please choose Control')
+        }
+        //var Form1 = $("#frm")
+        //Form1.action = '/LAudit/DownloadAuditReport'
+        //alert(Form1.action)
+        //Form1.submit();
+    }
+    //This method is called when user clicks on view button to  display grids
+    function DisplayButtons()
+    {
+        $("#btngetgrid").hide();
+        $("#btndownloadgrid").hide();
+
+        if (document.getElementById('Entity').value)
+        {
+          // if (document.getElementById('CompanyId').value) {
+                if (document.getElementById('StartDate').value) {
+                    if (document.getElementById('EndDate').value) {
+                        $("#btngetgrid").show();
+                        $("#btndownloadgrid").hide();
+                    }
+                }
+           // }
+        }
+    }
+
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+
+    @Html.Hidden("StartDate", null)
+    @Html.Hidden("EndDate", null)
+    <div class="row date">
+
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.Entity, htmlAttributes: new { @class = "control-label col-md-3 required" })
+            <div class="col-md-9">
+                @Html.DropDownListFor(m => m.Entity, null, "-- Select Here --", new { @class = "form-control", onchange = "DisplayButtons()" })
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            @Html.Label("Date Range", htmlAttributes: new { @class = "control-label col-md-3 required" })
+            <div class="col-md-9 ">
+                <div class="col-md-6 ">
+                    <div id="Startdate"></div>
+
+                </div>@*<div class="col-md-2">&emsp; to &emsp;</div>*@
+                <div class="col-md-6">
+                    <div id="Enddate"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 pull-left" id="ButtonsDiv">
+        <br>
+        <button id="btngetgrid" type="button" onclick="FnGetGrid()" class="btn btn-red btn-cons">View&nbsp;</button>
+        <button id="btndownloadgrid" type="button" onclick="FnDownloadGrid()" class="btn btn-red btn-cons">Download &nbsp;</button>
+    </div>
+
+
+}
+@if (!string.IsNullOrEmpty(Model.Entity))
+{
+    @Html.Partial("PayeeAuditLog_Partial", (Vodafone_SOS_WebApp.ViewModels.AuditFormViewModel)Model)
+}
+

@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="boxes">
+    <h3 class="text-danger">RawData Table Registration</h3>
+    
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+    //source
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'LrdtName', type: 'string' },
+               { name: 'TABLE_NAME', type: 'string' },
+               { name: 'RawDataTableId', type: 'string' },
+     { name: 'IsRawDataTableMapped', type: 'bool' }
+
+            ],
+            id: "Id",
+            url: "/LRawDataTables/GetRawDataTables"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            if (value==true) {
+                return '&emsp;<button onclick="return FnView()" class="GridButton">View</button>&ensp;<button onclick="return FnEdit()" class="GridButton">Edit</button>&ensp;<button onclick="return FnDeRegister()" class="GridButton">De-Register</button>';
+            }
+            else {
+                return '&emsp;<button onclick="return FnRegister()" class="GridButton">Register</button>';
+            }
+        };
+    //load grid
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'RawData Table', datafield: 'TABLE_NAME' },
+                { text: 'Actions', datafield: 'IsRawDataTableMapped', cellsrenderer: cellsrenderer }
+            ]
+        });
+    });
+
+    function FnEdit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        if (xx) {
+            window.location.href = '/LCompanySpecificRawDataColumns/MappingRawDataColumns?RawDataTableId=' + xx.RawDataTableId + '&RawDataTableName=' + xx.TABLE_NAME+'&IsRawDataTableMapped='+xx.IsRawDataTableMapped;
+        }
+    }
+    //remove the lcompanyspecificrawdata columns//
+    function FnDeRegister()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        if (xx) {
+            if (confirm('Are you sure you want to De-register ' + xx.TABLE_NAME+'. If de-registered, it can not be used for Raw Data batches')) {
+                window.location.href = '/LRawDataTables/DeRegisterTable?RawDataTableId=' + xx.RawDataTableId;
+            }
+        }
+    }
+    //
+     function FnView()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        if (xx) {
+            window.location.href = '/LCompanySpecificRawDataColumns/MappingRawDataColumns?RawDataTableId=' + xx.RawDataTableId + '&FormType=disabled&RawDataTableName=' + xx.TABLE_NAME+'&IsRawDataTableMapped='+xx.IsRawDataTableMapped;
+        }
+    }
+
+     function FnRegister()
+    {
+         var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        if (xx) {
+            window.location.href = '/LCompanySpecificRawDataColumns/MappingRawDataColumns?RawDataTableId=' + xx.RawDataTableId + '&RawDataTableName=' + xx.TABLE_NAME+'&IsRawDataTableMapped='+xx.IsRawDataTableMapped;
+        }
+    }
+</script>

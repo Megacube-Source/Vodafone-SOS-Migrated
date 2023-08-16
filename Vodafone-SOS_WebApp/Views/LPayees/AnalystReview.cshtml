@@ -1,0 +1,349 @@
+﻿@*@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+
+@{
+    ViewBag.Title = "AnalystReview";
+}
+
+<h2>AnalystReview</h2>
+
+
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@ViewData["FileMessage"]')
+        {
+            alert('@ViewData["FileMessage"]')
+        }
+
+
+        var data = [
+           {
+               "id": "12",
+               "text": "<b>Commission</b>",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           },
+           {
+               "text": "<b>Claims</b>",
+               "id": "1",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           }, {
+               "id": "3",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Upload</a>"
+           },
+           {
+               "id": "30",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Investigate</a>"
+           },
+           {
+               "id": "2",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Update</a>"
+           },
+           {
+               "id": "34",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Finalize</a>"
+           }, {
+               "id": "6",
+               "text": "<b>Reports</b>",
+               "parentid": "-1",
+               "subMenuWidth": '200px'
+           }, {
+               "id": "13",
+               "text": "<a href='#'onclick='return Alerts()'>Adjust</a>",
+               "parentid": "12"
+           }, {
+               "id": "15",
+               "text": "<a href='#' onclick='return Alerts()'>Review</a>",
+               "parentid": "12"
+           }]
+            // prepare the data
+            var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'id' },
+                    { name: 'parentid' },
+                    { name: 'text' },
+                    { name: 'subMenuWidth' }
+                ],
+                id: 'id',
+                localdata: data
+            };
+            // create data adapter.
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            // perform Data Binding.
+            dataAdapter.dataBind();
+            // get the menu items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+            // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+            // specifies the mapping between the 'text' and 'label' fields.
+            var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label'}]);
+            $('#jqxWidget').jqxMenu({ source: records, width: '100%', animationShowDuration: 900 });
+        });
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+
+    function SavePage(dat)
+    {
+        document.getElementById('PayeeStatus').value = dat;
+        document.getElementById('frm').submit();
+    }
+</script>
+
+<div id='jqxWidget'>
+</div>
+
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.PayeeStatus)
+    @Html.HiddenFor(p => p.Address)
+    @Html.HiddenFor(p => p.Channel)
+    @Html.HiddenFor(p => p.PayeeComments)
+    @Html.HiddenFor(p => p.ManagerComments)
+    @Html.HiddenFor(p => p.EffectiveEndDate)
+    @Html.HiddenFor(p => p.EffectiveStartDate)
+    @Html.HiddenFor(p => p.EmailAddress)
+    @Html.HiddenFor(p => p.FileNames)
+    @Html.HiddenFor(p => p.FirstName)
+    @Html.HiddenFor(p => p.IsParent)
+    @Html.HiddenFor(p => p.LastName)
+    @Html.HiddenFor(p => p.ParentsCode)
+    @Html.HiddenFor(p => p.PayeeCode)
+    @Html.HiddenFor(p => p.Phone)
+    @Html.HiddenFor(p => p.SFID)
+    @Html.HiddenFor(p => p.SubChannel)
+    @Html.HiddenFor(p => p.Segment)
+    @Html.HiddenFor(p => p.TradingName)
+    @Html.HiddenFor(p => p.Type)
+    @Html.HiddenFor(p => p.UserFriendlyFileNames)
+    <div class="form-horizontal">
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;font-family: Arial, Verdana, Helvetica, sans-serif;color:#666;" })
+            <div class="col-md-11">
+                @Html.EditorFor(m => m.FirstName, new { htmlAttributes = new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.EditorFor(m => m.LastName, new { htmlAttributes = new { @class = "form-control input-sm ", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.TradingName, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.EditorFor(m => m.TradingName, new { htmlAttributes = new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.TradingName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.Type, new List<SelectListItem> { new SelectListItem { Text = "Dealer", Value = "Dealer" }, new SelectListItem { Text = "Employee", Value = "Employee" } }, new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.Segment, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.Segment, new List<SelectListItem> { new SelectListItem { Text = "CBU-Consumer", Value = "CBU-Consumer" }, new SelectListItem { Text = "EBU-Enterprise", Value = "EBU-Enterprise" }, new SelectListItem { Text = "Both", Value = "Both" } }, new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.Segment, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.SFID, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.EditorFor(m => m.SFID, new { htmlAttributes = new { @class = "form-control input-sm col-md-4", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.SFID, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.PayeeCode, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.EditorFor(m => m.PayeeCode, new { htmlAttributes = new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.PayeeCode, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.ParentsCode, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.EditorFor(m => m.ParentsCode, new { htmlAttributes = new { @class = "form-control input-sm ", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.ParentsCode, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        @*have used style to fix height to overcome alignment issue Shubham
+        <div class="col-md-4" style="height:70px;">
+            <br>
+            &emsp; @Html.LabelFor(model => model.IsParent, htmlAttributes: new { @class = "control-label", style = "font-size:12px;text-align:left;color:#666;" })
+
+            @Html.CheckBoxFor(model => model.IsParent, new { title = ModelMetadata.FromLambdaExpression(model => model.IsParent, ViewData).Description })
+            @Html.ValidationMessageFor(model => model.IsParent, "", new { @class = "text-danger" })
+
+        </div>
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.Channel, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.Channel, new List<SelectListItem> { new SelectListItem { Text = "-- Select Here --", Value = null }, new SelectListItem { Text = "Albania Channel 1", Value = "Albania Channel 1" }, new SelectListItem { Text = "Albania Channel 2", Value = "Albania Channel 2" }, new SelectListItem { Text = "Albania Channel 3", Value = "Albania Channel 3" }, new SelectListItem { Text = "Albania Channel 4", Value = "Albania Channel 4" }, new SelectListItem { Text = "Albania Channel 5", Value = "Albania Channel 5" } }, new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" })
+                @Html.EditorFor(m => m.Channel, new { htmlAttributes = new { @class = "form-control input-sm col-md-4", style = "height:25px" } })
+                @Html.ValidationMessageFor(model => model.Channel, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.SubChannel, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.SubChannel, new List<SelectListItem> { new SelectListItem { Text = "-- Select Here --", Value = null }, new SelectListItem { Text = "Albania Sub Channel 1", Value = "Albania Sub Channel 1" }, new SelectListItem { Text = "Albania Sub Channel 2", Value = "Albania Sub Channel 2" }, new SelectListItem { Text = "Albania Sub Channel 3", Value = "Albania Sub Channel 3" }, new SelectListItem { Text = "Albania Sub Channel 4", Value = "Albania Sub Channel 4" }, new SelectListItem { Text = "Albania Sub Channel 5", Value = "Albania Sub Channel 5" } }, new { @class = "form-control input-sm", style = "height:25px", disabled = "disabled" })
+                @Html.EditorFor(m => m.SubChannel, new { htmlAttributes = new { @class = "form-control input-sm col-md-4", style = "height:25px" } })
+                @Html.ValidationMessageFor(model => model.SubChannel, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.EditorFor(m => m.Phone, new { htmlAttributes = new { @class = "form-control input-sm required", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.EmailAddress, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.EditorFor(m => m.EmailAddress, new { htmlAttributes = new { @class = "form-control input-sm ", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.EffectiveStartDate, htmlAttributes: new { @class = "control-label col-md-5 required", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.Editor("EffectiveStart", new { htmlAttributes = new { @class = "form-control input-sm ", style = "height:25px", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.EffectiveStartDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.EffectiveEndDate, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+                @Html.Editor("EffectiveEnd", new { htmlAttributes = new { @class = "form-control input-sm ", style = "height:25px", disabled = "disabled" } })
+
+                @Html.ValidationMessageFor(model => model.EffectiveEndDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.PayeeComments, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.TextAreaFor(m => m.PayeeComments, new { style = "width:100%", @class = "form-control input-sm col-md-4", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.PayeeComments, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.AnalystComments, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.TextAreaFor(m => m.AnalystComments, new { style = "width:100%", @class = "form-control input-sm col-md-4" })
+                @Html.ValidationMessageFor(model => model.AnalystComments, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+
+
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.ManagerComments, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.TextAreaFor(m => m.ManagerComments, new { style = "width:100%", @class = "form-control input-sm col-md-4", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.ManagerComments, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+        <div class="col-md-4" style="height:70px">
+            @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-5", style = "font-size:12px;text-align:left;color:#666;" })
+            <div class="col-md-11">
+
+                @Html.TextAreaFor(m => m.Address, new { @class = "form-control input-sm col-md-4", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <br />
+    <div class="pull-left col-md-11">
+        <br>
+
+        <input type="checkbox" id="Auth" onclick="if (document.getElementById('Auth').checked) { document.getElementById('sucess').disabled = false; document.getElementById('sucess').className='btn btn-success' } else { document.getElementById('sucess').disabled = true; document.getElementById('sucess').className='btn' }">Authorised Payee Verification<br><br>
+        <input type="button" value="Back" onclick="window.location.href = '/Vodafone/Approver'" class="btn btn-info">
+        <input type="button" value="Review Passed" id="sucess" class="btn" style="color:gray" disabled="disabled" onclick="return SavePage('ReviewPassed')" />
+        <input type="button" value="Review Failed" class="btn btn-danger" onclick="return SavePage('ReviewFailed')" />
+        <br><br>
+    </div>
+
+
+}
+@*<div class="pull-right col-md-6">
+
+        @Html.LabelFor(model => model.UserFriendlyFileNames, htmlAttributes: new { @class = "control-label col-md-2", style = "font-size:12px;text-align:left" })
+        <div class="col-md-8">
+            <div id="jqxFileUpload">
+            </div>
+        </div>
+    </div>*@
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+
+
+
+
+

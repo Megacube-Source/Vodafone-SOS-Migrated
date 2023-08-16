@@ -1,0 +1,254 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<style type="text/css">
+    .ChangeFontColor {
+        color: darkblue !important;
+        /*font-style: italic;*/
+    }
+</style>
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+    var isChanged=false;
+     window.onbeforeunload = function () {
+
+        if (isChanged) {
+                return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+    }
+    //this function will load grid in view
+    // array which keeps the indexes of the edited rows.
+    var editedRows = new Array();
+
+    $(document).ready(function(){
+
+    //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+     if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+     //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+                var source = {
+                    dataType: "json",
+                    type: "GET",
+                    dataFields: [
+                         { name: 'Id', type: 'int' },
+                { name: 'Department', type: 'string' },
+                { name: 'EmailIds', type: 'string' },
+     { name: 'CompanyId', type: 'string' }
+                    ],
+                    id:"Id",
+                    url: '/RPayPublishEmails/GetEmailIDsDropdownData'
+                };
+
+
+
+                var dataAdapter = new $.jqx.dataAdapter(source)
+
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    var rowdata = $('#PayPublishEmailGrid').jqxGrid('getrowdata', row);
+                    if (Number(rowdata.Id) != 0&&rowdata.CompanyId) {
+                        return '&emsp;<a href="#" onclick="FnDelete(' + rowdata.Id + ')"> <i class="fa fa-times" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Delete"></i> </a>';
+                    }
+                    else {
+     isChanged=true;
+                        return '&emsp;<a href="#" onclick="FnDeleteGridRow(' + rowdata.Id + ')"> <i class="fa fa-times" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Delete"></i> </a>';
+                    }
+                };
+
+                // validation function
+                var validateFunc = function (datafield, value) {
+                    switch (datafield) {
+                        case "Department":
+                            if (value.length == 0) {
+                                return { message: "Department  is required", result: false };
+                            }
+                            return true;
+                       case "EmailIds":
+                            if (value.length == 0) {
+                                return { message: "Email  is required", result: false };
+                            }
+                            return true;
+                        case "Id":
+                            if (value.length > 0) {
+                                return { message: "Cannot Enter value in this field", result: false };
+                            }
+                            return true;
+                    }
+                    return true;
+                }
+
+                var cellclass = function (row, datafield, value, rowdata) {
+                    for (var i = 0; i < editedRows.length; i++) {
+                        if (editedRows[i].index == row) {
+                            return "ChangeFontColor";
+                        }
+                    }
+                }
+
+
+
+                    $('#PayPublishEmailGrid').jqxGrid({
+
+                        source: dataAdapter,
+                        width: "100%",
+                        columnsresize: true,
+                        pageable: true,
+                        pagesize: 200,
+                        filterable: true,
+                        sortable: true,
+                        keyboardnavigation: false,
+                        enablebrowserselection: true,
+                        showeverpresentrow: true,
+                        everpresentrowposition: "top",
+                        editable: true,
+                        localization: {
+                            addrowstring: "Add",
+                            udpaterowstring: "Update",
+                            deleterowstring: "Delete",
+                            resetrowstring: "Clear",
+                            everpresentrowplaceholder: "Type: "
+                        },
+                        selectionmode: 'multiplecellsadvanced',
+                        pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+
+                        columns: [
+                            {
+                                text: 'Department', datafield: 'Department', validateEverPresentRowWidgetValue: validateFunc, cellclassname: cellclass
+                            },
+                            {
+                                text: 'Email', datafield: 'EmailIds', filtertype: 'input',validateEverPresentRowWidgetValue: validateFunc, cellclassname: cellclass
+                            },
+                            {
+                                text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '10%', editable: false,validateEverPresentRowWidgetValue: validateFunc,
+    initEverPresentRowWidget: function (datafield, htmlElement) {
+                          var input = htmlElement.find('input');
+                          input.attr('readonly', true);
+                          input.attr('disabled', true);
+                          htmlElement.addClass('jqx-fill-state-disabled');
+                      }
+    }
+                        ]
+                    });
+
+                    $("#PayPublishEmailGrid").on('cellvaluechanged', function (event) {
+                        var row = event.args.rowindex;
+                        var rowdata = $("#PayPublishEmailGrid").jqxGrid('getrowdata', row);
+                        editedRows.push({ index: row, data: rowdata });
+                        isChanged=true;
+                    })
+
+    })
+
+    ////function to delete unsaved grid row from grid
+    function FnDeleteGridRow(Id)
+    {
+    var commit = $("#PayPublishEmailGrid").jqxGrid('deleterow', Id);
+    }
+
+    //This method is called when User clicks on delete glymph in grid
+    function FnDelete(Id)
+    {
+        var commit = $("#PayPublishEmailGrid").jqxGrid('deleterow', Id);
+       $.ajax({
+            data: { Id: Id },
+                        url: "/RPayPublishEmails/DeletePayPublishEmails",
+                        type: "POST",
+                        traditional: true,
+                        success: function (data) {
+                            if (data) {
+                                var ResponseObj = data;
+                                if (ResponseObj.ErrorMessage) {
+                                    document.getElementById('ErrorMessage').innerHTML = ResponseObj.ErrorMessage;
+                                }
+                                else if (ResponseObj.PopupMessage) {
+                                    alert(ResponseObj.PopupMessage)
+                                }
+                                if (ResponseObj.RedirectToUrl) {
+                                    window.location.href = ResponseObj.RedirectToUrl;
+                                }
+
+                            }
+                            else {
+                                //Any unhanded error has been caught
+                                window.location.href = "/Home/Error";
+                            }
+                        },
+                        error: function (reponse) {
+                            //  alert("error : " + reponse);
+                        }
+                    });
+                //document.getElementById('ErrorMessage').innerHTML = 'Please wait! while record is deleted ...';
+
+
+    }
+
+
+    function FnSavePayPublishEmail()
+    {
+    $('#jqxLoader').jqxLoader('open');
+        var arr = [];
+        var rows = $('#PayPublishEmailGrid').jqxGrid('getrows');
+        for (var i = 0; i < rows.length; i++)
+        {
+            arr[i] = [];
+            arr[i][0] = rows[i].Id;
+            arr[i][1] = rows[i].Department;
+            arr[i][2] = rows[i].EmailIds;
+        }
+        $.ajax({
+            data: { GridData: arr },
+                        url: "/RPayPublishEmails/EditPayPublishEmails",
+                        type: "POST",
+                        traditional: true,
+                        success: function (data) {
+    isChanged=false;
+                            $('#PayPublishEmailGrid').jqxGrid('updatebounddata');
+                            if (data) {
+                                var ResponseObj = data;
+                                if (ResponseObj.ErrorMessage) {
+                                    document.getElementById('ErrorMessage').innerHTML = ResponseObj.ErrorMessage;
+                                }
+                                else if (ResponseObj.PopupMessage) {
+                                    alert(ResponseObj.PopupMessage)
+                                }
+                                if (ResponseObj.RedirectToUrl) {
+                                    window.location.href = ResponseObj.RedirectToUrl;
+                                }
+
+                            }
+                            else {
+                                //Any unhanded error has been caught
+                                window.location.href = "/Home/Error";
+                            }
+                        },
+                        error: function (reponse) {
+                            //  alert("error : " + reponse);
+                        }
+                    });
+
+    }
+
+</script>
+
+<h3 style="color:red;" id="ErrorMessage">Create PayPublishEmail</h3>
+<br>
+<div id="PayPublishEmailGrid"></div>
+<br>&ensp;<br>
+<input type="button" class="btn btn-red" value="Save" onclick="FnSavePayPublishEmail()">
+<div id="jqxLoader">
+</div>

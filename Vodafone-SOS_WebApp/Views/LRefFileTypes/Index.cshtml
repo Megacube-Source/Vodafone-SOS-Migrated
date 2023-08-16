@@ -1,0 +1,282 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<a href="/LRefFileTypes/Create"><u>Create Ref File Type</u></a>&ensp;<i class="fa fa-download" aria-hidden="true" onclick="FnDownloadRefFileTypes()" style="cursor:pointer;font-size:15px !important;"></i>
+<br>
+<div id="jqxgrid">
+
+</div>
+<div id="jqxLoader"></div>
+
+<br>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("model")
+    @*<button onclick="SaveForm()" class="btn btn-red btn-cons">Save &nbsp;</button>*@
+}
+
+<!-- This code displays a popup to get Selected Portfolios-->
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">Portfolio</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12" id="PortfolioDIV">
+
+                    <br>
+                    <div class="col-md-12">
+                        @Html.Label("Direct", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupInDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("EBU", htmlAttributes: new { @class = " col-md-2 col-lg-2 " })
+                        @Html.CheckBox("PopupEBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                        @Html.CheckBox("PopupCBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                    </div>
+                    <br>
+
+                    <div id="jqxPopupgrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <br>&ensp;<br>
+                <button type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio()" data-dismiss="modal">Save</button>&ensp;
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="loadertext" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                @*<input type="button" class="btn btn-red" value="OK" data-dismiss="modal" />*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+<script src="~/Scripts/jqxloader.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Message"]')
+        {
+            alert('@TempData["Message"]')
+        }
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'GcCompanyName', type: 'string' },
+                { name: 'LrftName', type: 'string' },
+                { name: 'LrftDescription', type: 'string' },
+
+            ],
+           // id: "Id",
+            url: "/LRefFileTypes/GetRefFileTypes"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var rowdata = $('#jqxgrid').jqxGrid('getrowdata',row)
+            if (rowdata.Id == 0) {
+                return '<button onclick="return FnAddPortfolio()" class="GridButton">Portfolio</button>';
+            } else {
+                return '<button onclick="return FnEdit(' + rowdata.Id+')" class="GridButton">Edit</button>&ensp;<button onclick="return CGdelete()" class="GridButton">Delete</button>';
+            }
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height:'50%',
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            editable: false,
+            enableHover:false,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: 'Company', datafield: 'GcCompanyName' },
+                { text: 'Reference Type', datafield: 'LrftName' },
+                { text: 'Description', datafield: 'LrftDescription' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'10%',editable:false  }
+            ]
+        });
+
+        //$("#jqxgrid").on("bindingcomplete", function (event) {
+        //    $('#jqxgrid').jqxGrid('addrow',null,'last')
+        //})
+
+        $('#loadertext').hide();
+    });
+
+    function FnEdit(Id) {
+        window.location.href='/LRefFileTypes/Edit/'+Id
+    }
+
+        //To add Portfolio
+        function FnAddPortfolio() {
+            //The below code will load a grid of portfolios on this page
+            var Portfoliosource = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'RcPrimaryChannel', type: 'string' },
+                    { name: 'LpBusinessUnit', type: 'string' },
+                    { name: 'RcName', type: 'string' }
+
+                ],
+                id: "Id",
+                url: "/Home/GetPortfolioGrid"
+            };
+
+            var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+
+            $('#jqxPopupgrid').jqxGrid({
+                source: PortfoliodataAdapter,
+                width: '100%',
+                height: 300,
+                // autoheight: true,
+                theme: 'bootstrap',
+                sortable: true,
+                columnsresize: true,
+                columnsreorder: true,
+                altrows: true,
+                pageable: false,
+                filterable: true,
+                enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                showstatusbar: false,
+                selectionmode: 'checkbox',
+                ready: function () {
+
+                },
+
+                columns: [
+                    { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                    { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                    { text: 'Channel', datafield: 'RcName' }
+
+                ]
+            });
+
+            $("#myModal1").modal();
+
+        }
+
+        //To Select rows as per primary channel and BU selected above
+        function FnSelectPopupRows() {
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                $('#jqxPopupgrid').jqxGrid('unselectrow', i);
+                var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+                var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+                if (PrimaryChannel == "indirect" && document.getElementById("PopupInDirect").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                else if (PrimaryChannel == "direct" && document.getElementById("PopupDirect").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                //Check for business unit
+                if (BusinessUnit == "cbu" && document.getElementById("PopupCBU").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                else if (BusinessUnit == "ebu" && document.getElementById("PopupEBU").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+            }
+        }
+
+
+    function CGdelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        //alert(xx.Id)
+        if (xx.Id!=0) {
+            //$('#jqxgrid').jqxGrid('deleterow', selectedrowindex)
+            if (confirm('Are you sure you want to delete ' + xx.LrftName + ' ?')) {
+                window.location.href = '/LRefFileTypes/Delete/' + xx.Id;
+            }
+        }
+    }
+
+    function SaveForm()
+    {
+        var finalTask = [];
+        var rows = $('#jqxgrid').jqxGrid('getrows');
+       // alert(rows.length)
+        for (var i = 0; i < rows.length; i++) {
+            finalTask[i] = [];
+            finalTask[i][0] = rows[i].Id;
+            finalTask[i][1] = rows[i].LrftName;
+            finalTask[i][2] = rows[i].LrftDescription;
+        }
+       // var ArrayData = JSON.stringify(finalTask );
+        document.getElementById('model').value = JSON.stringify(finalTask);
+        $('#jqxLoader').jqxLoader('open');
+        document.getElementById('frm').submit()
+    }
+
+     function FnDownloadRefFileTypes()
+    {
+        $('#loadertext').modal();
+        //var TabName = TabArray[xx].TabName;
+         window.location.href = '/LRefFileTypes/DownloadRefFileTypes';
+    }
+</script>

@@ -1,0 +1,2101 @@
+﻿@{
+    ViewBag.Title = "L2AdminDashboard";
+}
+
+@*to get the columns list for new item grid*@
+@{
+    var CompletedItemscolumnlist = @ViewBag.CompletedItemscolumnlist;
+
+    var NewItemscolumnlist = @ViewBag.NewItemscolumnlist;
+}
+
+@*Model binding*@
+@*@using Vodafone_SOS_WebApp.ViewModels;
+    @model Tuple<GKeyValueViewModel, GUserActivityLogViewModel>*@
+
+@model Vodafone_SOS_WebApp.ViewModels.GKeyValueViewModel
+@*@model Vodafone_SOS_WebApp.ViewModels.GUserActivityLogViewModel*@
+
+<div class="container-fluid col-md-12 col-lg-12">
+    <div class="row col-lg-12 col-mg-12">
+        <div class="col-lg-6 col-mg-6 ">
+            <h3>Welcome L2 Admin</h3>
+
+            <div id="dvcompanyselection" style="display:none" class="col-lg-11 col-mg-11">
+                @Html.Label("Choose Company", new { @class = "col-md-4" })
+                <div class="col-md-5 col-lg-5">
+                    @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control" })
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <input type="button" class="btn btn-red btn-cons" value="Go" onclick="FnChangeCompany()">
+                </div>
+            </div>
+            <div class="col-lg-12 col-mg-12 ">
+                <div class="row col-lg-12 col-mg-12" style="background-color:#f00;border-style:solid;border-width: thin;border-color: black;color:white;text-align:center;margin-top:15px;">
+                    <div class="col-lg-5" style="width:33.5%;border-right:solid;border-width: thin;border-color:black">
+                        <div>
+                            <h4>In Queue Emails</h4>
+                            <span>@Html.Raw(ViewBag.Count)</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" style="width:33%;border-right:solid;border-width: thin;border-color:black">
+                        <div>
+                            <h4><a href="#" onclick="OpenSupportTicket()"> L2 SOS Tickets</a></h4>
+                            <span>@Html.Raw(ViewBag.SOSTicket)</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" style="width:33.5%;">
+                        <div>
+                            <h4><a href="#" onclick="OpenSupportTicket()"> L2 Alteryx Ticket </a></h4>
+                            <span>@Html.Raw(ViewBag.ALTERYX)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <span class="row col-lg-12 col-mg-12 col-sm-12 col-xs-12" style="color:indianred;font-size:small;">
+            Note: if you do not see your workflow shortcuts in the grey bar above, please reload the page.
+        </span>
+        <div class="col-lg-6 col-mg-6 ">
+            <div class="col-lg-6" id="dvEmailbucketChart">
+                <div> <img id="loaderEmailBucket" src="~/Content/Images/loader.gif" style="display: none;" /></div>
+                <div id='EBChart' style="width:280px; height:250px;">
+                </div>
+            </div>
+            <div class="col-lg-5" id="dvSupportTicketChart">
+                <div> <img id="loaderSupportTicket" src="~/Content/Images/loader.gif" style="display: none;" /></div>
+                <a href="/LSupportTickets">
+                    <div id='chartSupportTicket' style="width:280px; height:250px;">
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4 col-lg-4">
+    @Html.Partial("ChangeRole")
+</div>
+<div>&nbsp;</div>
+@*Tab Sections*@
+<div class="col-md-12 col-lg-12" style="border-radius: 5px; border: 1px solid lightgrey;width:100%;margin-top:10px;">
+    <div id='jqxTabs' class="inner-tabs tabbable boxed parentTabs" style="margin-top:0px;">
+        <ul class="nav nav-tabs">
+            <li id="tbExceptions" class="active"><a data-toggle="tab" href="#exception" style="font-size: small;">Exceptions</a></li>
+            <li id="tbConfigurations"><a data-toggle="tab" href="#configuration" style="font-size: small;">Configurations</a></li>
+            <li id="tbEmailBuckets"><a data-toggle="tab" href="#emailbucket" style="font-size: small;">Email Bucket</a></li>
+            <li id="tbSupportTickets"><a data-toggle="tab" href="#support_tickets" style="font-size: small;">Support Tickets</a></li>
+            <li id="tbNewItems"><a data-toggle="tab" href="#new_items" style="font-size: small;">New Items</a></li>
+            <li id="tbCompletedItems"><a data-toggle="tab" href="#completed_items" style="font-size: small;">Completed Items</a></li>
+            <li id="tbUserHistory"><a data-toggle="tab" href="#User_history" style="font-size: small;">User History</a></li>
+            <li id="tblobby"><a data-toggle="tab" href="#PayeeLobby" style="font-size: small;">Lobby</a></li>
+            <li id="tbClosedTickets"><a data-toggle="tab" href="#ClosedTickets" style="font-size: small;">Closed Tickets For Last Month</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade active in" id="exception">
+                <div class="tabbable">
+                    <span style="text-align:left;font-size:small;font-weight:800;color:red">Exceptions for last 30 days</span>
+                    <input type="button" class="btn btn-red btn-cons" value="Download" onclick="FnExceptionDownload()">
+
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#excsummary" style="font-size: small;">Summary</a></li>
+                        <li><a data-toggle="tab" href="#excdetail" style="font-size: small;">Detail</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade active in" id="excsummary">
+                            <div id="jqxGridForExcSummary">
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="excdetail">
+                            <div id="jqxGrid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="configuration">
+                <a style="cursor:pointer" onclick="fnShowPopUp();">Create</a>
+                <div id="jqxGridForConfiguration">
+                </div>
+            </div>
+            <div class="tab-pane fade" id="emailbucket">
+                <div class="tabbable">
+                    <span style="text-align:left;font-size:small;font-weight:800;color:red">@*Email sent in last 30 days*@</span>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#ebsummary" style="font-size: small;">Summary</a></li>
+                        <li><a data-toggle="tab" href="#ebdetail" style="font-size: small;">Detail</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade active in" id="ebsummary">
+                            <div id="jqxGridForEBSummary">
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="ebdetail">
+                            <div id="jqxGridForEBDetail">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="support_tickets">
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#stsummary" style="font-size: small;">Summary</a></li>
+                        <li><a data-toggle="tab" href="#stdetail" style="font-size: small;">Detail</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade active in" id="stsummary">
+                            <div id="jqxGridForSTSummary">
+                            </div>
+
+                        </div>
+                        <div class="tab-pane fade" id="stdetail">
+                            <div id="jqxGridForSTDetail">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="new_items">
+                <form>
+                    <div class="col-md-8 col-lg-8">
+                        <div class="col-md-3">
+                            <span style="text-align:left;font-size:small;font-weight:700;color:red">Select Date Interval</span>
+                        </div>
+                        <div class="col-md-2 form-check">
+                            <input type="radio" class="form-check-input" id="radio" name="opt" value="1" checked>
+                            <label class="form-check-label" for="materialChecked">Monthly</label>
+                        </div>
+                        <div class="col-md-2 form-check">
+                            <input type="radio" class="form-check-input" id="radio" name="opt" value="2">
+                            <label class="form-check-label" for="materialChecked">Quaterly</label>
+                        </div>
+                        <div class="col-md-2 form-check">
+                            <input type="radio" class="form-check-input" id="radio" name="opt" value="3">
+                            <label class="form-check-label" for="materialChecked">Half Yearly</label>
+                        </div>
+                        <div class="col-md-2 form-check">
+                            <input type="radio" class="form-check-input" id="radio" name="opt" value="4">
+                            <label class="form-check-label" for="materialChecked">Annually</label>
+                        </div>
+                    </div>
+                </form>
+                <div id="jqxGridNewItems1"></div>
+                <div id="jqxGridNewItems2"></div>
+                <div id="jqxGridNewItems3"></div>
+                <div id="jqxGridNewItems4"></div>
+
+            </div>
+            <div class="tab-pane fade" id="completed_items">
+                <div class="tabbable">
+                    <div id="jqxGridForCompletedItems">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="User_history">
+                <div class="tabbable">
+                    <br />
+                    <div class="row">
+                        <div class="container col-md-12">
+
+                            @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frmuser", name = "frmuser", @encType = "multipart/form-data" }))
+                            {
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    @Html.LabelFor(m => m.GUserActivityLogViewModel.FirstOrDefault().EmailId, htmlAttributes: new { @class = "required" })
+                                </div>
+                                <div class="col-sm-5 col-md-5 col-lg-5">
+                                    @Html.EditorFor(m => m.GUserActivityLogViewModel.FirstOrDefault().EmailId, new { htmlAttributes = new { @class = "form-control", @onchange = "fnGetEmailIdText();" } })
+                                    <div></div>
+                                    @Html.ValidationMessageFor(m => m.GUserActivityLogViewModel.FirstOrDefault().EmailId, "", new { @class = "text-danger" })
+                                </div>
+
+                            }
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <button id="btnOK" type="submit" class="btn btn-red">GO</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <br />
+                    <div id="jqxGridUserActivity">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="PayeeLobby">
+                <div id="jqxGridForLobby">
+                </div>
+            </div>
+            <div class="tab-pane fade" id="ClosedTickets">
+                <div id="jqxGridForClosedTickets">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Modal PopUp Section*@
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    <!-- POP up window code-->
+    <div id="configpopup" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:90%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div id="ErrorMessage"></div>
+                    <h4 class="modal-title" id="popupHeaderEdit">
+                        Update Configuration
+                    </h4>
+                    <h4 class="modal-title" id="popupHeaderAdd">
+                        Create Configuration
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    @Html.HiddenFor(model => model.Id)
+                    <div class="row">
+                        <div class="container col-md-12">
+                            <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px">
+                                @*@Html.LabelFor(model => model.GcCode, htmlAttributes: new { @class = "required" })*@
+                                @Html.Label("Choose Company Code", new { @class = "required" })
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-lg-10">
+                                @Html.DropDownListFor(model => model.GcCode, null, "-- Select Here --", new { @class = "form-control", id = "sys", @onchange = "fnGetCompanyId();" })
+                                @Html.ValidationMessageFor(model => model.GcCode, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px;margin-top:10px">
+                                @Html.LabelFor(model => model.GkvKey, htmlAttributes: new { @class = "required" })
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-lg-10" style="margin-top:10px">
+                                @Html.EditorFor(model => model.GkvKey, new { htmlAttributes = new { @class = "form-control" } })
+                                <div></div>
+                                @Html.ValidationMessageFor(model => model.GkvKey, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px;margin-top:10px">
+                                @Html.LabelFor(model => model.GkvValue)  @*, htmlAttributes: new { @class = "required" }*@
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-lg-10" style="margin-top:10px">
+                                @*@Html.EditorFor(model => model.GkvValue, new { htmlAttributes = new { @class = "form-control" } })*@
+                                @Html.TextAreaFor(model => model.GkvValue, new { htmlAttributes = new { @class = "form-control" }, rows = 3, cols = 50 })
+                                <div></div>
+                                <span id="responsemessage"></span>
+                                @Html.ValidationMessageFor(model => model.GkvValue, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px;margin-top:10px">
+                                @Html.LabelFor(model => model.GkvDescription, htmlAttributes: new { @class = "required" })
+                            </div>
+                            <div class="col-sm-10 col-md-10 col-lg-10" style="margin-top:10px">
+                                @Html.TextAreaFor(model => model.GkvDescription, new { htmlAttributes = new { @class = "form-control" }, rows = 3, cols = 50 })
+                                <div></div>
+                                @Html.ValidationMessageFor(model => model.GkvDescription, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @*button on Edit pop up*@
+                    <button id="btnedit" type="submit" class="btn btn-red pull-left" data-dismiss="modal">Save</button>
+
+                    @*button on create pop up*@
+                    <button id="btncreate" type="submit" class="btn btn-red pull-left" data-dismiss="modal">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+    <div id="loadertext" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:20%;">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                    @*<input type="button" class="btn btn-red" value="OK" data-dismiss="modal" />*@
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+<script src="~/Scripts/jqxchart.core.js"></script>
+<script src="~/Scripts/jqxdraw.js"></script>
+<script src="~/Scripts/jqxcore.js"></script>
+@Scripts.Render("~/bundles/jqxgridbundle")
+@Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript">
+    var compid; //to get the value of selected dropdown
+    var intervalid = 1; //set the value of radio button by default
+    var email;
+
+
+
+
+    //function to get the company id on change of dropdown
+    function fnGetCompanyId() {
+
+        compid = document.getElementById('sys').value;
+    }
+
+    function fnGetEmailIdText() {
+
+        email = document.getElementById('EmailId').value;
+        //alert(email);
+    }
+
+
+    $("#btnOK").click(function (event) {
+        $("#frmuser").validate();
+
+
+
+        if ($('#frmuser').valid()) {
+            $.ajax({
+                data: { EmailId: email },
+                url: "/Account/Checkandgetdetail",
+                dataType: "json",
+                type: "GET",
+                success: function (response) {
+                    if (response == "User not registered") {
+                        alert("User Not registered, please enter valid email address");
+                        var txtBox = document.getElementById('EmailId');
+                        txtBox.focus();
+                        return false;
+                    }
+                    else {
+                       // fngetuserhistory(email, event);
+
+                        $.ajax({
+                            data: { EmailId: email },
+                            url: "/Account/GetUserActivityLogCounts",
+                            dataType: "json",
+                            type: "GET",
+                            success: function (counts) {
+                                // alert(counts);
+                                var source =
+                                    {
+                                        dataType: "json",
+                                        cache: false,
+                                        datafields: [
+                                            { name: 'Id', type: 'int' },
+                                            { name: 'UalActivity', type: 'string' },
+                                            { name: 'UalHostIP', type: 'string' },
+                                            { name: 'UalHostBrowserDetails', type: 'string' },
+                                          //  { name: 'UalActivityDateTime', type: 'Datetime' }
+                                               { name: 'UalActivityDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+
+                                            //{ name: ‘SubmitDate’, type: ‘date’, format: “yyyy - MM - ddTHH:mm:ss - HH:mm” }
+
+                                        ],
+                                        data: { EmailId: email },
+                                        url: "/Account/GetUserActivityLog",
+                                        filter: function () {
+                                            $('#jqxGridUserActivity').jqxGrid('updatebounddata', 'filter');
+                                            $('#jqxGridUserActivity').jqxGrid('clearselection');
+
+                                        },
+                                        sort: function () {
+                                            $('#jqxGridUserActivity').jqxGrid('updatebounddata', 'sort');
+                                            $('#jqxGridUserActivity').jqxGrid('clearselection');
+                                        },
+                                        root: 'Rows',
+                                        beforeprocessing: function (data) {
+                                            source.totalrecords = counts;
+                                        }
+                                    };
+                                var dataAdapterUserActivity = new $.jqx.dataAdapter(source);
+                                console.log(dataAdapterUserActivity);
+
+
+                                ////Check whether the grid is already defined or not and ready for use.
+                                //var ready = $("#jqxGridUserActivity").jqxGrid('ready');
+                                ////if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                                //if (typeof ready != 'undefined') {
+                                //    $("#jqxGridUserActivity").jqxGrid('updatebounddata');
+                                //}
+                                //else {
+
+                                $("#jqxGridUserActivity").jqxGrid({
+                                    source: dataAdapterUserActivity,
+                                    width: '100%',
+                                    autoheight: true,
+                                    pageable: true,
+                                    //theme: 'bootstrap',
+                                    sortable: true,
+                                    //  showtoolbar: true, //to hide the extra header row of the grid
+                                    editable: false,
+                                    filterable: true,
+                                    columnsresize: true,
+                                    columnsreorder: true,
+                                    virtualmode: true,
+                                    enablebrowserselection: true,
+                                    pagesize: 20,
+                                  // pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                                    rowdetails: true,
+                                    autoshowcolumnsmenubutton: false,
+                                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                                    //ready: function () {
+
+                                    //},
+                                    columns: [
+                                        { text: 'Activity', datafield: 'UalActivity', width: '10%' },
+                                        { text: 'Host Ip', datafield: 'UalHostIP', width: '30%' },
+                                        { text: 'Browser Details', datafield: 'UalHostBrowserDetails', width: '30%' },
+                                        { text: 'Activity DateTime', datafield: 'UalActivityDateTime', width: '30%' }
+
+                                        //{text: 'CreatedDateTime', datafield: 'CreatedDateTime', columntype: 'date', cellsformat: 'dd/MM/yyyy' },
+                                        //  { text: 'DateTime', datafield: 'ActionDateTime', columntype: 'date', cellsformat: 'dd/MM/yyyy h:mm tt' },
+
+                                    ],
+                                    rendergridrows: function () {
+                                        return dataAdapterUserActivity.records;
+                                    }
+                                });
+
+
+
+
+                            },
+                            error: function (reponse) {
+                                //  alert("error : " + reponse);
+                            }
+
+
+
+                        });
+                        event.stopPropagation();
+                        return false;
+                    }
+
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+
+            })
+        }
+        else {
+            event.stopPropagation();
+        }
+    });
+
+    $('#jqxTabs').on('tabclick', function (event) {
+        //var pageIndex = event.args.item + 1;
+
+        //switch (pageIndex) {
+        //    case 1:
+        //        loadPage('rivista/masterdetails.php', pageIndex);
+        //        break;
+        //    case 2:
+        //        loadPage('centri/masterdetails.php', pageIndex);
+        //        break;
+        //    case 3:
+
+
+        //        loadPage('editori/masterdetails.php', pageIndex);
+        //        break;
+        //    case 4:
+        //        loadPage('fornitori/masterdetails.php', pageIndex);
+
+
+        //        break;
+        //    default:
+
+        //}
+
+    });
+
+    function OpenSupportTicket() {
+        window.open('/LSupportTickets', '_blank');
+    }
+
+    $(document).ready(function () {
+
+        //getting username which is loggedin
+        var UserName = '@HttpContext.Current.Session["UserName"]'
+
+        @*conditions for L2Admin User*@
+        if (UserName == "L2Admin@Vodafone.com") {
+            $("#tbExceptions").show();
+            $("#exception").show();
+            $("#tbConfigurations").show();
+            $("#dvcompanyselection").show();
+        }
+
+        else {
+            $("#tbConfigurations").hide();
+            $("#configuration").hide();
+            $("#tbExceptions").hide();
+            $("#exception").hide();
+            $("#tbEmailBuckets").addClass('active');
+            $("#emailbucket").addClass('active in');
+            $("#dvcompanyselection").hide();
+        }
+
+        //function on the change of radio button
+        $('input[name=opt]').change(function () {
+            intervalid = $('input[name=opt]:checked').val();
+            if (intervalid==1) {
+                $("#jqxGridNewItems1").css('display', 'block');
+                $("#jqxGridNewItems2").css('display', 'none');
+                $("#jqxGridNewItems3").css('display', 'none');
+                $("#jqxGridNewItems4").css('display', 'none');
+                fnGetNewItems(intervalid);
+            }
+            else if (intervalid == 2) {
+                $("#jqxGridNewItems2").css('display', 'block');
+                $("#jqxGridNewItems1").css('display', 'none');
+                $("#jqxGridNewItems3").css('display', 'none');
+                $("#jqxGridNewItems4").css('display', 'none');
+                fnGetNewItems(intervalid);
+            }
+            else if (intervalid == 3) {
+                $("#jqxGridNewItems1").css('display', 'none');
+                $("#jqxGridNewItems2").css('display', 'none');
+                $("#jqxGridNewItems4").css('display', 'none');
+                $("#jqxGridNewItems3").css('display', 'block');
+                fnGetNewItems(intervalid);
+            }
+            else if (intervalid == 4) {
+                $("#jqxGridNewItems1").css('display', 'none');
+                $("#jqxGridNewItems2").css('display', 'none');
+                $("#jqxGridNewItems3").css('display', 'none');
+                $("#jqxGridNewItems4").css('display', 'block');
+                fnGetNewItems(intervalid);
+            }
+        });
+        $("#btncreate").hide();
+        $("#btnedit").hide();
+        $("#popupHeaderAdd").hide();
+        $("#popupHeaderEdit").hide();
+        $("input.form-control").val('');
+
+        //loaders before the charts loads
+       // $("#loaderSupportTicket").show();
+        //$("#loaderEmailBucket").show();
+        //$("#loaderException").show();
+        //$("#loaderNewItem").show();
+        $('#w3main').css("display", "none"); //to remove black div as per requirement on L2Admin dashboard page.
+
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    //    $.ajax({
+    //        data: {},
+    //        url: "/LSupportTickets/GetSupportTicketSummaryCounts",
+    //        dataType: "json",
+    //        type: "GET",
+    //        success: function (counts) {
+    //        var source =
+    //            {
+    //                datatype: "json",
+    //                datafields: [
+
+    //                    { name: 'GcCode', type: 'string' },
+    //                    { name: 'Requester', type: 'int' },
+    //                    { name: 'L1', type: 'int' },
+    //                    { name: 'L2', type: 'int' },
+    //                    { name: 'Closed', type: 'int' }
+    //                ],
+
+    //                url: "/LSupportTickets/GetSupportTicketChart"
+
+
+    //            };
+    //        var dataAdaptera = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+
+    //        var settings = {
+    //            title: "Support Tickets",
+    //            description: "",
+    //            showLegend: true,
+    //            padding: { left: 5, top: 5, right: 5, bottom: 5 },
+    //            titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+    //            source: dataAdaptera,
+    //            xAxis:
+    //            {
+    //                dataField: 'GcCode',
+    //                showGridLines: true,
+    //                displayText :'Company'
+    //            },
+    //            colorScheme: 'scheme01',
+    //            seriesGroups:
+    //            [
+    //                {
+    //                    type: 'column',
+    //                    columnsGapPercent: 50,
+    //                    seriesGapPercent: 0,
+    //                    valueAxis:
+    //                    {
+    //                        unitInterval: 10,
+    //                        //minValue: 0,
+    //                        //maxValue: 100,
+    //                        displayValueAxis: true,
+    //                        description: 'Counts',
+    //                        axisSize: 'auto',
+
+    //                        tickMarksColor: '#888888'
+    //                    },
+    //                    series: [
+    //                        { dataField: 'Requester', displayText: 'Requester' },
+    //                        { dataField: 'L1', displayText: 'L1' },
+    //                        { dataField: 'L2', displayText: 'L2' },
+    //                        { dataField: 'Closed', displayText: 'Closed' }
+    //                    ]
+    //                }
+    //            ]
+    //        };
+
+
+    //        // setup the chart
+
+    //        $('#chartSupportTicket').jqxChart(settings);
+
+    //        $("#loaderSupportTicket").hide();
+
+
+    //    },
+    //    error: function (reponse) {
+    //        //  alert("error : " + reponse);
+    //    }
+    //}); // to get the bar graph chart for Support Ticket
+
+    //    $("#loaderEmailBucket").hide();
+        //$.ajax({
+        //data: {},
+        //url: "/LEmailBucket/GetEmailBucketSummaryCounts",
+        //dataType: "json",
+        //type: "GET",
+        //success: function (counts) {
+        //    var source =
+        //        {
+        //            datatype: "json",
+        //            datafields: [
+        //                { name: 'GcCode', type: 'string' },
+        //                { name: 'EmailSent', type: 'int' }
+        //            ],
+        //            url: "/LEmailBucket/GetEmailBucketChart",
+        //            filter: function () {
+        //                $("#jqxGridForEBSummary").jqxGrid('updatebounddata', 'filter');
+        //            },
+        //            // update the grid and send a request to the api
+        //            sort: function () {
+        //                $("#jqxGridForEBSummary").jqxGrid('updatebounddata', 'sort');
+        //            },
+        //            root: 'Rows',
+        //            beforeprocessing: function (data) {
+        //                source.totalrecords = counts;
+        //            }
+
+        //        };
+        //    //var dataAdaptera = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+
+        //    //var settings = {
+        //    //    title: "Email Bucket",
+        //    //    description: "",
+        //    //    enableAnimations: true,
+        //    //    showLegend: true,
+        //    //    showBorderLine: true,
+        //    //    legendPosition: { left: 520, top: 140, width: 100, height: 100 },
+        //    //    padding: { left: 0, top: 0, right: 0, bottom: 0 },
+        //    //    titlePadding: { left: 0, top: 10, right: 0, bottom: 0 },
+        //    //    source: dataAdaptera,
+        //    //    colorScheme: 'scheme02',
+        //    //    seriesGroups:
+        //    //    [
+        //    //        {
+        //    //            type: 'pie',
+        //    //            showLabels: true,
+        //    //            series:
+        //    //            [
+        //    //                {
+        //    //                    dataField: 'EmailSent',
+        //    //                    displayText: 'GcCode',
+        //    //                    labelRadius: 50,
+        //    //                    initialAngle: 15,
+        //    //                    radius: 70,
+        //    //                    centerOffset: 0
+        //    //                    //formatSettings: { sufix: '%', decimalPlaces: 1 }//hide the percentage value from graph
+        //    //                }
+        //    //            ]
+        //    //        }
+        //    //    ]
+        //    //};
+        //    //// setup the chart
+        //    //$('#EBChart').jqxChart(settings);
+        //    $("#loaderEmailBucket").hide();
+
+       // }
+        //error: function (reponse) {
+        //    //  alert("error : " + reponse);
+        //}
+   // }); // to get the pie chart for Email Bucket
+
+        GetExceptionSummary(); //function to load summary tab content for Exceptions
+
+        GetSupportTicketSummaryForDashBoard(); //function to load summary tab content for Support Ticket
+
+        GetSupportTicketDetailForDashboard(); //function to load Detail tab content for Support Ticket
+
+        GetEmailBucketSummaryForDashBoard(); //function to load summary tab content for Email Bucket
+
+        GetEmailBucketDetailForDashboard(); //function to load Detail tab content for Email Bucket
+
+        GetGKeyValueForConfiguration(); //function to load configuration tab content
+
+        fnGetNewItems(intervalid); //function to load NewItem Grid on page load
+
+        fnGetCompletedItems(); //function to load Completed Item on page load
+
+        fnGetLobbyItems();
+
+        fnGetClosedTickets();
+
+    }); //document.ready function ends here-->
+
+    ////GetUserActivityLog
+    //function fnGetUserActivityLog(EmailId) {
+
+    //}
+
+    function fnGetNewItems(intervalid) {
+        $.ajax({
+            data: {},
+            url: "/LAudit/GetCountsForNewItems",
+            dataType: "json",
+            type: "GET",
+            success: function (counts) {
+                var datafieldsNewItems = new Array();
+                var columnsNewItems = new Array();
+                var data = @Html.Raw(Json.Encode(NewItemscolumnlist));
+
+                for (var i = 0; i < data.length; ++i) {
+                    datafieldsNewItems.push({ name: data[i], type: data[i].DataType });
+                    columnsNewItems.push({ text: data[i], datafield: data[i] });
+                }
+
+                var source =
+                {
+                    dataType: "json",
+                    cache: false,
+                    dataFields: datafieldsNewItems,
+                    data: { intervalid: intervalid },
+                    url: "/LAudit/GetDataForNewItems",
+                    filter: function () {
+                        $('#jqxGridNewItems' + intervalid).jqxGrid('updatebounddata', 'filter');
+                        $('#jqxGridNewItems' + intervalid).jqxGrid('clearselection');
+
+                    },
+                    sort: function () {
+                        $('#jqxGridNewItems' + intervalid).jqxGrid('updatebounddata', 'sort');
+                        $('#jqxGridNewItems' + intervalid).jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        source.totalrecords = counts;
+                    }
+                };
+                var dataAdapterNewItems = new $.jqx.dataAdapter(source);
+                $('#jqxGridNewItems' + intervalid).jqxGrid('updatebounddata');
+                $("#jqxGridNewItems" + intervalid).jqxGrid({
+                    source: dataAdapterNewItems,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                    //theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+                  //  showtoolbar: true, //to hide the extra header row of the grid
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    pagesize: 5,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+
+                    },
+
+                    columns: columnsNewItems,
+                    rendergridrows: function () {
+                        return dataAdapterNewItems.records;
+                    }
+                });
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+
+
+    //this method is use to open modal pop up
+    function fnShowPopUp() {
+        $("#configpopup").modal({ backdrop: 'static', keyboard: false }, 'show');
+        $("#btncreate").show();
+        $("#btnedit").hide();
+        $("#popupHeaderAdd").show();
+        $("#popupHeaderEdit").hide();
+        $("input.form-control").val('');
+        $(".form-control input[type='text']").val("");
+        $('.text-danger').text(""); /*to clear validation message*/
+        document.getElementById('sys').value = '';
+        $('#configpopup').modal(); //modal pop up opens
+        document.getElementById('GkvDescription').value = '';
+        document.getElementById('GkvKey').value = '';
+        document.getElementById('GkvValue').value = '';
+    }
+
+
+
+    //function to add new data
+    function fngetuserhistory(email, event) {
+
+            $.ajax({
+                data: { EmailId: email },
+                url: "/Account/GetUserActivityLogCounts",
+                dataType: "json",
+                type: "GET",
+                success: function (counts) {
+
+                    var source =
+                        {
+                            dataType: "json",
+                            cache: false,
+                            datafields: [
+                                { name: 'Id', type: 'int' },
+                                { name: 'UalActivity', type: 'string' },
+                                { name: 'UalHostIP', type: 'string' },
+                                { name: 'UalHostBrowserDetails', type: 'string' },
+                                { name: 'UalActivityDateTime', type: 'Datetime' }
+                            ],
+                            data: { EmailId: email },
+                            url: "/Account/GetUserActivityLog",
+                            filter: function () {
+                                $('#jqxGridUserActivity').jqxGrid('updatebounddata', 'filter');
+                                $('#jqxGridUserActivity').jqxGrid('clearselection');
+
+                            },
+                            sort: function () {
+                                $('#jqxGridUserActivity').jqxGrid('updatebounddata', 'sort');
+                                $('#jqxGridUserActivity').jqxGrid('clearselection');
+                            },
+                            root: 'Rows',
+                            beforeprocessing: function (data) {
+                                source.totalrecords = counts;
+                            }
+                        };
+                    var dataAdapterUserActivity = new $.jqx.dataAdapter(source);
+                    console.log(dataAdapterUserActivity);
+                    //$('#jqxGridUserActivity').jqxGrid('updatebounddata');
+                    $("#jqxGridUserActivity").jqxGrid({
+                        source: dataAdapterUserActivity,
+                        width: '100%',
+                        autoheight: true,
+                        pageable: true,
+                       // theme: 'bootstrap',
+                        enablebrowserselection: true,
+                        sortable: true,
+                        //  showtoolbar: true, //to hide the extra header row of the grid
+                        editable: false,
+                        filterable: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        virtualmode: true,
+                        pagesize: 20,
+                        pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                        rowdetails: true,
+                        autoshowcolumnsmenubutton: false,
+                        enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                        //ready: function () {
+
+                        //},
+                        columns: [
+                            { text: 'Activity', datafield: 'UalActivity', width: '10%' },
+                            { text: 'HostIp', datafield: 'UalHostIP', width: '30%' },
+                            { text: 'BrowserDetails', datafield: 'UalHostBrowserDetails', width: '20%' },
+                            { text: 'ActivityDateTime', datafield: 'UalActivityDateTime', width: '30%' }
+
+                        ],
+                        rendergridrows: function () {
+                            return dataAdapterUserActivity.records;
+                        }
+                    });
+
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+
+
+
+        });
+
+            event.stopPropagation();
+            return false;
+        }
+        //else {
+        //    e.stopPropagation();
+        //}
+
+
+    //function to add new data
+    $("#btncreate").click(function (event) {
+        $("#btncreate").show();
+        $("#popupHeaderAdd").show();
+        $("#popupHeaderEdit").hide();
+        $("#btnedit").hide();
+        $("#frm").validate();
+        if ($('#frm').valid()) {
+            $.ajax({
+                type: "POST",
+                data: $("#frm").serialize() + "&compid=" + compid,
+                cache: false,
+                url: '@(Url.Action("Create", "GKeyValues"))',
+                success: function (data) {
+                    if (data.PopupMessage) {
+                        if (data.PopupMessage != "") {
+                            alert(data.PopupMessage);
+                            $('.modal-backdrop').remove(); /*blank screen hides after modal dismiss*/
+                            GetCountsForGKeyValueForConfiguration();
+                        }
+                    }
+                    if (data.ErrorMessage) {
+                        alert(data.ErrorMessage);
+                        $("#configpopup").modal({ "backdrop": "static" });
+                    }
+
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                    alert("error");
+                }
+            });
+        }
+        else {
+            event.stopPropagation();
+        }
+    });
+
+    //this function is called on edit link click to edit the existing local pob
+    function Edit(id) {
+        $('.text-danger').text(""); /*to clear validation message*/
+        $("#btncreate").hide();
+        $("#popupHeaderAdd").hide();
+        $("#popupHeaderEdit").show();
+        $("#btnedit").show();
+        $.ajax({
+            type: "Get",
+            cache: false,
+            url: "/GKeyValues/EditForL2PopUp",
+            dataType: "html",
+            data: { id: id },
+            success: function (data) {
+                var obj = JSON.parse(data);
+                document.getElementById('GkvDescription').value = obj.GkvDescription;
+                document.getElementById('GkvKey').value = obj.GkvKey;
+                document.getElementById('GkvValue').value = obj.GkvValue;
+                document.getElementById('sys').value = obj.GkvCompanyId;
+                document.getElementById('Id').value = obj.Id;
+                $("#configpopup").modal("show");
+                $("#configpopup .modal-content").html(data.html);
+            },
+            error: function (reponse) {
+                console.log(reponse);
+                alert("error");
+            }
+        });
+    }
+
+    //function to delete selected configuration
+    function FnDelete(Id) {
+        var r = confirm("Are you sure to delete the selected Configuration?");
+        if (r == false) {
+            return;
+        }
+        else {
+            $.ajax({
+                data: { Id: Id },
+                cache:false,
+                url: '@Url.Action("DeleteForL2", "GKeyValues")',
+                traditional: true,
+                success: function (data) {
+                    if (data) {
+                        if (data.ErrorMessage) {
+                            alert(data.ErrorMessage);
+                        }
+                        else {
+                            alert(data.PopupMessage);
+                        }
+                        GetCountsForGKeyValueForConfiguration();
+                    }
+                    else {
+                        //Any unhanded error has been caught
+                        window.location.href = "/Home/Error";
+                    }
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                    alert("error");  //  alert("error : " + reponse);
+                }
+            });
+        }
+    }
+     //This function is use to save the edited data
+    $("#btnedit").click(function (event) {
+         $("#frm").validate();
+         if ($('#frm').valid()) {
+             var id = document.getElementById('Id').value;
+             var companyid = document.getElementById('sys').value;
+
+              $.ajax({
+                type: "POST",
+                data: $("#frm").serialize() + "&id=" + id + "&companyid=" + companyid,
+                cache:false,
+                url: '@Url.Action("Update", "GKeyValues")',
+                success: function (data) {
+                    if (data.PopupMessage) {
+                        if (data.PopupMessage != "") {
+                            alert(data.PopupMessage);
+                            $('.modal-backdrop').remove(); /*blank screen hides after modal dismiss*/
+                            GetCountsForGKeyValueForConfiguration();
+                        }
+                    }
+                    if (data.ErrorMessage) {
+                        alert(data.ErrorMessage);
+                        $("#configpopup").modal({ "backdrop": "static" });
+                    }
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                    alert("error");
+                }
+              });
+         }
+         else {
+             event.stopPropagation();
+         }
+     });
+
+    $.ajax({
+        data: {},
+        url: "/GErrorLogs/GetGErrorLogcounts",
+        dataType: "json",
+        type: "POST",
+        success: function (counts) {
+            var sourcea = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'int' },
+                    { name: 'GelErrorDateTime', type: 'date' },
+                    { name: 'GelSourceProject', type: 'string' },
+                    { name: 'GelController', type: 'string' },
+                    { name: 'GelMethod', type: 'string' },
+                    { name: 'GelStackTrace', type: 'string' },
+                    { name: 'GelUserName', type: 'string' },
+                    { name: 'GelErrorType', type: 'string' },
+                    { name: 'GelErrorDescription', type: 'string' },
+                    { name: 'GelResolution', type: 'string' },
+                    { name: 'GelErrorOwner', type: 'string' },
+                    { name: 'GelFieldName', type: 'string' },
+                    { name: 'GelSOSBatchNumber', type: 'int' }
+                ],
+                id: "Id",
+                url: "/GErrorLogs/GErrorLogGrid",
+
+                filter: function () {
+                    //$("#" + GridId).jqxGrid('clear');
+                    $("#jqxGrid").jqxGrid('updatebounddata', 'filter');
+                    $('#jqxGrid').jqxGrid('clearselection');
+                },
+                // update the grid and send a request to the api
+                sort: function () {
+                    // $("#" + GridId).jqxGrid('clear');
+                    $("#jqxGrid").jqxGrid('updatebounddata', 'sort');
+                    $('#jqxGrid').jqxGrid('clearselection');
+                },
+                root: 'Rows',
+                beforeprocessing: function (data) {
+                    sourcea.totalrecords = counts;
+                }
+
+
+            };
+            var dataAdaptera = new $.jqx.dataAdapter(sourcea);
+            // GErrorLog grid added by RG
+            $('#jqxGrid').jqxGrid({
+                source: dataAdaptera,
+                width: '100%',
+                autoheight: true,
+                pageable: true,
+               // theme: 'bootstrap',
+                sortable: true,
+                editable: false,
+                enablebrowserselection: true,
+                filterable: true,
+               columnsresize: true,
+                columnsreorder: true,
+               virtualmode: true,
+                pagesize: 20,
+                pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+               rowdetails: true,
+               autoshowcolumnsmenubutton: false,
+               enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                ready: function () {
+
+                },
+
+                columns: [
+                    { text: 'ErrorDateTime', datafield: 'GelErrorDateTime', width: '15%', cellsformat: "dd/MM/yyyy hh:mm:ss" },
+                    { text: 'ControllerName', datafield: 'GelController', width: '15%' },
+                    { text: 'MethodName', datafield: 'GelMethod', width: '15%' },
+                    { text: 'StackTrace', datafield: 'GelStackTrace', width: '25%' },
+                    { text: 'UserName', datafield: 'GelUserName', width: '15%' },
+                    { text: 'ErrorDescription', datafield: 'GelErrorDescription', width: '15%' }
+                ],
+                rendergridrows: function () {
+                    return dataAdaptera.records;
+                },
+            });
+        },
+
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+    }); //function to load Detail tab content for Exception tab
+
+    function FnChangeCompany()//This method is called when user clicks on Go button
+    {
+        var CompanyId = document.getElementById("CompanyId").value;
+        window.location.href = '/Home/ChangeCompanyName?CompanyId=' + CompanyId;
+    }
+
+    function FnDisplayChart(CommissionPeriodCount) {
+
+        $.ajax({
+            data: { CommissionPeriodCount: CommissionPeriodCount },
+            url: "/Home/GetPayeeDashboardChartData",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var source =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'CommissionPeriod', type: 'string' },
+                            { name: 'PrelimCount', type: 'string' },
+                            { name: 'CompletedCount', type: 'string' },
+                            { name: 'RowNumber', type: 'string' }
+                        ],
+                        localdata: data
+                    };
+
+                var dataAdapter = new $.jqx.dataAdapter(source, {
+                    async: false, autoBind: true, beforeLoadComplete: function (records) {
+                        var colorsArray = new Array();
+                        colorsArray.push("#DFDFDF");
+                        colorsArray.push("#FFA600");
+                        colorsArray.push("#1691D6");
+                        $.jqx._jqxChart.prototype.colorSchemes.push({ name: 'myScheme', colors: colorsArray });
+                    }, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); }
+                });
+
+
+                // prepare jqxChart settings
+                var settings = {
+                    title: "",
+                    description: "",
+                    enableAnimations: true,
+                    showLegend: true,
+                    padding: { left: 5, top: 5, right: 5, bottom: 5 },
+                    titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+                    source: dataAdapter,
+                    colorScheme: 'myScheme',
+                    borderLineColor: '#888888',
+                    xAxis:
+                    {
+                        dataField: 'CommissionPeriod',
+                        labels:
+                        {
+                            angle: -45,
+                            horizontalAlignment: 'center',
+                            verticalAlignment: 'center',
+                            rotationPoint: 'center',
+                            offset: { x: 5, y: 0 }
+                        },
+                        unitInterval: 1,
+                        tickMarks:
+                        {
+                            visible: true,
+                            interval: 1,
+                            color: '#888888'
+                        },
+                        gridLines: {
+                            visible: false,
+                            interval: 1,
+                            color: '#888888'
+                        },
+                        axisSize: 'auto'
+                    },
+                    valueAxis:
+                    {
+                        visible: true,
+                        unitInterval: 1000,
+                        minValue: 0,
+                        maxValue: 10000,
+                        title: { text: 'Calculations (in dollars)' },
+                        tickMarks: { color: '#888888' },
+                        gridLines: { color: '#888888' },
+                        axisSize: 'auto'
+                    },
+                    seriesGroups:
+                    [
+                        {
+                            type: 'splinearea',
+                            series: [
+                                { dataField: 'Target', displayText: 'Target', opacity: 0.7 }
+                            ]
+                        },
+                        {
+                            type: 'stackedcolumn',
+                            columnsGapPercent: 50,
+                            seriesGapPercent: 5,
+                            series: [
+                                { dataField: 'PrelimCount', displayText: 'Prelim' },
+                                { dataField: 'CompletedCount', displayText: 'Completed' }
+                            ]
+                        }
+                    ]
+                };
+                // setup the chart
+                $('#chartContainer').jqxChart(settings);
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function DownloadGridData() {
+        $("#jqxGrid").jqxGrid('exportdata', 'xls', 'ErrorLog');
+    }
+
+    function GetExceptionSummary() {
+        $.ajax({
+            data: {},
+            url: "/GErrorLogs/GetExceptionSummaryCounts",
+            dataType: "json",
+            type: "GET",
+            success: function (counts) {
+                var source =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'GelController', type: 'string' },
+                            { name: 'GelMethod', type: 'string' },
+                            { name: 'counts', type: 'int' }
+                        ],
+
+                        url: "/GErrorLogs/GetExceptionSummary",
+
+                        filter: function () {
+                            $("#jqxGridForExcSummary").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForExcSummary').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            $("#jqxGridForExcSummary").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForExcSummary').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source.totalrecords = counts;
+                        }
+
+                    };
+                var dataAdaptera = new $.jqx.dataAdapter(source);
+
+                $("#loaderdvsummary").show();
+                $("#jqxGridForExcSummary").hide();
+                $('#jqxGridForExcSummary').jqxGrid({
+                    source: dataAdaptera,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                   // theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+                  //  showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: [
+                        { text: 'Module', datafield: 'GelController', width: '15%' },
+                        { text: 'Method', datafield: 'GelMethod', width: '15%' },
+                        { text: 'Exceptions', datafield: 'counts', width: '15%', menu:false }
+                    ],
+                    rendergridrows: function () {
+                        return dataAdaptera.records;
+                    },
+                });
+                $("#jqxGridForExcSummary").show();
+                $("#loaderdvsummary").hide();
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function GetSupportTicketSummaryForDashBoard() {
+        $.ajax({
+            data: {},
+            url: "/LSupportTickets/GetSupportTicketSummaryCounts",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var source2 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'GcCode', type: 'string' },
+                            { name: 'Requester', type: 'int' },
+                            { name: 'L1', type: 'int' },
+                            { name: 'L2', type: 'int' },
+                            { name: 'Closed', type: 'int' }
+                        ],
+                        url: "/LSupportTickets/GetSupportTicketSummaryForDashBoard",
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForSTSummary").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForSTSummary').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForSTSummary").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForSTSummary').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source2.totalrecords = Counts;
+                        }
+
+                    };
+                var dataAdapteraST = new $.jqx.dataAdapter(source2);
+                $('#jqxGridForSTSummary').jqxGrid({
+                    source: dataAdapteraST,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                    //theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+                   // showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    autoshowcolumnsmenubutton: false,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: [
+                        { text: 'Company', datafield: 'GcCode', width: '20%' },
+                        { text: 'Requester', datafield: 'Requester', width: '20%' },
+                        { text: 'L1', datafield: 'L1', width: '20%' },
+                        { text: 'L2', datafield: 'L2', width: '20%' },
+                        { text: 'Closed', datafield: 'Closed', width: '20%' }
+
+                        //{ text: 'Open Tickets', datafield: 'Counts', width: '15%' }
+                    ],
+                    rendergridrows: function () {
+                        return dataAdapteraST.records;
+                    },
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+    function fnGetLobbyItems() {
+        $.ajax({
+            data: {},
+            url: "/LUserLobby/Getlobbycounts",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var source2 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'Id', type: 'int' },
+                            { name: 'CompanyCode', type: 'string' },
+                            { name: 'FirstName', type: 'string' },
+                            { name: 'LastName', type: 'string' },
+                            { name: 'Email', type: 'string' },
+                            { name: 'Phone', type: 'string' },
+                            { name: 'UserType', type: 'string' },
+                            { name: 'Status', type: 'string' },
+                            { name: 'PayeeCode', type: 'string' },
+                            { name: 'IsVFADUser', type: 'string' },
+                            { name: 'UserGroup', type: 'string' },
+                            { name: 'NewUserGroup', type: 'string' },
+                            { name: 'NewEmail', type: 'string' },
+                            { name: 'RequestorEmail', type: 'string' },
+                            { name: 'ManagerEmail', type: 'string' },
+                            { name: 'RequestType', type: 'string' },
+                            { name: 'CreatedBy', type: 'string' },
+                            { name: 'CreatedDateTime',  type: 'date', format: 'dd/MM/yyyy hh:mm:ss'},
+                            { name: 'UpdatedBy', type: 'string' },
+                            { name: 'UpdatedDateTime',  type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+                            { name: 'UpdatedByRoleId', type: 'string' },
+                            { name: 'Response', type: 'string' },
+                            { name: 'ResponseCode', type: 'string' },
+                            { name: 'ResponseMessage', type: 'string' },
+                            { name: 'Comments', type: 'string' }
+
+                        ],
+                        url: "/LUserLobby/GetLobbyGrid",
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForLobby").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForLobby').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForLobby").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForLobby').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source2.totalrecords = Counts;
+                        }
+
+                    };
+                var dataAdapteraST = new $.jqx.dataAdapter(source2);
+                $('#jqxGridForLobby').jqxGrid({
+                    source: dataAdapteraST,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                    //theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+                    // showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    autoshowcolumnsmenubutton: false,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: [
+
+                        { text: 'CompanyCode', datafield: 'CompanyCode', width: '15%' },
+                        { text: 'FirstName', datafield: 'FirstName', width: '15%' },
+                        { text: 'LastName', datafield: 'LastName', width: '15%' },
+                        { text: 'Email', datafield: 'Email', width: '25%' },
+                        { text: 'Phone', datafield: 'Phone', width: '15%' },
+                        { text: 'UserType', datafield: 'UserType', width: '15%' },
+                        { text: 'Status', datafield: 'Status', width: '15%' },
+                        { text: 'PayeeCode', datafield: 'PayeeCode', width: '15%' },
+                        { text: 'IsVFADUser', datafield: 'IsVFADUser', width: '15%' },
+                        { text: 'UserGroup', datafield: 'UserGroup', width: '15%' },
+                        { text: 'NewUserGroup', datafield: 'NewUserGroup', width: '15%' },
+                        { text: 'NewEmail', datafield: 'NewEmail', width: '15%' },
+                        { text: 'RequestorEmail', datafield: 'RequestorEmail', width: '15%' },
+                        { text: 'ManagerEmail', datafield: 'ManagerEmail', width: '15%' },
+                        { text: 'RequestType', datafield: 'RequestType', width: '15%' },
+                        { text: 'CreatedBy', datafield: 'CreatedBy', width: '15%' },
+                        { text: 'CreatedDateTime', datafield: 'CreatedDateTime', width: '15%', cellsformat: "dd/MM/yyyy hh:mm:ss"  },
+                        { text: 'UpdatedBy', datafield: 'UpdatedBy', width: '15%' },
+                        { text: 'UpdatedDateTime', datafield: 'UpdatedDateTime', width: '15%', cellsformat: "dd/MM/yyyy hh:mm:ss"  },
+                        { text: 'UpdatedByRoleId', datafield: 'UpdatedByRoleId', width: '15%' },
+                        { text: 'Response', datafield: 'Response', width: '15%' },
+                        { text: 'ResponseCode', datafield: 'ResponseCode', width: '15%' },
+                        { text: 'ResponseMessage', datafield: 'ResponseMessage', width: '15%' },
+                        { text: 'Comments', datafield: 'Comments', width: '15%' }
+
+                        //{ text: 'Open Tickets', datafield: 'Counts', width: '15%' }
+                    ],
+                    rendergridrows: function () {
+                        return dataAdapteraST.records;
+                    },
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+    function fnGetClosedTickets() {
+        var srcCT = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Month', type: 'string' },
+                { name: 'OpCo', type: 'string' },
+                { name: 'Priority', type: 'string' },
+                { name: 'Count', type: 'int' },
+            ],
+            id: "Id",
+            data: {},
+            url: "/LSupportTickets/GetClosedTicketsData",
+        };
+        var dataAdapterCT = new $.jqx.dataAdapter(srcCT);
+
+        $('#jqxGridForClosedTickets').jqxGrid({
+            source: dataAdapterCT,
+            width: "100%",
+            columnsresize: true,
+            pageable: true,
+            pagesize: 200,
+            filterable: true,
+            sortable: true,
+            altrows: true,
+            selectionmode: 'multiplecellsadvanced',
+            pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+
+            columns: [
+                { text: 'Month', datafield: 'Month' },
+                { text: 'OpCo', datafield: 'OpCo' },
+                { text: 'Priority', datafield: 'Priority' },
+                { text: 'Count', datafield: 'Count' },
+            ],
+
+        })
+
+
+
+
+        //$.ajax({
+        //    data: {},
+        //    url: "/LSupportTickets/GetClosedTicketsCount",
+        //    dataType: "json",
+        //    type: "GET",
+        //    success: function (Counts) {
+        //        var srcClosedTicktes =
+        //        {
+        //            datatype: "json",
+        //            datafields: [
+        //                { name: 'Month', type: 'string' },
+        //                { name: 'OpCo', type: 'string' },
+        //                { name: 'Priority', type: 'string' },
+        //                { name: 'Count', type: 'int' },
+        //            ],
+        //            url: "/LSupportTickets/GetClosedTicketsData",
+        //            filter: function () {
+        //                $("#jqxGridForClosedTickets").jqxGrid('updatebounddata', 'filter');
+        //                $('#jqxGridForClosedTickets').jqxGrid('clearselection');
+        //            },
+        //            // update the grid and send a request to the api
+        //            sort: function () {
+        //                $("#jqxGridForClosedTickets").jqxGrid('updatebounddata', 'sort');
+        //                $('#jqxGridForClosedTickets').jqxGrid('clearselection');
+        //            },
+        //            root: 'Rows',
+        //            beforeprocessing: function (data) {
+        //                srcClosedTicktes.totalrecords = Counts;
+        //            }
+
+        //        };
+        //        var dataClosedTickets = new $.jqx.dataAdapter(srcClosedTicktes);
+        //        $('#jqxGridForClosedTickets').jqxGrid({
+        //            source: dataClosedTickets,
+        //            width: '100%',
+        //            autoheight: true,
+        //            pageable: true,
+        //            enablebrowserselection: true,
+        //            sortable: true,
+        //            editable: false,
+        //            filterable: true,
+        //            columnsresize: true,
+        //            columnsreorder: true,
+        //            virtualmode: true,
+        //            autoshowcolumnsmenubutton: false,
+        //            pagesize: 20,
+        //            pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+        //            rowdetails: true,
+        //            enablebrowserselection: true,
+        //            ready: function () {
+        //            },
+        //            columns: [
+        //                { name: 'Month', type: 'string' },
+        //                { name: 'OpCo', type: 'string' },
+        //                { name: 'Priority', type: 'string' },
+        //                { name: 'Count', type: 'int' },
+        //            ],
+        //            rendergridrows: function () {
+        //                return dataClosedTickets.records;
+        //            },
+        //        });
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+    }
+    function GetSupportTicketDetailForDashboard() {
+        $.ajax({
+            data: {},
+            url: "/LSupportTickets/GetSupportTicketDetailCounts",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var source3 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'GcCode', type: 'string' },
+                            { name: 'LstTicketNumber', type: 'string' },
+                            { name: 'LstSummary', type: 'string' },
+                            { name: 'LstCreatedDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+                            { name: 'LstCreatedById', type: 'string' },
+                            { name: 'LstCurrentOwnerId', type: 'string' },
+                            { name: 'LstStatus', type: 'string' }
+                        ],
+                        url: "/LSupportTickets/GetSupportTicketDetailForDashBoard",
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForSTDetail").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForSTDetail').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForSTDetail").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForSTDetail').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source3.totalrecords = Counts;
+                        }
+
+                    };
+                var DataAdapterForDetail = new $.jqx.dataAdapter(source3);
+
+                $('#jqxGridForSTDetail').jqxGrid({
+                    source: DataAdapterForDetail,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                    //theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+//showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: [
+                        // gc.GcCode, LstTicketNumber, LstSummary, LstCreatedDateTime, LstCreatedById, LstCurrentOwnerId, LstStatus
+                        { text: 'Company', datafield: 'GcCode', width: '15%' },
+                        { text: 'TicketNumber', datafield: 'LstTicketNumber', width: '15%' },
+                        { text: 'Summary', datafield: 'LstSummary', width: '15%' },
+                        { text: 'CreatedDateTime', datafield: 'LstCreatedDateTime', width: '15%' },
+                        { text: 'CreatedById', datafield: 'LstCreatedById', width: '15%' },
+                        { text: 'CurrentOwnerId', datafield: 'LstCurrentOwnerId', width: '15%' },
+                        { text: 'Status', datafield: 'LstStatus', width: '15%' }
+                    ],
+                    rendergridrows: function () {
+                        return DataAdapterForDetail.records;
+                    },
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function GetEmailBucketSummaryForDashBoard() {
+        $.ajax({
+            data: {},
+            url: "/LEmailBucket/GetEmailBucketSummaryCounts",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var source4 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'GcCode', type: 'string' },
+                            { name: 'EmailSent', type: 'int' }
+                        ],
+                        url: "/LEmailBucket/GetEmailBucketSummaryForDashBoard",
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForEBSummary").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForEBSummary').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForEBSummary").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForEBSummary').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source4.totalrecords = Counts;
+
+                        }
+
+                    };
+                var dataAdaptera = new $.jqx.dataAdapter(source4);
+                //console.log(dataAdaptera);
+                $('#jqxGridForEBSummary').jqxGrid({
+                    source: dataAdaptera,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                   // theme: 'bootstrap',
+                    enablebrowserselection: true,
+                    sortable: true,
+                   // showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: [
+                        { text: 'Company', datafield: 'GcCode', width: '15%' },
+                        { text: 'Email Sent', datafield: 'EmailSent', width: '15%',menu:false }
+                    ],
+                    rendergridrows: function () {
+                        return dataAdaptera.records;
+                    },
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function GetEmailBucketDetailForDashboard() {
+        $.ajax({
+            data: {},
+            url: "/LEmailBucket/GetEmailBucketDetailCounts",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var sourceEB =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'GcCode', type: 'string' },
+                            { name: 'LebRecipientList', type: 'string' },
+                            { name: 'LebSubject', type: 'string' },
+                            { name: 'LebEmailType', type: 'string' },
+                            { name: 'LebStatus', type: 'string' },
+                            { name: 'LebBody', type: 'string' },
+                            { name: 'LebCreatedDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+                            { name: 'LebUpdatedDateTime', type: 'date', format: 'dd/MM/yyyy hh:mm:ss' },
+                            { name: 'LebCreatedById', type: 'string' }
+                        ],
+                        //id: "Id",
+                        url: "/LEmailBucket/GetEmailBucketDetailForDashBoard",
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForEBDetail").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForEBDetail').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#jqxGridForEBDetail").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForEBDetail').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            sourceEB.totalrecords = Counts;
+                        }
+
+                    };
+                DataAdapterForEBDetail = new $.jqx.dataAdapter(sourceEB);
+                $('#jqxGridForEBDetail').jqxGrid({
+                    source: DataAdapterForEBDetail,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                   // theme: 'bootstrap',
+                    sortable: true,
+                    enablebrowserselection: true,
+                    //showtoolbar: true,
+                    editable: false,
+                    filterable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    virtualmode: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    cellhover: function (element, pageX, pageY, record) {
+                        var cellValue = $(element.innerHTML).html();
+                        $(element).jqxTooltip({ content: cellValue });
+                    },
+                    columns: [
+                        { text: 'Sent On', datafield: 'LebCreatedDateTime', width: '15%' },
+                        { text: 'Company', datafield: 'GcCode', width: '10%' },
+                        { text: 'LebRecipientList', datafield: 'LebRecipientList', width: '15%' },
+                        { text: 'Subject', datafield: 'LebSubject', width: '20%' },
+                        //{ text: 'EmailType', datafield: 'LebEmailType', width: '10%' },
+                        { text: 'Body', datafield: 'LebBody', width: '25%' },
+                        { text: 'Status', datafield: 'LebStatus', width: '15%' },
+                        { text: 'UpdatedDateTime', datafield: 'LebUpdatedDateTime', width: '15%', hidden: true  },
+                        { text: 'CreatedById', datafield: 'LebCreatedById', width: '15%', hidden: true }
+                    ],
+                    rendergridrows: function () {
+                        return DataAdapterForEBDetail.records;
+                    },
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function GetCountsForGKeyValueForConfiguration() {
+        $.ajax({
+            data: {},
+            url: "/GKeyValues/GetCountsForGKeyValueForConfiguration",
+            dataType: "json",
+            type: "GET",
+            success: function (data) {
+
+                $("#jqxGridForConfiguration").jqxGrid('updatebounddata');
+            }
+        });
+    }
+
+    function GetGKeyValueForConfiguration() {
+        $.ajax({
+            data: {},
+            url: "/GKeyValues/GetCountsForGKeyValueForConfiguration",
+            dataType: "json",
+            type: "GET",
+            success: function (Counts) {
+                var source1 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'Id', type: 'int' },
+                            { name: 'GcCode', type: 'string' },
+                            { name: 'GkvKey', type: 'string' },
+                            { name: 'GkvValue', type: 'string' },
+                            { name: 'GkvDescription', type: 'string' }
+                        ],
+                        id: "Id",
+                        url: "/GKeyValues/GetGKeyValueForConfiguration",
+                        filter: function () {
+                            $("#jqxGridForConfiguration").jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForConfiguration').jqxGrid('clearselection');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            $("#jqxGridForConfiguration").jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForConfiguration').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source1.totalrecords = Counts;
+                        }
+
+                    };
+                DataAdapterForDetail1 = new $.jqx.dataAdapter(source1);
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    var rowdata = $('#jqxGridForConfiguration').jqxGrid('getrowdata', row);
+                    if (Number(rowdata.Id) != 0) {
+                        return '&emsp;<a href="#" onclick="FnDelete(' + rowdata.Id + ')"> <i class="fa fa-times" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Delete"></i>&emsp;<a href="#" onclick="Edit(' + rowdata.Id + ')"><i class="fa fa-pencil-square-o" style="color:red;font-size:15px !important;" aria-hidden="true"  title="Edit"></i>';
+                    }
+                };
+
+                //Check whether the grid is already defined or not and ready for use.
+                var ready = $("#jqxGridForConfiguration").jqxGrid('ready');
+                //if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                if (typeof ready != 'undefined') {
+                    $("#jqxGridForConfiguration").jqxGrid('updatebounddata');
+                }
+
+                else {
+                    $('#jqxGridForConfiguration').jqxGrid({
+                        source: DataAdapterForDetail1,
+                        width: '100%',
+                        autoheight: true,
+                        pageable: true,
+                       // theme: 'bootstrap',
+                        enablebrowserselection: true,
+                        sortable: true,
+                       // showtoolbar: true,
+                        editable: false,
+                        filterable: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        virtualmode: true,
+                        pagesize: 20,
+                        pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                        rowdetails: true,
+                        autoshowcolumnsmenubutton: false,
+                        enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                        //ready: function () {
+                        //},
+                        columns: [
+                            { text: 'Company Code', datafield: 'GcCode', width: '10%' },
+                            { text: 'Key', datafield: 'GkvKey', width: '30%' },
+                            { text: 'Value', datafield: 'GkvValue', width: '20%' },
+                            { text: 'Description', datafield: 'GkvDescription', width: '30%' },
+                            { text: 'Actions', cellsrenderer: cellsrenderer, width: '10%' }
+                        ],
+                        rendergridrows: function () {
+                            return DataAdapterForDetail1.records;
+                        },
+                    });
+                }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function fnGetCompletedItems() {
+        $.ajax({
+            data: {},
+            url: "/RWorkFlows/GetCountsForCompletedItems",
+            dataType: "json",
+            type: "GET",
+            success: function (counts) {
+                var datafieldsNewItems = new Array();
+                var columnsCompletedItems = new Array();
+                var data = @Html.Raw(Json.Encode(CompletedItemscolumnlist));
+
+                for (var i = 0; i < data.length; ++i) {
+                    datafieldsNewItems.push({ name: data[i], type: data[i].DataType });
+                    columnsCompletedItems.push({ text: data[i], datafield: data[i] });
+                }
+
+                var source =
+                    {
+
+                        dataType: "json",
+                        cache: false,
+                        dataFields: datafieldsNewItems,
+                        url: "/RWorkFlows/GetCompletedItems",
+                        filter: function () {
+                            $('#jqxGridForCompletedItems').jqxGrid('updatebounddata', 'filter');
+                            $('#jqxGridForCompletedItems').jqxGrid('clearselection');
+
+                        },
+                        sort: function () {
+                            $('#jqxGridForCompletedItems').jqxGrid('updatebounddata', 'sort');
+                            $('#jqxGridForCompletedItems').jqxGrid('clearselection');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source.totalrecords = counts;
+                        }
+                    };
+                var dataAdapterNewItems = new $.jqx.dataAdapter(source);
+                $('#jqxGridForCompletedItems').jqxGrid('updatebounddata');
+                $("#jqxGridForCompletedItems").jqxGrid({
+                    source: dataAdapterNewItems,
+                    width: '100%',
+                    autoheight: true,
+                    pageable: true,
+                    filterable: true,
+                    columnsresize: true,
+                    pagesize: 20,
+                    enablebrowserselection: true,
+                    altrows: true,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+                    autoshowcolumnsmenubutton: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+
+                    },
+                    columns: columnsCompletedItems,
+                    rendergridrows: function () {
+                        return dataAdapterNewItems.records;
+                    }
+                });
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    function FnExceptionDownload() {
+
+        $('#loadertext').modal();
+        window.location.href = '/GErrorLogs/DownloadExceptionFile';
+
+    }
+</script>
+
+
+
+

@@ -1,0 +1,726 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+@{
+    ViewBag.Title = "Edit Payment Batch";
+    var PayRowCount = ViewBag.PayRowCount;
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+
+<h2>Review Payment Batch</h2>
+
+<script type="text/javascript">
+     var datafields = new Array();
+    var columns = new Array();
+
+    //Get Payement Grid
+     function FnGetGrid(Status) {
+         var SOSBatchNumber = '@Model.PaymentBatchNo'
+         var PayRows = Number('@PayRowCount');
+        // alert(PayRows)
+         document.getElementById('bPayements').innerHTML = PayRows;
+        var source = {
+            dataType: "json",
+     dataFields: datafields,
+            id: "Id",
+            data: {
+                SOSBatchNumber: SOSBatchNumber,
+                Status: Status
+            },
+            url: "/LPay/GetLPay",
+            // update the grid and send a request to the api
+            filter: function () {
+
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'filter');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+
+            },
+            // update the grid and send a request to the api
+            sort: function () {
+                // $("#" + GridId).jqxGrid('clear');
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'sort');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+
+            },
+            root: 'Rows',
+            beforeprocessing: function (data) {
+                source.totalrecords = PayRows;
+            }
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $("#jqxgrid" + Status).jqxGrid(
+        {
+            width: "100%",
+            source: dataAdapter,
+            columnsresize: true,
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            sortable:true,
+            pagesize:50,
+            editable:true,
+            pagesizeoptions:['10','50','100','200','500','1000'],
+            virtualmode: true,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+           // selectionmode:'checkbox',
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+      columns:columns
+
+            });
+
+        //Manual Grid
+        //$("#jqxgrid" + Status).on("bindingcomplete", function (event) {
+        //    var datainformations = $("#jqxgrid" + Status).jqxGrid('getdatainformation');
+        //    if (datainformations)
+        //        document.getElementById('bPayements').innerHTML = datainformations.rowscount;
+        //});
+    }
+
+    $(document).ready(function () {
+     $.ajax({
+         data: { path: window.location.href },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        async: false,
+        success: function (data) {
+
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+        });
+
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: 'auto' });
+        var Irtpid = @Model.Id;
+    //Portfolio grid
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+
+            ],
+            id: "Id",
+            url: "/LReadyToPay/GetRTPPortFolios",
+            data: { RTPID: Irtpid, strAction:"Review"},
+
+        };
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+            },
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+            ]
+        });
+
+        //setting checkboxes as checked
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+            for (var i = 0; i < GridRows.length; ++i) {
+                //alert(GridRows[i].Select);
+                if (GridRows[i].Select == true) {
+
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+
+            var xx = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            PortfolioArray = [];
+            PortfolioNames = [];
+            PortfolioArray[0] = "";
+            PortfolioNames[0] = "";
+            for (var i = 1; i <= xx.length; i++) {
+                var rowdata = $('#jqxgrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+
+                PortfolioArray[i - 1] = rowdata.Id;
+                PortfolioNames[i - 1] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
+            }
+            CommaSeperatedString = PortfolioArray.join(',');
+
+            fnGetClaimsCounts(CommaSeperatedString);
+            fnGetMACounts(CommaSeperatedString);
+            fnGetCalcCounts(CommaSeperatedString);
+        });
+
+     //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach (var d in CompanySpecificColumns) {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+             if (d.LcscDisplayOnForm == true)
+            {
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+            }
+        }
+
+    @if (ViewBag.DisplayPayGrid == true)
+            {
+             @:   FnGetGrid('NA');
+            }
+
+
+
+    //Validation Message Display
+    if('@TempData["Message"]')
+    {
+    alert('@TempData["Message"]')
+    }
+
+    //created by RS on 23rd Jan 2019 : tabs click event and method calling
+    $('#jqxTabs').bind('selected', function (event) {
+        var item = event.args.item;
+        if (item == 1) {
+            $("#loaderCalc").show();
+            FnLoadCALCTest();
+        }
+
+        if (item == 2) {
+            $("#loaderMA").show();
+            FnLoadMATest();
+        }
+        if (item == 3) {
+            $("#loaderClaims").show();
+            FnLoadCLAIMSTest(CommaSeperatedString);
+        }
+
+    });
+    });
+
+     //Method to download Dashboard file
+    function FnDownloadDashboard()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadDashboard?RTPId='+Irtpid;
+    }
+     //Method to download Payement file
+    function FnDownloadPayementFile()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadPayementFiles?RTPId='+Irtpid;
+    }
+     //Method to download PayeeDoc file
+    function FnDownloadPayeeDocumentFile()
+    {
+        var Irtpid = @Model.Id;
+    //window.location.href = '/LReadyToPay/DownloadPayeeDocumentFiles?RTPId=' + Irtpid;
+    window.location.href ='/LReadyToPay/DownloadPayeeDocument?RTPId='+Irtpid;
+    }
+
+
+    //--- (created by RS on 23rd Jan 2019)method to get the data on tab click of the indivisual tab
+    function FnLoadCALCTest() {
+         var IrtpidCalcTest = @Model.Id;
+       var sourceCalc = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetBatches",
+            data: { iRTPID: IrtpidCalcTest,strType:"Calc",strAction:"Review",strPortfolios:""},
+        };
+
+        var calcdataAdapter = new $.jqx.dataAdapter(sourceCalc)
+        $('#jqxCalcGrid').jqxGrid({
+            source: calcdataAdapter,
+            width: '700',
+            autoheight: false,
+            theme: 'bootstrap',
+            editable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: false,
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            pagesizeoptions: ['100', '200', '500', '1000'],
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+            },
+            columns: [
+                { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+                { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false},
+                { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+            ]
+        });
+
+    }
+
+     //--- (created by RS on 23rd Jan 2019)method to get the data on tab click of the indivisual tab
+    function FnLoadMATest() {
+         var IrtpidforMA = @Model.Id;
+         var sourceMA = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetBatches",
+            data: { iRTPID: IrtpidforMA,strType:"ManualAdjustment",strAction:"Review",strPortfolios:""},
+        };
+        var MAdataAdapter = new $.jqx.dataAdapter(sourceMA)
+        $('#jqxManualGrid').jqxGrid({
+            source: MAdataAdapter,
+            width: '700',
+            autoheight: false,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: false,
+            pageable: false,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            pagesizeoptions: ['100', '200', '500', '1000'],
+            editable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+            },
+            columns: [
+                { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+                { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false,},
+                { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+            ]
+        });
+
+    }
+
+     //--- (created by RS on 23rd Jan 2019)method to get the data on tab click of the indivisual tab
+    function FnLoadCLAIMSTest(CommaSeperatedString) {
+        var IrtpidforClaims = @Model.Id;
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'ClaimNumber', type: 'int' },
+                { name: 'PayeeName', type: 'string' },
+                { name: 'PaymentAmount', type: 'decimal' },
+                { name: 'RejectedReason', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: IrtpidforClaims, strType: "Claims", strAction: "Review", strPortfolios: CommaSeperatedString },
+
+            success: function (Counts) {
+                var sourceCL = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Identifier', type: 'string' },
+                        { name: 'Select', type: 'bool' },
+                        { name: 'ClaimNumber', type: 'string' },
+                        { name: 'PayeeName', type: 'string' },
+                        { name: 'FirstName', type: 'string' },
+                        { name: 'PayeeCode', type: 'string' },
+                        { name: 'CommissionPeriod', type: 'string' },
+                        { name: 'CommissionType', type: 'string' },
+                        { name: 'PaymentAmount', type: 'decimal' },
+                        { name: 'RejectedReason', type: 'string' }
+                    ],
+                    id: "Identifier",
+                    // enctype: 'multipart/form-data',
+                    url: "/LReadyToPay/GetBatches",
+                    beforeprocessing: function (data) {
+                        sourceCL.totalrecords = Counts;
+                    },
+                    data: { iRTPID: IrtpidforClaims, strType: "Claims", strAction: "Review", strPortfolios: CommaSeperatedString },
+
+
+                };
+                var CLdataAdapter = new $.jqx.dataAdapter(sourceCL)
+
+                $('#jqxClaimsGrid').jqxGrid({
+                    source: CLdataAdapter,
+                    width: '1100',
+                    autoheight: false,
+                    theme: 'bootstrap',
+                    columnsresize: true,
+                    columnsreorder: true,
+                    autoshowcolumnsmenubutton: false,
+                    altrows: true,
+                    sortable: true,
+
+                    pageable: true,
+                    pagesize: 200,
+                    pagesizeoptions: ['100', '200', '500', '1000'],
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    filterable: true,
+                    showstatusbar: false,
+                    virtualmode: true,
+                    //  autoshowcolumnsmenubutton: false,
+                    editable: true,
+                    rendergridrows: function () {
+                        return CLdataAdapter.records;
+                    },
+                    
+                    ready: function () {
+                    },
+                    columns: [
+                        { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: '10%', editable: false },
+                        { text: 'Claim Number', datafield: 'ClaimNumber', width: '10%', editable: false },
+                        { text: 'Payee Name', datafield: 'PayeeName', width: '10%', editable: false },
+                            { text: 'First Name', datafield: 'FirstName', width: '20%', editable: false },
+                            { text: 'Payee Code', datafield: 'PayeeCode', width: '10%', editable: false },
+                            { text: 'Comm Type', datafield: 'CommissionType', width: '10%', editable: false },
+                            { text: 'Comm Period', datafield: 'CommissionPeriod', width: '10%', editable: false },
+                            { text: 'Payment Amount', datafield: 'PaymentAmount', width: '10%', editable: false },
+                        { text: 'Rejected Reason', datafield: 'RejectedReason', width: '10%', editable: false }
+                    ]
+                });
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    }
+
+    //--- (created by RS on 23rd Jan 2019)method to get the counts on tab at the time of pageload
+    function fnGetMACounts(portfolios) {
+        var IrtpidforMA = @Model.Id;
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: IrtpidforMA, strType: "ManualAdjustment", strAction: "Review", strPortfolios: portfolios },
+            success: function (Counts) {
+                document.getElementById('bManualAdjustments').innerHTML = Counts;
+                MaGridCount = Counts;
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    //--- (created by RS on 23rd Jan 2019)method to get the counts on tab at the time of pageload
+    function fnGetCalcCounts(portfolios) {
+        var IrtpidforCalc = @Model.Id;
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: IrtpidforCalc, strType: "Calc", strAction: "Review", strPortfolios: portfolios },
+            success: function (Counts) {
+                document.getElementById('bCalculations').innerHTML = Counts;
+                ClacGridCount = Counts;
+
+            }
+            //error: function (reponse) {
+            //    //  alert("error : " + reponse);
+            //}
+        });
+    }
+
+    //--- (created by RS on 23rd Jan 2019)method to get the counts on tab at the time of pageload
+    function fnGetClaimsCounts(portfolios) {
+         var IrtpidforClaims = @Model.Id;
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'ClaimNumber', type: 'int' },
+                { name: 'PayeeName', type: 'string' },
+                { name: 'PaymentAmount', type: 'decimal' },
+                { name: 'RejectedReason', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: IrtpidforClaims, strType: "Claims", strAction: "Review", strPortfolios: portfolios },
+
+            success: function (Counts) {
+                document.getElementById('bClaims').innerHTML = Counts;
+                ClaimsGridCount = Counts;
+            },
+            error: function (reponse) {
+            }
+        });
+
+    }
+</script>
+<div style="padding:10px;">
+    <div class="form-horizontal" id="FrmHorizontal">
+
+        <div>
+            <button class="btn btn-red btn-cons" type="button" id="btndownloadPay" title="click here to download" onclick="FnDownloadPayementFile()">Download Payment Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+            <button class="btn btn-red btn-cons" type="button" id="btndownloadPayee" title="click here to download" onclick="FnDownloadPayeeDocumentFile()">Download Payee Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+            <button class="btn btn-red btn-cons" type="button" id="btndownloadDashboard" title="click here to download" onclick="FnDownloadDashboard()">Download Dashboard &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+            <div class="col-xs-12 buttons">
+            </div>
+        </div>
+        <div class="form-group">
+            @*<div class="col-md-4">
+                    @Html.LabelFor(model => model.PaymentBatchName, htmlAttributes: new { @class = "col-md-8 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.PaymentBatchName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.PaymentBatchName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.PeriodName, htmlAttributes: new { @class = "col-md-8 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.PeriodName, null, "-- Select Here --", new { @class = "form-control ", disabled = "disabled" })
+                        @Html.ValidationMessageFor(model => model.PeriodName, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+
+            <div class="col-md-12">
+                @Html.Label("Batch Name", htmlAttributes: new { @class = " col-md-3" })
+                <div class="col-md-9">
+                    @Html.DisplayFor(model => model.PaymentBatchName)
+                </div>
+            </div>
+            <div class="col-md-12">
+                @Html.Label("Batch Number", htmlAttributes: new { @class = " col-md-3" })
+                <div class="col-md-9">
+                    @Html.DisplayFor(model => model.PaymentBatchNo)
+                </div>
+            </div>
+            <div class="col-md-12">
+                @Html.Label("Commission Period", htmlAttributes: new { @class = " col-md-3" })
+                <div class="col-md-9">
+                    @Html.DisplayFor(model => model.PeriodName)
+                </div>
+            </div>
+            <div class="col-md-12">
+                @Html.Label("Count of payee documents", htmlAttributes: new { @class = " col-md-3" })
+                <div class="col-md-9">
+                    @Html.DisplayFor(model => model.CountPayment)
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id='jqxTabs'>
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Portfolio <span class="badge" id="bPort"></span></li>
+            <li style="margin-left: 30px;">Calculations <span class="badge" id="bCalculations">0</span></li>
+            <li style="margin-left: 30px;">Manual Adjustments <span class="badge" id="bManualAdjustments">0</span></li>
+            <li style="margin-left: 30px;">Claims <span class="badge" id="bClaims">0</span></li>
+            @if (ViewBag.DisplayPayGrid == true)
+            {
+                <li style="margin-left: 30px;">Payements <span class="badge" id="bPayements">0</span></li>
+            }
+        </ul>
+        <div class="tab-content" style="padding:05px;">
+
+            <div id="jqxgrid" style="height:250px"></div>
+
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxCalcGrid" style="height:250px">
+            </div>
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxManualGrid" style="height:250px">
+            </div>
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxClaimsGrid" style="height:250px">
+            </div>
+        </div>
+        @if (ViewBag.DisplayPayGrid == true)
+        {
+            <div class="tab-content" style="padding:10px;">
+                <div id="jqxgridNA">
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="col-md-12">
+    @*<button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>*@
+    <button type="button" class="btn btn-borderRed btn-cons" id="prevclick" onclick="window.location.href = '/LReadyToPay/Index'">Back&nbsp;</button>
+
+</div>
+
+  @*//---------------below code is commented by Rakhi Singh on 23/Jan/2019 to implement the new functionality--------------------------
+
+        //Calc Grid
+        //$("#jqxCalcGrid").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxCalcGrid').jqxGrid('getdatainformation');
+        //    if (datainformations)
+        //        document.getElementById('bCalculations').innerHTML = datainformations.rowscount;
+        //});
+        //var sourceCalc = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Identifier', type: 'string' },
+        //        { name: 'Select', type: 'bool' },
+        //        { name: 'BatchNumber', type: 'int' },
+        //        { name: 'BatchName', type: 'string' }
+        //    ],
+        //    id: "Identifier",
+        //    url: "/LReadyToPay/GetBatches",
+        //    data: { iRTPID: Irtpid,strType:"Calc",strAction:"Review",strPortfolios:""},
+        //};
+
+        //var calcdataAdapter = new $.jqx.dataAdapter(sourceCalc)
+        //$('#jqxCalcGrid').jqxGrid({
+        //    source: calcdataAdapter,
+        //    width: '700',
+        //    autoheight: false,
+        //    theme: 'bootstrap',
+        //    editable: true,
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    sortable: true,
+        //    autoheight: false,
+        //    pageable: true,
+        //    filterable: true,
+        //    autoshowcolumnsmenubutton: false,
+        //    showstatusbar: false,
+        //    ready: function () {
+        //    },
+        //    columns: [
+        //        { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+        //        { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false},
+        //        { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+        //    ]
+        //});
+
+        //Manual Grid
+        //$("#jqxManualGrid").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxManualGrid').jqxGrid('getdatainformation');
+        //    if (datainformations)
+        //        document.getElementById('bManualAdjustments').innerHTML = datainformations.rowscount;
+        //});
+        //var sourceMA = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Identifier', type: 'string' },
+        //        { name: 'Select', type: 'bool' },
+        //        { name: 'BatchNumber', type: 'int' },
+        //        { name: 'BatchName', type: 'string' }
+        //    ],
+        //    id: "Identifier",
+        //    url: "/LReadyToPay/GetBatches",
+        //    data: { iRTPID: Irtpid,strType:"ManualAdjustment",strAction:"Review",strPortfolios:""},
+        //};
+        //var MAdataAdapter = new $.jqx.dataAdapter(sourceMA)
+        //$('#jqxManualGrid').jqxGrid({
+        //    source: MAdataAdapter,
+        //    width: '700',
+        //    autoheight: false,
+        //    theme: 'bootstrap',
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    sortable: true,
+        //    autoheight: false,
+        //    pageable: false,
+        //    filterable: true,
+        //    autoshowcolumnsmenubutton: false,
+        //    editable: true,
+        //    showstatusbar: false,
+        //    ready: function () {
+        //    },
+        //    columns: [
+        //        { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+        //        { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false,},
+        //        { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+        //    ]
+        //});
+
+
+        //Claims Grid
+        //$("#jqxClaimsGrid").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxClaimsGrid').jqxGrid('getdatainformation');
+        //    if (datainformations)
+        //        document.getElementById('bClaims').innerHTML = datainformations.rowscount;
+        //});
+        //var sourceCL = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Identifier', type: 'string' },
+        //        { name: 'Select', type: 'bool' },
+        //        { name: 'ClaimNumber', type: 'int' },
+        //        { name: 'PayeeName', type: 'string' },
+        //        { name: 'PaymentAmount', type: 'decimal' },
+        //        { name: 'RejectedReason', type: 'string' }
+        //    ],
+        //    id: "Identifier",
+        //    url: "/LReadyToPay/GetBatches",
+        //    data: { iRTPID: Irtpid,strType:"Claims",strAction:"Review",strPortfolios:""},
+
+        //};
+        //var CLdataAdapter = new $.jqx.dataAdapter(sourceCL)
+        //$('#jqxClaimsGrid').jqxGrid({
+        //    source: CLdataAdapter,
+        //    width: '1100',
+        //    autoheight: false,
+        //    theme: 'bootstrap',
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    sortable: true,
+        //    autoheight: false,
+        //    pageable: true,
+        //    filterable: true,
+        //    autoshowcolumnsmenubutton: false,
+        //    editable: true,
+        //    showstatusbar: false,
+        //    ready: function () {
+        //    },
+        //    columns: [
+        //        { text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: false },
+        //        { text: 'Claim Number', datafield: 'ClaimNumber', width: 200 ,editable: false},
+        //        { text: 'Payee Name', datafield: 'PayeeName', width: 400, editable: false },
+        //        { text: 'Payment Amount', datafield: 'PaymentAmount', width: 200, editable: false },
+        //        { text: 'Rejected Reason', datafield: 'RejectedReason', width: 200, editable: false }
+        //    ]
+        //});*@
+
+
+
+
+

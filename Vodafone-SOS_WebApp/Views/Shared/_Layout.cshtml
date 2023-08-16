@@ -1,0 +1,1213 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    @*<title>@HttpContext.Current.Session["Title"] - Vodafone LITE</title>*@ @*RK04092019 changed the title of application to LITE*@
+    @* RK04092019 Added new title and logo *@
+    <title>LITE</title>
+    <link rel="icon"
+          type="image/png"
+          href="/Content/VodafoneThemes/images/1482152183_vodafone.png" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,500,600,700,800" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    @Styles.Render("~/Content/css")
+    @*@Styles.Render("~/Content/VodafoneThemes/css")*@
+
+    <link type="text/css" rel="stylesheet" href="/Content/VodafoneThemes/css/bootstrap-theme.css">
+    <link type="text/css" href="/Content/VodafoneThemes/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <link type="text/css" href="/Content/VodafoneThemes/css/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="/Content/VodafoneThemes/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link type="text/css" href="/Content/VodafoneThemes/css/default.css" rel="stylesheet" />
+    <link type="text/css" href="/Content/VodafoneThemes/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link type="text/css" rel="stylesheet" href="/Content/VodafoneThemes/css/Black-theme.css">
+    <link type="text/css" href="/Content/VodafoneThemes/css/custom.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/VodafoneThemes/css/style2cc.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css">
+    <link href="~/Content/VodafoneThemes/css/w3.css" rel="stylesheet" />
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/script2.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+    <style>
+        #jqxWidget {
+            position: relative;
+        }
+
+        #OpenClosePanel {
+            width: 10px;
+            height: 20px;
+            background-image: url(/Content/Images/home_slider_rightArrow.png);
+        }
+
+        #LeftTreePanel {
+            resize: both;
+            overflow: auto;
+        }
+
+        #mySidebar {
+            resize: both;
+            overflow: scroll;
+            z-index: 999;
+        }
+
+        .w3-teal {
+            background-color: dimgrey !important;
+        }
+    </style>
+    @*Messave board css*@
+    <Style>
+        /* Create the blue navigation bar */
+        .navbar {
+            background-color: #3b5998;
+            font-size: 22px;
+            padding: 5px 10px;
+        }
+
+        /* Define how each icon button should look like */
+        .button {
+            color: red;
+            display: inline-block; /* Inline elements with width and height. TL;DR they make the icon buttons stack from left-to-right instead of top-to-bottom */
+            position: relative; /* All 'absolute'ly positioned elements are relative to this one */
+            padding: 2px 5px; /* Add some padding so it looks nice */
+        }
+
+        /* Make the badge float in the top right corner of the button */
+        .button__badge {
+            background-color: white;
+            border-radius: 0px;
+            color: #fa3e3e;
+            padding: 0px 0px;
+            font-size: 15px;
+            height: 20px;
+            position: absolute; /* Position the badge within the relatively positioned button */
+            top: 0;
+            right: 0;
+        }
+
+       
+    </Style>
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqwidgets")
+    @Scripts.Render("~/bundles/jqxgridbundle")
+
+</head>
+
+<body>
+
+
+    <script>
+        $(function () {
+            //console.log('resize');
+            //$("#mySidebar").resizable();
+            //resizeHeight: true,
+            //    resizeWidth: true,
+            //    handleSelector: "size-grip"
+        });
+    </script>
+    <header class="header-border-color header-background-color" style="border-bottom: 0px !important;">
+
+        <div class="row no_margin destop-header-view">
+            <div class="col-xs-6 col-lg-2 col-md-2 col-sm-6 no_padding ">
+                <div class="vodafone_redbg navbar bg-menu" style="height:30px;"> </div>@**@
+                @*vodafone_redbg bg_menu class is VodafoneThemes class*@
+                @*<nav class="navbar vodafone_redbg">
+                        <div class="navbar-header">
+                            <a class="navbar-brand hidden-lg hidden-md hidden-sm header-heading" href="#">
+                                @if (string.IsNullOrEmpty(HttpContext.Current.Session["Title"] as string) == false)
+                                {
+                                    <font>  @HttpContext.Current.Session["CompanyName"].ToString() -@HttpContext.Current.Session["Title"].ToString()</font>
+                                }
+
+                            </a>
+                            <a class="hidden-lg hidden-md hidden-sm pull-right header-icon" href="#">
+
+                            </a>
+
+                            <a class="hidden-lg hidden-md hidden-sm pull-right header-icon" href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                            <a class="hidden-lg hidden-md hidden-sm pull-right header-icon" href="#">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-power-off fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+
+                        </div>
+
+                    </nav>*@
+            </div>
+            <div class="col-xs-6 col-lg-2 col-md-2 col-sm-4">
+                <h1 class="header-heading">
+                    @if (string.IsNullOrEmpty(HttpContext.Current.Session["UserRole"] as string) == false)
+                    {
+                        <font size="4">@HttpContext.Current.Session["CompanyName"]   </font>
+                    }
+                </h1>
+            </div>
+
+            <div class="col-xs-6 col-lg-4 col-md-4 col-sm-6  hidden-xs text-left icon_set ">
+                <i class="fa fa-user-o " style="color:#e60000; vertical-align:middle;" aria-hiddden="true"></i>
+                <div id="RoleDropDown" style="background-color:white;color:#e60000; vertical-align:middle; display:inline-block;"></div>
+
+            </div>
+            @* <div class="col-xs-6 col-lg-1 col-md-1 col-sm-6  hidden-xs text-left icon_set ">
+                        <a href="#" onclick="FnGo()" class="header-icon">
+                        <span class="fa-stack fa-lg">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-paper-plane fa-stack-1x fa-inverse"></i>
+                        </span>
+                    </a>
+                </div>*@
+
+            @*header-icon class is VodafoneThemes class*@
+            <div class="col-xs-12 col-lg-4 col-md-4 col-sm-6  hidden-xs text-right icon_set " style="padding-right:40px;">
+                @*Displayed username To redirect to change password on click*@
+                @* <a href="@Url.Action("ChangePassword", "ADAccount")" class="header-icon">*@
+                @*<a href="#" onClick="OnUserNameClick()" class="header-icon">*@
+                <span>
+                    <font size="2"> @HttpContext.Current.Session["UserName"]   </font>
+                </span>&ensp;
+                @*For MessageBoard*@
+                <a id="MessageBoardLink" href="\LMessages" class="header-icon" style="visibility:hidden">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-envelope fa-stack-1x fa-inverse fa"></i>
+                        @*<span id="UnReadMsgCount" class="button__badge">0</span>*@
+                    </span>
+
+                </a>
+                @*----*@
+                @if (string.IsNullOrEmpty(HttpContext.Current.Session["LandingPage"] as string) == true && string.IsNullOrEmpty(HttpContext.Current.Session["UserRole"] as string) == false)
+                {
+                    <a href="#" onclick="OnUserNameClick()" class="header-icon">
+                        <span class="fa-stack fa-lg">
+                            <i class="fa fa-cog fa-stack-2x" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                }
+                <a href="#" onclick="OnHomeClick()" class="header-icon">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                @*header-icon class is VodafoneThemes class*@
+                <a href="#" onclick="FnLogout()" class="header-icon">
+                    <span class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-power-off fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="row no_margin mobile-header-view">
+            <div class="col-xs-6 col-lg-2 col-md-2 col-sm-6 no_padding ">
+                <div class="vodafone_redbg navbar bg-menu" style="height:30px;"> </div>
+
+            </div>
+            <div class="col-xs-6 col-lg-2 col-md-2 col-sm-4">
+                <h1 class="header-heading">
+                    @if (string.IsNullOrEmpty(HttpContext.Current.Session["UserRole"] as string) == false)
+                    {
+                        <font size="4">@HttpContext.Current.Session["CompanyName"]   </font>
+                    }
+                </h1>
+            </div>
+            <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="col-xs-5 col-lg-6 col-md-6 col-sm-5 no_margin" style="float:left;padding-left:0">
+                    
+                    <div class="col-xs-1">
+                        <i class="fa fa-user-o " style="color:#e60000;" aria-hiddden="true"></i>
+                    </div>
+
+                        <div class="col-xs-4" id="RoleDropDownMobileView" style="background-color:white;color:#e60000;"></div>
+                    
+                    
+                </div>
+
+                <div class="col-xs-7 col-lg-6 col-md-6 col-sm-7" style="float:right;padding-right:0">
+                    <div class="icon_set" style="float:right">
+                        @*Displayed username To redirect to change password on click*@
+                        @* <a href="@Url.Action("ChangePassword", "ADAccount")" class="header-icon">*@
+                        @*<a href="#" onClick="OnUserNameClick()" class="header-icon">*@
+                        <span>
+                            <font size="2"> @HttpContext.Current.Session["UserName"]   </font>
+                        </span>
+                        @*For MessageBoard*@
+                        <a id="MessageBoardLink" href="\LMessages" class="header-icon" style="visibility:hidden">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope fa-stack-1x fa-inverse fa"></i>
+                                @*<span id="UnReadMsgCount" class="button__badge">0</span>*@
+                            </span>
+
+                        </a>
+                        @*----*@
+                        @if (string.IsNullOrEmpty(HttpContext.Current.Session["LandingPage"] as string) == true && string.IsNullOrEmpty(HttpContext.Current.Session["UserRole"] as string) == false)
+                        {
+                            <a href="#" onclick="OnUserNameClick()" class="header-icon">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-cog fa-stack-2x" aria-hidden="true"></i>
+                                </span>
+                            </a>
+                        }
+                        <a href="#" onclick="OnHomeClick()" class="header-icon">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                        @*header-icon class is VodafoneThemes class*@
+                        <a href="#" onclick="FnLogout()" class="header-icon">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-power-off fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            @* <div class="col-xs-6 col-lg-1 col-md-1 col-sm-6  hidden-xs text-left icon_set ">
+                        <a href="#" onclick="FnGo()" class="header-icon">
+                        <span class="fa-stack fa-lg">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-paper-plane fa-stack-1x fa-inverse"></i>
+                        </span>
+                    </a>
+                </div>*@
+
+            @*header-icon class is VodafoneThemes class*@
+
+        </div>
+
+
+
+        @*<div class="row ">
+                <div class="navbar-collapse collapse" style="padding-left:10px;">
+
+                    <div id="MjqxMenu" class="vodafone_redbg navbar "></div>
+                </div>
+            </div>*@
+
+
+        @*It will be display none in mobile view as it is not required as per the discussion with JS and Shivangi*@
+        <div class="fluid-container">
+            @*//The below line adds jqxmenu control in header*@
+            <div id="cssmenu1" class="vodafone_redbg navbar">
+                <ul class="abc"></ul>
+            </div>
+        </div>
+
+
+        <!----------------------------------------------------------------------------------------Grey Bar---------------------------------------------------------------------------------------------->
+        @*<button style="padding-top:40px;" onclick="w3_open()">☰</button>*@
+        @*-------------------------------------------------------------------- GREY BAR--------------------------------------------------------------------*@
+        <div id="w3main" class="w3-main" style="margin-left:0px;margin-top:0;display:block;">
+            <div style="    min-height: 40px;" class="w3-teal">
+                <div style="    overflow: auto;    width: 100%;">
+                    <div class="pull-left" id="leftnavbarItems">
+                        <button class="w3-button w3-teal  w3-hide-large" style="     display: inline!important;
+        font-size: 16px;
+        " @*onclick="w3_open()"*@ onclick="showDocumentModal()">
+                            <i class="fa fa-bars" aria-hidden="true" style="color:white;font-size:20px !important;" title="My Documents"></i>
+                        </button>
+                        @*<button onclick="return FnReviewHistory()" class="fa fa-th"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>*@
+                        <button class="w3-button w3-teal w3- w3-hide-large" style="    display: inline!important; font-size: 16px;
+   " title="My Reports" onclick="showReportsModal()">
+                            <i class="fa fa-th" aria-hidden="true" style="color:white;font-size:20px !important;" title="My Reports"></i>
+                        </button>
+                    </div>
+                    <div class="pull-right">
+                        <span id="ActionPanel"></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="w3-sidebar w3-bar-block w3-collapse w3-card w3-animate-left" style="width:400px;top:100px; height:600px; border:groove; visibility:hidden;" id="mySidebar">
+            <button class="w3-bar-item w3-button w3-large w3-hide-large" style="display:block!important;" onclick="w3_close()">Close &times;</button>
+            <div id='jqxReports' style="width:100%;">
+            </div>
+            <div id='jqxDocuments' style="width:100%;">
+            </div>
+            <div id='jqxActions' style="width:100%;">
+            </div>
+        </div>
+        @*-------------------------------------------------------------------- GREY BAR--------------------------------------------------------------------*@
+        @*<div class="w3-sidebar w3-bar-block w3-collapse w3-card w3-animate-left" style="width:200px; margin-top:35px; height:600px;visibility:hidden; " id="panelcontainer">
+
+            <button class="w3-bar-item w3-button w3-large w3-hide-large" onclick="w3_close()">Close &times;</button>*@
+        @*<div id="OpenClosePanel" style="height: 22px;width: 10px; background-image: url(/Content/Images/home_slider_rightArrow.png);float: left; object-fit: contain; margin-top: 40px;">
+            </div>*@
+
+        @*<button onclick="w3_close()">Close</button>
+            <button onclick="w3_open()">Open</button>*@
+        @*</div>*@
+
+        <script>
+            function w3_open() {
+                document.getElementById("mySidebar").style.visibility = "visible";
+            }
+            function w3_close() {
+                document.getElementById("mySidebar").style.visibility = "hidden";
+            }
+        </script>
+        <!----------------------------------------------------------------------------------------Grey Bar---------------------------------------------------------------------------------------------->
+    </header>
+
+    <div id='LeftTreePanel' style="height: 600px; width: 300px;background: white; border:groove; border-color:gray; float: left;color: white;font-size: xx-large;display:none; ">
+        <div class="panel-top" style=" padding-top:20px;padding-left:0px; height: 100%;width: 100%">
+
+            <script>
+                var UserRole = '';
+                var reportgridcount;
+                $(document).ready(function () {
+                     if('@TempData["ErrorMessage"]')
+                    {
+                        alert('@TempData["ErrorMessage"]')
+                     }
+                    $.ajax({
+                        url: "/Home/GetMenuItems",
+                        dataType: "json",
+                        type: "POST",
+                        success: function (data) {
+
+                            if (data.length != 0) {
+                                var tWidth = (100 / data.length) - 1;
+
+                                for (var x = 0; x < data.length; x++) {
+                                    if (data[x]["parentid"] == null) {
+                                        $('.abc').append('<li>' + data[x]['text'] + '<ul class="' + data[x]['id'] + '">' + "</ul>" + "</li>");
+                                        //data.splice(x,1)
+                                        datasetter(data[x]['id']);
+                                    }
+                                }
+                                function datasetter(id) {
+                                    //console.log("efgdf")
+                                    for (var p = 0; p < data.length; p++) {
+                                        if (data[p]['parentid'] == id) {
+                                            $('.' + id).append("<li>" + data[p]['text'] + "<ul class='" + data[p]['id'] + "'>" + "</ul>" + "</li>");
+                                            //data.splice(p, 1)
+                                            datasetter(data[p]['id'])
+                                        }
+                                        length = $('.' + data[p]['id']).find('li').length;
+                                        // console.log(length)
+                                        if (length > 0) {
+                                            $('.' + data[p]['id']).parent('li').addClass("has-sub");
+                                        }
+                                    }
+
+                                }
+
+                            }
+                        },
+                        error: function (reponse) {
+                        }
+                    });
+                });
+            </script>
+            @*if('@TempData["Message"]')
+                {
+                alert('@TempData["Message"]')
+                }
+                //Left panel code removed from here*@
+        </div>
+
+    </div>
+
+
+    <script>
+        $("#LeftTreePanel").click(function () {
+
+            var newFontSize = $("#LeftTreePanel").width()
+            $("#jqxReports").css("width", newFontSize);
+            $("#jqxDocuments").css("width", newFontSize);
+            $("#jqxActions").css("width", newFontSize);
+        });
+
+
+
+
+
+        $("#mySidebar").click(function () {
+
+            var newFontSize = $("#mySidebar").width()
+            $("#jqxReports").css("width", newFontSize);
+            $("#jqxDocuments").css("width", newFontSize);
+            $("#jqxActions").css("width", newFontSize);
+        });
+        //sqap images
+        var right = "url(/Content/Images/home_slider_rightArrow.png)";
+        var left = "url(/Content/Images/home_slider_leftArrow.png)";
+
+        $('#OpenClosePanel').click(function () {
+            var dd = $('#OpenClosePanel').css('background-image');
+
+            if (dd.toLowerCase().indexOf('right') >= 0) {
+                $('#OpenClosePanel').css('background-image', 'none');
+                $('#OpenClosePanel').css('background-image', 'url(/Content/Images/home_slider_leftArrow.png');
+            }
+            else {
+                $('#OpenClosePanel').css('background-image', 'none');
+                $('#OpenClosePanel').css('background-image', 'url(/Content/Images/home_slider_rightArrow.png');
+            }
+
+
+            $("#LeftTreePanel").animate({ width: 'toggle' }, 500);
+
+
+            //$('#LeftTreePanel').resize(function(){
+
+            //var w = document.getElementById("LeftTreePanel").outerWidth;
+            //var h = document.getElementById("LeftTreePanel").outerHeight;
+            //var txt = "Window size: width=" + w + ", height=" + h;
+            //document.getElementById("jqxReports").innerHTML = txt;
+            //});
+        });
+
+
+    </script>
+
+    @*no_margin class is VodafoneThemes class*@
+    @*<div class="row hidden-lg hidden-md hidden-sm no_margin">
+            <div class="col-xs-12 no_padding">
+                <img class="mx-auto logo_phn" src="~/Content/VodafoneThemes/images/logomobile.png" />
+            </div>
+        </div>*@
+
+
+
+
+    @*<div style="height:50px;background-position:center;background-repeat:no-repeat;background-size:250px 50px;padding:0px;z-index:1000 !important;">
+            <div style="padding-top:10px">
+                &emsp;<img src="~/Content/Images/vodafone-icon.png" style="max-height:30px;max-width:30px;z-index:100 !important" />
+               @if (string.IsNullOrEmpty(HttpContext.Current.Session["Title"] as string) == false)
+               {
+                <font class="text-center" size="4" style="color:red">
+                    @HttpContext.Current.Session["CompanyName"].ToString() - @HttpContext.Current.Session["Title"].ToString()
+                </font>
+               }
+
+
+                <div class="pull-right">
+
+                    <a href="#" onclick="return OnHomeClick()"><span class="glyphicon glyphicon-home"></span></a>&ensp;
+                    <a href="#" onclick="document.getElementById('logoutForm').submit()"><span class="glyphicon glyphicon-off"></span></a>&emsp;
+                </div>
+            </div>
+        </div>*@
+    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.Hidden("ClientIPAddress")
+    }
+
+
+
+    @*@if (HttpContext.Current.Session["UserRole"].ToString() != "NoRole")
+        {*@
+    @*<div id="MjqxMenu" style="overflow:auto;z-index:1000 !important"></div>*@
+    @*}*@
+
+    <script>
+        //function to redirect user to logout function and clear session state of browser
+                function FnLogout()
+                {
+                    sessionStorage.removeItem('CurrentTab')
+                    sessionStorage.removeItem('Workflow')
+                    document.getElementById('logoutForm').submit()
+                    sessionStorage.removeItem('SessionCheckedPeriods')
+                    sessionStorage.removeItem('sessionBatchStatus')
+
+                    // RS --added the following (sticky grid changes for TTGrid on 25th Febuary 2019)saving the state of the grids of TT
+                    //$("#jqxgridRequestor").jqxGrid('savestate', sessionStorage.CurrentRequesterState);
+
+                    //$("#jqxgridSystemAnalyst").jqxGrid('savestate', sessionStorage.CurrentSystemAnalystState);
+
+                    //$("#jqxgridL2Support").jqxGrid('savestate', sessionStorage.CurrentL2SupportState);
+
+                    //$("#jqxgridHistory").jqxGrid('savestate', sessionStorage.CurrentHistoryState);
+
+
+                }
+
+
+        //function FnGo()//This method is called when user clicks on Go button
+        //{
+        //    window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+                //}
+         function OnUserNameClick() {
+             var UserName = '@HttpContext.Current.Session["UserName"]';
+             //window.location.href = '/Account/ResetPassword?Email=' + UserName;
+             window.location.href = '/Account/UserSetting?Email=' + UserName;
+            }
+
+
+
+        //method used to redirect user to dashboard as per his roles . Will be replaced by a generic method to remove hardcoding of url
+        function OnHomeClick()
+        {
+            var role = '@HttpContext.Current.Session["UserRole"]'
+            window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+            //RK 21022018 commented below switch statement and added the above line.
+            //switch(role)
+            //{
+            //    case "Manager":
+            //        window.location.href = '/Home/ManagerDashboard'
+            //        break;
+            //    case "Reporting Analyst":
+            //        window.location.href = '/Home/AnalystDashboard'
+            //        break;
+            //    case "Sales Operations":
+            //        window.location.href = '/Home/SalesOperationsDashboard'
+            //        break;
+            //    case "Payee":
+            //        window.location.href = '/Home/PayeeDashboard'
+            //        break;
+            //    case "Claims Analyst":
+            //        window.location.href = '/Home/ClaimsAnalystDashboard'
+            //        break;
+            //    case "L3 Admin":
+            //        window.location.href = '/Home/SosAdminDashboard'
+            //        break;
+            //    case "L2 Admin":
+            //        window.location.href = '/Home/L2AdminDashboard'
+            //        break;
+            //    case "System Analyst":
+            //        window.location.href = '/Home/SystemAnalystDashboard'
+            //        break;
+            //    case "Auditor":
+            //        window.location.href = '/Home/AuditorDashboard'
+            //        break;
+            //    case "Account Analyst":
+            //        window.location.href = '/Home/AccountAnalystDashboard'
+            //        break;
+            //    case "Controller":
+            //        window.location.href = '/Home/ControllerDashboard'
+            //        break;
+            //    case "Channel Manager":
+            //        window.location.href = '/Home/ChannelManagerDashboard'
+            //        break;
+            //}
+
+        }
+        var UserRole = '';
+
+        $(document).ready(function () {
+
+            //show popup to the user if sent from server
+            if ('@ViewBag.ErrorMessage')
+            {
+             alert('@ViewBag.ErrorMessage')
+            }
+            
+            $.ajax({                
+                url: "/Reports/GetXReportsTreeStructure",
+                data: { strTreeType: "A", strCommPeriod: "My Actions", sortdatafield: "", sortorder: "", pagesize: 0, pagenum:0 },
+                dataType: "json",
+                type: "POST",
+                async: true,
+                success: function (new_data) {
+                    if (new_data) {
+                        $.each(new_data, function (index, levelInfoDetail) {
+                            $('#ActionPanel').append('<a style="top:5px;font-size:small;color:white; margin:10px;" href="' + levelInfoDetail.XName + '">' + levelInfoDetail.XCommissionPeriod + '   </a>');
+                        });
+                    }
+                   
+                }
+            });
+            UserRole = '@HttpContext.Current.Session["UserRole"]'
+            if ('@Session["LandingPage"]'  == '' & '@Session["UserRole"]' != '')
+            {
+                $.ajax({
+                    url: "/Home/GetRolesList",
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#RoleDropDown").jqxDropDownList({ source: data, width: 200 })//displayMember:'Name',valueMember:'Id',
+                        $("#RoleDropDown").jqxDropDownList('selectItem', UserRole);
+
+                        $("#RoleDropDownMobileView").jqxDropDownList({ source: data, width: 200 })//displayMember:'Name',valueMember:'Id',
+                        $("#RoleDropDownMobileView").jqxDropDownList('selectItem', UserRole);
+                        //$.ajax({
+                        //    url: "/Account/GetSelectedLandingPage",
+                        //    dataType: "json",
+                        //    type: "POST",
+                        //    success: function (data) {
+                        //        if (data == '') {
+                        //            $("#RoleDropDown").jqxDropDownList('selectItem', UserRole)
+
+                        //        } else {
+                        //            $("#RoleDropDown").jqxDropDownList('selectItem', data)
+                        //        }
+
+                        //    },
+                        //    error: function (reponse) {
+                        //        $("#RoleDropDown").jqxDropDownList('selectItem', UserRole)
+                        //    }
+                        //})
+
+                    },
+                    error: function (reponse) {
+                        //  alert("error : " + reponse);
+                    }
+                });
+            }
+            $("#RoleDropDown").on('change', function (event) {
+                         var item = event.args.item;
+                if (item.label) {
+                    if (UserRole!=item.label) {
+                        UserRole = item.label;
+                        sessionStorage.removeItem('CurrentTab')//remove entry for session storage for the currently selected tab
+                        sessionStorage.removeItem('Workflow')
+                        window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+                        ShowHideMessageIcon();
+                 }
+             }
+                if ($("#CompanyDropdown").length != 0) {
+                    if (item.label == "Auditor"){
+                        $("#CompanyDropdown").show();
+                    } else {
+                        $("#CompanyDropdown").hide();
+                    }
+                }
+
+            })
+
+            
+            $("#RoleDropDownMobileView").on('change', function (event) {
+                var item = event.args.item;
+                if (item.label) {
+                    if (UserRole != item.label) {
+                        UserRole = item.label;
+                        sessionStorage.removeItem('CurrentTab')//remove entry for session storage for the currently selected tab
+                        sessionStorage.removeItem('Workflow')
+                        window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+                        ShowHideMessageIcon();
+                    }
+                }
+                if ($("#CompanyDropdown").length != 0) {
+                    if (item.label == "Auditor") {
+                        $("#CompanyDropdown").show();
+                    } else {
+                        $("#CompanyDropdown").hide();
+                    }
+                }
+
+            })
+
+
+            $.ajax({
+                 url: "/Home/GetMenuItems",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                     var Msource = {
+                        dataType: "json",
+                        dataFields: [
+                             { name: 'id', type: 'string' },
+                            { name: 'parentid', type: 'string' },
+                             { name: 'text', type: 'string' },
+                              { name: 'subMenuWidth', type: 'string' }
+                        ],
+                        // id: "id",
+                        localdata: data
+                    };
+                 //console.log("datais "+Msource);
+                 var MdataAdapter = new $.jqx.dataAdapter(Msource)
+                    MdataAdapter.dataBind();
+                 var Mrecords = MdataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }])
+                    //$("#MjqxMenu").jqxMenu({ source: Mrecords, animationShowDelay: 0, animationHideDelay: 0, autoSizeMainItems: false, animationShowDuration: 0, height: 35, keyboardNavigation: true });
+                    //$("#MjqxMenu").jqxMenu({ animationShowDuration: 300, animationHideDuration: 200, animationShowDelay: 200 });
+                    //$("#MjqxMenu").jqxMenu({ autoOpen: true });
+                    //$("#MjqxMenu").jqxMenu({ autoOpen: false });
+                },
+                error: function (reponse) {
+                 //  alert("error : " + reponse); width: '100%'
+             }
+            });
+
+            //Adding a temp method to get client IP Address. Will approve this from JS/VG
+            $.getJSON('//api.ipify.org?format=jsonp&callback=?', function (data) {
+                 var IpAddress = data.ip;
+                 document.getElementById('ClientIPAddress').value = IpAddress;//JSON.stringify(data, null, 2);
+             });
+
+        });
+    </script>
+
+    <!--Start of Zendesk Chat Script
+        <script type="text/javascript">
+    window.$zopim||(function(d,s){var z=$zopim=function(c){z._.push(c)},$=z.s=
+    d.createElement(s),e=d.getElementsByTagName(s)[0];z.set=function(o){z.set.
+    _.push(o)};z._=[];z.set._=[];$.async=!0;$.setAttribute("charset","utf-8");
+    $.src="https://v2.zopim.com/?4cewHfST7jHJPp0z2zCcLmQ1qLmWQTLu";z.t=+new Date;$.
+    type="text/javascript";e.parentNode.insertBefore($,e)})(document,"script");
+        </script>
+        End of Zendesk Chat Script-->
+    @*<div class="header-menu">
+        <div class="header-menu-wrap">
+            <div class="header-menu-items" role="menu">
+                <ul>
+                    <li class="header-menu-item">
+                        <a href="#" role="menuitem" id="who" class="header-head" aria-haspopup="true" aria-controls="Who we are">
+                            Who we are
+                            <svg class="header-menu__arrow-icon">
+                                @*<use xmlns:xlink="#" xlink:href="#icon-chevron-down"></use>
+                            </svg>
+                            <i class="i-arrow-g-d"></i>
+                        </a>
+                        <div class="header-body-main">
+                            <ul id="who" class="header-body" aria-expanded="false" aria-labelledby="who">
+                                <li><a href="#" aria-label="Meet the board">Meet the board</a></li>
+
+                                <li><a href="#" aria-label="Public policy">Public policy</a></li>
+
+                                <li><a href="#" aria-label="Sustainable business">Sustainable business</a></li>
+
+                                <li><a href="#" aria-label="Mobiles, masts and health">Mobiles, masts and health</a></li>
+                            </ul>
+
+                        </div>
+                    </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>*@
+
+
+    @*<div class="TopBar">
+            <div id="accept">
+                <div class="navbar BackgroundMenu">
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li>@Html.ActionLink("Home", "Index", "Home", null, new { @class = "fontMenu show" })</li>
+                            <li>@Html.ActionLink("About", "About", "Home", new { @class = "fontMenu show" })</li>
+                            <li>@Html.ActionLink("Contact", "Contact", "Home", new { @class = "fontMenu show" })</li>
+                        </ul>
+                        @Html.Partial("_LoginPartial")
+                    </div>
+
+                </div>
+            </div>
+        </div>*@
+
+    <div class="container-fluid">
+        @*<br>*@
+        <div class="body-content">
+            @RenderBody()
+        </div>
+
+    </div>
+
+    <div class="w3-main" style="margin-left:200px">
+    </div>
+    <footer>
+
+
+        <div class="col-xs-12 col-md-12">
+
+            <p class="col-xs-6 col-md-6 text-left">
+                <a href="/LSupportTickets/CreateNormalTicket" title="Contact Support"><u>Contact Support </u></a>
+                <span id="txtchrinfo" style="display:none"> | Text fields do not allow characters ^ < > & %</span>
+            </p>
+            @*</div>*@
+            @*white_text class is VodafoneThemes class*@
+            @*<div class="col-xs-12 col-md-12 text-right white_txt">*@
+            <p class=" col-xs-6 col-md-6 text-right white_txt"> Powered By Megacube Pty Ltd. </p>
+        </div>
+    </footer>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
+
+<div class="modal fade" id="ReportsModal" role="dialog">
+    @*MS Release2.2 change width
+        @*<div class="modal-dialog" style="height:550px; width:900px">*@
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="height:80px">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">My Reports &nbsp;&nbsp;<i class="fa fa-download" aria-hidden="true" style="color:#e60000;font-size:20px !important;cursor: pointer;" title="Download" onclick="downloadAllSelectedFiles();"></i></h4>
+                <div class="form-group">
+                    <span style="color:red;font-size:small;">Note : If error comes while downloading all reports, please select less number of files and then download it.</span>
+                </div>
+            </div>
+            <div class="modal-body" style=" left:0; height:400px; width:99%;">
+                <div id="MyReportsGrid" style="height:400px; width:100%; vertical-align:top">
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="DocumentModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="height:80px">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">My Documents</h4>
+                <div class="form-group">
+
+                </div>
+            </div>
+            <div class="modal-body" style=" left:0; height:400px; width:99%;">
+                <div id="MyDocumentGrid" style="height:400px; width:100%; vertical-align:top">
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowHideMessageIcon() {
+        $.ajax({
+            url: '/LMessages/IsMessageBoardAvailable',
+            type: 'Get',
+            contentType: 'application/json;',
+            success: function (data) {
+                if (data) {
+                    document.getElementById("MessageBoardLink").style.visibility = "visible";
+                    //GetUnreadMessageCount();
+                }
+                else {
+                    document.getElementById("MessageBoardLink").style.visibility = "hidden";
+                }
+            }
+
+        });
+    }
+    //function GetUnreadMessageCount() {
+    //    $.ajax({
+    //        url: '/LMessages/GetUnreadMessageCount',
+    //        type: 'Get',
+    //        contentType: 'application/json;',
+    //        success: function (data) {
+    //            $("UnReadMsgCount").html(data);
+    //        }
+
+    //    });
+    //}
+
+    //MS Release2.2 the Modal form should not unload on clicking ouside modal window
+    function showReportsModal() {
+        $("#ReportsModal").modal({ backdrop: 'static', keyboard: false }, 'show');
+        $('.modal-dialog').css('width', $(window).width() * 0.8);
+        $("#MyReportsGrid").jqxGrid('clearfilters'); //to clear filters before calling function
+
+        LoadGrid();
+    }
+    function showDocumentModal() {
+        $("#DocumentModal").modal('show');
+        LoadDocumentGrid();
+    }
+    function FnDownloadReport(row) {
+
+        var selectedrowindex = $('#MyReportsGrid').jqxGrid('selectedrowindex');
+        var xx = $('#MyReportsGrid').jqxGrid("getrowid", row);
+
+        // var selectedrowindex = $('#MyReportsGrid').jqxGrid('selectedrowindex');
+        // var selectedrowindex = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+
+        //var xx = $('#MyReportsGrid').jqxGrid("getrowid", selectedrowindex);
+        var ReportName = $('#MyReportsGrid').jqxGrid("getcellvalue", row, "XCommissionPeriod");
+        var ReportPeriod = $('#MyReportsGrid').jqxGrid("getcellvalue", row, "XDisplayLocation");
+        var location = "/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod";
+        var filefound = "1";
+        if (ReportName != '') {
+            window.location.href = '/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod;
+        }
+        //if (ReportName != '') {
+        //    window.location.href = '/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod;
+        //    $.ajax({
+
+        //        url: '/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod,
+        //        dataType: "json",
+        //        type: "POST",
+        //        success: function (data) {
+        //            if (!data.success) {
+        //                filefound = "0";
+        //                alert('Underlying fIle is not available. Please contact support.');
+        //            }
+
+        //        },
+
+        //    });
+        //    if (filefound = "1") {
+        //        window.location.href = '/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod;
+        //    }
+
+        //}
+    }
+    function FnDownloadReport1() {
+
+        var FilePathArray1 = [];
+
+        var selectedrowindex = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+
+        for (var i = 1; i <= selectedrowindex.length; i++) {
+            var rowdata = $('#MyReportsGrid').jqxGrid('getrowdata', selectedrowindex[i - 1]);//as i is starting from 1 and not zero
+            if (rowdata != 'undefined' && rowdata != null) {
+                var ReportName = rowdata.XCommissionPeriod; //   $('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XCommissionPeriod");
+                var ReportPeriod = rowdata.XDisplayLocation; //$('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XDisplayLocation");
+                var location = "/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod";
+                var data = { strFileName: ReportName, strParent: ReportPeriod }
+                FilePathArray1.push(data);
+            }
+        }
+        if (selectedrowindex.length > 1) {
+            window.location.href = '/Reports/DownloadXReportsBulk?data=' + JSON.stringify(FilePathArray1);
+        }
+    }
+
+
+
+    //method to select all and download
+    function downloadAllSelectedFiles() {
+        //alert("function is called");
+        var SelectedValues = '';
+        var FilePathArray1 = [];
+        var rows = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+        if (rows != undefined) {
+            if (reportgridcount != $('#MyReportsGrid').jqxGrid('getselectedrowindexes').length) {
+                //var FilePathArray1 = [];
+                // var items = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+                var selectedrowindex = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+                //var rows = $(GridId).jqxGrid('getrows');
+                //var xx = $('#MyReportsGrid').jqxGrid('getselectedrowindexes');
+                //for (var i = 1; i <= xx.length; i++) {
+                //    var rowdata = $('#MyReportsGrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+                //    if (rowdata != null && rowdata != 'undefined') {
+                //        console.log("in");
+                //    }
+                //}
+                //Added by SG R2.5.1 Hot fix(selection download is not working.)
+                for (var i = 1; i <= selectedrowindex.length; i++) {
+
+
+                    var rowdata = $('#MyReportsGrid').jqxGrid('getrowdata', selectedrowindex[i - 1]);//as i is starting from 1 and not zero
+                    if (rowdata != 'undefined' && rowdata != null) {
+                        var ReportName = rowdata.XCommissionPeriod; //   $('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XCommissionPeriod");
+                        var ReportPeriod = rowdata.XDisplayLocation; //$('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XDisplayLocation");
+                        var location = "/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod";
+                        var data = { strFileName: ReportName, strParent: ReportPeriod }
+                        FilePathArray1.push(data);
+                    }
+                }
+                if (selectedrowindex.length > 0) {
+                    window.location.href = '/Reports/DownloadXReportsBulk?data=' + JSON.stringify(FilePathArray1);
+                }
+
+                //for (var i = 1; i <= rows.length; i++) {
+                //    var rowdata = $('#MyReportsGrid').jqxGrid('getrowdata', rows[i - 1]);//as i is starting from 1 and not zero
+                //    SelectedValues = SelectedValues + rowdata.XCommissionPeriod;
+                //    console.log(SelectedValues);
+                //}
+            }
+            else {
+                //$.ajax({
+                //   // data: { strTreeType: "G", strCommPeriod: "", pagesize: reportgridcount },
+                //    data: { strTreeType: "G", strCommPeriod: "", sortdatafield: "", sortorder: "", pagesize: reportgridcount, pagenum: 0 },
+                //    url: "/Reports/GetXReportsTreeStructure",
+                //    dataType: "json",
+                //    type: "GET",
+                //    success: function (data) {
+                //        $.each(data, function (idx, data1) {
+                //            var ReportName = data1.XCommissionPeriod; //   $('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XCommissionPeriod");
+                //            var ReportPeriod = data1.XDisplayLocation; //$('#MyReportsGrid').jqxGrid("getcellvalue", xx, "XDisplayLocation");
+                //            var location = "/Reports/DownloadXReports?strFileName=' + ReportName + '&strParent=' + ReportPeriod";
+                //            var data = { strFileName: ReportName, strParent: ReportPeriod }
+                //            FilePathArray1.push(data);
+                //        });
+                //       // window.location.href = '/Reports/DownloadXReportsBulk?data=' + JSON.stringify(FilePathArray1);
+                //    },
+                //    error: function (error) {
+                //    }
+                //});
+
+                window.location.href = '/Reports/selectalldownload?strTreeType=' + "G" + '&strCommPeriod=' + "" + '&sortdatafield=' + "" + '&sortorder=' + "" + '&pagesize=' + reportgridcount + '&pagenum=' + 0;
+            }
+
+
+        }
+
+        //if (SelectedValues.length > 1) {
+        //    window.location.href = '/Reports/DownloadXReportsBulk?data=' + JSON.stringify(FilePathArray1);
+        //}
+
+    }
+
+
+
+    function FnDownloadDocument() {
+        var selectedrowindex = $('#MyDocumentGrid').jqxGrid('selectedrowindex');
+        var xx = $('#MyDocumentGrid').jqxGrid("getrowid", selectedrowindex);
+        var DocumentName = $('#MyDocumentGrid').jqxGrid("getcellvalue", xx, "XName");
+        var DocumentPeriod = $('#MyDocumentGrid').jqxGrid("getcellvalue", xx, "XCommissionPeriod");
+        var DocumentId = $('#MyDocumentGrid').jqxGrid("getcellvalue", xx, "Id");
+        var location = "/Reports/DownloadPayeeDocuments?strFileName=' + DocumentName + '&strParent=' + DocumentPeriod + '&DocSetId='+ DocumentId";
+        var filefound = "1";
+        if (DocumentName != '') {
+            window.location.href = '/Reports/DownloadPayeeDocuments?strFileName=' + DocumentName + '&strParent=' + DocumentPeriod + '&DocSetId=' + DocumentId;
+
+        }
+
+    }
+    function LoadGrid() {
+        $.ajax({
+            data: { strTreeType: "G", strCommPeriod: "" },
+            url: "/Reports/GetReportCounts",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+                //alert(counts)
+                //The below code will load a grid of portfolios on this page
+                totalcount = counts;
+                reportgridcount = counts;
+                var source = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'XName', type: 'string' },
+                        { name: 'XDisplayLocation', type: 'string' },
+                        { name: 'XCommissionPeriod', type: 'string' }
+                    ],
+                    url: "/Reports/GetXReportsTreeStructure",
+                    //  data: { strTreeType: "G", strCommPeriod: "", sortdatafield: "", sortorder: "", pagesize: 0, pagenum: 0 },
+                    data: { strTreeType: "G", strCommPeriod: "" },
+                    filter: function () {
+
+                        //added to avoid filter issue
+                        $('#MyReportsGrid').jqxGrid('updatebounddata');
+                        $('#gridmenuMyReportsGrid').css('display', 'none'); //to auto-hide the pop up after filteration
+                        $('#MyReportsGrid').jqxGrid('clearselection');
+
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                        $('#MyReportsGrid').jqxGrid('updatebounddata', 'sort');
+                        $('#MyReportsGrid').jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        source.totalrecords = counts;
+                    }
+                };
+                var dataAdapter = new $.jqx.dataAdapter(source);
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    return ' <button onclick="return FnDownloadReport(' + row + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>';
+                };
+                //Check whether the grid is already defined or not and ready for use.
+                var ready = $("#MyReportsGrid").jqxGrid('ready');
+                //if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                if (typeof ready != 'undefined') {
+                    $("#MyReportsGrid").jqxGrid('updatebounddata');
+                }
+                else {
+                    $('#MyReportsGrid').jqxGrid({
+                        source: dataAdapter,
+                        width: '100%',
+                        height: '100%',
+                        columnsresize: true,
+                        pageable: true,
+                        pagesize: 20,
+                        editable: true,
+                        filterable: true,
+                        autoshowcolumnsmenubutton: false,
+                        sortable: true,
+                        enablebrowserselection: true,
+                        pagesizeoptions: ['10', '20', '50', '100'],
+                        virtualmode: true,
+                        autoloadstate: false,
+                        autosavestate: false,
+                        rendergridrows: function () {
+                            return dataAdapter.records;
+                        },
+                        selectionmode: 'checkbox',
+
+                        //autosavestate: false,
+                        columns: [
+                            { text: 'Actions', cellsrenderer: cellsrenderer, width: '7%', editable: false },
+                            { text: 'Commission Period', datafield: 'XDisplayLocation', width: '20%', editable: false },
+                            { text: 'Status', datafield: 'XName', width: '20%', editable: false },
+                            { text: 'Report File', datafield: 'XCommissionPeriod', width: '50%', editable: false }
+                        ]
+                    });
+                }
+            }
+        });
+    }
+
+    function LoadDocumentGrid() {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'XCommissionPeriod', type: 'string' },
+                //{ name: 'XDisplayLocation', type: 'string' },
+                { name: 'XName', type: 'string' },
+                { name: 'Id', type: 'int' }
+            ],
+            url: "/Reports/GetXReportsTreeStructure",
+            // data: { strTreeType: "D", strCommPeriod: "Grid Data" },
+            data: { strTreeType: "D", strCommPeriod: "Grid Data", sortdatafield: "", sortorder: "", pagesize: 0, pagenum: 0 },
+        };
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return ' <button onclick="return FnDownloadDocument()" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>';
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        $('#MyDocumentGrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: '100%',
+            columnsresize: true,
+            pageable: true,
+            pagesize: 100,
+            editable: true,
+            filterable: true,
+            //showfilterrow: true,
+            autoshowcolumnsmenubutton: false,
+            sortable: true,
+            enablebrowserselection: true,
+            autoshowcolumnsmenubutton: false,
+            pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+            autoloadstate: false,
+            autosavestate: false,
+            ready: function () {
+            },
+            columns: [
+                {
+                    text: 'Actions',
+                    cellsrenderer: cellsrenderer, width: '10%', editable: false
+                },
+                { text: 'Commission Period', datafield: 'XCommissionPeriod', width: 150, editable: false },
+                { text: 'Document Name', datafield: 'XName', width: 625, editable: false },
+                //{ text: 'Report File', datafield: 'XCommissionPeriod', width: 500, editable: false }
+
+            ]
+        });
+
+    }
+</script>
+

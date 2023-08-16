@@ -1,0 +1,1233 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+<style>
+    .loader {
+        left: 50%;
+        top: 60%;
+        position: absolute;
+        z-index: 101;
+        /* width: 32px; */
+        /* height: 32px; */
+        margin-left: -16px;
+        margin-top: -16px;
+        font-weight: 700;
+    }
+</style>
+
+@{
+    ViewBag.Title = "Edit Payment Batch";
+    var PayRowCount = ViewBag.PayRowCount;
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+<h2>Edit Payment Batch</h2>
+<script type="text/javascript">
+    var Irtpid = @Model.Id;
+     var datafields = new Array();
+     var columns = new Array();
+     var CommaSeperatedString;
+     var OldCalcCount = 0;
+     var OldMACount = 0;
+     var OldClaimsCount = 0;
+     var NewCalcCount = 0;
+     var NewMACount = 0;
+     var NewClaimsCount = 0;
+     var IsCalcClicked = 0;
+     var IsMAClicked = 0;
+     var IsClaimsClicked = 0;
+     var FinalCount = 0;
+    //Get Payement Grid
+     function FnGetGrid(Status) {
+         var SOSBatchNumber = '@Model.PaymentBatchNo'
+         var PayRows = Number('@PayRowCount');
+         document.getElementById('bPayements').innerHTML = PayRows;
+        var source = {
+            dataType: "json",
+            dataFields: datafields,
+            id: "Id",
+            data: {
+                SOSBatchNumber: SOSBatchNumber,
+                Status: Status
+            },
+            url: "/LPay/GetLPay",
+            // update the grid and send a request to the api
+            filter: function () {
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'filter');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+            },
+            // update the grid and send a request to the api
+            sort: function () {
+                // $("#" + GridId).jqxGrid('clear');
+                $("#jqxgrid" + Status).jqxGrid('updatebounddata', 'sort');
+                $("#jqxgrid" + Status).jqxGrid('clearselection');
+            },
+            root: 'Rows',
+            beforeprocessing: function (data) {
+                source.totalrecords = PayRows;
+            }
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $("#jqxgrid" + Status).jqxGrid(
+        {
+            width: "100%",
+            source: dataAdapter,
+            columnsresize: true,
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            sortable:true,
+            pagesize:50,
+            editable:true,
+            pagesizeoptions:['10','50','100','200','500','1000'],
+            virtualmode: true,
+           // selectionmode:'checkbox',
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+      columns:columns
+
+        });
+     }
+
+     function FnSavePortfolio() {
+         //Add JqxLoader when form is submitted to disable further clicks
+         $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+         $('#jqxLoader').jqxLoader('open');
+        var xx = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+        PortfolioArray = [];
+        PortfolioNames = [];
+        PortfolioArray[0] = "";
+        PortfolioNames[0] = "";
+        for (var i = 1; i <= xx.length; i++) {
+            var rowdata = $('#jqxgrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+
+            PortfolioArray[i-1] = rowdata.Id;
+            PortfolioNames[i-1] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
+        }
+        CommaSeperatedString = PortfolioArray.join(',');
+        var portnames = PortfolioNames.join(',');
+        fnGetClaimsCounts(CommaSeperatedString);
+       // FnLoadCLAIMSTest(CommaSeperatedString);
+        fnGetMACounts(CommaSeperatedString);
+       // FnLoadMATest(CommaSeperatedString);
+        fnGetCalcCounts(CommaSeperatedString);
+        //FnLoadCALCTest(CommaSeperatedString);
+        $('#jqxLoader').jqxLoader('close');
+        document.getElementById('strSelectedPortfolios').value = CommaSeperatedString;
+        return;
+     }
+
+    //Being used for save button
+    function SaveSelectionDraft() {
+
+        //Scenario 1: Calc Changed -> Original 3. Added 2 more Calcs to total 5
+        //IsCalcChanged = 1
+
+
+        //FinalCount = IsCalcChanged *#ofRowsInCalGrid + (IsCalcChanged - 1) * (IsCalcChanged - 1) * BeforeCalcCount + .. same for claims and MA
+        //FinalCount = 1 * 5 + (1 - 1) * (1 - 1) * 3
+        //   = 5 + 0 * 0 * 3 = 5
+
+
+        //Scenario 2: Calc DID NOT Changed -> Original 3.
+        //IsCalcChanged = 0
+
+
+        //FinalCount = IsCalcChanged *#ofRowsInCalGrid + (IsCalcChanged - 1) * (IsCalcChanged - 1) * BeforeCalcCount + .. same for claims and MA
+        //FinalCount = 0 * 0 + (0 - 1) * (0 - 1) * 3
+        //   = 0 + -1 * -1 * 3
+        //   = 3
+
+        //   If FinalCount = 0, then show validation message.
+
+        var selected = "false";
+        var SelectedValues = "";
+
+         //var xx = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes');
+        //for (var i = 1; i <= xx.length; i++) {
+        //    var rowdata = $('#jqxCalcGrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+        //    SelectedValues = SelectedValues + rowdata.Identifier + ",Calc|";
+        //}
+
+        //var rows = $('#jqxManualGrid').jqxGrid('getrows');
+        //selected = "false";
+        //for(var k=0; k < rows.length; k++){
+        //    selected = rows[k]['Select'];
+        //    if (selected == true)
+        //    {
+        //        SelectedValues = SelectedValues+rows[k]['Identifier']+",ManualAdjustment|";
+        //    }
+        //}
+        //rows = $('#jqxClaimsGrid').jqxGrid('getrows');
+        //selected = "false";
+        //for(var k=0; k < rows.length; k++){
+        //    selected = rows[k]['Select'];
+        //    if (selected == true)
+        //    {
+        //        SelectedValues = SelectedValues+rows[k]['Identifier']+",Claims|";
+        //    }
+        //}
+
+        //--> Functionality for selectAll on calculations grid
+        var xx = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes');
+        if (xx != undefined) {
+            $("#IsCalChanged").val('true')
+            NewCalcCount = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes').length;
+            IsCalcClicked = 1;
+
+            if (ClacGridCount != $('#jqxCalcGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= xx.length; i++) {
+                    var rowdata = $('#jqxCalcGrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",Calc|";
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "Calc", strRTPStatus: "Edit", strPortfolios: CommaSeperatedString, pagesize: ClacGridCount },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+
+                            SelectedValues = SelectedValues + data1.Identifier + ",Calc|";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+        //--> Functionality for SelectAll on ManualGrid.
+        var rowsManual = $('#jqxManualGrid').jqxGrid('getselectedrowindexes');
+        if (rowsManual != undefined) {
+            $("#isMAChanged").val('true')
+            NewMACount = $('#jqxManualGrid').jqxGrid('getselectedrowindexes').length;
+            IsMAClicked = 1;
+            if (MaGridCount != $('#jqxManualGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= rowsManual.length; i++) {
+                    var rowdata = $('#jqxManualGrid').jqxGrid('getrowdata', rowsManual[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",ManualAdjustment|";
+                    console.log(SelectedValues);
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "ManualAdjustment", strRTPStatus: "Edit",strPortfolios: CommaSeperatedString, pagesize: MaGridCount },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            SelectedValues = SelectedValues + data1.Identifier + ",ManualAdjustment|";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+
+        //--> Functionality for SelectAll on ClaimsGrid.
+        var rowsclaims = $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes');
+        if (rowsclaims != undefined) {
+            $("#IsClaimChanged").val('true')
+            NewClaimsCount = $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes').length;
+            IsClaimsClicked = 1;
+            if (ClaimsGridCount != $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= rowsclaims.length; i++) {
+                    var rowdata = $('#jqxClaimsGrid').jqxGrid('getrowdata', rowsclaims[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",Claims|";
+                    console.log(SelectedValues);
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "Claims", strRTPStatus: "Edit",  strPortfolios: CommaSeperatedString, pagesize: ClaimsGridCount  },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            SelectedValues = SelectedValues + data1.Identifier + ",Claims|";
+                            console.log(SelectedValues);
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+        //alert(SelectedValues);
+        //if ((SelectedValues == "") || (SelectedValues == undefined)) {
+        //    alert('Please select Calculation/Manual Adjustment/Claims batch first.');
+        //    return false;
+        //}
+
+        FinalCount = parseInt(IsCalcClicked * NewCalcCount + (IsCalcClicked - 1) * (IsCalcClicked - 1) * OldCalcCount) + parseInt(IsMAClicked * NewMACount + (IsMAClicked - 1) * (IsMAClicked - 1) * OldMACount) + parseInt(IsClaimsClicked * NewClaimsCount + (IsClaimsClicked - 1) * (IsClaimsClicked - 1) * OldClaimsCount)
+        if (FinalCount == 0) {
+            alert('Please select Calculation/Manual Adjustment/Claims batch first.');
+            return false;
+        }
+        
+        document.getElementById('strKeyValues').value = SelectedValues;
+        document.getElementById('strSaveStatus').value = "Draft";
+
+        if (items.length > 0) {
+
+           var sucess = $("#frm").validate({})
+            if ($('#frm').valid()) {
+                document.getElementById('frm').submit()
+            }
+        }
+    }
+    function SaveSelectionSubmitted() {
+
+        var selected = "false";
+        var SelectedValues = "";
+
+        //var xx = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes');
+        //for (var i = 1; i <= xx.length; i++) {
+        //    var rowdata = $('#jqxCalcGrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+        //    SelectedValues = SelectedValues + rowdata.Identifier + ",Calc|";
+        //}
+
+        //var rows = $('#jqxManualGrid').jqxGrid('getrows');
+        //selected = "false";
+        //for(var k=0; k < rows.length; k++){
+        //    selected = rows[k]['Select'];
+        //    if (selected == true)
+        //    {
+        //        SelectedValues = SelectedValues+rows[k]['Identifier']+",ManualAdjustment|";
+        //    }
+        //}
+        //rows = $('#jqxClaimsGrid').jqxGrid('getrows');
+        //selected = "false";
+        //for(var k=0; k < rows.length; k++){
+        //    selected = rows[k]['Select'];
+        //    if (selected == true)
+        //    {
+        //        SelectedValues = SelectedValues+rows[k]['Identifier']+",Claims|";
+        //    }
+        //}
+
+        //--> Functionality for selectAll on calculations grid
+        var xx = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes');
+        if (xx != undefined) {
+            $("#IsCalChanged").val('true')
+            NewCalcCount = $('#jqxCalcGrid').jqxGrid('getselectedrowindexes').length;
+            IsCalcClicked = 1;
+            if (ClacGridCount != $('#jqxCalcGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= xx.length; i++) {
+                    var rowdata = $('#jqxCalcGrid').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",Calc|";
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "Calc", strRTPStatus: "Edit", strPortfolios: CommaSeperatedString, pagesize: ClacGridCount },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+
+                            SelectedValues = SelectedValues + data1.Identifier + ",Calc|";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+        //--> Functionality for SelectAll on ManualGrid.
+        var rowsManual = $('#jqxManualGrid').jqxGrid('getselectedrowindexes');
+        if (rowsManual != undefined) {
+            $("#isMAChanged").val('true')
+            NewMACount = $('#jqxManualGrid').jqxGrid('getselectedrowindexes').length;
+            IsMAClicked = 1;
+            if (MaGridCount != $('#jqxManualGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= rowsManual.length; i++) {
+                    var rowdata = $('#jqxManualGrid').jqxGrid('getrowdata', rowsManual[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",ManualAdjustment|";
+                    console.log(SelectedValues);
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "ManualAdjustment", strRTPStatus: "Edit", strPortfolios: CommaSeperatedString, pagesize: MaGridCount },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            SelectedValues = SelectedValues + data1.Identifier + ",ManualAdjustment|";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+
+        //--> Functionality for SelectAll on ClaimsGrid.
+        var rowsclaims = $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes');
+        if (rowsclaims != undefined) {
+            $("#IsClaimChanged").val('true')
+            NewClaimsCount = $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes').length;
+            IsClaimsClicked = 1;
+            if (ClaimsGridCount != $('#jqxClaimsGrid').jqxGrid('getselectedrowindexes').length) {
+                for (var i = 1; i <= rowsclaims.length; i++) {
+                    var rowdata = $('#jqxClaimsGrid').jqxGrid('getrowdata', rowsclaims[i - 1]);//as i is starting from 1 and not zero
+                    SelectedValues = SelectedValues + rowdata.Identifier + ",Claims|";
+                    console.log(SelectedValues);
+                }
+            }
+            else {
+                $.ajax({
+                    data: { iRTPID: Irtpid, blnIsBatchList: "False", strType: "Claims", strRTPStatus: "Edit", strPortfolios: CommaSeperatedString, pagesize: ClaimsGridCount },
+                    url: "/LReadyToPay/GetBatchesForAddPaymentBatch",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            SelectedValues = SelectedValues + data1.Identifier + ",Claims|";
+                            console.log(SelectedValues);
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+
+
+            }
+        }
+
+        //alert(SelectedValues);
+        //if ((SelectedValues == "") || (SelectedValues == undefined)) {
+        //    alert('Please select Calculation/Manual Adjustment/Claims batch first.');
+        //    return false;
+        //}
+        FinalCount = parseInt(IsCalcClicked * NewCalcCount + (IsCalcClicked - 1) * (IsCalcClicked - 1) * OldCalcCount) + parseInt(IsMAClicked * NewMACount + (IsMAClicked - 1) * (IsMAClicked - 1) * OldMACount) + parseInt(IsClaimsClicked * NewClaimsCount + (IsClaimsClicked - 1) * (IsClaimsClicked - 1) * OldClaimsCount)
+        if (FinalCount == 0) {
+            alert('Please select Calculation/Manual Adjustment/Claims batch first.');
+            return false;
+        }
+
+        document.getElementById('strKeyValues').value = SelectedValues;
+        document.getElementById('strSaveStatus').value = "Submitted";
+        if (items.length > 0) {
+
+            var sucess = $("#frm").validate({})
+            if ($('#frm').valid()) {
+                document.getElementById('frm').submit()
+            }
+        }
+    }
+    //This function will select rows as per check box selection
+    function FnSelectRows() {
+        var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+        for (var i = 0; i < GridRows.length; ++i) {
+            $('#jqxgrid').jqxGrid('unselectrow', i);
+            var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+            var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+            if (PrimaryChannel == "indirect" && document.getElementById("InDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (PrimaryChannel == "direct" && document.getElementById("Direct").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            //Check for business unit
+            if (BusinessUnit == "cbu" && document.getElementById("CBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (BusinessUnit == "ebu" && document.getElementById("EBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+        }
+    }
+    function fnGetCalcCounts(portfolios) {
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "Calc", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                document.getElementById('bCalculations').innerHTML = Counts;
+                ClacGridCount = Counts;
+                OldCalcCount =  Counts;
+            }
+            //error: function (reponse) {
+            //    //  alert("error : " + reponse);
+            //}
+        });
+    }
+    function FnLoadCALCTest(portfolios) {
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "Calc", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                var sourceCalcTest = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Identifier', type: 'string' },
+                        { name: 'Select', type: 'bool' },
+                        { name: 'BatchNumber', type: 'int' },
+                        { name: 'BatchName', type: 'string' }
+                    ],
+                    id: "Identifier",
+                    url: "/LReadyToPay/GetBatches",
+                    filter: function () {
+                        $('#jqxCalcGrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxCalcGrid').jqxGrid('clearselection');
+
+                    },
+                    sort: function () {
+                        $('#jqxCalcGrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxCalcGrid').jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        sourceCalcTest.totalrecords = Counts;
+                    },
+                    data: { iRTPID: Irtpid, strType: "Calc", strAction: "Edit", strPortfolios: portfolios },
+                };
+                var calcdataAdapterTest = new $.jqx.dataAdapter(sourceCalcTest);
+
+                ////Check whether the grid is already defined or not and ready for use.
+                //var ready = $("#jqxCalcGrid").jqxGrid('ready');
+                ////if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                //if (typeof ready != 'undefined') {
+                //    $("#jqxCalcGrid").jqxGrid('updatebounddata');
+                //}
+                //else {
+                    $('#jqxCalcGrid').jqxGrid({
+                        source: calcdataAdapterTest,
+                        width: '700',
+                        theme: 'bootstrap',
+                        editable: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        altrows: true,
+                        sortable: true,
+                        autoheight: false,
+                        autoshowcolumnsmenubutton: false,
+                        pageable: true,
+                        pagesize: 200,
+                        pagesizeoptions: ['100', '200', '500', '1000'],
+                        filterable: true,
+                        autoshowcolumnsmenubutton: false,
+                        showstatusbar: true,
+                        selectionmode: 'checkbox',
+                        virtualmode: true,
+                        ready: function () {
+                        },
+                        rendergridrows: function () {
+                            return calcdataAdapterTest.records;
+                        },
+                        columns: [
+                            //{ text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: true },
+                            { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false },
+                            { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+                        ]
+                    });
+
+                  //setting checkboxes as checked
+                    $("#jqxCalcGrid").on("bindingcomplete", function (event) {
+                        //$("#loaderCalc").hide();
+                        //var GridRows = $('#jqxCalcGrid').jqxGrid('getrows')
+                        //for (var i = 0; i < GridRows.length; ++i) {
+                        //    //alert(GridRows[i].Select);
+                        //    if (GridRows[i].Select == true) {
+
+                        //        $('#jqxCalcGrid').jqxGrid('selectrow', i);
+                        //    }
+                        //}
+
+                        var datainfo = $("#jqxCalcGrid").jqxGrid('getdatainformation');
+                        var paginginfo = datainfo.paginginformation;
+
+                        var page_size = paginginfo.pagesize;
+                        var page_number = paginginfo.pagenum;
+
+
+                        $("#loaderCalc").hide();
+
+                        var GridRows = $('#jqxCalcGrid').jqxGrid('getrows');
+                        if (page_number == 0) {
+
+
+                            for (var i = 0; i < GridRows.length; ++i) {
+
+                                if (GridRows[i].Select == true) {
+                                    $('#jqxCalcGrid').jqxGrid('selectrow', i);
+                                }
+                            }
+                        }
+                        else {
+
+                            var j = (page_size * page_number) + page_size;
+                            var k = 0;
+                            for (var i = (page_size * page_number); i < j; ++i) {
+
+                                if (GridRows[k].Select == true) {
+                                    $('#jqxCalcGrid').jqxGrid('selectrow', i);
+                                }
+                                k++;
+                            }
+                        }
+                    });
+            }
+
+
+            //error: function (reponse) {
+            //    //  alert("error : " + reponse);
+            //}
+        });
+
+    }
+    function fnGetMACounts(portfolios) {
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "ManualAdjustment", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                document.getElementById('bManualAdjustments').innerHTML = Counts;
+                MaGridCount = Counts;
+                OldMACount =  Counts;
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+    function FnLoadMATest(portfolios) {
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'BatchNumber', type: 'int' },
+                { name: 'BatchName', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "ManualAdjustment", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                var sourceMATest = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Identifier', type: 'string' },
+                        { name: 'Select', type: 'bool' },
+                        { name: 'BatchNumber', type: 'int' },
+                        { name: 'BatchName', type: 'string' }
+                    ],
+                    id: "Identifier",
+                    enctype: 'multipart/form-data',
+                    filter: function () {
+                        $('#jqxManualGrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxManualGrid').jqxGrid('clearselection');
+
+                    },
+                    sort: function () {
+                        $('#jqxManualGrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxManualGrid').jqxGrid('clearselection');
+                    },
+                    url: "/LReadyToPay/GetBatches",
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        sourceMATest.totalrecords = Counts;
+                    },
+                    data: { iRTPID: Irtpid, strType: "ManualAdjustment", strAction: "Edit", strPortfolios: portfolios },
+                };
+                var MAdataAdapterTest = new $.jqx.dataAdapter(sourceMATest);
+
+                ////Check whether the grid is already defined or not and ready for use.
+                //var ready = $("#jqxManualGrid").jqxGrid('ready');
+                ////if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                //if (typeof ready != 'undefined') {
+                //    $("#jqxManualGrid").jqxGrid('updatebounddata');
+                //}
+                //else {
+                    $('#jqxManualGrid').jqxGrid({
+                        source: MAdataAdapterTest,
+                        width: '700',
+                        theme: 'bootstrap',
+                        columnsresize: true,
+                        columnsreorder: true,
+                        altrows: true,
+                        sortable: true,
+                        autoheight: false,
+                        autoshowcolumnsmenubutton: false,
+                        pageable: true,
+                        pagesize: 200,
+                        pagesizeoptions: ['100', '200', '500', '1000'],
+                        filterable: true,
+                        editable: true,
+                        showstatusbar: true,
+                        virtualmode: true,
+                        selectionmode: 'checkbox',
+                        rendergridrows: function () {
+                            return MAdataAdapterTest.records;
+                        },
+                        ready: function () {
+                        },
+                        columns: [
+                            //{ text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: true },
+                            { text: 'Batch Number', datafield: 'BatchNumber', width: 200, editable: false, },
+                            { text: 'Batch Name', datafield: 'BatchName', width: 400, editable: false }
+                        ]
+                    });
+               // }
+
+                    $("#jqxManualGrid").on("bindingcomplete", function (event) {
+                        $("#loaderMA").hide();
+                        //var GridRows = $('#jqxManualGrid').jqxGrid('getrows')
+                        //for (var i = 0; i < GridRows.length; ++i) {
+                        //    //alert(GridRows[i].Select);
+                        //    if (GridRows[i].Select == true) {
+
+                        //        $('#jqxManualGrid').jqxGrid('selectrow', i);
+                        //    }
+                        //}
+                        var datainfo = $("#jqxManualGrid").jqxGrid('getdatainformation');
+                        var paginginfo = datainfo.paginginformation;
+
+                        var page_size = paginginfo.pagesize;
+                        var page_number = paginginfo.pagenum;
+
+
+
+                        var GridRows = $('#jqxManualGrid').jqxGrid('getrows');
+                        if (page_number == 0) {
+
+
+                            for (var i = 0; i < GridRows.length; ++i) {
+
+                                if (GridRows[i].Select == true) {
+                                    $('#jqxManualGrid').jqxGrid('selectrow', i);
+                                }
+                            }
+                        }
+                        else {
+
+                            var j = (page_size * page_number) + page_size;
+                            var k = 0;
+                            for (var i = (page_size * page_number); i < j; ++i) {
+
+                                if (GridRows[k].Select == true) {
+                                    $('#jqxManualGrid').jqxGrid('selectrow', i);
+                                }
+                                k++;
+                            }
+                        }
+                    });
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    }
+    function fnGetClaimsCounts(portfolios) {
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'ClaimNumber', type: 'int' },
+                { name: 'PayeeName', type: 'string' },
+                { name: 'PaymentAmount', type: 'decimal' },
+                { name: 'RejectedReason', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "Claims", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                document.getElementById('bClaims').innerHTML = Counts;
+                ClaimsGridCount = Counts;
+                OldClaimsCount =  Counts;
+            },
+            error: function (reponse) {
+            }
+        });
+    }
+    function FnLoadCLAIMSTest(portfolios) {
+
+
+        //var pageSize;
+        //var currentPage;
+        $.ajax({
+            dataType: "json",
+            dataFields: [
+                { name: 'Identifier', type: 'string' },
+                { name: 'Select', type: 'bool' },
+                { name: 'ClaimNumber', type: 'int' },
+                { name: 'PayeeName', type: 'string' },
+                { name: 'PaymentAmount', type: 'decimal' },
+                { name: 'RejectedReason', type: 'string' }
+            ],
+            id: "Identifier",
+            url: "/LReadyToPay/GetCountsBatches",
+            type: "GET",
+            data: { iRTPID: Irtpid, strType: "Claims", strAction: "Edit", strPortfolios: portfolios },
+            success: function (Counts) {
+                var sourceCLTest = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Identifier', type: 'string' },
+                        { name: 'Select', type: 'bool' },
+                        { name: 'ClaimNumber', type: 'int' },
+                        { name: 'PayeeName', type: 'string' },
+                        { name: 'FirstName', type: 'string' },
+                        { name: 'PayeeCode', type: 'string' },
+                        { name: 'CommissionPeriod', type: 'string' },
+                        { name: 'CommissionType', type: 'string' },
+                        { name: 'PaymentAmount', type: 'decimal' },
+                        { name: 'RejectedReason', type: 'string' }
+                    ],
+                    id: "Identifier",
+                    enctype: 'multipart/form-data',
+                    //loadComplete: function () {
+                    //    pageSize = $('#jqxClaimsGrid').getGridParam("rowNum");
+                    //    //var totalRecords = $('#grid').getGridParam('records');
+                    //    //var totalPages = Math.ceil(totalRecords / pageSize);
+                    //    currentPage = $('#jqxClaimsGrid').getGridParam('page');
+                    // },
+                    filter: function () {
+                        $('#jqxClaimsGrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxClaimsGrid').jqxGrid('clearselection');
+
+                    },
+                    sort: function () {
+                        $('#jqxClaimsGrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxClaimsGrid').jqxGrid('clearselection');
+                    },
+                    url: "/LReadyToPay/GetBatches",
+
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        sourceCLTest.totalrecords = Counts;
+                    },
+                    data: { iRTPID: Irtpid, strType: "Claims", strAction: "Edit", strPortfolios: portfolios },
+                };
+                var CLdataAdapterTest = new $.jqx.dataAdapter(sourceCLTest);
+
+                ////Check whether the grid is already defined or not and ready for use.
+                //var ready = $("#jqxClaimsGrid").jqxGrid('ready');
+                ////if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                //if (typeof ready != 'undefined') {
+                //    $("#jqxClaimsGrid").jqxGrid('updatebounddata');
+                //}
+                //else {
+                    $('#jqxClaimsGrid').jqxGrid({
+                        source: CLdataAdapterTest,
+                        width: '1100',
+                        autoheight: false,
+                        theme: 'bootstrap',
+                        columnsresize: true,
+                        columnsreorder: true,
+                        autoshowcolumnsmenubutton: false,
+                        altrows: true,
+                        sortable: true,
+                        pageable: true,
+                        pagesize: 200,
+                       // cache: false,
+                        pagesizeoptions: ['100', '200', '500', '1000'],
+                        filterable: true,
+                        editable: true,
+                        showstatusbar: true,
+                        virtualmode: true,
+                        selectionmode: 'checkbox',
+                        rendergridrows: function () {
+                            return CLdataAdapterTest.records;
+                        },
+                        ready: function () {
+                        },
+                        columns: [
+                            //{ text: 'Select', datafield: 'Select', columntype: 'checkbox', width: 100, editable: true },
+                            { text: 'Claim Number', datafield: 'ClaimNumber', width: '10%', editable: false },
+                            { text: 'Payee Name', datafield: 'PayeeName', width: '20%', editable: false },
+                            { text: 'First Name', datafield: 'FirstName', width: '20%', editable: false },
+                            { text: 'Payee Code', datafield: 'PayeeCode', width: '10%', editable: false },
+                            { text: 'Comm Type', datafield: 'CommissionType', width: '10%', editable: false },
+                            { text: 'Comm Period', datafield: 'CommissionPeriod', width: '10%', editable: false },
+                            { text: 'Payment Amount', datafield: 'PaymentAmount', width: '10%', editable: false },
+                            { text: 'Rejected Reason', datafield: 'RejectedReason', width: '10%', editable: false }
+                        ]
+                    });
+               // }
+                    $("#jqxClaimsGrid").on("bindingcomplete", function (event) {
+
+
+                        var datainfo = $("#jqxClaimsGrid").jqxGrid('getdatainformation');
+                        var paginginfo = datainfo.paginginformation;
+
+                        var page_size = paginginfo.pagesize;
+                        var page_number = paginginfo.pagenum;
+
+
+                        $("#loaderClaims").hide();
+
+                        var GridRows = $('#jqxClaimsGrid').jqxGrid('getrows');
+                        if (page_number == 0) {
+
+
+                            for (var i = 0; i < GridRows.length; ++i) {
+
+                                if (GridRows[i].Select == true) {
+                                    $('#jqxClaimsGrid').jqxGrid('selectrow', i);
+                                }
+                            }
+                        }
+                        else {
+
+                            var j = (page_size * page_number) + page_size;
+                            var k = 0;
+                            for (var i = (page_size * page_number); i < j; ++i) {
+
+                                if (GridRows[k].Select == true) {
+                                    $('#jqxClaimsGrid').jqxGrid('selectrow', i);
+                                }
+                                k++;
+                            }
+                        }
+
+                       // alert(paginginfo.pagenum);
+                       // alert(Math.min(datainfo.rowscount, (paginginfo.pagenum + 1) * paginginfo.pagesize) - (paginginfo.pagenum * paginginfo.pagesize));
+
+
+
+
+
+
+                        //var paginginformation = $('#jqxClaimsGrid').jqxGrid('getpaginginformation');
+                        //alert("Number of rows on current page: " + paginginformation.pagesize);
+                       // alert("Number of rows on current page: " + paginginformation.pagenumber);
+
+
+                    });
+
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+
+    }
+    $(document).ready(function () {
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+        $('#jqxLoader').jqxLoader('open');
+        var xx;
+        var ClacGridCount = 0;
+        var MaGridCount = 0;
+        var ClaimsGridCount = 0;
+     $.ajax({
+        data: { path: window.location.href },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+        });
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: 'auto' });
+        //var Irtpid = @Model.Id;
+        //Portfolio grid
+        $('#jqxgrid').on('rowselect', function (event) {
+
+            setTimeout(function () { FnSavePortfolio(); }, 2000);
+
+            return false;
+        });
+        $('#jqxgrid').on('rowunselect', function (event) {
+
+            setTimeout(function () { FnSavePortfolio(); }, 2000);
+
+            return false;
+        });
+        //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach (var d in CompanySpecificColumns) {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+             if (d.LcscDisplayOnForm == true)
+            {
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+            }
+        }
+        @if (ViewBag.DisplayPayGrid == true)
+        {
+            @:   FnGetGrid('NA');
+        }
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+            ],
+            id: "Id",
+            url: "/LReadyToPay/GetRTPPortFolios",
+            data: { RTPID: Irtpid, strAction:"Edit"}
+        };
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+            ]
+        });
+        //setting checkboxes as checked
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+            for (var i = 0; i < GridRows.length; ++i) {
+                //alert(GridRows[i].Select);
+                if (GridRows[i].Select == true) {
+
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+     //Validation Message Display
+        if('@TempData["Message"]')
+        {
+         alert('@TempData["Message"]')
+        }
+        $('#jqxTabs').bind('selected', function (event) {
+            var item = event.args.item;
+
+            if (item == 1) {
+                $("#loaderCalc").show();
+                FnLoadCALCTest(CommaSeperatedString);
+            }
+
+            if (item == 2) {
+                //loaderMA
+                $("#loaderMA").show();
+                FnLoadMATest(CommaSeperatedString);
+            }
+            if (item == 3) {
+                $("#loaderClaims").show();
+                FnLoadCLAIMSTest(CommaSeperatedString);
+            }
+
+        });
+
+    });
+
+      //Method to download Dashboard file
+    function FnDownloadDashboard()
+    {
+        var Irtpid = @Model.Id;
+        window.location.href='/LReadyToPay/DownloadDashboard?RTPId='+Irtpid;
+    }
+     //Method to download Payement file
+    function FnDownloadPayementFile()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadPayementFiles?RTPId='+Irtpid;
+    }
+     //Method to download PayeeDoc file
+    function FnDownloadPayeeDocumentFile()
+    {
+     var Irtpid = @Model.Id;
+    window.location.href='/LReadyToPay/DownloadPayeeDocumentFiles?RTPId='+Irtpid;
+    }
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("strKeyValues")
+    @Html.Hidden("strSelectedPortfolios")
+    @Html.Hidden("strSaveStatus")
+    @Html.Hidden("IsClaimChanged",false)
+    @Html.Hidden("IsCalChanged",false)
+    @Html.Hidden("isMAChanged", false)
+
+    <div style="padding:10px;">
+        <div class="form-horizontal" id="FrmHorizontal">
+            <div>
+                <button class="btn btn-red btn-cons" type="button" id="btndownloadPay" title="click here to download" onclick="FnDownloadPayementFile()">Download Payment Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+                <button class="btn btn-red btn-cons" type="button" id="btndownloadPayee" title="click here to download" onclick="FnDownloadPayeeDocumentFile()">Download Payee Files &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+                <button class="btn btn-red btn-cons" type="button" id="btndownloadDashboard" title="click here to download" onclick="FnDownloadDashboard()">Download Dashboard &nbsp; <i class="fa fa-download" aria-hidden="true"></i></button>
+                <div class="col-xs-12 buttons">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.PaymentBatchName, htmlAttributes: new { @class = "col-md-8 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.PaymentBatchName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.PaymentBatchName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.PeriodName, htmlAttributes: new { @class = "col-md-8 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.PeriodName, null, "-- Select Here --", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.PeriodName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id='jqxTabs'>
+            <ul class="nav nav-tabs tabs tabs-container-border ">
+                <li style="margin-left: 30px;">Portfolio <span class="badge" id="bPort"></span></li>
+                <li id="tbcalculations" style="margin-left: 30px;">Calculations <span class="badge" id="bCalculations">0</span></li>
+                <li style="margin-left: 30px;">Manual Adjustments <span class="badge" id="bManualAdjustments">0</span></li>
+                <li style="margin-left: 30px;">Claims <span class="badge" id="bClaims">0</span></li>
+                @if (ViewBag.DisplayPayGrid == true)
+                {
+                    <li style="margin-left: 30px;">Payements <span class="badge" id="bPayements">0</span></li>
+                }
+            </ul>
+            <div class="tab-content" style="padding:05px;">
+
+                <div class="col-md-8">
+                    @Html.Label("Direct", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                    @Html.CheckBox("Direct", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+                    @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                    @Html.CheckBox("InDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+                    @Html.Label("EBU", htmlAttributes: new { @class = " col-md-1 col-lg-1 " })
+                    @Html.CheckBox("EBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+                    @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                    @Html.CheckBox("CBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+                </div>
+                <br><br />
+
+                <div id="jqxgrid" style="height:250px"></div>
+                <br><br />
+                @*<button type="button" class="btn btn-red btn-cons" onclick="FnSavePortfolio()">Go&nbsp;</button>*@
+            </div>
+            <div class="tab-content" style="padding:10px;">
+
+                @*<div><img id="loaderCalc" class="loader" src="~/Content/Images/loader.gif" style="display: none;" /></div>*@
+                <div id="loaderCalc" class="loader">Please wait...</div>
+                <div id="jqxCalcGrid" style="height:250px">
+                </div>
+            </div>
+            <div class="tab-content" style="padding:10px;">
+                @*<div>
+                        <img id="loaderMA" class="loader" src="~/Content/Images/loader.gif" style="display: none;" />
+                    </div>*@
+                <div id="loaderMA" class="loader">Please wait...</div>
+                <div id="jqxManualGrid" style="height:250px">
+                </div>
+            </div>
+            <div class="tab-content" style="padding:10px;">
+                <div id="loaderClaims" class="loader">Please wait...</div>
+
+                <div id="jqxClaimsGrid" style="height:250px">
+                </div>
+            </div>
+            @if (ViewBag.DisplayPayGrid == true)
+            {
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridNA">
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-12">
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '/LReadyToPay/Index'">Back&nbsp;</button>
+        @*<button type="submit" class="btn btn-red btn-cons" onclick="return SaveSelectionDraft();">Update&nbsp;</button>*@
+
+        <button type="submit" class="btn btn-red btn-cons" onclick="return SaveSelectionDraft();">Save as Draft&nbsp;</button>
+        <button type="submit" class="btn btn-red btn-cons" onclick="return SaveSelectionSubmitted();">Submit&nbsp;</button>
+    </div>
+}
+
+<div id="jqxLoader">
+</div>
+
+<script src="~/Scripts/jqxloader.js"></script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+
+
+
+
+
+
+

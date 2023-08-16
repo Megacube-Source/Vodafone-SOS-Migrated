@@ -1,0 +1,236 @@
+﻿
+@{
+    ViewBag.Title = "AnalystIndex";
+}
+
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //load tab
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true, height: '80vh' });
+
+        //to load grid from single function . Statuses are hardcoded
+        GetGrid("New", 1)
+        GetGrid("ReviewAgain", 2)
+       
+
+        $("#jqxgrid1").on("bindingcomplete", function (event) {
+            //display counts
+            var data22 = $('#jqxgrid1').jqxGrid('getrowdata', 0);
+            // alert(data22.Count)
+            document.getElementById('b1').innerHTML = data22.Count;
+        });
+        $("#jqxgrid2").on("bindingcomplete", function (event) {
+            //display counts
+            var data22 = $('#jqxgrid2').jqxGrid('getrowdata', 0);
+            // alert(data22.Count)
+            document.getElementById('b2').innerHTML = data22.Count;
+        });
+       
+
+    });
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+
+    //function to load grids
+    function GetGrid(status, Name) {
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LpFirstName', type: 'string' },
+                { name: 'LpLastName', type: 'string' },
+                { name: 'LpTradingName', type: 'string' },
+                { name: 'LpType', type: 'string' },
+                { name: 'LpPayeeCode', type: 'string' },
+                { name: 'LpParentsCode', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LpSegment', type: 'string' },
+            { name: 'Count', type: 'string' },
+             { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { Status: status },
+            url: "/LPayees/GetPayeeGridAnalyst"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            // //display counts
+            // var data22 = $('#jqxgrid' + Name).jqxGrid('getrowdata', 0);
+            //// alert(data22.Count)
+            // document.getElementById('b' + Name).innerHTML = data22.Count;
+
+            return value;
+        };
+
+        var cellsrenderer1 = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + Name).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' +Name).jqxGrid("getrowid", row);
+                return '<button onclick="Review(' + xx + ')" class="GridButton">Review</button>';
+          
+        };
+
+        $('#jqxgrid' + Name).jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable:true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+
+            ready: function () {
+
+                @*$('.delete').click(function () {
+                        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                        var url = '@Url.Action("Delete", "ADesignations", new {Id = "__id__" })';
+                        window.location.href = url.replace("__id__", xx);
+                    });
+                    $('.edit').click(function () {
+                        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+                        var url = '@Url.Action("Edit", "ADesignations", new {Id = "__id__" })';
+                        window.location.href = url.replace("__id__", xx);
+                    });*@
+
+            },
+
+            columns: [
+                { text: '', datafield: 'selects', columntype: 'checkbox', width: '3%' },
+                { text: 'First Name', datafield: 'LpFirstName', editable:false },
+                { text: 'Last Name', datafield: 'LpLastName', editable: false },
+                { text: 'Trading Name', datafield: 'LpTradingName', editable: false },
+                { text: 'Type', datafield: 'LpType', editable: false },
+                { text: 'Segment', datafield: 'LpSegment', editable: false },
+                { text: 'Payee Code', datafield: 'LpPayeeCode', editable: false },
+                { text: 'Parents/manager Code', datafield: 'LpParentsCode', editable: false },
+            { text: 'Payee Status', datafield: 'RsStatus', editable: false },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer1, width: '12%', editable: false }
+            ]
+        });
+
+    }
+
+    function Review(dat)
+    {
+        if (dat) {
+            var url = '@Url.Action("Edit", "LPayees", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", dat);
+        }
+    }
+
+    var arr = [];
+    function Approve(dat)
+    {
+        var selectedrowindex = $('#jqxgrid' + dat).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + dat).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+
+                    arr[count] = xx[i].Id;
+                    count = count + 1;
+
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            var url = '@Url.Action("AnalystApprove", "LPayees", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", arr);
+        }
+        else {
+            alert("Please select Payees")
+        }
+    }
+
+    function Reject(dat)
+    {
+        var selectedrowindex = $('#jqxgrid' + dat).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + dat).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+
+                arr[count] = xx[i].Id;
+                count = count + 1;
+
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            var url = '@Url.Action("AnalystReject", "LPayees", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", arr);
+        }
+        else {
+            alert("Please select Payees")
+        }
+    }
+    //$("#jqxGrid" + 6).on("bindingcomplete", function (event) {
+
+    //});
+</script>
+
+
+
+<div style="padding:10px;">
+    <div id='jqxTabs'>
+        <ul>
+            <li style="margin-left: 30px;">New <span class="badge" id="b1">0</span></li>
+            <li>Review Again <span class="badge" id="b2">0</span></li>
+           
+        </ul>
+
+        <div class="section" style="padding:10px;">
+
+
+            <input type="button" class="btn btn-success" value="Review Passed" onclick="Approve(1)"> &emsp;<input type="button" class="btn btn-danger" value="Review Failed" onclick="  Reject(1)">
+            <br>&emsp;<br>
+            <div id="jqxgrid1">
+
+            </div>
+            <br>
+            <input type="button" class="btn btn-success" value="Review Passed" onclick="Approve(1)"> &emsp;<input type="button" class="btn btn-danger" value="Review Failed" onclick="  Reject(1)">
+        </div>
+        <div class="section" style="padding:10px;">
+            <input type="button" class="btn btn-success" value="Review Passed" onclick="Approve(2)"> &emsp;<input type="button" class="btn btn-danger" value="Review Failed" onclick="  Reject(2)">
+            <br>&emsp;<br>
+            <div id="jqxgrid2">
+
+            </div>
+            <br>
+            <input type="button" class="btn btn-success" value="Review Passed" onclick="Approve(2)"> &emsp;<input type="button" class="btn btn-danger" value="Review Failed" onclick="  Reject(2)">
+        </div>
+       
+
+    </div>
+</div>
+<br />
+<br />
+
+

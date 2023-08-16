@@ -1,0 +1,115 @@
+﻿
+@{
+    ViewBag.Title = "SosAdminIndex";
+}
+<script>
+    $(document).ready(function(){
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' },
+                { name: 'LuCreatedById', type: 'string' },
+                 { name: 'LuCreatedDateTime', type: 'date' },
+                  { name: 'LuUpdatedDateTime', type: 'date' },
+                { name: 'LuFirstName', type: 'string' },
+                { name: 'LuLastName', type: 'string' },
+                { name: 'LuEmail', type: 'string' },
+                { name: 'LuIsManager', type: 'bool' },
+                  { name: 'CreatedBy', type: 'string' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'ReportsTo', type: 'string' },
+             { name: 'Roles' }
+            ],
+            id: "Id",
+            data: { TabName: "Approved" },
+            url: "/LUsers/GetUsers"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        
+
+        //This method loads the expander in the grid
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LrfComments == null) {
+                    datarecord.LrfComments = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+                if (datarecord.LrfUpdatedDateTime == null) {
+                    datarecord.LrfUpdatedDateTime = ""
+                }
+
+                if (datarecord.Roles == null) {
+                    datarecord.Roles = ""
+                }
+
+                var WhoWhen = "<br><div style = 'margin: 10px;'><div class='col-md-12'><b>Created Date Time: </b> " + datarecord.LuCreatedDateTime.getDate() + "/" + (datarecord.LuCreatedDateTime.getMonth() + 1) + "/" + datarecord.LuCreatedDateTime.getFullYear() + " " + datarecord.LuCreatedDateTime.getHours() + ":" + datarecord.LuCreatedDateTime.getMinutes() + "<br> </div><br><div class='col-md-12'> <b>Updated Date Time: </b>" + datarecord.LuUpdatedDateTime.getDate() + "/" + (datarecord.LuUpdatedDateTime.getMonth() + 1) + "/" + datarecord.LuUpdatedDateTime.getFullYear() + " " + datarecord.LuUpdatedDateTime.getHours() + ":" + datarecord.LuUpdatedDateTime.getMinutes() + "<br></div></div>";
+                var Roles = "<br/><div style = 'margin: 10px;'><div class='col-md-12'><b>Roles</b> :" + datarecord.Roles + "</div></div>";
+
+                $(leftcolumn).append(Roles);
+                $(leftcolumn).append(WhoWhen);
+
+                $(tabsdiv).jqxPanel({ width: '97%', height: 150 });
+
+            }
+
+        }
+
+
+        //This method loads the grid in the view
+        $('#jqxgrid').jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            rendertoolbar: function (toolbar) {
+                var container = $('<div style="margin: 5px;"></div>');
+                toolbar.append(container);
+                var Names = $("<div style='margin: 10px;'><b>Users</b></div>");
+                container.append(Names);
+            },
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <div class='information'></div></div>", rowdetailsheight: 150 },
+            initrowdetails: initrowdetails,
+            editable: true,
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                { text: 'Name', datafield: 'FullName', editable: false },
+              //  { text: 'User Friendly File Name', datafield: 'LrfUserFriendlyFileName', editable: false },
+                { text: 'Created By', datafield: 'CreatedBy', editable: false, width: '20%' },
+                  { text: 'Updated By', datafield: 'UpdatedBy', editable: false, width: '20%' },
+                { text: 'Reports To', datafield: 'ReportsTo', editable: false, width: '20%' }
+            ]
+        });
+
+        });
+
+</script>
+
+<br>
+<a href="/LUsers/Create"><u>Create User</u></a><br>
+<div id="jqxgrid"></div>

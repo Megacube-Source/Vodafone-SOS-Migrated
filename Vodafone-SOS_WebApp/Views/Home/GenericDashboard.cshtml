@@ -1,0 +1,97 @@
+﻿<script>
+    var CommP = "";
+
+
+    //Bind Actions
+    $(document).ready(function () {
+        //$.ajax({
+        //    url: "/Reports/GetXReportsTreeStructure",
+        //    data: { strTreeType: "A", strCommPeriod: "My Actions" },
+        //    dataType: "json",
+        //    success: function (new_data) {
+        //        $.each(new_data, function (index, levelInfoDetail) {
+        //            console.log(levelInfoDetail);
+        //            //$('#jqxActions').jqxTree('addTo', { label: levelInfoDetail.XCommissionPeriod, value: levelInfoDetail.XName }, $element[0]);
+        //            $('#ActionPanel').append('<a style="top:5px;font-size:small;  color:white; margin:10px;" href="' + levelInfoDetail.XName+'">' + levelInfoDetail.XCommissionPeriod +'   </a>');
+        //        });
+
+        //    }
+        //});
+    });
+</script>
+<div class="row">
+    @*<div id="ActionPanel" class="col-md-12" style="background-color:#656464;  height:30px;top:5px; text-align:right ">
+
+        </div>*@
+    <div class="col-md-8 col-lg-8">
+        <h3>Welcome @ViewBag.RoleName </h3>
+        <span style="color:indianred;font-size:small;">
+            Note: if you do not see your workflow shortcuts in the grey bar above, please reload the page.
+        </span>
+    </div>
+
+</div>
+@if (ViewBag.CompanyId != null)
+{
+    <div class="col-xs-8 col-md-8 " id="CompanyDropdown" style="display:none;">
+        @Html.Label("Choose Company", new { @class = "col-md-4" })
+        <div class="col-md-5 col-lg-5">
+
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control" })
+            
+        </div>
+        <div class="col-md-3 col-lg-3">
+            <input type="button" class="btn btn-red btn-cons" value="Go" onclick="FnChangeCompany()">
+        </div>
+
+    </div>
+}
+
+
+    <script>
+        $(document).ready(function () {
+            //save return url
+            $.ajax({
+                data: { path: window.location.pathname },
+                url: "/Home/SaveReturnPath",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+
+
+
+           // });
+
+            @*if (@ViewBag.RoleName == "Auditor") {
+                $("#CompanyDropdown").show();
+            } else {
+                $("#CompanyDropdown").hide();
+            }*@
+        });
+        function FnChangeCompany() {
+            // $("#CompanyDropdown").on('change', function (event) {
+            var CompanyID = $("#CompanyId").val();
+
+            if (CompanyID != 0) {
+                window.location.href = '/Home/ChangeUserRoleIDOntheBasisCompanyCode?CompanyID=' + CompanyID;
+                //$.ajax({
+                //    data: { CompanyID: CompanyID },
+                //    url: "/Home/ChangeUserRoleIDOntheBasisCompanyCode",
+                //    dataType: "json",
+                //    type: "POST",
+                //    success: function (data) {
+                //    },
+                //    error: function (reponse) {
+                //        //  alert("error : " + reponse);
+                //    }
+                //});
+                // window.location.href = '/Home/ChangeUserRoleIDOntheBasisCompanyCode?CompanyID=' + CompanyID;
+
+            }
+        }
+    </script>

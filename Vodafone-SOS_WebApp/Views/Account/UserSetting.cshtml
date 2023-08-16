@@ -1,0 +1,89 @@
+﻿@model Vodafone_SOS_WebApp.Models.ChangePasswordBindingModel
+@{
+    ViewBag.Title = "UserSetting";
+    var PasswordPolicies = (Vodafone_SOS_WebApp.ViewModels.LPasswordPolicyViewModel)ViewBag.PasswordPolicies;
+}
+
+<script>
+    var IsLengthValid = false;
+    var IsUppercaseValid = false;
+    var IsLowercaseValid = false;
+    var IsNumberValid = false;
+    var IsSpecialCharValid = false;
+    var DefaultQuestion1Elemnt = '';
+    var DefaultQuestion2Elemnt = '';
+    var DefaultQuestion3Elemnt = '';
+
+    $(document).ready(function () {
+
+        //$.ajax({
+        //    url: "/Home/GetRolesList",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+        //        $("#RoleDropDown1").jqxDropDownList({ source: data, width: 200 })//displayMember:'Name',valueMember:'Id',
+        //        $("#RoleDropDown1").jqxDropDownList('selectItem', UserRole)
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+        //$("#RoleDropDown1").on('change', function (event) {
+        //    var item = event.args.item;
+        //    if (item.label) {
+        //        if (UserRole != item.label) {
+        //            UserRole = item.label;
+        //            sessionStorage.removeItem('CurrentTab')//remove entry for session storage for the currently selected tab
+        //            sessionStorage.removeItem('Workflow')
+        //            window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+        //            ShowHideMessageIcon();
+        //        }
+        //    }
+        //    if ($("#CompanyDropdown").length != 0) {
+        //        if (item.label == "Auditor") {
+        //            $("#CompanyDropdown").show();
+        //        } else {
+        //            $("#CompanyDropdown").hide();
+        //        }
+        //    }
+
+        //});
+
+    });
+     function OnResetPasswordClick() {
+             var UserName = '@HttpContext.Current.Session["UserName"]';
+             window.location.href = '/Account/ResetUserPassword?Email=' + UserName;
+
+    }
+     function OnResetQuestionsClick() {
+             var UserName = '@HttpContext.Current.Session["UserName"]';
+             window.location.href = '/Account/ResetSecurityQuestionAnswer?Email=' + UserName;
+
+     }
+     function OnResetLandingPage() {
+             var UserName = '@HttpContext.Current.Session["UserName"]';
+             window.location.href = '/Account/ResetUserPreference?Email=' + UserName;
+
+            }
+</script>
+<h4 style="color:red;">Setting</h4>
+
+
+
+@*Set Landing Page: <div id="RoleDropDown1" style="background-color:white;color:#e60000; vertical-align:middle; display:inline-block;"></div> &nbsp; &nbsp;&nbsp;
+<button class="btn btn-red btn-cons" type="button" onclick="SaveForm();" id="SaveButton">Set&nbsp;</button>
+<br />
+<br />*@
+
+<span> Setting:</span>
+<ul>
+    <li>
+        <a href="#" onclick="OnResetLandingPage()" class="header-icon"> Set default login role </a>
+    </li>
+    <li>
+        <a href="#" onclick="OnResetPasswordClick()" class="header-icon"> Change password </a>
+    </li>
+    <li>
+        <a href="#" onclick="OnResetQuestionsClick()" class="header-icon"> Change security questions </a>
+    </li>
+</ul>

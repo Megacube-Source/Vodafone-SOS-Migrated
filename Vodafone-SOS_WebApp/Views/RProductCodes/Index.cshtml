@@ -1,0 +1,104 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="boxes">
+    <a href="/RProductCodes/Create"><u> Create New Product Code</u></a>
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'GcCompanyName', type: 'string' },
+                { name: 'RpcProductCode', type: 'string' },
+                { name: 'RpcDescription', type: 'string' },
+                { name: 'RpcIsActive', type: 'bool' }
+
+            ],
+            id: "Id",
+            url: "/RProductCodes/GetProductCodes"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '&emsp;<button onclick="return Fnedit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Product Code', datafield: 'RpcProductCode' },
+                { text: 'Product Code Description', datafield: 'RpcDescription' },
+                  { text: 'Is Active', datafield: 'RpcIsActive', columntype: 'checkbox' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+    });
+
+    function Fnedit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "RProductCodes", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function Fndelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "RProductCodes", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

@@ -1,0 +1,279 @@
+﻿
+.hrVF {
+  border: 0;
+/*border: 2px solid #e60000;*/
+border: 1px solid #e60000;
+  height: 0;
+  margin: 5px 0; }
+
+.landing-hero hrVF {
+  border: 2px solid #e60000;
+  -webkit-animation: hrAcross 1.5s ease-in;
+          animation: hrAcross 1.5s ease-in; }
+
+@-webkit-keyframes hrVFAcross {
+  0% {
+    width: 0;
+    opacity: 0; }
+  50% {
+    width: 0; }
+  100% {
+    width: 100%;
+    opacity: 1; } }
+
+@keyframes hrVFAcross {
+  0% {
+    width: 0;
+    opacity: 0; }
+  50% {
+    width: 0; }
+  100% {
+    width: 100%;
+    opacity: 1; } }
+
+/*download icon used in vodafone arrow signs*/
+.i-download-b {
+  background-position: -301px -313px;
+  height: 28px;
+  width: 29px; }
+
+.i-arrow-blk-r {
+  background-position: -139px -388px;
+  height: 16px;
+  width: 16px; }
+
+
+/*button class as used in Vodafone website*/
+.btnVF {
+  background: #e60000;
+  color: #fff;
+  padding: 10px 10px;
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-block;
+  position: relative; 
+  height:40px;
+  width:150px;
+}
+.btnVF:hover {
+    background: #4d4d4d;
+    text-decoration: none; }
+
+
+.fontMenu {
+     color: black;
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+
+div.BackgroundMenu {
+ position: absolute;
+  background-color: rgb(220,220,220);
+  filter: alpha(opacity=60);
+  opacity: 0.6;
+}
+
+
+
+
+
+.TopBar {
+  width: 100%;
+    height:30%;
+    position:relative;
+
+}
+
+#accept {
+      width: 100%;
+    height: 40px;
+    overflow:hidden;
+    display:none;
+    -webkit-transition: all 1.2s linear;
+    -moz-transition: all 1.2s linear;
+    -o-transition: all 1.2s linear;
+    transition: all 1.2s linear;
+    position:absolute;
+    left:0;
+    bottom:0;
+}
+
+
+.show:hover + .TopBar #accept, .TopBar #accept:hover {
+    display:block;
+     -webkit-animation:expand 3s;
+    
+}
+
+
+@-webkit-keyframes expand{
+    0%{height:0px}
+    100%{height:200px}
+}
+@-webkit-keyframes collapse{
+    100%{height:100px}
+    0%{height:200px}
+}
+
+/*contact form text box class*/ 
+ .form_field_text {
+    background: #fff;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    color: #333; }
+
+/*dropdown class*/
+.mainsection .textindentpanel .inputselect1 {
+	width: 250px;
+	border: 1px solid #c0c0c0;
+	-webkit-border-radius: 3px; 
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	box-shadow: 0px 2px 2px #eee inset;
+	margin-top: 5px;
+	padding: 4px 5px;
+	background-color: #fff;
+	color: #444;
+}
+
+select.inputselect, .mainsection .textindentpanel .inputselect1, .custom-form-columns select { }
+
+
+.mainsection .listingperpagepanel .inputselect, 
+.blockpanel .input-text, 
+.blockpanel .input-smaller input, 
+.blockpanel .sugInput-input {
+	width: 200px;
+	min-width: 70px;
+	max-width: 200px;
+
+	font-family: 'HelveticaNeueW01-45Ligh','Helvetica Neue W01 45 Light','Helvetica Neue',Helvetica,Arial,sans-serif !important;
+	font-size: 13px !important;
+	line-height: 170%;
+	color: #555 !important;
+	height: 30px;
+}
+
+/* select fields */
+.mainsection .inputselect, 
+.jobsearch .resultpropertiescontentpanel .inputselect, 
+.mainsection .searchresults .sortbypanel .inputselect, 
+.blockpanel .input-select, 
+.blockpanel .input-date-time select, 
+.blockpanel .entity-value select {
+	width: 212px;
+	min-width: 212px;
+	max-width: 212px;
+
+	padding: 4px 5px;
+	border: 1px solid #c0c0c0;
+	box-shadow: 0px 2px 2px #eee inset;
+	-webkit-border-radius: 3px; 
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	font-family: 'HelveticaNeueW01-45Ligh','Helvetica Neue W01 45 Light','Helvetica Neue',Helvetica,Arial,sans-serif !important;
+	font-size: 13px !important;
+	line-height: 170%;
+	color: #555 !important;
+}
+
+/* text area */
+.textarea1 {
+	min-width: 100%;
+
+	padding: 0px 5px;
+	box-shadow: 0px 2px 2px #eee inset;
+	border: 1px solid #c0c0c0;
+	-webkit-border-radius: 3px; 
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	font-family: 'HelveticaNeueW01-55Roma','Helvetica Neue W01 55 Roman','Helvetica Neue',Helvetica,Arial,sans-serif;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: normal;
+	color: #555;
+	line-height: 170%;
+}
+
+ .select-styled {
+    width: 100%;
+    background: #fff;
+    overflow: hidden;
+    position: relative; 
+    background: #ccc;
+    height:25px;
+ }
+    .select-styled i {
+      pointer-events: none;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      margin-top: -7px; }
+   .select-styled select {
+      width: 110%;
+      -webkit-appearance: none;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      height: 40px;
+      padding-top: 3px;
+      padding-bottom: 3px; }
+  .select-styled.grey {
+      background: #ccc; }
+
+  .criteriaFieldInput {
+	border-color: transparent transparent transparent #999;
+	border-image: none;
+	/*border-radius: 0 4px 4px 0;*/
+	border-style:solid;
+	/*border-width: 0 0 0 1px;*/
+	/*box-shadow: 0 1px 2px #888 inset;
+	-webkit-box-shadow: 0 1px 2px #888888 inset;*/
+	font-weight: normal;
+	height: 25px;
+	line-height: 24px;
+	margin-left: 3px;
+	width: 115px;
+	background-clip: padding-box;
+	-webkit-background-clip: padding-box;
+}
+
+  /*class added by shubham to make control size uniform*/
+  .ShapeSize{
+      width:100%;
+      height:25px;
+  }
+  .TextAreaShapeSize{
+       width:100%;
+      height:200px;
+  }
+
+  .fontVF{
+      font-size:12px;
+      text-align:right;
+      font-family: Arial, Verdana, Helvetica, sans-serif;
+      color:#666;
+  }
+
+.required:after {
+    content: "*";
+    color: red;
+    font-weight: 800 !important;
+}
+.requiredblue:after {
+    content: "*";
+    color: darkblue;
+    font-weight: 800 !important;
+}
+/*this code is written to display grid buttons as link after discussion with VG*/
+.GridButton{
+     background:none!important;
+     border:none; 
+     padding:0!important;
+    
+    /*optional*/
+    font-family:arial,sans-serif; /*input has OS specific font-family*/
+     color:#069;
+     text-decoration:underline;
+}

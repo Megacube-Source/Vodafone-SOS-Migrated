@@ -1,0 +1,229 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSupportTicketContextModel
+@{
+                /**/
+
+                ViewBag.Title = "Review Ticket";
+}
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript">
+    //This variable is defined to store value if form has any changes
+    var isChanged = false;
+    $(document).ready(function () {
+
+        //The below code checks for changes in form
+        $('input,select,textarea').change(function ()
+        {
+            isChanged = true;
+        })
+
+          @{
+            @: var End = '@Model.LstLastUpdatedDateTime.Day' + '/' + Number('@Model.LstLastUpdatedDateTime.Month') + '/' + '@Model.LstLastUpdatedDateTime.Year';
+            @: if (document.getElementById('LstLastUpdatedDateTime'))
+            @: document.getElementById('LstLastUpdatedDateTime').value = End;
+        }
+    });
+    function FnDownload()
+    {
+    var Id = '@Model.Id'
+    window.location.href='/Home/DownloadSupportingDocument?EntityId='+Id+'&EntityType=LSupportTickets';
+    }
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LstCompanyId)
+    @Html.HiddenFor(m => m.LstTeamId)
+    @Html.HiddenFor(m => m.LstTicketNumber)
+    @Html.HiddenFor(m => m.LstCreatedById)
+    @Html.HiddenFor(m => m.LstCreatedDateTime)
+    @Html.HiddenFor(m => m.LstLastUpdatedById)
+    @Html.HiddenFor(m => m.LstCreatedOnBehalfOfId)
+    @Html.HiddenFor(m => m.LstCurrentOwnerId)
+    @Html.HiddenFor(m => m.LstL1Id)
+    @Html.HiddenFor(m => m.LstL2Id)
+    @Html.HiddenFor(m => m.LstL3Id)
+    @Html.HiddenFor(m => m.LstLastUpdatedById)
+    @Html.HiddenFor(m => m.LstStatus)
+    @Html.HiddenFor(m => m.LstSeverity)
+
+
+    <div class="col-md-12 col-lg-12">
+
+    </div>
+    <div class="form-horizontal" id="FrmHorizontal">
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstTicketNumber, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstTicketNumber, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstTicketNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstLastUpdatedById, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstLastUpdatedUserName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstLastUpdatedUserName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstLastUpdatedDateTime, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstLastUpdatedDateTime, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstLastUpdatedDateTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstCategoryId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstCategoryId, null, "-- Select Here --", new { @class = "form-control ", disabled = "disabled" })
+
+                @Html.ValidationMessageFor(model => model.LstCategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstPhone, htmlAttributes: new { @class = "col-md-8", Title = " Should be optional, used to Clarify the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstPhone, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstPhone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.HiddenFor(model => model.LstImpact, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-8">
+                @Html.HiddenFor(model => model.LstImpact, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstImpact, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstRequestor, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstRequestor, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstRequestor, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstEmail, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstEmail, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstStatus, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstStatus, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstCC, htmlAttributes: new { @class = "col-md-8 ", Title = "can be used to provide knowledge about the issue" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstCC, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstCC, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstType, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstType, new List<SelectListItem> { new SelectListItem { Text = "SOS", Value = "SOS" }, new SelectListItem { Text = "Alteryx", Value = "Alteryx" },new SelectListItem { Text = "Infra", Value = "Infra" } }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LstType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstPriority, htmlAttributes: new { @class = "col-md-8 required", Title = "Low - Describes a cosmetic issue , Medium - Describes an issue that does'nt impact operation , High - Describes an issue that impact operation" })
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.LstPriority, new List<SelectListItem> { new SelectListItem { Text = "Low", Value = "Low" }, new SelectListItem { Text = "Medium", Value = "Medium" }, new SelectListItem { Text = "High", Value = "High" }, }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LstPriority, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            @Html.LabelFor(model => model.LstStageId, htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                @*@Html.DropDownListFor(model => model.LstStageId, null, "-- Select Here --", new { htmlAttributes = new { @class = "form-control" } })*@
+                @Html.DropDownListFor(model => model.LstStageId, null, "-- Select Here --", new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LstStageId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @*<div class="col-md-4">
+            @Html.LabelFor(model => model.LstStatus, htmlAttributes: new { @class = "col-md-8 required" })
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.LstStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LstStatus, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        @*<div class="col-md-4">
+            @Html.Label("Attachments", htmlAttributes: new { @class = "col-md-8 " })
+            <div class="col-md-8">
+                <input type="file" name="File1" id="File1" class="form-control" multiple="multiple">
+            </div>
+        </div>*@
+
+    </div>
+    <br>
+    //R2.2 MS Change Summary should be bigger or added to bottom of 'Existing Description'(In review form)
+    <div class="col-md-12 col-lg-12" id="SummaryDiv">
+        @Html.LabelFor(model => model.LstSummary, htmlAttributes: new { @class = "col-md-8 required ", Title = "Short Description Of The Error" })
+    </div>
+    <div class="col-md-12 col-lg-12">
+        @Html.TextAreaFor(model => model.LstSummary, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:20px", disabled = "disabled" })
+        @Html.ValidationMessageFor(model => model.LstSummary, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-12 col-lg-12" id="CommentsDiv">
+        @Html.Label("Description", htmlAttributes: new { @class = "col-md-8 required", Title = "Full Description Of the issue, add screen shot using attach button" })
+    </div>
+    <div class="col-md-12 col-lg-12">
+        @Html.TextAreaFor(model => model.LsrDescription, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:80px", disabled = "disabled" })
+        @Html.ValidationMessageFor(model => model.LsrDescription, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-12 col-lg-12" id="ExCommentsDiv">
+        @Html.Label("Existing Descriptions", htmlAttributes: new { @class = "col-md-8 " })
+    </div>
+    <div class="col-md-12 col-lg-12">
+        @Html.TextAreaFor(model => model.LstExDescription, new { @class = "col-md-12 col-lg-12 textarea1", style = "min-height:120px", disabled = "disabled" })
+        @Html.ValidationMessageFor(model => model.LstExDescription, "", new { @class = "text-danger" })
+    </div>
+
+
+    <div class="col-md-12">
+        @Html.Label(" ", htmlAttributes: new { @class = " col-md-8 " })
+    </div>
+
+    <div class="form-group col-md-12">
+        <br>
+        @*<button type="button" class="btn btn-borderRed btn-cons" onclick="@("window.location.href ='" +Url.Action(" SystemAnalystDashboard","LSupportTickets/Index") + "'" ); ">Back</button>*@
+
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="@("window.close();");">Back</button>
+        @if (ViewBag.strSupportLevel == "L1" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel == "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+        @if (ViewBag.strSupportLevel != "L1" && ViewBag.strSupportLevel != "L2" && (ViewBag.LstTicketStatus != "Closed" && ViewBag.LstTicketStatus != "Withdraw"))
+        {
+            <button type="button" id="btnSubmit" name="Command" onclick="FnDownload()" class="btn btn-red btn-cons">Download&nbsp;</button>
+        }
+    </div>
+    <br>
+    <div class="col-md-12" id="AttachedFiles"></div>
+    <br>
+    <style>
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+
+
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

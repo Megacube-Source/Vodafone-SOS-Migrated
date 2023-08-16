@@ -1,0 +1,232 @@
+﻿@*@{
+        ViewBag.Title = "Home Page";
+        Layout = null;//"~/Views/Shared/_LayoutPublic.cshtml";
+    }
+
+    <font style="color:#e60000;"><h1 class="text-center"><b>LITE</b><br><font size="6">VF Commissions Portal</font></h1></font><br />
+    <img src="~/Content/Images/flag_band 1_border.jpg" style="max-height:80px;width:70%">
+    <div class="col-md-3 col-md-offset-3">
+        <br /><br />
+
+
+        <img src="~/Content/Images/Vodafone-logo-icon-png-Transparent.png" style="max-height:400px;max-width:400px;align-content:center;margin-left:50px;" />
+        <br /><br />
+
+    </div>
+    <img src="~/Content/Images/flag_band 2_border.jpg" style="max-height:80px;width:70%"><br />
+
+
+    <br>
+    <script>
+        $(document).ready(function () {
+            //method to disable back button of browser after logout for security reasons by shubham
+            history.pushState(null, null, document.URL)
+            window.addEventListener('popstate', function () {
+                history.pushState(null,null,document.URL)
+            })
+
+            if ('@TempData["Message"]')
+            {
+                alert('@TempData["Message"]')
+            }
+        })
+        </script>
+    @*<div class="jumbotron">
+        <h1>ASP.NET</h1>
+        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+        <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Getting started</h2>
+            <p>
+                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+                enables a clean separation of concerns and gives you full control over markup
+                for enjoyable, agile development.
+            </p>
+            <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>Get more libraries</h2>
+            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
+            <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>Web Hosting</h2>
+            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+            <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+        </div>
+    </div>
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }*@
+
+@using Vodafone_SOS_WebApp.Models
+@model LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vodafone</title>@*RK hidden this for own purpose*@
+    <link rel="icon"
+        type="image/png"
+        href="/Content/VodafoneThemes/images/1482152183_vodafone.png" />@*RK hidden this for own purpose*@
+        <link type="text/css" rel="stylesheet" href="/Content/VodafoneThemes/css/bootstrap.css" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,500,600,700,800" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+        <link type="text/css" rel="stylesheet" href="/Content/VodafoneThemes/css/font-awesome.min.css" />
+        <link href="/Content/VodafoneThemes/css/LoginPagecustom.css" rel="stylesheet" />@*RK hidden this for own purpose*@
+    </head>
+<body class="boby-login">
+    <div id="hero">
+        <img class="img-responsive logo_big_login" src="/Content/VodafoneThemes/images/logo-login.png" />@*RK hidden this for own purpose*@
+        <div class="side_login">
+            <img class="img-responsive" src="/Content/VodafoneThemesimages/logomobile.png" />@*RK hidden this for own purpose*@
+            <div class="col-xs-12">
+                <h1> @*RK hidden this for own purpose*@
+                    Vodafone LITE
+                </h1>
+                @*<p> Commissions Portal</p>*@
+                @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login-form" }))
+                {
+                    @Html.Hidden("ClientIPAddress")
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, new { @class = " login-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control  " })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "login-label" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = " login-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "login-label" })
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Log in" class="pull-right login-btn" />
+                    </div>
+                    <div class="form-group text-left">
+                        @*<a href="#" onclick="alert('Funtionality not developed yet')" ><u>Forgot password ?</u></a>*@
+                        <a href="#" onclick="FnForgotPassword()"><u>Forgot password ?</u></a>
+                    </div>
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("UTCOffset")
+                }
+                <p>Only Authorised users are allowed to access.</p>
+
+                <div class="info">
+                    <h2>About LITE</h2>
+                    <p> It is a complete commissions portal that hosts </p>
+                    <ul>
+                        <li>Commission calculations and Payment approvals</li>
+                        <li>Claims management</li>
+                        <li>Master Data Mangement - Payees, Schemes, Tariffs</li>
+                        <li>Enforce controls</li>
+                        <li>Audit trails</li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+        </div>
+        <!--The footer will be shown only if there is value in SOSOutageBanner-->
+        @*@if (System.Configuration.ConfigurationManager.AppSettings["SOSOutageBanner"] != "")
+        {
+            <footer class="footer_login">
+                <div class="row no-margin-zero">
+                    <i class="fa alert-danger"></i>
+                    <div class="footer_item col-sm-12 col-md-12 col-xs-12">
+                        <div class="footer_alert">
+                            <h3>@System.Configuration.ConfigurationManager.AppSettings["SOSOutageBanner"]</h3>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        }*@
+
+     
+        <footer class="footer_login" id="ftLogin">
+            <div class="row no-margin-zero">
+                <i class="fa alert-danger"></i>
+                <div class="container">
+                    <div class="footer_item col-lg-12 col-sm-12 col-md-12 col-xs-12">
+                        <div class="footer_alert">
+                            @*<h3 id="h3text"></h3>*@
+                            <marquee id="h3text" style="font-size: 2.5em;color: white;position: absolute;width: 100%;height: 100%;margin: 0;text-align: center;"></marquee>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!------js------->
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+    $(document).ready(function () {
+        ////method to disable back button of browser after logout for security reasons by shubham -- discarded by VG
+        //history.pushState(null, null, document.URL)
+        //window.addEventListener('popstate', function () {
+        //    history.pushState(null, null, document.URL)
+        //})
+            if ('@TempData["Message"]') {
+                alert('@TempData["Message"]')
+            }
+            //Display Error Message as Popup
+             if ('@TempData["Error"]') {
+                alert('@TempData["Error"]')
+            }
+            //Adding a temp method to get client IP Address. Will approve this from JS/VG
+            $.getJSON('//api.ipify.org?format=jsonp&callback=?', function (data) {
+                var IpAddress = data.ip;
+                document.getElementById('ClientIPAddress').value = IpAddress;//JSON.stringify(data, null, 2);
+        });
+            FngetBannerText();
+        })
+
+        function FnForgotPassword() {
+            var Email = document.getElementById('Email').value;
+            if (Email == null || Email == "") {
+                alert("The Email field is required. Please provide Email");
+                return;
+            }
+            window.location.href = '/Account/ForgotPassword?Email=' + Email;
+        }
+
+        function FngetBannerText() {
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "/Account/getBannerText",
+                success: function (data) {
+                    if (data != null) {  
+                        
+                        $("#h3text").text(data);
+                    }
+                    if ((data == "")||(data == null)) {
+                        $("#ftLogin").hide();
+                    }
+                   
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                    $("#h3text").text("System Outage, Please watch out this space for updates");
+                    //fnGetRoles();
+                }
+            });
+        }
+            
+           
+       
+
+    </script>
+
+</body>
+</html>

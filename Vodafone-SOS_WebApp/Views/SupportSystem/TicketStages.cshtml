@@ -1,0 +1,104 @@
+﻿@using Vodafone_SOS_WebApp.Utilities
+@model Vodafone_SOS_WebApp.ViewModels.SupportSystemStagesViewModel
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="boxes">
+    <a class="top_links" href="/SupportSystem/CreateTicketStage">  <i class="glyphicon glyphicon-pencil"></i> Create New Stage</a>
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RtsName', type: 'string' },
+                { name: 'RtsDescription', type: 'string' },
+                { name: 'RtsIsActive', type: 'bool' }
+            ],
+            id: "Id",
+            url: "/SupportSystem/GetAllRTicketStages"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return FnDelete()" class="GridButton">Delete</button>&emsp;<button onclick="return FnEdit()" class="GridButton">Edit</button>';
+        };
+
+
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Stage', datafield: 'RtsName' },
+                { text: 'Description', datafield: 'RtsDescription' },
+                { text: 'Is Active', datafield: 'RtsIsActive',columntype:'checkbox' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'10%' }
+            ]
+        });
+    });
+
+    function FnEdit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("EditTicketStage", "SupportSystem", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function FnDelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("DeleteTicketStage", "SupportSystem", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

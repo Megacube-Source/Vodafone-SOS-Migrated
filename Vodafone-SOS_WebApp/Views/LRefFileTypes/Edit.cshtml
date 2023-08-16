@@ -1,0 +1,161 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LRefFileTypeViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+
+    //This variable is defined to store value if form has any changes since it has loaded
+    var isChanged = false;
+    $(document).ready(function () {
+
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+        var TransactionId='@Model.Id'
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+
+            ],
+            id: "Id",
+            data: { TransactionId: TransactionId, EntityType: 'LRefFileTypes' },
+            url: "/Home/GetPortfolioGridForEdit"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 200,
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel', width: '30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (Boolean(GridRows[i].Select) == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+
+    })
+    function FnFinalSubmit() {
+        var PortfolioArray = [];
+        var sucess = $("#frm").validate({})
+        if ($('#frm').valid()) {
+            //get selected rows in portfolios
+            var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            for (var i = 0; i < rowindexes.length; ++i) {
+                var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                PortfolioArray[i] = data.Id;
+            }
+            if (PortfolioArray.length > 0) {
+                document.getElementById('PortfolioList').value = PortfolioArray;
+                isChanged = false;
+                document.getElementById('frm').submit()
+            }
+        }
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+</script>
+
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("PortfolioList")
+    @Html.HiddenFor(p => p.Id)
+    @Html.HiddenFor(p => p.LrftCreatedById)
+    @Html.HiddenFor(p => p.LrftCreatedDateTime)
+    <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+    <div class="form-horizontal">
+        <div class="col-md-12">
+            <p class="text-danger">Note: if no Portfolio is selected, then RefFile Type will be visible to ALL users in the dropdown on RefData Upload Page.</p>
+        </div>
+        @Html.HiddenFor(m => m.LrftCompanyId)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LrftName, htmlAttributes: new { @class = " required control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LrftName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LrftName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LrftDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.LrftDescription, new { @class = "TextAreaShapeSize form-control" })
+                @Html.ValidationMessageFor(model => model.LrftDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+
+            @Html.Label("Select Portfolios", htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <br>
+            <div class="col-md-10">
+                <div id="jqxgrid"></div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="button" onclick="FnFinalSubmit()" class="btn btn-red btn-cons">Save&nbsp;</button>
+        </div>
+    </div>
+}
+
+<div id="jqxLoader">
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

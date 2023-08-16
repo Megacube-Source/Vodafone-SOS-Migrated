@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="boxes">
+    <a class="top_links" href="/RBrands/Create">  <i class="glyphicon glyphicon-pencil"></i> Create New Brand</a>
+    <br>
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'GcCompanyName', type: 'string' },
+                { name: 'RbName', type: 'string' },
+                { name: 'RbDescription', type: 'string' },
+                { name: 'RbIsActive', type: 'bool' }
+
+            ],
+            id: "Id",
+            url: "/RBrands/GetBrands"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '&emsp;<button onclick="return FnEdit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Brand Name', datafield: 'RbName' },
+                { text: 'Brand Description', datafield: 'RbDescription' },
+                  { text: 'Is Active', datafield: 'RbIsActive', columntype: 'checkbox' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+    });
+
+    function FnEdit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "RBrands", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function CGdelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "RBrands", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

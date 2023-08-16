@@ -1,0 +1,1440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vodafone_SOS_WebApp</RootNamespace>
+    <AssemblyName>Vodafone-SOS_WebApp</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <UseGlobalApplicationHostFile />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.3.105.7\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.S3.3.3.110.44\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.SimpleNotificationService, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.SimpleNotificationService.3.3.0.26\lib\net45\AWSSDK.SimpleNotificationService.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML, Version=0.93.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.93.1\lib\net40\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.0.3.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.0.3\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember.Signed, Version=1.3.0.0, Culture=neutral, PublicKeyToken=9e8f22703bef9a29, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.Signed.1.3.0\lib\net45\FastMember.Signed.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Ionic.Zip.1.9.1.8\lib\Ionic.Zip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NPOI">
+      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\packages\NPOI.2.3.0\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.1\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Facebook">
+      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.3.0.1\lib\net45\Microsoft.Owin.Security.Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Google">
+      <HintPath>..\packages\Microsoft.Owin.Security.Google.3.0.1\lib\net45\Microsoft.Owin.Security.Google.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Twitter">
+      <HintPath>..\packages\Microsoft.Owin.Security.Twitter.3.0.1\lib\net45\Microsoft.Owin.Security.Twitter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.MicrosoftAccount">
+      <HintPath>..\packages\Microsoft.Owin.Security.MicrosoftAccount.3.0.1\lib\net45\Microsoft.Owin.Security.MicrosoftAccount.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ADAccountController.cs" />
+    <Compile Include="Controllers\AspnetRolesController.cs" />
+    <Compile Include="Controllers\AWSSNSController.cs" />
+    <Compile Include="Controllers\ComissionSearchEngineController.cs" />
+    <Compile Include="Controllers\LSchemeOwnerController.cs" />
+    <Compile Include="Controllers\TroubleShootingController .cs" />
+    <Compile Include="Controllers\LDashboardConfigController.cs" />
+    <Compile Include="Controllers\GenericGridController.cs" />
+    <Compile Include="Controllers\GErrorLogsController.cs" />
+    <Compile Include="Controllers\GKeyValuesController.cs" />
+    <Compile Include="Controllers\LAccrualsController.cs" />
+    <Compile Include="Controllers\LAllocationRulesController.cs" />
+    <Compile Include="Controllers\LAtachmentsController.cs" />
+    <Compile Include="Controllers\LAuditController.cs" />
+    <Compile Include="Controllers\LCalcController.cs" />
+    <Compile Include="Controllers\LClaimsController.cs" />
+    <Compile Include="Controllers\GCompaniesController.cs" />
+    <Compile Include="Controllers\GMenusController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LBatchesController.cs" />
+    <Compile Include="Controllers\LCommissionBatchAllocationRulesController.cs" />
+    <Compile Include="Controllers\LCommissionPeriodsController.cs" />
+    <Compile Include="Controllers\LCompanySpecificColumnsController.cs" />
+    <Compile Include="Controllers\LCompanySpecificRawDataColumnsController.cs" />
+    <Compile Include="Controllers\LDocumentSetsController.cs" />
+    <Compile Include="Controllers\LDropDownsController.cs" />
+    <Compile Include="Controllers\LDropDownValuesController.cs" />
+    <Compile Include="Controllers\LEmailBucketController.cs" />
+    <Compile Include="Controllers\LEmailTemplatesController.cs" />
+    <Compile Include="Controllers\LMessagesController.cs" />
+    <Compile Include="Controllers\LNotificationController.cs" />
+    <Compile Include="Controllers\LPayController.cs" />
+    <Compile Include="Controllers\LPayeeAuditLogsController.cs" />
+    <Compile Include="Controllers\LPayeesController.cs" />
+    <Compile Include="Controllers\LRawDataController.cs" />
+    <Compile Include="Controllers\LRawDataTablesController.cs" />
+    <Compile Include="Controllers\LReadyToPayController.cs" />
+    <Compile Include="Controllers\LSchemesController.cs" />
+    <Compile Include="Controllers\LSetupRoleSecurityController.cs" />
+    <Compile Include="Controllers\LSupportingDocumentsController.cs" />
+    <Compile Include="Controllers\LSupportTicketsController.cs" />
+    <Compile Include="Controllers\LUploadedFilesController.cs" />
+    <Compile Include="Controllers\LRefFileTypesController.cs" />
+    <Compile Include="Controllers\LUserLobbyController.cs" />
+    <Compile Include="Controllers\LUsersController.cs" />
+    <Compile Include="Controllers\LWorkFlowActionItemController.cs" />
+    <Compile Include="Controllers\LWorkFlowActionParameterController.cs" />
+    <Compile Include="Controllers\LWorkflowGridColumnController.cs" />
+    <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\ManualAdjustmentsController.cs" />
+    <Compile Include="Controllers\PrimaryController.cs" />
+    <Compile Include="Controllers\RActiveTypesController.cs" />
+    <Compile Include="Controllers\RBrandsController.cs" />
+    <Compile Include="Controllers\RChannelsController.cs" />
+    <Compile Include="Controllers\RCommissionTypesController.cs" />
+    <Compile Include="Controllers\RDeviceTypesController.cs" />
+    <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\RPayPublishEmailsController.cs" />
+    <Compile Include="Controllers\RProductCodesController.cs" />
+    <Compile Include="Controllers\RRejectionReasonsController.cs" />
+    <Compile Include="Controllers\RStatusesController.cs" />
+    <Compile Include="Controllers\RStatusOwnersController.cs" />
+    <Compile Include="Controllers\RSubChannelsController.cs" />
+    <Compile Include="Controllers\LWorkFlowConfigController.cs" />
+    <Compile Include="Controllers\RWorkFlowsController.cs" />
+    <Compile Include="Controllers\SupportSystemController.cs" />
+    <Compile Include="Controllers\UserGuidesController.cs" />
+    <Compile Include="Controllers\VitalStatsController.cs" />
+    <Compile Include="Controllers\WIAMSimulatorController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\AccountsRestClient.cs" />
+    <Compile Include="Helper\ADAccountRestClient.cs" />
+    <Compile Include="Helper\AspnetRolesRestClient.cs" />
+    <Compile Include="Helper\AspnetUsersRestClient.cs" />
+    <Compile Include="Helper\ErrorLogsRestClient.cs" />
+    <Compile Include="Helper\GCompaniesRestClient.cs" />
+    <Compile Include="Helper\GenericGridRestClient.cs" />
+    <Compile Include="Helper\GKeyValuesRestClient.cs" />
+    <Compile Include="Helper\GMenusRestClient.cs" />
+    <Compile Include="Helper\GSecurityQuestionsRestClient.cs" />
+    <Compile Include="Helper\GUserActivityLogRestClient.cs" />
+    <Compile Include="Helper\LAccrualsRestClient.cs" />
+    <Compile Include="Helper\LAllocationRulesRestClient.cs" />
+    <Compile Include="Helper\LAttachmentsRestClient.cs" />
+    <Compile Include="Helper\LAuditRestClient.cs" />
+    <Compile Include="Helper\LBatchesRestClient.cs" />
+    <Compile Include="Helper\LBatchFilesRestClient.cs" />
+    <Compile Include="Helper\LSchemeOwnerRestClient.cs" />
+    <Compile Include="Helper\TroubleShootingRestClient.cs" />
+    <Compile Include="Helper\LChangeRequestsRestClient.cs" />
+    <Compile Include="Helper\LClaimsRestClient.cs" />
+    <Compile Include="Helper\LCommissionBatchAllocationRulesRestClient.cs" />
+    <Compile Include="Helper\LCommissionPeriodsRestClient.cs" />
+    <Compile Include="Helper\LCommonFunctionsRestClient.cs" />
+    <Compile Include="Helper\LCompanySpecificColumnsRestClient.cs" />
+    <Compile Include="Helper\LCompanySpecificRawDataColumnsRestClient.cs" />
+    <Compile Include="Helper\LDashboardConfigRestClient.cs" />
+    <Compile Include="Helper\LDocumentSetsRestClient.cs" />
+    <Compile Include="Helper\LDropDownsRestClient.cs" />
+    <Compile Include="Helper\LDropDownValuesRestClient.cs" />
+    <Compile Include="Helper\LEmailBucketRestClient.cs" />
+    <Compile Include="Helper\LEmailTemplateRestClient.cs" />
+    <Compile Include="Helper\LMessagesRestClient.cs" />
+    <Compile Include="Helper\LNotificationRestClient.cs" />
+    <Compile Include="Helper\LPasswordPoliciesRestClient.cs" />
+    <Compile Include="Helper\LPayeeParentsRestClient.cs" />
+    <Compile Include="Helper\LPayRestClient.cs" />
+    <Compile Include="Helper\LPortfoliosRestClient.cs" />
+    <Compile Include="Helper\LRawDataColumnsRestClient.cs" />
+    <Compile Include="Helper\LCalcRestClient.cs" />
+    <Compile Include="Helper\LRawDataRestClient.cs" />
+    <Compile Include="Helper\LRawDataTablesRestClient.cs" />
+    <Compile Include="Helper\LReadyToPayRestClient.cs" />
+    <Compile Include="Helper\LSchemesRestClient.cs" />
+    <Compile Include="Helper\LSupportingDocumentsRestClient.cs" />
+    <Compile Include="Helper\LSupportTicketsRestClient.cs" />
+    <Compile Include="Helper\LRefFilesRestClient.cs" />
+    <Compile Include="Helper\LRefFileTypeRestClient.cs" />
+    <Compile Include="Helper\LUserLobbyRestClient.cs" />
+    <Compile Include="Helper\LUsersRestClient.cs" />
+    <Compile Include="Helper\LWorkFlowActionParametersRestClient.cs" />
+    <Compile Include="Helper\LWorkflowGridColumnsRestClient.cs" />
+    <Compile Include="Helper\ManualAdjustmentsRestClient.cs" />
+    <Compile Include="Helper\MAspnetRolesGAuthorizableObjectsRestClient.cs" />
+    <Compile Include="Helper\MGMenusAspnetRolesRestClient.cs" />
+    <Compile Include="Helper\RActiveTypesRestClient.cs" />
+    <Compile Include="Helper\RBrandsRestClient.cs" />
+    <Compile Include="Helper\RChannelsRestClient.cs" />
+    <Compile Include="Helper\RCommissionTypesRestClient.cs" />
+    <Compile Include="Helper\RDeviceTypesRestClient.cs" />
+    <Compile Include="Helper\ReportsRestClient.cs" />
+    <Compile Include="Helper\RPayPublishEmailsRestClient.cs" />
+    <Compile Include="Helper\RProductCodesRestClient.cs" />
+    <Compile Include="Helper\RRejectionReasonsRestClient.cs" />
+    <Compile Include="Helper\RStatusesRestClient.cs" />
+    <Compile Include="Helper\RStatusOwnersRestClient.cs" />
+    <Compile Include="Helper\LPayeeAuditLogsRestClient.cs" />
+    <Compile Include="Helper\LPayeesRestClient.cs" />
+    <Compile Include="Helper\RSubChannelsRestClient.cs" />
+    <Compile Include="Helper\LWorkFlowConfigRestClient.cs" />
+    <Compile Include="Helper\RWorkFlowsRestClient.cs" />
+    <Compile Include="Helper\SearchEngineRestClient.cs" />
+    <Compile Include="Helper\SP_UpdateClaimsStatusRestClient.cs" />
+    <Compile Include="Helper\SupportSystemRestClient.cs" />
+    <Compile Include="Helper\UserGuidesRestClient.cs" />
+    <Compile Include="Helper\VitalStatsRestClient.cs" />
+    <Compile Include="Helper\WIAMSimulatorRestClient.cs" />
+    <Compile Include="Helper\XBatchesRestClient.cs" />
+    <Compile Include="Helper\XQlickRestClient.cs" />
+    <Compile Include="Helper\XRawData_BI_PREPAID_ACTIVATION_REPORTRestClient.cs" />
+    <Compile Include="Helper\LWorkFlowActionItemsRestClient.cs" />
+    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
+    <Compile Include="Utilities\EncryptURL.cs" />
+    <Compile Include="Utilities\Globals.cs" />
+    <Compile Include="ViewModels\AddPaymentModel.cs" />
+    <Compile Include="ViewModels\FilterDataViewModel.cs" />
+    <Compile Include="ViewModels\GenericModelFilesViewModel.cs" />
+    <Compile Include="ViewModels\ADUserViewModel.cs" />
+    <Compile Include="ViewModels\AspnetRoleViewModel.cs" />
+    <Compile Include="ViewModels\AspnetUserViewModel.cs" />
+    <Compile Include="ViewModels\AssigneeListViewModel.cs" />
+    <Compile Include="ViewModels\AttachedFilesViewModel.cs" />
+    <Compile Include="ViewModels\AuditFormViewModel.cs" />
+    <Compile Include="ViewModels\CompanySpecificLabelViewModel.cs" />
+    <Compile Include="ViewModels\DeleteLUserViewModel.cs" />
+    <Compile Include="ViewModels\DownloadClaimsGridViewModel.cs" />
+    <Compile Include="ViewModels\DownloadPayeeGridByTabNameViewModel.cs" />
+    <Compile Include="ViewModels\GAuthorizableObjectsViewModel.cs" />
+    <Compile Include="ViewModels\GenericGridViewModel.cs" />
+    <Compile Include="ViewModels\GErrorLogViewModel.cs" />
+    <Compile Include="ViewModels\GetAuditForReportsViewModel.cs" />
+    <Compile Include="ViewModels\GetAuditLogUnderStartDateEndDateViewModel.cs" />
+    <Compile Include="ViewModels\GKeyValueViewModel.cs" />
+    <Compile Include="ViewModels\GridDataViewModel.cs" />
+    <Compile Include="ViewModels\GUserActivityLogViewModel.cs" />
+    <Compile Include="ViewModels\InformationSchemaViewModel.cs" />
+    <Compile Include="ViewModels\LAccrualViewModel.cs" />
+    <Compile Include="ViewModels\LAllocationRuleViewModel.cs" />
+    <Compile Include="ViewModels\LAttachmentViewModel.cs" />
+    <Compile Include="ViewModels\LBatchFileViewModel.cs" />
+    <Compile Include="ViewModels\LCalcForReportsViewModel.cs" />
+    <Compile Include="ViewModels\LCalcViewModel.cs" />
+    <Compile Include="ViewModels\LClaimReportFilterViewModel.cs" />
+    <Compile Include="ViewModels\LCommissionBatchAllacationRulesViewModel.cs" />
+    <Compile Include="ViewModels\LCompanySpecificForms.cs" />
+    <Compile Include="ViewModels\LDashboardConfigViewModel.cs" />
+    <Compile Include="ViewModels\LDocumentSetsViewModel.cs" />
+    <Compile Include="ViewModels\LDropDownValueViewModel.cs" />
+    <Compile Include="ViewModels\LDropDownViewModel.cs" />
+    <Compile Include="ViewModels\LEmailBucketViewModel.cs" />
+    <Compile Include="ViewModels\LEmailTemplateViewModel.cs" />
+    <Compile Include="ViewModels\LMessageBoardViewModel.cs" />
+    <Compile Include="ViewModels\LNotificationViewModel.cs" />
+    <Compile Include="ViewModels\LPasswordPolicyViewModel.cs" />
+    <Compile Include="ViewModels\LPayViewModel.cs" />
+    <Compile Include="ViewModels\LPortfolioViewModel.cs" />
+    <Compile Include="ViewModels\LReadyToPayCount.cs" />
+    <Compile Include="ViewModels\LReadyToPaySaveModel.cs" />
+    <Compile Include="ViewModels\LReadyToPayViewModel.cs" />
+    <Compile Include="ViewModels\LSchemeOwnerViewModel.cs" />
+    <Compile Include="ViewModels\LRefFileViewModel.cs" />
+    <Compile Include="ViewModels\LSchemeViewModel.cs" />
+    <Compile Include="ViewModels\LSupportingDocumentViewModel.cs" />
+    <Compile Include="ViewModels\LSupportTicketContextModel.cs" />
+    <Compile Include="ViewModels\LSupportTicketsViewModel.cs" />
+    <Compile Include="ViewModels\LUserLobbyViewModel.cs" />
+    <Compile Include="ViewModels\LWorkFlowActionItemsViewModel.cs" />
+    <Compile Include="ViewModels\LWorkFlowActionParameterViewModel.cs" />
+    <Compile Include="ViewModels\LWorkflowConfigViewModel.cs" />
+    <Compile Include="ViewModels\LWorkflowGridColumnViewModel.cs" />
+    <Compile Include="ViewModels\ManualAdjustmentViewModel.cs" />
+    <Compile Include="ViewModels\MAspnetRolesAuthorizableObjectsViewModel.cs" />
+    <Compile Include="ViewModels\MAspnetUsersGScurityQuestionViewModel.cs" />
+    <Compile Include="ViewModels\mEntiryPortfolioViewModel.cs" />
+    <Compile Include="ViewModels\PayeeCalcChartViewModel.cs" />
+    <Compile Include="ViewModels\PayeeChangeRequestPortfolioViewModel.cs" />
+    <Compile Include="ViewModels\PayeeIdListViewModel.cs" />
+    <Compile Include="ViewModels\PortfolioListViewModel.cs" />
+    <Compile Include="ViewModels\PayeeCalcViewModel.cs" />
+    <Compile Include="ViewModels\ReportsViewModel.cs" />
+    <Compile Include="ViewModels\RPayPublishEmailsViewModel.cs" />
+    <Compile Include="ViewModels\RProductCodeViewModel.cs" />
+    <Compile Include="ViewModels\RWorkFlowViewModel.cs" />
+    <Compile Include="ViewModels\SearchEngineViewModel.cs" />
+    <Compile Include="ViewModels\SelectedItemViewModel.cs" />
+    <Compile Include="ViewModels\SupportSystemViewModel.cs" />
+    <Compile Include="ViewModels\UploadManualAdjustmentViewModel.cs" />
+    <Compile Include="ViewModels\UserGuidesViewModel.cs" />
+    <Compile Include="ViewModels\ValidateClaimsViewModel.cs" />
+    <Compile Include="ViewModels\VitalStatsViewModel.cs" />
+    <Compile Include="ViewModels\WIAMSimulatorViewModel.cs" />
+    <Compile Include="ViewModels\XBatchViewModel.cs" />
+    <Compile Include="ViewModels\LChangeRequestViewModel.cs" />
+    <Compile Include="ViewModels\LClaimsViewModelForGrid.cs" />
+    <Compile Include="ViewModels\LClaimViewModel.cs" />
+    <Compile Include="ViewModels\GCompanyViewModel.cs" />
+    <Compile Include="ViewModels\GMenuViewModel.cs" />
+    <Compile Include="ViewModels\LBatchViewModel.cs" />
+    <Compile Include="ViewModels\LCommissionPeriodViewModel.cs" />
+    <Compile Include="ViewModels\LCompanySpecificColumnViewModel.cs" />
+    <Compile Include="ViewModels\LCompanySpecificRawDataColumnViewModel.cs" />
+    <Compile Include="ViewModels\LPayeeParentViewModel.cs" />
+    <Compile Include="ViewModels\LRawDataColumnViewModel.cs" />
+    <Compile Include="ViewModels\LRawDataTableViewModel.cs" />
+    <Compile Include="ViewModels\LRawDataViewModel.cs" />
+    <Compile Include="ViewModels\LRefFileTypeViewModel.cs" />
+    <Compile Include="ViewModels\LUserChangeRequestViewModel.cs" />
+    <Compile Include="ViewModels\LUserViewModel.cs" />
+    <Compile Include="ViewModels\MGMenusAspnetRoleViewModel.cs" />
+    <Compile Include="ViewModels\RActiveTypeViewModel.cs" />
+    <Compile Include="ViewModels\RBrandViewModel.cs" />
+    <Compile Include="ViewModels\RChannelViewModel.cs" />
+    <Compile Include="ViewModels\RCommissionTypeViewModel.cs" />
+    <Compile Include="ViewModels\RDeviceTypeViewModel.cs" />
+    <Compile Include="ViewModels\RRejectionReasonViewModel.cs" />
+    <Compile Include="ViewModels\RStatusOwnerViewModel.cs" />
+    <Compile Include="ViewModels\RStatusViewModel.cs" />
+    <Compile Include="ViewModels\LPayeeAuditLogViewModel.cs" />
+    <Compile Include="ViewModels\LPayeeViewModel.cs" />
+    <Compile Include="ViewModels\RSubChannelViewModel.cs" />
+    <Compile Include="ViewModels\S3FileUploadViewModel.cs" />
+    <Compile Include="ViewModels\Sp_UpdateItemStatusViewModel.cs" />
+    <Compile Include="ViewModels\Sp_UpdateStatusViewModel.cs" />
+    <Compile Include="ViewModels\XPayeeDocumentsViewModel.cs" />
+    <Compile Include="ViewModels\XQlickViewModel.cs" />
+    <Compile Include="ViewModels\XRawData_BI_PREPAID_ACTIVATION_REPORTViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\back.png" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Images\09_home-128.png" />
+    <Content Include="Content\Images\backgroundTop.png" />
+    <Content Include="Content\Images\backImage.png" />
+    <Content Include="Content\Images\bg_black.png" />
+    <Content Include="Content\Images\bg_blackhover.png" />
+    <Content Include="Content\Images\bg_blackhover_horizontal.png" />
+    <Content Include="Content\Images\bg_blackpressed.png" />
+    <Content Include="Content\Images\bg_blackpressed_horizontal.png" />
+    <Content Include="Content\Images\bg_black_horizontal.png" />
+    <Content Include="Content\Images\bg_blueenergy.png" />
+    <Content Include="Content\Images\bg_darkblue.png" />
+    <Content Include="Content\Images\bg_darkbluehover.png" />
+    <Content Include="Content\Images\bg_darkbluepressed.png" />
+    <Content Include="Content\Images\blackbackground.png" />
+    <Content Include="Content\Images\black_gradient.png" />
+    <Content Include="Content\Images\check_black.png" />
+    <Content Include="Content\Images\check_blue.png" />
+    <Content Include="Content\Images\check_blue_indeterminate.png" />
+    <Content Include="Content\Images\check_disabled.png" />
+    <Content Include="Content\Images\check_indeterminate_black.png" />
+    <Content Include="Content\Images\check_indeterminate_disabled.png" />
+    <Content Include="Content\Images\check_indeterminate_white.png" />
+    <Content Include="Content\Images\check_lightblue.png" />
+    <Content Include="Content\Images\check_lightblue_indeterminate.png" />
+    <Content Include="Content\Images\check_white.png" />
+    <Content Include="Content\Images\ClearFilter.png" />
+    <Content Include="Content\Images\ClearImage.png" />
+    <Content Include="Content\Images\close.png" />
+    <Content Include="Content\Images\close_black.png" />
+    <Content Include="Content\Images\close_blue.png" />
+    <Content Include="Content\Images\close_white.png" />
+    <Content Include="Content\Images\common.png" />
+    <Content Include="Content\Images\crosshair-white.png" />
+    <Content Include="Content\Images\crosshair.png" />
+    <Content Include="Content\Images\darkred_gradient.png" />
+    <Content Include="Content\Images\drag.png" />
+    <Content Include="Content\Images\dragcancel.png" />
+    <Content Include="Content\Images\error.png" />
+    <Content Include="Content\Images\filter.png" />
+    <Content Include="Content\Images\flag_band 1.jpg" />
+    <Content Include="Content\Images\flag_band 1_border.jpg" />
+    <Content Include="Content\Images\flag_band 2.jpg" />
+    <Content Include="Content\Images\flag_band 2_border.jpg" />
+    <Content Include="Content\Images\home_left_slider.png" />
+    <Content Include="Content\Images\home_slider_leftArrow.png" />
+    <Content Include="Content\Images\home_slider_rightArrow.png" />
+    <Content Include="Content\Images\html_editor.png" />
+    <Content Include="Content\Images\html_editor_white.png" />
+    <Content Include="Content\Images\icon-calendar-white.png" />
+    <Content Include="Content\Images\icon-calendar.png" />
+    <Content Include="Content\Images\icon-cancel-white.png" />
+    <Content Include="Content\Images\icon-cancel.png" />
+    <Content Include="Content\Images\icon-delete-white.png" />
+    <Content Include="Content\Images\icon-delete.png" />
+    <Content Include="Content\Images\icon-down-blue.png" />
+    <Content Include="Content\Images\icon-down-transparent.png" />
+    <Content Include="Content\Images\icon-down-white.png" />
+    <Content Include="Content\Images\icon-down.png" />
+    <Content Include="Content\Images\icon-edit-white.png" />
+    <Content Include="Content\Images\icon-edit.png" />
+    <Content Include="Content\Images\icon-first-blue.png" />
+    <Content Include="Content\Images\icon-first-transparent.png" />
+    <Content Include="Content\Images\icon-first-white.png" />
+    <Content Include="Content\Images\icon-first.png" />
+    <Content Include="Content\Images\icon-last-blue.png" />
+    <Content Include="Content\Images\icon-last-transparent.png" />
+    <Content Include="Content\Images\icon-last-white.png" />
+    <Content Include="Content\Images\icon-last.png" />
+    <Content Include="Content\Images\icon-left-blue.png" />
+    <Content Include="Content\Images\icon-left-transparent.png" />
+    <Content Include="Content\Images\icon-left-white.png" />
+    <Content Include="Content\Images\icon-left.png" />
+    <Content Include="Content\Images\icon-menu-minimized-white.png" />
+    <Content Include="Content\Images\icon-menu-minimized.png" />
+    <Content Include="Content\Images\icon-plus-white.png" />
+    <Content Include="Content\Images\icon-plus.png" />
+    <Content Include="Content\Images\icon-recurrence-exception-white.png" />
+    <Content Include="Content\Images\icon-recurrence-exception.png" />
+    <Content Include="Content\Images\icon-recurrence-white.png" />
+    <Content Include="Content\Images\icon-recurrence.png" />
+    <Content Include="Content\Images\icon-right-blue.png" />
+    <Content Include="Content\Images\icon-right-transparent.png" />
+    <Content Include="Content\Images\icon-right-white.png" />
+    <Content Include="Content\Images\icon-right.png" />
+    <Content Include="Content\Images\icon-save-white.png" />
+    <Content Include="Content\Images\icon-save.png" />
+    <Content Include="Content\Images\icon-showpassword-white.png" />
+    <Content Include="Content\Images\icon-showpassword.png" />
+    <Content Include="Content\Images\icon-time-white.png" />
+    <Content Include="Content\Images\icon-time.png" />
+    <Content Include="Content\Images\icon-up-blue.png" />
+    <Content Include="Content\Images\icon-up-transparent.png" />
+    <Content Include="Content\Images\icon-up-white.png" />
+    <Content Include="Content\Images\icon-up.png" />
+    <Content Include="Content\Images\info.png" />
+    <Content Include="Content\Images\loader-small.gif" />
+    <Content Include="Content\Images\loader.gif" />
+    <Content Include="Content\Images\mail.png" />
+    <Content Include="Content\Images\menubutton.png" />
+    <Content Include="Content\Images\metro-icon-down-white.png" />
+    <Content Include="Content\Images\metro-icon-down.png" />
+    <Content Include="Content\Images\metro-icon-first-white.png" />
+    <Content Include="Content\Images\metro-icon-first.png" />
+    <Content Include="Content\Images\metro-icon-last-white.png" />
+    <Content Include="Content\Images\metro-icon-last.png" />
+    <Content Include="Content\Images\metro-icon-left-white.png" />
+    <Content Include="Content\Images\metro-icon-left.png" />
+    <Content Include="Content\Images\metro-icon-right - Copy.png" />
+    <Content Include="Content\Images\metro-icon-right-white.png" />
+    <Content Include="Content\Images\metro-icon-right.png" />
+    <Content Include="Content\Images\metro-icon-up-white.png" />
+    <Content Include="Content\Images\metro-icon-up.png" />
+    <Content Include="Content\Images\multi-arrow.gif" />
+    <Content Include="Content\Images\office-icon-down.png" />
+    <Content Include="Content\Images\office-icon-first.png" />
+    <Content Include="Content\Images\office-icon-last.png" />
+    <Content Include="Content\Images\office-icon-left.png" />
+    <Content Include="Content\Images\office-icon-right.png" />
+    <Content Include="Content\Images\office-icon-up.png" />
+    <Content Include="Content\Images\pin-black.png" />
+    <Content Include="Content\Images\pin-blue.png" />
+    <Content Include="Content\Images\pin-lightblue.png" />
+    <Content Include="Content\Images\pin-white.png" />
+    <Content Include="Content\Images\pin-yellow.png" />
+    <Content Include="Content\Images\pin.png" />
+    <Content Include="Content\Images\pinned-black.png" />
+    <Content Include="Content\Images\pinned-blue.png" />
+    <Content Include="Content\Images\pinned-lightblue.png" />
+    <Content Include="Content\Images\pinned-white.png" />
+    <Content Include="Content\Images\pinned-yellow.png" />
+    <Content Include="Content\Images\pinned.png" />
+    <Content Include="Content\Images\plus.png" />
+    <Content Include="Content\Images\plus_white.png" />
+    <Content Include="Content\Images\pointer.png" />
+    <Content Include="Content\Images\rangebar_classic.png" />
+    <Content Include="Content\Images\rangebar_darkblue.png" />
+    <Content Include="Content\Images\rangebar_shinyblack.png" />
+    <Content Include="Content\Images\rangebar_summer.png" />
+    <Content Include="Content\Images\red_arrow_down.png" />
+    <Content Include="Content\Images\red_arrow_up.png" />
+    <Content Include="Content\Images\red_gradient.png" />
+    <Content Include="Content\Images\roundbg_check_black.png" />
+    <Content Include="Content\Images\roundbg_check_disabled.png" />
+    <Content Include="Content\Images\roundbg_check_indeterminate.png" />
+    <Content Include="Content\Images\roundbg_check_white.png" />
+    <Content Include="Content\Images\roundbg_classic_hover.png" />
+    <Content Include="Content\Images\roundbg_classic_normal.png" />
+    <Content Include="Content\Images\roundbg_disabled.png" />
+    <Content Include="Content\Images\search.png" />
+    <Content Include="Content\Images\search_white.png" />
+    <Content Include="Content\Images\SideBarBg.jpg" />
+    <Content Include="Content\Images\side_bar.png" />
+    <Content Include="Content\Images\sortasc.png" />
+    <Content Include="Content\Images\sortascbutton.png" />
+    <Content Include="Content\Images\sortdesc.png" />
+    <Content Include="Content\Images\sortdescbutton.png" />
+    <Content Include="Content\Images\sortremove.png" />
+    <Content Include="Content\Images\star.png" />
+    <Content Include="Content\Images\star_disabled.png" />
+    <Content Include="Content\Images\star_hover.png" />
+    <Content Include="Content\Images\stripes.png" />
+    <Content Include="Content\Images\success.png" />
+    <Content Include="Content\Images\tick.png" />
+    <Content Include="Content\Images\time.png" />
+    <Content Include="Content\Images\track_classic.png" />
+    <Content Include="Content\Images\track_darkblue.png" />
+    <Content Include="Content\Images\track_shinyblack.png" />
+    <Content Include="Content\Images\track_summer.png" />
+    <Content Include="Content\Images\UnderConstruction.png" />
+    <Content Include="Content\Images\vodafone-icon.png" />
+    <Content Include="Content\Images\Vodafone-logo-icon-png-Transparent.png" />
+    <Content Include="Content\Images\warning.png" />
+    <Content Include="Content\Images\wp_check_indeterminate_white.png" />
+    <Content Include="Content\Images\wp_check_white.png" />
+    <Content Include="Content\next.png" />
+    <Content Include="Content\PayeeGraphSampleData.txt" />
+    <Content Include="Content\styles\jqx.android.css" />
+    <Content Include="Content\styles\jqx.arctic.css" />
+    <Content Include="Content\styles\jqx.base.css" />
+    <Content Include="Content\styles\jqx.black.css" />
+    <Content Include="Content\styles\jqx.blackberry.css" />
+    <Content Include="Content\styles\jqx.bootstrap.css" />
+    <Content Include="Content\styles\jqx.classic.css" />
+    <Content Include="Content\styles\jqx.dark.css" />
+    <Content Include="Content\styles\jqx.darkblue.css" />
+    <Content Include="Content\styles\jqx.energyblue.css" />
+    <Content Include="Content\styles\jqx.fresh.css" />
+    <Content Include="Content\styles\jqx.glacier.css" />
+    <Content Include="Content\styles\jqx.highcontrast.css" />
+    <Content Include="Content\styles\jqx.light.css" />
+    <Content Include="Content\styles\jqx.metro.css" />
+    <Content Include="Content\styles\jqx.metrodark.css" />
+    <Content Include="Content\styles\jqx.mobile.css" />
+    <Content Include="Content\styles\jqx.office.css" />
+    <Content Include="Content\styles\jqx.orange.css" />
+    <Content Include="Content\styles\jqx.shinyblack.css" />
+    <Content Include="Content\styles\jqx.summer.css" />
+    <Content Include="Content\styles\jqx.ui-darkness.css" />
+    <Content Include="Content\styles\jqx.ui-le-frog.css" />
+    <Content Include="Content\styles\jqx.ui-lightness.css" />
+    <Content Include="Content\styles\jqx.ui-overcast.css" />
+    <Content Include="Content\styles\jqx.ui-redmond.css" />
+    <Content Include="Content\styles\jqx.ui-smoothness.css" />
+    <Content Include="Content\styles\jqx.ui-start.css" />
+    <Content Include="Content\styles\jqx.ui-sunny.css" />
+    <Content Include="Content\styles\jqx.web.css" />
+    <Content Include="Content\styles\jqx.windowsphone.css" />
+    <Content Include="Content\StyleVF.css" />
+    <Content Include="Content\VodafoneThemes\css\Black-theme.css" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap-theme.css" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap-theme.min.css" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap.css" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap.min.css" />
+    <Content Include="Content\VodafoneThemes\css\custom.css" />
+    <Content Include="Content\VodafoneThemes\css\default.css" />
+    <Content Include="Content\VodafoneThemes\css\font-awesome.min.css" />
+    <Content Include="Content\VodafoneThemes\css\import.css" />
+    <Content Include="Content\VodafoneThemes\css\LoginPagecustom.css" />
+    <Content Include="Content\VodafoneThemes\css\style2cc.css" />
+    <Content Include="Content\VodafoneThemes\css\w3.css" />
+    <Content Include="Content\VodafoneThemes\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\VodafoneThemes\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\VodafoneThemes\images\1482152183_vodafone.png" />
+    <Content Include="Content\VodafoneThemes\images\background.jpg" />
+    <Content Include="Content\VodafoneThemes\images\bg-menu-small.jpg" />
+    <Content Include="Content\VodafoneThemes\images\bg-menu.jpg" />
+    <Content Include="Content\VodafoneThemes\images\bg-menu.png" />
+    <Content Include="Content\VodafoneThemes\images\black.PNG" />
+    <Content Include="Content\VodafoneThemes\images\black_theme.jpg" />
+    <Content Include="Content\VodafoneThemes\images\CareStoreImage.jpg" />
+    <Content Include="Content\VodafoneThemes\images\default.PNG" />
+    <Content Include="Content\VodafoneThemes\images\logo-login.png" />
+    <Content Include="Content\VodafoneThemes\images\logomobile.png" />
+    <Content Include="Content\VodafoneThemes\images\logo_header.png" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Ionic.Zip.xml" />
+    <Content Include="Scripts\AppScripts\jquery.blockUI.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="ProjectFiles\RawDataFiles\1\InputData.csv" />
+    <Content Include="ProjectFiles\RawDataFiles\2\desktop.ini" />
+    <Content Include="ProjectFiles\RawDataFiles\2\InputData.csv" />
+    <Content Include="ProjectFiles\RawDataFiles\3\desktop.ini" />
+    <Content Include="ProjectFiles\RawDataFiles\3\InputData.csv" />
+    <Content Include="ProjectFiles\RawDataFiles\4\desktop.ini" />
+    <Content Include="ProjectFiles\RawDataFiles\4\InputData.csv" />
+    <Content Include="ProjectFiles\RawDataFiles\5\desktop.ini" />
+    <Content Include="ProjectFiles\RawDataFiles\5\InputData.csv" />
+    <Content Include="ProjectFiles\RawDataFiles\1\Validation_Report.pdf" />
+    <Content Include="ProjectFiles\RawDataFiles\2\Validation_Report.pdf" />
+    <Content Include="ProjectFiles\RawDataFiles\3\Validation_Report.pdf" />
+    <Content Include="ProjectFiles\RawDataFiles\4\Validation_Report.pdf" />
+    <Content Include="ProjectFiles\RawDataFiles\5\Validation_Report.pdf" />
+    <Content Include="ProjectFiles\PayeeFiles\Copy of PayeeUploadv0_15_11_2016_07_14.xlsx" />
+    <Content Include="Content\PayeeUploadv01.xlsx" />
+    <Content Include="Content\ClaimsTemplate.xlsx" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap-theme.css.map" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap-theme.min.css.map" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap.css.map" />
+    <Content Include="Content\VodafoneThemes\css\bootstrap.min.css.map" />
+    <Content Include="Content\VodafoneThemes\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\VodafoneThemes\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\VodafoneThemes\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\VodafoneThemes\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\VodafoneThemes\fonts\FontAwesome.otf" />
+    <Content Include="Content\VodafoneThemes\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\VodafoneThemes\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\VodafoneThemes\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\VodafoneThemes\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Content\VodafoneThemes\fonts\ufonts.com_interface-dama-bold.ttf" />
+    <Content Include="Content\VodafoneThemes\fonts\ufonts.com_interface-dama-bold.woff" />
+    <Content Include="Content\VodafoneThemes\fonts\ufonts.com_interface_dama_bold.eot" />
+    <Content Include="Content\ManualAdjustmentTemplate.xlsx" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\TestAPP.pubxml" />
+    <None Include="Properties\PublishProfiles\VodafoneSos_WebApp_OnSmarterASP.pubxml" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\globalization\globalize.culture.cs-CZ.js" />
+    <Content Include="Scripts\globalization\globalize.culture.de-DE.js" />
+    <Content Include="Scripts\globalization\globalize.culture.en-CA.js" />
+    <Content Include="Scripts\globalization\globalize.culture.en-US.js" />
+    <Content Include="Scripts\globalization\globalize.culture.fr-FR.js" />
+    <Content Include="Scripts\globalization\globalize.culture.he-IL.js" />
+    <Content Include="Scripts\globalization\globalize.culture.hr-HR.js" />
+    <Content Include="Scripts\globalization\globalize.culture.hu-HU.js" />
+    <Content Include="Scripts\globalization\globalize.culture.it-IT.js" />
+    <Content Include="Scripts\globalization\globalize.culture.ja-JP.js" />
+    <Content Include="Scripts\globalization\globalize.culture.lt.js" />
+    <Content Include="Scripts\globalization\globalize.culture.ru-RU.js" />
+    <Content Include="Scripts\globalization\globalize.culture.sa-IN.js" />
+    <Content Include="Scripts\globalization\globalize.js" />
+    <Content Include="Scripts\globalization\ReadMe.txt" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\jqxangular.js" />
+    <Content Include="Scripts\jqxbargauge.js" />
+    <Content Include="Scripts\jqxbulletchart.js" />
+    <Content Include="Scripts\jqxbuttongroup.js" />
+    <Content Include="Scripts\jqxbuttons.js" />
+    <Content Include="Scripts\jqxcalendar.js" />
+    <Content Include="Scripts\jqxchart.annotations.js" />
+    <Content Include="Scripts\jqxchart.api.js" />
+    <Content Include="Scripts\jqxchart.core.js" />
+    <Content Include="Scripts\jqxchart.js" />
+    <Content Include="Scripts\jqxchart.rangeselector.js" />
+    <Content Include="Scripts\jqxchart.waterfall.js" />
+    <Content Include="Scripts\jqxcheckbox.js" />
+    <Content Include="Scripts\jqxcolorpicker.js" />
+    <Content Include="Scripts\jqxcombobox.js" />
+    <Content Include="Scripts\jqxcomplexinput.js" />
+    <Content Include="Scripts\jqxcore.element.js" />
+    <Content Include="Scripts\jqxcore.elements.js" />
+    <Content Include="Scripts\jqxcore.js" />
+    <Content Include="Scripts\jqxdata.export.js" />
+    <Content Include="Scripts\jqxdata.js" />
+    <Content Include="Scripts\jqxdatatable.js" />
+    <Content Include="Scripts\jqxdate.js" />
+    <Content Include="Scripts\jqxdatetimeinput.js" />
+    <Content Include="Scripts\jqxdocking.js" />
+    <Content Include="Scripts\jqxdockinglayout.js" />
+    <Content Include="Scripts\jqxdockpanel.js" />
+    <Content Include="Scripts\jqxdragdrop.js" />
+    <Content Include="Scripts\jqxdraw.js" />
+    <Content Include="Scripts\jqxdropdownbutton.js" />
+    <Content Include="Scripts\jqxdropdownlist.js" />
+    <Content Include="Scripts\jqxeditor.js" />
+    <Content Include="Scripts\jqxexpander.js" />
+    <Content Include="Scripts\jqxfileupload.js" />
+    <Content Include="Scripts\jqxformattedinput.js" />
+    <Content Include="Scripts\jqxgauge.js" />
+    <Content Include="Scripts\jqxgrid.aggregates.js" />
+    <Content Include="Scripts\jqxgrid.columnsreorder.js" />
+    <Content Include="Scripts\jqxgrid.columnsresize.js" />
+    <Content Include="Scripts\jqxgrid.edit.js" />
+    <Content Include="Scripts\jqxgrid.export.js" />
+    <Content Include="Scripts\jqxgrid.filter.js" />
+    <Content Include="Scripts\jqxgrid.grouping.js" />
+    <Content Include="Scripts\jqxgrid.js" />
+    <Content Include="Scripts\jqxgrid.pager.js" />
+    <Content Include="Scripts\jqxgrid.selection.js" />
+    <Content Include="Scripts\jqxgrid.sort.js" />
+    <Content Include="Scripts\jqxgrid.storage.js" />
+    <Content Include="Scripts\jqxinput.js" />
+    <Content Include="Scripts\jqxkanban.js" />
+    <Content Include="Scripts\jqxknob.js" />
+    <Content Include="Scripts\jqxknockout.js" />
+    <Content Include="Scripts\jqxlayout.js" />
+    <Content Include="Scripts\jqxlistbox.js" />
+    <Content Include="Scripts\jqxlistmenu.js" />
+    <Content Include="Scripts\jqxloader.js" />
+    <Content Include="Scripts\jqxmaskedinput.js" />
+    <Content Include="Scripts\jqxmath.js" />
+    <Content Include="Scripts\jqxmenu.js" />
+    <Content Include="Scripts\jqxnavbar.js" />
+    <Content Include="Scripts\jqxnavigationbar.js" />
+    <Content Include="Scripts\jqxnotification.js" />
+    <Content Include="Scripts\jqxnumberinput.js" />
+    <Content Include="Scripts\jqxpanel.js" />
+    <Content Include="Scripts\jqxpasswordinput.js" />
+    <Content Include="Scripts\jqxpathcontrol.js" />
+    <Content Include="Scripts\jqxpopover.js" />
+    <Content Include="Scripts\jqxprogressbar.js" />
+    <Content Include="Scripts\jqxradiobutton.js" />
+    <Content Include="Scripts\jqxrangeselector.js" />
+    <Content Include="Scripts\jqxrating.js" />
+    <Content Include="Scripts\jqxresponse.js" />
+    <Content Include="Scripts\jqxresponsivepanel.js" />
+    <Content Include="Scripts\jqxribbon.js" />
+    <Content Include="Scripts\jqxscheduler.api.js" />
+    <Content Include="Scripts\jqxscheduler.js" />
+    <Content Include="Scripts\jqxscrollbar.js" />
+    <Content Include="Scripts\jqxscrollview.js" />
+    <Content Include="Scripts\jqxslider.js" />
+    <Content Include="Scripts\jqxsortable.js" />
+    <Content Include="Scripts\jqxsplitter.js" />
+    <Content Include="Scripts\jqxswitchbutton.js" />
+    <Content Include="Scripts\jqxtabs.js" />
+    <Content Include="Scripts\jqxtagcloud.js" />
+    <Content Include="Scripts\jqxtextarea.js" />
+    <Content Include="Scripts\jqxtoolbar.js" />
+    <Content Include="Scripts\jqxtooltip.js" />
+    <Content Include="Scripts\jqxtouch.js" />
+    <Content Include="Scripts\jqxtree.js" />
+    <Content Include="Scripts\jqxtreegrid.js" />
+    <Content Include="Scripts\jqxtreemap.js" />
+    <Content Include="Scripts\jqxvalidator.js" />
+    <Content Include="Scripts\jqxwindow.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\ProjectScripts\ClaimsScript.js" />
+    <Content Include="Scripts\ProjectScripts\ProjectScript.js" />
+    <Content Include="Scripts\respond.js" />
+    <Content Include="Scripts\respond.min.js" />
+    <Content Include="Content\styles\images\backgroundTop.png" />
+    <Content Include="Content\styles\images\backImage.png" />
+    <Content Include="Content\styles\images\bg_black.png" />
+    <Content Include="Content\styles\images\bg_blackhover.png" />
+    <Content Include="Content\styles\images\bg_blackhover_horizontal.png" />
+    <Content Include="Content\styles\images\bg_blackpressed.png" />
+    <Content Include="Content\styles\images\bg_blackpressed_horizontal.png" />
+    <Content Include="Content\styles\images\bg_black_horizontal.png" />
+    <Content Include="Content\styles\images\bg_blueenergy.png" />
+    <Content Include="Content\styles\images\bg_darkblue.png" />
+    <Content Include="Content\styles\images\bg_darkbluehover.png" />
+    <Content Include="Content\styles\images\bg_darkbluepressed.png" />
+    <Content Include="Content\styles\images\blackbackground.png" />
+    <Content Include="Content\styles\images\black_gradient.png" />
+    <Content Include="Content\styles\images\check_black.png" />
+    <Content Include="Content\styles\images\check_blue.png" />
+    <Content Include="Content\styles\images\check_blue_indeterminate.png" />
+    <Content Include="Content\styles\images\check_disabled.png" />
+    <Content Include="Content\styles\images\check_indeterminate_black.png" />
+    <Content Include="Content\styles\images\check_indeterminate_disabled.png" />
+    <Content Include="Content\styles\images\check_indeterminate_white.png" />
+    <Content Include="Content\styles\images\check_lightblue.png" />
+    <Content Include="Content\styles\images\check_lightblue_indeterminate.png" />
+    <Content Include="Content\styles\images\check_white.png" />
+    <Content Include="Content\styles\images\close.png" />
+    <Content Include="Content\styles\images\close_black.png" />
+    <Content Include="Content\styles\images\close_blue.png" />
+    <Content Include="Content\styles\images\close_white.png" />
+    <Content Include="Content\styles\images\common.png" />
+    <Content Include="Content\styles\images\crosshair-white.png" />
+    <Content Include="Content\styles\images\crosshair.png" />
+    <Content Include="Content\styles\images\darkred_gradient.png" />
+    <Content Include="Content\styles\images\drag.png" />
+    <Content Include="Content\styles\images\dragcancel.png" />
+    <Content Include="Content\styles\images\error.png" />
+    <Content Include="Content\styles\images\filter.png" />
+    <Content Include="Content\styles\images\html_editor.png" />
+    <Content Include="Content\styles\images\html_editor_white.png" />
+    <Content Include="Content\styles\images\icon-calendar-white.png" />
+    <Content Include="Content\styles\images\icon-calendar.png" />
+    <Content Include="Content\styles\images\icon-cancel-white.png" />
+    <Content Include="Content\styles\images\icon-cancel.png" />
+    <Content Include="Content\styles\images\icon-delete-white.png" />
+    <Content Include="Content\styles\images\icon-delete.png" />
+    <Content Include="Content\styles\images\icon-down-blue.png" />
+    <Content Include="Content\styles\images\icon-down-transparent.png" />
+    <Content Include="Content\styles\images\icon-down-white.png" />
+    <Content Include="Content\styles\images\icon-down.png" />
+    <Content Include="Content\styles\images\icon-edit-white.png" />
+    <Content Include="Content\styles\images\icon-edit.png" />
+    <Content Include="Content\styles\images\icon-first-blue.png" />
+    <Content Include="Content\styles\images\icon-first-transparent.png" />
+    <Content Include="Content\styles\images\icon-first-white.png" />
+    <Content Include="Content\styles\images\icon-first.png" />
+    <Content Include="Content\styles\images\icon-last-blue.png" />
+    <Content Include="Content\styles\images\icon-last-transparent.png" />
+    <Content Include="Content\styles\images\icon-last-white.png" />
+    <Content Include="Content\styles\images\icon-last.png" />
+    <Content Include="Content\styles\images\icon-left-blue.png" />
+    <Content Include="Content\styles\images\icon-left-transparent.png" />
+    <Content Include="Content\styles\images\icon-left-white.png" />
+    <Content Include="Content\styles\images\icon-left.png" />
+    <Content Include="Content\styles\images\icon-menu-minimized-white.png" />
+    <Content Include="Content\styles\images\icon-menu-minimized.png" />
+    <Content Include="Content\styles\images\icon-plus-white.png" />
+    <Content Include="Content\styles\images\icon-plus.png" />
+    <Content Include="Content\styles\images\icon-recurrence-exception-white.png" />
+    <Content Include="Content\styles\images\icon-recurrence-exception.png" />
+    <Content Include="Content\styles\images\icon-recurrence-white.png" />
+    <Content Include="Content\styles\images\icon-recurrence.png" />
+    <Content Include="Content\styles\images\icon-right-blue.png" />
+    <Content Include="Content\styles\images\icon-right-transparent.png" />
+    <Content Include="Content\styles\images\icon-right-white.png" />
+    <Content Include="Content\styles\images\icon-right.png" />
+    <Content Include="Content\styles\images\icon-save-white.png" />
+    <Content Include="Content\styles\images\icon-save.png" />
+    <Content Include="Content\styles\images\icon-showpassword-white.png" />
+    <Content Include="Content\styles\images\icon-showpassword.png" />
+    <Content Include="Content\styles\images\icon-time-white.png" />
+    <Content Include="Content\styles\images\icon-time.png" />
+    <Content Include="Content\styles\images\icon-up-blue.png" />
+    <Content Include="Content\styles\images\icon-up-transparent.png" />
+    <Content Include="Content\styles\images\icon-up-white.png" />
+    <Content Include="Content\styles\images\icon-up.png" />
+    <Content Include="Content\styles\images\info.png" />
+    <Content Include="Content\styles\images\loader-small.gif" />
+    <Content Include="Content\styles\images\loader.gif" />
+    <Content Include="Content\styles\images\mail.png" />
+    <Content Include="Content\styles\images\menubutton.png" />
+    <Content Include="Content\styles\images\metro-icon-down-white.png" />
+    <Content Include="Content\styles\images\metro-icon-down.png" />
+    <Content Include="Content\styles\images\metro-icon-first-white.png" />
+    <Content Include="Content\styles\images\metro-icon-first.png" />
+    <Content Include="Content\styles\images\metro-icon-last-white.png" />
+    <Content Include="Content\styles\images\metro-icon-last.png" />
+    <Content Include="Content\styles\images\metro-icon-left-white.png" />
+    <Content Include="Content\styles\images\metro-icon-left.png" />
+    <Content Include="Content\styles\images\metro-icon-right - Copy.png" />
+    <Content Include="Content\styles\images\metro-icon-right-white.png" />
+    <Content Include="Content\styles\images\metro-icon-right.png" />
+    <Content Include="Content\styles\images\metro-icon-up-white.png" />
+    <Content Include="Content\styles\images\metro-icon-up.png" />
+    <Content Include="Content\styles\images\multi-arrow.gif" />
+    <Content Include="Content\styles\images\office-icon-down.png" />
+    <Content Include="Content\styles\images\office-icon-first.png" />
+    <Content Include="Content\styles\images\office-icon-last.png" />
+    <Content Include="Content\styles\images\office-icon-left.png" />
+    <Content Include="Content\styles\images\office-icon-right.png" />
+    <Content Include="Content\styles\images\office-icon-up.png" />
+    <Content Include="Content\styles\images\pin-black.png" />
+    <Content Include="Content\styles\images\pin-blue.png" />
+    <Content Include="Content\styles\images\pin-lightblue.png" />
+    <Content Include="Content\styles\images\pin-white.png" />
+    <Content Include="Content\styles\images\pin-yellow.png" />
+    <Content Include="Content\styles\images\pin.png" />
+    <Content Include="Content\styles\images\pinned-black.png" />
+    <Content Include="Content\styles\images\pinned-blue.png" />
+    <Content Include="Content\styles\images\pinned-lightblue.png" />
+    <Content Include="Content\styles\images\pinned-white.png" />
+    <Content Include="Content\styles\images\pinned-yellow.png" />
+    <Content Include="Content\styles\images\pinned.png" />
+    <Content Include="Content\styles\images\plus.png" />
+    <Content Include="Content\styles\images\plus_white.png" />
+    <Content Include="Content\styles\images\pointer.png" />
+    <Content Include="Content\styles\images\rangebar_classic.png" />
+    <Content Include="Content\styles\images\rangebar_darkblue.png" />
+    <Content Include="Content\styles\images\rangebar_shinyblack.png" />
+    <Content Include="Content\styles\images\rangebar_summer.png" />
+    <Content Include="Content\styles\images\red_arrow_down.png" />
+    <Content Include="Content\styles\images\red_arrow_up.png" />
+    <Content Include="Content\styles\images\red_gradient.png" />
+    <Content Include="Content\styles\images\roundbg_check_black.png" />
+    <Content Include="Content\styles\images\roundbg_check_disabled.png" />
+    <Content Include="Content\styles\images\roundbg_check_indeterminate.png" />
+    <Content Include="Content\styles\images\roundbg_check_white.png" />
+    <Content Include="Content\styles\images\roundbg_classic_hover.png" />
+    <Content Include="Content\styles\images\roundbg_classic_normal.png" />
+    <Content Include="Content\styles\images\roundbg_disabled.png" />
+    <Content Include="Content\styles\images\search.png" />
+    <Content Include="Content\styles\images\search_white.png" />
+    <Content Include="Content\styles\images\sortasc.png" />
+    <Content Include="Content\styles\images\sortascbutton.png" />
+    <Content Include="Content\styles\images\sortdesc.png" />
+    <Content Include="Content\styles\images\sortdescbutton.png" />
+    <Content Include="Content\styles\images\sortremove.png" />
+    <Content Include="Content\styles\images\star.png" />
+    <Content Include="Content\styles\images\star_disabled.png" />
+    <Content Include="Content\styles\images\star_hover.png" />
+    <Content Include="Content\styles\images\stripes.png" />
+    <Content Include="Content\styles\images\success.png" />
+    <Content Include="Content\styles\images\tick.png" />
+    <Content Include="Content\styles\images\time.png" />
+    <Content Include="Content\styles\images\track_classic.png" />
+    <Content Include="Content\styles\images\track_darkblue.png" />
+    <Content Include="Content\styles\images\track_shinyblack.png" />
+    <Content Include="Content\styles\images\track_summer.png" />
+    <Content Include="Content\styles\images\warning.png" />
+    <Content Include="Content\styles\images\wp_check_indeterminate_white.png" />
+    <Content Include="Content\styles\images\wp_check_white.png" />
+    <Content Include="Scripts\script2.js" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
+    <Content Include="Views\Account\ConfirmEmail.cshtml" />
+    <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
+    <Content Include="Views\Account\ExternalLoginFailure.cshtml" />
+    <Content Include="Views\Account\ForgotPassword.cshtml" />
+    <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\ResetPassword.cshtml" />
+    <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
+    <Content Include="Views\Account\SendCode.cshtml" />
+    <Content Include="Views\Account\VerifyCode.cshtml" />
+    <Content Include="Views\Manage\AddPhoneNumber.cshtml" />
+    <Content Include="Views\Manage\ChangePassword.cshtml" />
+    <Content Include="Views\Manage\Index.cshtml" />
+    <Content Include="Views\Manage\ManageLogins.cshtml" />
+    <Content Include="Views\Manage\SetPassword.cshtml" />
+    <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
+    <Content Include="Views\Shared\Lockout.cshtml" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\RActiveTypes\Create.cshtml" />
+    <Content Include="Views\RActiveTypes\Delete.cshtml" />
+    <Content Include="Views\RActiveTypes\Details.cshtml" />
+    <Content Include="Views\RActiveTypes\Edit.cshtml" />
+    <Content Include="Views\RActiveTypes\Index.cshtml" />
+    <Content Include="Views\GCompanies\Create.cshtml" />
+    <Content Include="Views\GCompanies\Delete.cshtml" />
+    <Content Include="Views\GCompanies\Details.cshtml" />
+    <Content Include="Views\GCompanies\Edit.cshtml" />
+    <Content Include="Views\GCompanies\Index.cshtml" />
+    <Content Include="Views\Shared\_LayoutPublic.cshtml" />
+    <Content Include="Views\RStatusOwners\Create.cshtml" />
+    <Content Include="Views\RStatusOwners\Delete.cshtml" />
+    <Content Include="Views\RStatusOwners\Details.cshtml" />
+    <Content Include="Views\RStatusOwners\Edit.cshtml" />
+    <Content Include="Views\RStatusOwners\Index.cshtml" />
+    <Content Include="Views\RStatuses\Create.cshtml" />
+    <Content Include="Views\RStatuses\Delete.cshtml" />
+    <Content Include="Views\RStatuses\Details.cshtml" />
+    <Content Include="Views\RStatuses\Edit.cshtml" />
+    <Content Include="Views\RStatuses\Index.cshtml" />
+    <Content Include="Views\RCommissionTypes\Create.cshtml" />
+    <Content Include="Views\RCommissionTypes\Delete.cshtml" />
+    <Content Include="Views\RCommissionTypes\Details.cshtml" />
+    <Content Include="Views\RCommissionTypes\Edit.cshtml" />
+    <Content Include="Views\RCommissionTypes\Index.cshtml" />
+    <Content Include="Views\RDeviceTypes\Create.cshtml" />
+    <Content Include="Views\RDeviceTypes\Delete.cshtml" />
+    <Content Include="Views\RDeviceTypes\Details.cshtml" />
+    <Content Include="Views\RDeviceTypes\Edit.cshtml" />
+    <Content Include="Views\RDeviceTypes\Index.cshtml" />
+    <Content Include="Views\RBrands\Create.cshtml" />
+    <Content Include="Views\RBrands\Delete.cshtml" />
+    <Content Include="Views\RBrands\Details.cshtml" />
+    <Content Include="Views\RBrands\Edit.cshtml" />
+    <Content Include="Views\RBrands\Index.cshtml" />
+    <Content Include="Views\Home\AnalystDashboard.cshtml" />
+    <Content Include="Views\LBatches\Index.cshtml" />
+    <Content Include="Views\LRawData\Index.cshtml" />
+    <Content Include="Views\Home\ManagerDashboard.cshtml" />
+    <Content Include="Views\LPayees\Create.cshtml" />
+    <Content Include="Views\LPayees\Delete.cshtml" />
+    <Content Include="Views\LPayees\Details.cshtml" />
+    <Content Include="Views\LPayees\Edit.cshtml" />
+    <Content Include="Views\LPayees\Index.cshtml" />
+    <Content Include="Views\LPayees\AnalystReview.cshtml" />
+    <Content Include="Views\LPayees\AnalystDashboard.cshtml" />
+    <Content Include="Views\LPayees\AuditorDashboard.cshtml" />
+    <Content Include="Views\LPayees\ManagerDashboard.cshtml" />
+    <Content Include="Views\AspnetRoles\Create.cshtml" />
+    <Content Include="Views\AspnetRoles\Delete.cshtml" />
+    <Content Include="Views\AspnetRoles\Details.cshtml" />
+    <Content Include="Views\AspnetRoles\Edit.cshtml" />
+    <Content Include="Views\AspnetRoles\Index.cshtml" />
+    <Content Include="Views\GMenus\Create.cshtml" />
+    <Content Include="Views\GMenus\Delete.cshtml" />
+    <Content Include="Views\GMenus\Details.cshtml" />
+    <Content Include="Views\GMenus\Edit.cshtml" />
+    <Content Include="Views\GMenus\Index.cshtml" />
+    <Content Include="Views\Home\GroupAdminDashboard.cshtml" />
+    <Content Include="Views\RRejectionReasons\Create.cshtml" />
+    <Content Include="Views\RRejectionReasons\Delete.cshtml" />
+    <Content Include="Views\RRejectionReasons\Details.cshtml" />
+    <Content Include="Views\RRejectionReasons\Edit.cshtml" />
+    <Content Include="Views\RRejectionReasons\Index.cshtml" />
+    <Content Include="Views\Home\SOSAdminDashboard.cshtml" />
+    <Content Include="Views\LClaims\Create.cshtml" />
+    <Content Include="Views\LClaims\Delete.cshtml" />
+    <Content Include="Views\LClaims\Details.cshtml" />
+    <Content Include="Views\LClaims\Edit.cshtml" />
+    <Content Include="Views\LClaims\Index.cshtml" />
+    <Content Include="Views\LClaims\ManagerIndex.cshtml" />
+    <Content Include="Views\GKeyValues\Create.cshtml" />
+    <Content Include="Views\GKeyValues\Delete.cshtml" />
+    <Content Include="Views\GKeyValues\Details.cshtml" />
+    <Content Include="Views\GKeyValues\Edit.cshtml" />
+    <Content Include="Views\GKeyValues\Index.cshtml" />
+    <Content Include="Views\LClaims\AnalystIndex.cshtml" />
+    <Content Include="Views\LClaims\RejectedClaim.cshtml" />
+    <Content Include="Views\LClaims\AllocateClaim.cshtml" />
+    <Content Include="Views\RChannels\Create.cshtml" />
+    <Content Include="Views\RChannels\Delete.cshtml" />
+    <Content Include="Views\RChannels\Details.cshtml" />
+    <Content Include="Views\RChannels\Edit.cshtml" />
+    <Content Include="Views\RChannels\Index.cshtml" />
+    <Content Include="Views\RSubChannels\Create.cshtml" />
+    <Content Include="Views\RSubChannels\Delete.cshtml" />
+    <Content Include="Views\RSubChannels\Details.cshtml" />
+    <Content Include="Views\RSubChannels\Edit.cshtml" />
+    <Content Include="Views\RSubChannels\Index.cshtml" />
+    <Content Include="Views\LPayees\ManagerIndex.cshtml" />
+    <Content Include="Views\Shared\FunctionalityComingSoon.cshtml" />
+    <Content Include="Views\LPayees\AnalystIndex.cshtml" />
+    <Content Include="Views\Home\SalesOperationsDashboard.cshtml" />
+    <Content Include="Views\Home\SystemAnalystDashboard.cshtml" />
+    <Content Include="Views\LPayees\EditDetails.cshtml" />
+    <Content Include="Views\LPayees\Review.cshtml" />
+    <Content Include="Views\Shared\UpdateStatus_Partial.cshtml" />
+    <Content Include="Views\Home\AuditorDashboard.cshtml" />
+    <Content Include="Views\LPayees\UploadPayeeHierarchy.cshtml" />
+    <Content Include="Views\Home\ClaimsAnalystDashboard.cshtml" />
+    <Content Include="Views\Home\PayeeDashboard.cshtml" />
+    <Content Include="Views\LBatches\ManagerIndex.cshtml" />
+    <Content Include="Views\LBatches\AnalystIndex.cshtml" />
+    <Content Include="Views\LCompanySpecificColumns\Index.cshtml" />
+    <Content Include="Views\Shared\UnAuthorized.cshtml" />
+    <Content Include="Views\LClaims\UploadClaims.cshtml" />
+    <Content Include="Views\LCompanySpecificRawDataColumns\MappingRawDataColumns.cshtml" />
+    <Content Include="Views\LCommissionPeriods\Index.cshtml" />
+    <Content Include="Views\LUploadedFiles\Create.cshtml" />
+    <Content Include="Views\LUploadedFiles\Index.cshtml" />
+    <Content Include="Views\LRefFileTypes\Index.cshtml" />
+    <Content Include="Views\LUploadedFiles\RawDataIndex.cshtml" />
+    <Content Include="Views\LUploadedFiles\CreateUpload.cshtml" />
+    <Content Include="Views\Home\L2AdminDashboard.cshtml" />
+    <Content Include="Views\Shared\PayeeAuditLog_Partial.cshtml" />
+    <Content Include="Views\Account\RegisterUserTikdam.cshtml" />
+    <Content Include="Views\LAllocationRules\Index.cshtml" />
+    <Content Include="Views\Shared\S3FileUpload.cshtml" />
+    <Content Include="Views\LUsers\Create.cshtml" />
+    <Content Include="Views\LUsers\Index.cshtml" />
+    <Content Include="Views\LUsers\Edit.cshtml" />
+    <Content Include="Views\LBatches\AnalystCalcIndex.cshtml" />
+    <Content Include="Views\LCommissionBatchAllocationRules\AllocateCommissionBatch.cshtml" />
+    <Content Include="Views\LCalc\Index.cshtml" />
+    <Content Include="Views\LBatches\ManagerCalcIndex.cshtml" />
+    <Content Include="Views\LBatches\AnalystPayIndex.cshtml" />
+    <Content Include="Views\LBatches\ManagerPayIndex.cshtml" />
+    <Content Include="Views\LPay\Index.cshtml" />
+    <Content Include="Views\Shared\ChangeRole.cshtml" />
+    <Content Include="Views\RProductCodes\Create.cshtml" />
+    <Content Include="Views\RProductCodes\Delete.cshtml" />
+    <Content Include="Views\RProductCodes\Edit.cshtml" />
+    <Content Include="Views\RProductCodes\Index.cshtml" />
+    <Content Include="Views\LPayees\ViewPayeeDetails.cshtml" />
+    <Content Include="Views\LUsers\SosAdminIndex.cshtml" />
+    <Content Include="Views\LBatches\PayeeCalcIndex.cshtml" />
+    <Content Include="Views\ManualAdjustments\UploadManualAdjustment.cshtml" />
+    <Content Include="Views\LClaims\ClaimsReport.cshtml" />
+    <Content Include="Views\LSupportTickets\Index.cshtml" />
+    <Content Include="Views\LSupportTickets\Create.cshtml" />
+    <Content Include="Views\GenericGrid\Index.cshtml" />
+    <Content Include="Views\LCalc\GetCalcReports.cshtml" />
+    <Content Include="Views\Home\NoRolesAssigned.cshtml" />
+    <Content Include="Views\Home\HOFODashboard.cshtml" />
+    <Content Include="Views\LSetupRoleSecurity\MappingDataColumns.cshtml" />
+    <Content Include="Views\SupportSystem\Categories.cshtml" />
+    <Content Include="Views\SupportSystem\Teams.cshtml" />
+    <Content Include="Views\SupportSystem\QuickTickets.cshtml" />
+    <Content Include="Views\SupportSystem\CreateCategory.cshtml" />
+    <Content Include="Views\SupportSystem\CreateTeam.cshtml" />
+    <Content Include="Views\SupportSystem\CreateQuickTicket.cshtml" />
+    <Content Include="Views\SupportSystem\EditQuickTicket.cshtml" />
+    <Content Include="Views\SupportSystem\DeleteQuickTicket.cshtml" />
+    <Content Include="Views\SupportSystem\EditCategory.cshtml" />
+    <Content Include="Views\LSupportTickets\Edit.cshtml" />
+    <Content Include="Views\RWorkFlows\CreateRWorkFlows.cshtml" />
+    <Content Include="Views\LWorkFlowConfig\Index.cshtml" />
+    <Content Include="Views\RWorkFlows\Index.cshtml" />
+    <Content Include="Views\RWorkFlows\Delete.cshtml" />
+    <Content Include="Views\RWorkFlows\Edit.cshtml" />
+    <Content Include="Views\LWorkFlowConfig\Edit.cshtml" />
+    <Content Include="Views\LWorkFlowConfig\Delete.cshtml" />
+    <Content Include="Views\LWorkFlowConfig\Create.cshtml" />
+    <Content Include="Views\LWorkflowGridColumn\Index.cshtml" />
+    <Content Include="Views\LWorkFlowActionItem\Delete.cshtml" />
+    <Content Include="Views\LWorkFlowActionParameter\Delete.cshtml" />
+    <Content Include="Views\LWorkFlowActionItem\Edit.cshtml" />
+    <Content Include="Views\LWorkFlowActionParameter\Edit.cshtml" />
+    <Content Include="Views\LWorkFlowActionItem\Index.cshtml" />
+    <Content Include="Views\LWorkflowGridColumn\Delete.cshtml" />
+    <Content Include="Views\LWorkflowGridColumn\Edit.cshtml" />
+    <Content Include="Views\LWorkflowGridColumn\Create.cshtml" />
+    <Content Include="Views\LWorkFlowActionItem\Create.cshtml" />
+    <Content Include="Views\LWorkFlowActionParameter\Index.cshtml" />
+    <Content Include="Views\LWorkFlowActionParameter\Create.cshtml" />
+    <Content Include="Views\GenericGrid\AssignTo.cshtml" />
+    <Content Include="Views\LCalc\PayeeCalc.cshtml" />
+    <Content Include="Views\ADAccount\Create.cshtml" />
+    <Content Include="Views\ADAccount\Index.cshtml" />
+    <Content Include="Views\LSchemes\Create.cshtml" />
+    <Content Include="Views\ADAccount\ChangePassword.cshtml" />
+    <Content Include="Views\ADAccount\Login.cshtml" />
+    <Content Include="Views\ADAccount\Update.cshtml" />
+    <Content Include="Views\GenericGrid\AttachTestResults.cshtml" />
+    <Content Include="Views\LPayees\PayeeTree.cshtml" />
+    <Content Include="Views\ADAccount\Enable.cshtml" />
+    <Content Include="Views\ADAccount\Disable.cshtml" />
+    <Content Include="Views\ADAccount\Delete.cshtml" />
+    <Content Include="Views\ADAccount\SetUserPassword.cshtml" />
+    <Content Include="Views\ManualAdjustments\Review.cshtml" />
+    <Content Include="Views\LSchemes\Review.cshtml" />
+    <Content Include="Views\LUploadedFiles\Review.cshtml" />
+    <Content Include="Views\VitalStats\VitalStats.cshtml" />
+    <Content Include="Views\LRawDataTables\Index.cshtml" />
+    <Content Include="Views\Account\GetQuestions.cshtml" />
+    <Content Include="Views\LEmailTemplates\Index.cshtml" />
+    <Content Include="Views\LEmailTemplates\Create.cshtml" />
+    <Content Include="Views\LEmailTemplates\Delete.cshtml" />
+    <Content Include="Views\LEmailTemplates\Edit.cshtml" />
+    <Content Include="Views\LAccruals\Upload.cshtml" />
+    <Content Include="Views\Account\SetPassword.cshtml" />
+    <Content Include="Views\Account\GenerateOTP.cshtml" />
+    <Content Include="Views\Home\AccountAnalystDashboard.cshtml" />
+    <Content Include="Views\Home\ControllerDashboard.cshtml" />
+    <Content Include="Views\Home\ChannelManagerDashboard.cshtml" />
+    <Content Include="Views\LAccruals\Review.cshtml" />
+    <Content Include="Views\LPayees\PayeeCalcGraph.cshtml" />
+    <Content Include="Views\LDocumentSets\Create.cshtml" />
+    <Content Include="Views\LDocumentSets\Review.cshtml" />
+    <Content Include="Views\LDropDowns\Index.cshtml" />
+    <Content Include="Views\LDropDownValues\Index.cshtml" />
+    <Content Include="Views\SupportSystem\DeleteCategory.cshtml" />
+    <Content Include="Views\LSupportTickets\Review.cshtml" />
+    <Content Include="Views\Reports\KPIGraph.cshtml" />
+    <Content Include="Views\LReadyToPay\Review.cshtml" />
+    <Content Include="Views\LReadyToPay\CreatePaymentBatch.cshtml" />
+    <Content Include="Views\LReadyToPay\Edit.cshtml" />
+    <Content Include="Views\LReadyToPay\Index.cshtml" />
+    <Content Include="Views\LReadyToPay\Cancel.cshtml" />
+    <Content Include="Views\LReadyToPay\Publish.cshtml" />
+    <Content Include="Views\LDashboardConfig\Index.cshtml" />
+    <Content Include="Views\LDashboardConfig\AddGraph.cshtml" />
+    <Content Include="Views\LDashboardConfig\ConfigureTile.cshtml" />
+    <Content Include="Views\LDashboardConfig\AddTile.cshtml" />
+    <Content Include="Views\LDashboardConfig\ConfigureGraph.cshtml" />
+    <Content Include="Views\Home\GraphicalDashboard.cshtml" />
+    <Content Include="Views\RPayPublishEmails\Index.cshtml" />
+    <Content Include="Views\LPay\PayReview.cshtml" />
+    <Content Include="Views\UserGuides\ReleaseNotes.cshtml" />
+    <Content Include="Views\Home\HRDashboard.cshtml" />
+    <Content Include="Views\AWSSNS\Index.cshtml" />
+    <Content Include="Views\Home\GenericDashboard.cshtml" />
+    <Content Include="Views\Account\MFAScreen.cshtml" />
+    <Content Include="Views\Account\AcceptPolicies.cshtml" />
+    <Content Include="Views\LMessages\Index.cshtml" />
+    <Content Include="Views\LMessages\create.cshtml" />
+    <Content Include="Views\LRefFileTypes\Create.cshtml" />
+    <Content Include="Views\LRefFileTypes\Edit.cshtml" />
+    <Content Include="Views\LPayees\PayeeTreeByPortfolio.cshtml" />
+    <Content Include="Views\LMessages\ViewMessage.cshtml" />
+    <Content Include="Views\Home\CompanyDashboard.cshtml" />
+    <Content Include="Views\Shared\_GlobalPayeeGrid.cshtml" />
+    <Content Include="Views\LNotification\Index.cshtml" />
+    <Content Include="Views\LReadyToPay\DownloadPayeeDocument.cshtml" />
+    <Content Include="Views\Shared\_GlobalDownloadGrid.cshtml" />
+    <Content Include="Views\GenericGrid\GlobalDownloadGrid.cshtml" />
+    <Content Include="Views\LClaims\UploadValidClaims.cshtml" />
+    <Content Include="Views\LSupportTickets\AssignTo.cshtml" />
+    <Content Include="Views\SupportSystem\CreateTicketStage.cshtml" />
+    <Content Include="Views\SupportSystem\DeleteTicketStage.cshtml" />
+    <Content Include="Views\SupportSystem\EditTicketStage.cshtml" />
+    <Content Include="Views\SupportSystem\TicketStages.cshtml" />
+    <Content Include="Views\LUsers\UploadUsers.cshtml" />
+    <Content Include="Views\ADAccount\Unlock.cshtml" />
+    <Content Include="Views\Shared\_GraphicalDashboardPartial.cshtml" />
+    <Content Include="Views\GenericGrid\ReviewForCR.cshtml" />
+    <Content Include="Views\LUsers\MissingPortfolios.cshtml" />
+    <Content Include="Views\LPayees\UploadPayee.cshtml" />
+    <Content Include="Views\Shared\_PayeeUploadReview.cshtml" />
+    <Content Include="Views\ComissionSearchEngine\SearchEngine.cshtml" />
+    <Content Include="Views\LUserLobby\AcceptLobbyUsers.cshtml" />
+    <Content Include="Views\LUsers\CreateUserFromLobby.cshtml" />
+    <Content Include="Views\Account\UserSetting.cshtml" />
+    <Content Include="Views\Account\ResetUserPassword.cshtml" />
+    <Content Include="Views\Account\ResetSecurityQuestionAnswer.cshtml" />
+    <Content Include="Views\Account\ResetUserPreference.cshtml" />
+    <Content Include="Views\WIAMSimulator\Create.cshtml" />
+    <Content Include="Views\WIAMSimulator\Enable.cshtml" />
+    <Content Include="Views\WIAMSimulator\Disable.cshtml" />
+    <Content Include="Views\WIAMSimulator\Revoke.cshtml" />
+    <Content Include="Views\WIAMSimulator\Update.cshtml" />
+    <Content Include="Views\WIAMSimulator\SetUserGroup.cshtml" />
+    <Content Include="Views\TroubleShooting\WIAM.cshtml" />
+    <Content Include="Views\LSchemeOwner\Index.cshtml" />
+    <Content Include="Views\LSchemeOwner\Create.cshtml" />
+    <Content Include="Views\LSchemeOwner\Edit.cshtml" />
+    <Content Include="Views\ADAccount\CreateLogin.cshtml" />
+    <Content Include="Views\LSupportTickets\ClosedTickets.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="ProjectFiles\ClaimsFiles\" />
+    <Folder Include="Views\GSecurityQuestions\" />
+    <Folder Include="Views\GUserActivityLog\" />
+    <Folder Include="Views\LAtachments\" />
+    <Folder Include="Views\LAudit\" />
+    <Folder Include="Views\LEmailBucket\" />
+    <Folder Include="Views\LPayeeAuditLogs\" />
+    <Folder Include="Views\LSupportingDocuments\" />
+    <Folder Include="Views\Primary\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="packages.config" />
+    <None Include="Project_Readme.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.110.44\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+    <Analyzer Include="..\packages\AWSSDK.SimpleNotificationService.3.3.0.26\analyzers\dotnet\cs\AWSSDK.SimpleNotificationService.CodeAnalysis.dll" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <SaveServerSettingsInUserFile>True</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

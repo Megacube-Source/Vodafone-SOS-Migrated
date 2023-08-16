@@ -1,0 +1,85 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.RActiveTypeViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+
+    //This variable is defined to store value if form has any changes since it has loaded
+    var isChanged = false;
+    $(document).ready(function () {
+
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+    })
+    function FnFinalSubmit() {
+        var sucess = $("#frm").validate({})
+        if ($('#frm').valid()) {
+            isChanged = false;
+            document.getElementById('frm').submit()
+        }
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+    </script>
+
+
+
+@using (Html.BeginForm(null,null,FormMethod.Post,new {id="frm",name="frm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        @*@Html.ValidationSummary(true, "", new { @class = "text-danger" })*@
+        @Html.HiddenFor(model => model.Id)
+       @Html.HiddenFor(m=>m.RatCompanyId)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RatName, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.RatName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RatName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.RatIsActive, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.RatIsActive)
+                @Html.ValidationMessageFor(model => model.RatIsActive, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RatDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.RatDescription, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.RatDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="button" onclick="FnFinalSubmit()" class="btn btn-red btn-cons">Save&nbsp;</button>
+        </div>
+    </div>
+}
+
+<div id="jqxLoader">
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,1794 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LDashboardConfigViewModel
+@{
+    ViewBag.Title = "GraphicalDashboard";
+
+}
+<script type="text/javascript" src="~/Scripts/jqxdraw.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxchart.core.js"></script>
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script type="text/javascript" src="~/Scripts/jqxdata.export.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+
+<script>
+    var SelectedPeriods = "";
+    var graphgridid = "";
+    function LoadPeriods() {
+        var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'LcpPeriodName', type: 'string' },
+                { name: 'LcpStatus', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LDashboardConfig/GetCommissionPeriod"
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        // Create a jqxListBox for Commissionperiod multi selection
+        $("#listboxCommPeriod").jqxDropDownList({ checkboxes: true, source: dataAdapter2, displayMember: "LcpStatus", valueMember: "LcpPeriodName", dropDownWidth: 350, placeHolder: "-- Select Here --", width: '170px' });
+
+
+
+        $("#listboxCommPeriod").on('bindingComplete', function (event) {
+
+            //var PeriodArray = document.getElementById('PeriodCodes').value.split(',');
+            //if (PeriodArray = '');
+            //{
+            //    $("#listboxCommPeriod").jqxDropDownList('checkIndex', 0);
+            //}
+            //for (var i = 0; i < PeriodArray.length; ++i) {
+            //    $("#listboxCommPeriod").jqxDropDownList('checkItem', PeriodArray[i]);
+            //}
+
+
+            if (sessionStorage.getItem("SessionCheckedPeriods") != null) {
+                var PeriodArray = sessionStorage.getItem("SessionCheckedPeriods").split(',');
+                for (var i = 0; i < PeriodArray.length; ++i) {
+                    $("#listboxCommPeriod").jqxDropDownList('checkItem', PeriodArray[i]);
+                }
+
+            }
+
+            GenerateGraphAreas();
+        });
+
+
+
+        $("#listboxCommPeriod").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#listboxCommPeriod").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                }
+
+            });
+
+            document.getElementById('PeriodCodes').value = checkedItems;
+            SelectedPeriods = checkedItems;
+
+            sessionStorage.setItem("SessionCheckedPeriods", SelectedPeriods)
+
+        });
+    }
+    function RefreshDashboard() {
+        FillTileData();
+        GenerateGraphAreas();
+    }
+
+    function FillTileData() {
+        $('#toppanel').empty();
+        var val1 = $('#KpiTypeId').val();
+        $.ajax({
+            url: "/LDashboardConfig/GetTilesData",
+            type: "GET",
+            dataType: "JSON",
+            data: { strPeriods: SelectedPeriods, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+                    var tWidth = (100 / data.length) - 1;
+                    for (var x = 0; x < data.length; x++) {
+                        $('#toppanel').append('<div class="floating-box" style="height:96%; width:' + tWidth + '%"><br /><p>' + data[x].TileLabel + '</p><h1>' + data[x].TileValue + '</h1></div>');
+                    }
+
+                }
+            }
+        });
+    }
+    function CreateGraphSection() {
+        //This function will be used to load dynamic graph
+        $('#grapharea').append('<div class="splitter-panel" id="graphpanel2"><div style="width: 100%; overflow: hidden;"><div  style="width: 49%; height:350px; float: left;border:1px solid"><div id="chartbuttons2"><button class="btn"> Channel</button><button class="btn"> Payee</button><button class="btn"> Period</button><button class="btn"> Data</button></div><div id="chartContainer2"></div></div><div  style="width: 49% ; padding-left:5px; height:350px; float:right;border:1px solid"><div id="chartbuttons3"><button class="btn"> Channel</button><button class="btn"> Payee</button><button class="btn"> Period</button><button class="btn"> Data</button></div><div id="divGraphdata2"></div></div></div></div><br style="line-height: 70%;" />');
+
+    }
+    function PieChart(ChartArea, DataArea, ChartData, ChartType, LabelText) {
+        var source2 =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source2);
+        var source =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter2 = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: false,
+            showBorderLine: true,
+            //legendLayout: { left: 700, top: 160, width: 300, height: 200, flow: 'vertical' },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            colorScheme: 'scheme03',
+            seriesGroups:
+            [
+                {
+                    type: 'pie',
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 },
+                            formatFunction: function (value) {
+                                if (isNaN(value))
+                                    return value;
+                                return parseFloat(value);
+                            },
+                        }
+                    ]
+                }
+            ]
+
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+
+        $(DataArea).jqxGrid('clear');
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+
+    function PieChartgrid(DataArea, ChartData) {
+        var source2 =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source2);
+        //var source =
+        //    {
+        //        datatype: "array",
+        //        datafields: [
+        //            { name: 'KpiName' },
+        //            { name: 'XGraphItem' },
+        //            { name: 'XGraphValue' }
+        //        ],
+        //        localdata: ChartData
+        //    };
+        // var dataAdapter2 = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        //var settings = {
+        //    title: LabelText,
+        //    description: "",
+        //    enableAnimations: true,
+        //    showLegend: true,
+        //    showBorderLine: true,
+        //    legendLayout: { left: 700, top: 160, width: 300, height: 200, flow: 'vertical' },
+        //    padding: { left: 5, top: 5, right: 5, bottom: 5 },
+        //    titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+        //    source: dataAdapter2,
+        //    colorScheme: 'scheme03',
+        //    seriesGroups:
+        //    [
+        //        {
+        //            type: 'pie',
+        //            showLabels: true,
+        //            series:
+        //            [
+        //                {
+        //                    dataField: 'XGraphValue',
+        //                    displayText: 'XGraphItem',
+        //                    labelRadius: 170,
+        //                    initialAngle: 15,
+        //                    radius: 145,
+        //                    centerOffset: 0,
+        //                    formatSettings: { decimalPlaces: 2 },
+        //                    formatFunction: function (value) {
+        //                        if (isNaN(value))
+        //                            return value;
+        //                        return parseFloat(value);
+        //                    },
+        //                }
+        //            ]
+        //        }
+        //    ]
+
+        //};
+        // setup the chart
+        // $(ChartArea).jqxChart(settings);
+
+        $(DataArea).jqxGrid('clear');
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+    function DonutChart(ChartArea, DataArea, ChartData, ChartType, LabelText) {
+        //bind data area
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        if (ChartType == 'donut') { InnerRadius = 50; };
+
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        var settings2 = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: false,
+            showBorderLine: true,
+            //  legendPosition: { left: 120, top: 140, width: 100, height: 100 },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            colorScheme: 'scheme02',
+            seriesGroups:
+            [
+                {
+                    type: ChartType,
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            innerRadius: InnerRadius,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 }//sufix: '%',
+
+                        }
+                    ]
+                }
+            ]
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings2);
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+
+    function DonutChartgrid(DataArea, ChartData) {
+        //bind data area
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        //var source2 =
+        //    {
+        //        datatype: "array",
+        //        datafields: [
+        //            { name: 'KpiName' },
+        //            { name: 'XGraphItem' },
+        //            { name: 'XGraphValue' }
+        //        ],
+        //        localdata: ChartData
+        //    };
+        //var InnerRadius = 0;
+        //if (ChartType == 'donut') { InnerRadius = 50; };
+
+        // var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        //var settings2 = {
+        //    title: LabelText,
+        //    description: "",
+        //    enableAnimations: true,
+        //    showLegend: false,
+        //    showBorderLine: true,
+        //    legendPosition: { left: 120, top: 140, width: 100, height: 100 },
+        //    padding: { left: 5, top: 5, right: 5, bottom: 5 },
+        //    titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+        //    source: dataAdapter2,
+        //    colorScheme: 'scheme02',
+        //    seriesGroups:
+        //    [
+        //        {
+        //            type: ChartType,
+        //            showLabels: true,
+        //            series:
+        //            [
+        //                {
+        //                    dataField: 'XGraphValue',
+        //                    displayText: 'XGraphItem',
+        //                    labelRadius: 100,
+        //                    initialAngle: 15,
+        //                    radius: 130,
+        //                    innerRadius: InnerRadius,
+        //                    centerOffset: 0,
+        //                    formatSettings: { decimalPlaces: 2 }//sufix: '%',
+
+        //                }
+        //            ]
+        //        }
+        //    ]
+        //};
+        // setup the chart
+        // $(ChartArea).jqxChart(settings2);
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            //selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+    function flip() {
+        $('.card').toggleClass('flipped');
+        //SampleFlipData();
+
+    }
+
+    //ColumnChartDataforgrid
+    function ColumnChartDataforgrid(DataArea, ChartData) {
+        // bind data area
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+
+            ]
+        });
+    }
+
+
+    function ColumnChart(ChartArea, DataArea, ChartData, ChartType, LabelText) {
+        // bind data area
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: false,
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 10, top: 0, right: 0, bottom: 10 },
+            //    source: dataAdapter2,
+            //    xAxis:
+            //    {
+            //        dataField: 'XGraphItem',
+            //        unitInterval: 10,
+            //        axisSize: 'auto',
+            //        tickMarks: {
+            //            visible: true,
+            //            interval: 10,
+            //            color: '#BCBCBC'
+            //        },
+            //        textRotationAngle: -35,
+            //        gridLines: {
+            //            visible: true,
+            //            interval: 10,
+            //            color: '#BCBCBC'
+            //        }
+            //    },
+            //    colorScheme: 'scheme06',
+            //    seriesGroups:
+            //    [
+            //        {
+            //            type: 'stackedcolumn',
+            //            valueAxis:
+            //            {
+            //                unitInterval: 500,
+            //                minValue: 0,
+            //                maxValue: 5000,
+            //                title: { text: '' },
+            //                labels: { horizontalAlignment: 'right' },
+            //                tickMarks: { color: '#BCBCBC' }
+
+            //            },
+
+            //            columnsGapPercent: 50,
+            //            seriesGapPercent: 10,
+            //            series: [{
+            //                dataField: 'XGraphValue',
+            //                displayText: 'Value',
+            //                labelRadius: 120,
+            //                initialAngle: 30,
+            //                radius: 170,
+            //                centerOffset: 0,
+            //                showLegend: true,
+
+            //                series: [
+            //                    { dataField: 'KpiName', displayText: 'Kpi' }
+
+            //                ]
+
+            //            }]
+            //        }
+            //    ]
+            //};
+            // padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            // titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            xAxis:
+            {
+                dataField: 'XGraphItem',
+                // unitInterval: 1,
+                // axisSize: 'auto',
+                tickMarks: {
+                    visible: true,
+                    // interval: 1,
+                    color: '#BCBCBC'
+                },
+                gridLines: {
+                    visible: true,
+                    // interval: 1,
+                    color: '#BCBCBC'
+                }
+            },
+            valueAxis:
+            {
+                //unitInterval: 500,
+                //minValue: 0,
+                //maxValue: 5000,
+                labels: { horizontalAlignment: 'right' },
+                tickMarks: { color: '#BCBCBC' }
+            },
+            colorScheme: 'scheme06',
+            seriesGroups:
+            [
+                {
+                    type: 'stackedcolumn',
+                    columnsGapPercent: 50,
+                    seriesGapPercent: 0,
+                    series: [
+                        { dataField: 'KpiName', displayText: 'Kpi' },
+                        { dataField: 'XGraphValue', displayText: 'Graph Value' },
+                        { dataField: 'XGraphItem', displayText: 'Graph Item' },
+                        { dataField: 'XCommissionPeriod', displayText: 'Period' }
+
+                    ]
+                }
+            ]
+        };
+
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+
+            ]
+        });
+    }
+    //function GetGraphDetailsForModal(GraphId) {
+
+    //    //Graph details
+    //    $.ajax({
+    //        url: "/LDashboardConfig/GetGraphDetails",
+    //        type: "GET",
+    //        dataType: "JSON",
+    //        data: { Id: GraphId },
+    //        success: function (data) {
+    //            console.log(data)
+    //            if (data.length != 0) {
+    //                $('#PopupHeader').text(data.TileLabel)
+    //              //  var PortFolioArray = data.PortfolioIds.split(',');
+    //                //for (var i = 0; i < PortFolioArray.length; ++i) {
+    //                //    $("#listboxPortfolio").jqxDropDownList('checkItem', PortFolioArray[i]);
+    //                //}
+    //              //  var PayeeArray = data.PayeeCodes.split(',');
+    //                //for (var i = 0; i < PayeeArray.length; ++i) {
+    //                //    $("#listboxPayee").jqxDropDownList('checkItem', PayeeArray[i]);
+    //                //}
+    //                document.getElementById('ModelDimension').Value = data.Dimension;
+
+    //                //if (data.Dimension == 'Channel') { document.getElementById("btnChannel").className = 'btn btn- grey pull-left'; }
+    //                //if (data.Dimension == 'Payee') { document.getElementById("btnPayee").className = 'btn btn- grey pull-left'; }
+    //                //if (data.Dimension == 'Period') { document.getElementById("btnPeriod").className = 'btn btn- grey pull-left'; }
+    //            }
+    //        }
+    //    });
+    //}
+
+    function GetGraphDetails(GraphId) {
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphDetails",
+            type: "GET",
+            dataType: "JSON",
+            data: { Id: GraphId },
+            success: function (data) {
+                Showgraph(data.Id, data.TileLabel, data.GraphType);
+            }
+        });
+    }
+
+    function fnOpenNewTabOnGraphclick(GraphId, GraphType) {
+        //var BatStatusValue = document.getElementById('BatchStatus').value;
+        //window.open("/Home/CreatePartialView?GraphId=" + GraphId + "&GraphType=" + GraphType + "&strPeriods=" + SelectedPeriods + "&BatchStatus=" + BatStatusValue);
+       // $("#ChartAreaPie").jqxChart('refresh')
+
+        $('#ChartView').jqxChart('refresh');
+
+
+        //$("#ChartAreaPie").jqxChart('refresh');
+        //$("#ChartAreaDonut").jqxChart('refresh');
+
+       // $("#myModal1").modal('show');
+        $("#myModal1").modal({ backdrop: 'static', keyboard: false }, 'show');
+
+        $("#graphview").addClass('active');
+        GetGraphDetails(GraphId);
+        showDetail(GraphId, GraphType);
+
+        graphgridid = GraphId;
+
+    }
+
+     function showDetail(GraphId, GraphType) {
+        if (GraphId == '') return;
+
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            @*data: { GraphId: GraphId, strPeriods: '@ViewBag.strPeriods', BatchStatus: '@ViewBag.BatchStatus' },*@
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        PieChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Column Series") {
+                        ColumnChartDataforgrid('#ModelData', data);
+                    }
+                }
+            }
+
+        });
+    }
+
+    function Showgraph(GraphId, GraphLabel, GraphType) {
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            @*data: { GraphId: GraphId, strPeriods: '@ViewBag.strPeriods', BatchStatus: '@ViewBag.BatchStatus' },*@
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        PieChartNew('#ChartView', data, 'pie', GraphLabel);
+                        $("#ChartAreaGraphType").hide();
+                        $("#ChartAreaDonut").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+
+                        $('#PopupHeader').text(GraphLabel + " Details")
+
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChartNew('#ChartView', data, 'donut', GraphLabel);
+                       // DonutChartNew('#ChartAreaDonut', data, 'donut', GraphLabel);
+                       //// $("#dvwaittext").show();
+                       // $("#ChartAreaPie").hide();
+                       // $("#ChartAreaGraphType").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+                        $('#PopupHeader').text(GraphLabel + " Details")
+
+                    }
+                    if (GraphType == "Column Series") {
+                        ColumnChartNew('#ChartView', data, 'pie', GraphLabel);
+                        //ColumnChartNew('#ChartAreaGraphType', data, 'pie', GraphLabel);
+                        //$("#ChartAreaPie").hide();
+                        //$("#ChartAreaDonut").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+                        $('#PopupHeader').text(GraphLabel + " Details")
+
+                    }
+                }
+            }
+        });
+    }
+    function PieChartNew(ChartArea, ChartData, ChartType, LabelText) {
+        //var source2 =
+        //    {
+        //        datatype: "json",
+        //        datafields: [
+        //            { name: 'KpiName' },
+        //            { name: 'XGraphItem' },
+        //            { name: 'XGraphValue' }
+        //        ],
+        //        localdata: ChartData
+        //    };
+        //var dataAdapter = new $.jqx.dataAdapter(source2);
+        var source =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter2 = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        //$.jqx._jqxChart.prototype.colorSchemes.push({ name: 'myScheme', colors: ['#ffff00', '#ff0000', '#ccff00', '#00ffff', '#aaaaaa'] });
+        //       $('#jqxChart').jqxChart({colorScheme: 'scheme06'});
+        //$('#jqxChart').jqxChart('refresh');
+        // prepare jqxChart settings
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: true,
+            showBorderLine: true,
+            // legendLayout: { left: 700, top: 160, width: 300, height: 200, flow: 'vertical' },
+            legendLayout: { left: 50, top: 50, width: 200, height: 700, flow: 'vertical' },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            // colorScheme: 'myScheme',
+            colorScheme: 'scheme03',
+            seriesGroups:
+            [
+                {
+                    type: 'pie',
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 },
+                            formatFunction: function (value) {
+                                if (isNaN(value))
+                                    return value;
+                                return parseFloat(value);
+                            },
+                        }
+                    ]
+                }
+            ]
+
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+
+    }
+
+    function DonutChartNew(ChartArea, ChartData, ChartType, LabelText) {
+
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        if (ChartType == 'donut') { InnerRadius = 50; };
+
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        var settings2 = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: true,
+            legendLayout: { left: 50, top: 50, width: 200, height: 700, flow: 'vertical' },
+            showBorderLine: true,
+            //  legendPosition: { left: 120, top: 140, width: 100, height: 100 },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            colorScheme: 'scheme02',
+            seriesGroups:
+            [
+                {
+                    type: ChartType,
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            innerRadius: InnerRadius,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 }//sufix: '%',
+
+                        }
+                    ]
+                }
+            ]
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings2);
+
+        $("#dvwaittext").hide();
+    }
+
+    function ColumnChartNew(ChartArea, ChartData, ChartType, LabelText) {
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: false,
+            source: dataAdapter2,
+            xAxis:
+            {
+                dataField: 'XGraphItem',
+                tickMarks: {
+                    visible: true,
+                    color: '#BCBCBC'
+                },
+                gridLines: {
+                    visible: true,
+                    color: '#BCBCBC'
+                }
+            },
+            valueAxis:
+            {
+                labels: { horizontalAlignment: 'right' },
+                tickMarks: { color: '#BCBCBC' }
+            },
+            colorScheme: 'scheme06',
+            seriesGroups:
+            [
+                {
+                    type: 'stackedcolumn',
+                    columnsGapPercent: 50,
+                    seriesGapPercent: 0,
+                    series: [
+                        { dataField: 'KpiName', displayText: 'Kpi' },
+                        { dataField: 'XGraphValue', displayText: 'Graph Value' },
+                        { dataField: 'XGraphItem', displayText: 'Graph Item' },
+                        { dataField: 'XCommissionPeriod', displayText: 'Period' }
+
+                    ]
+                }
+            ]
+        };
+
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+    }
+
+    function showmodel(GraphId, GraphType) {
+
+        if (GraphId == '') return;
+
+        $('#ModelData').jqxGrid('refresh');
+        $("#myModal1").modal('show');
+       
+        //GetGraphDetailsForModal(GraphId);
+        document.getElementById('ModelGraphID').value = GraphId;
+        //GraphData
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        // PieChart('#ModelChart', '#ModelData', data, 'pie', 'test');
+                        PieChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Donut Chart") {
+
+                        // DonutChart('#ModelChart', '#ModelData', data, 'donut', '');
+
+                        DonutChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Column Series") {
+
+                        //  ColumnChart('#ModelChart', '#ModelData', data, 'pie', '');
+                        ColumnChartDataforgrid('#ModelData', data);
+                    }
+                    //$('#ModelChart').jqxChart('refresh');
+
+                    //$('#ModelData').jqxGrid('refresh');
+
+                    //ModelData
+                }
+            }
+
+        });
+    }
+    //function Graphmodelbychannelandpayee(GraphId, GraphType ) {
+    //    $("#myModal1").modal('show');
+    //    GetGraphDetailsForModal(GraphId);
+    //    document.getElementById('ModelGraphID').value = GraphId;
+    //    //GraphData
+    //    $.ajax({
+    //        url: "/LDashboardConfig/GetGraphDataByChannelAndPayee",
+    //        type: "GET",
+    //        dataType: "JSON",
+    //        data: { GraphId: GraphId, strPeriods: SelectedPeriods, strDimension: Dimension, strChannels: PortfolioList, strPayeeIds: PayeeId  },
+    //        success: function (data) {
+    //            if (data.length != 0) {
+    //                if (GraphType == "Pie Chart") {
+    //                    PieChart('#ModelChart', '#ModelData', data, 'pie', 'test');
+    //                }
+    //                if (GraphType == "Donut Chart") {
+
+    //                    DonutChart('#ModelChart', '#ModelData', data, 'donut', '');
+    //                }
+    //                if (GraphType == "Column Series") {
+
+    //                    ColumnChart('#ModelChart', '#ModelData', data, 'pie', '');
+    //                }
+    //                $('#ModelChart').jqxChart('refresh');
+    //            }
+    //        }
+
+    //    });
+
+    //}
+    function FnGo() {
+
+        //if (typeof (Storage) !== "undefined")*/ /*{
+
+        var GraphId = document.getElementById('ModelGraphID').value;
+        var PayeeId = document.getElementById('PayeeList').value;
+        var PortfolioList = document.getElementById('PortfolioList').value;
+        var Dimension = document.getElementById("ModelDimension").value;/*document.getElementById('Dimension').value;*/
+        //sessionStorage.SelectedPayeeDropdownList = PayeeId == undefined ? '' : PayeeId;
+        //sessionStorage.SelectedGraphId = GraphId;
+        //sessionStorage.SelectedDimension = Dimension;
+        //sessionStorage.SelectedPortfolio = PortfolioList;
+        //sessionStorage.SelectedPayeeIndexes = PayeeCheckedIndexes;
+        //sessionStorage.SelectedPortfolioIndexes = PortfolioCheckedIndexes;
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphDataByChannelAndPayee",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, strDimension: document.getElementById('ModelDimension').Value, strChannels: PortfolioList, strPayeeIds: PayeeId, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        PieChart('#ModelChart', '#ModelData', data, 'pie', '');
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChart('#ModelChart', '#ModelData', data, 'donut', '');
+                    }
+                    if (GraphType == "Column Series") {
+                        ColumnChart('#ModelChart', '#ModelData', data, 'Pie', '');
+                    }
+
+                }
+            }
+
+        });
+
+        if (GraphId) {
+            window.location.href = '/LDashboardConfig/GraphicalDashboard?PayeeDropdownList=' + PId + '&PortfolioList=' + PortfolioList;
+        }
+
+        //else {
+        //    alert('Please choose data')
+        //}
+        //}
+    }
+    function RefreshModel(Dimension) {
+        //,
+        //document.getElementById('btnChannel').className = 'btn btn- red pull- left';
+        //document.getElementById('btnPayee').className = 'btn btn- red pull- left';
+        //document.getElementById('btnChannel').className = 'btn btn- red pull- left';
+
+        if (Dimension == 'Channel') { document.getElementById('btnChannel').className = 'btn btn- grey pull-left'; }
+        if (Dimension == 'Payee') { document.getElementById('btnPaye').className = 'btn btn- grey pull-left'; }
+        if (Dimension == 'Period') { document.getElementById('btnPeriod').className = 'btn btn- grey pull-left'; }
+        var Portfolios = document.getElementById('PortfolioList').value;
+        //var Payees = document.getElementById('PayeeId').value;
+        var Payees = document.getElementById('PayeeList').value;
+        var GraphId = document.getElementById('ModelGraphID').value;
+
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphDataForModel",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, strDimension: Dimension, strPortfolios: Portfolios, strPayees: Payees, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        PieChart('#ModelChart', '#ModelData', data, 'pie', '');
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChart('#ModelChart', '#ModelData', data, 'donut', '');
+                    }
+                    if (GraphType == "Column Series") {
+                        ColumnChart('#ModelChart', '#ModelData', data, 'pie', '');
+                    }
+
+                }
+            }
+
+        });
+    }
+    function GenerateGraphAreas() {
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphList",
+            type: "GET",
+            dataType: "JSON",
+            data: { strPeriods: SelectedPeriods },
+            success: function (data) {
+                if (data.length != 0) {
+                    for (var x = 0; x < data.length; x++) {
+                        Rendergraph(data[x].Id, x + 1, data[x].TileLabel, data[x].GraphType);
+                    }
+                }
+            }
+        });
+
+    }
+    function Rendergraph(GraphId, iNum, GraphLabel, GraphType) {
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: SelectedPeriods, BatchStatus: document.getElementById('BatchStatus').value },
+            success: function (data) {
+                if (data.length != 0) {
+
+                    document.getElementById('GraphID' + iNum).value = GraphId;
+                    document.getElementById('GraphType' + iNum).value = GraphType;
+
+                    if (GraphType == "Pie Chart") {
+                        PieChart('#ChartArea' + iNum, '#ModelData', data, 'pie', GraphLabel);
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChart('#ChartArea' + iNum, '#ModelData', data, 'donut', GraphLabel);
+                    }
+                    if (GraphType == "Column Series") {
+
+                        ColumnChart('#ChartArea' + iNum, '#ModelData', data, 'pie', GraphLabel);
+                        //DonutChart('#ChartArea'+iNum,'#ChartData'+iNum,data,'pie',GraphLabel);
+                    }
+                }
+            }
+        });
+    }
+    function LoadMyActions() {
+        //$.ajax({
+        //    url: "/LDashboardConfig/GetMyActions",
+        //    dataType: "json",
+        //    success: function (new_data) {
+        //        //document.getElementById('ActionList').value = new_data;
+        //        MyActionList = new_data;
+        //        //alert(MyActionList);
+        //        //$.each(new_data, function (index, levelInfoDetail) {
+        //        //$('#ActionPanel').append('<a href="/ManualAdjustments/UploadManualAdjustment"><u>'+levelInfoDetail.XCommissionPeriod+'</u></a>&ensp;');
+        //        //}
+        //    }
+        //});
+    }
+    function opengraphsetting() {
+        window.location.href = '/LDashboardConfig/ConfigureGraph/' + document.getElementById("ModelGraphID").value;
+    }
+    function SetBatchStatus() {
+        var radio = $('input[name=BatchStatus]:checked');
+        var bStat = radio.attr('id');
+
+        if (bStat == "rbPrelim") {
+            document.getElementById('BatchStatus').value = "Prelim";
+
+            sessionStorage.setItem("sessionBatchStatus", "Prelim")
+
+        }
+        if (bStat == "rbApproved") {
+            document.getElementById('BatchStatus').value = "Approved";
+            sessionStorage.setItem("sessionBatchStatus", "Approved")
+
+        }
+
+    }
+    $(document).ready(function () {
+
+        //checking the value of Batch status in session variable and selected respective radio button on pageload
+        if (sessionStorage.getItem("sessionBatchStatus") == "Approved") {
+            $("#rbApproved").attr('checked', 'checked');
+        }
+        else {
+            $("#rbPrelim").attr('checked', 'checked');
+        }
+        LoadPeriods();
+        //FnSampleGraph();
+        FillTileData();
+       
+        LoadPortfolios();
+        GenerateGraphAreas();
+        //LoadMyActions();
+
+    });
+</script>
+<style>
+    .floating-box {
+        float: left;
+        width: 200px;
+        height: 95px;
+        margin: 2px;
+        border: 1px solid white;
+        background-color: white;
+        border-radius: 1px;
+    }
+
+    /*.btn {
+        border: none;
+        outline: none;
+        padding: 0px;
+        background-color: #666;
+        cursor: pointer;
+        color: #FFFFFF;
+        margin: 5px;
+        font-size: 14px;
+        width: 100px;
+        text-align: center;
+    }
+
+        .btn:hover, .active {
+            background-color: #e60000;
+            color: white;
+        }*/
+
+    /*.button {
+        border-radius: 4px;
+        background-color: #e60000;
+        border: none;
+        color: #FFFFFF;
+        text-align: center;
+        font-size: 14px;
+        padding: 0px;
+        width: 100px;
+        transition: all 0.5s;
+        cursor: pointer;
+        margin: 5px;
+    }*/
+
+    /*.button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+        }*/
+
+    /*.button span:after {
+                content: '\00bb';
+                position: absolute;
+                opacity: 0;
+                top: 0;
+                right: -10px;
+                transition: 0.5s;
+            }*/
+
+    /*.button:hover span {
+            padding-right: 15px;
+        }*/
+
+    /*.button:hover span:after {
+                opacity: 1;
+                right: 0;
+            }*/
+</style>
+@*Flipper*@
+<style>
+    .teamlogo {
+        padding-left: 5%;
+    }
+    /* entire container, keeps perspective */
+    .flip-container {
+        /*perspective*/
+        -webkit-perspective: 1000;
+        -moz-perspective: 1000;
+        -ms-perspective: 1000;
+        -o-perspective: 1000;
+        perspective: 1000;
+    }
+    /* flip the pane when hovered */
+    .flipped {
+        /*transform*/
+        -webkit-transform: rotateY(180deg);
+        -moz-transform: rotateY(180deg);
+        -ms-transform: rotateY(180deg);
+        -o-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+    }
+
+    /*.flip-container, .front, .back {
+        width: 50px;
+        height: 50px;
+    }*/
+    /* flip speed goes here */
+    .flipper {
+        /*transition*/
+        -webkit-transition: 0.6s;
+        -moz-transition: 0.6s;
+        -o-transition: 0.6s;
+        transition: 0.6s;
+        /*transform-style*/
+        -webkit-transform-style: preserve-3d;
+        -moz-transform-style: preserve-3d;
+        -ms-transform-style: preserve-3d;
+        -o-transform-style: preserve-3d;
+        transform-style: preserve-3d;
+        position: relative;
+    }
+    /* hide back of pane during swap */
+    .front, .back {
+        /*backface-visibility*/
+        -webkit-backface-visibility: hidden;
+        -moz-backface-visibility: hidden;
+        -ms-backface-visibility: hidden;
+        -o-backface-visibility: hidden;
+        backface-visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    /* front pane, placed above back */
+    .front {
+        z-index: 2;
+    }
+    /* back, initially hidden pane */
+    .back {
+        /*transform*/
+        -webkit-transform: rotateY(180deg);
+        -moz-transform: rotateY(180deg);
+        -ms-transform: rotateY(180deg);
+        -o-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+    }
+</style>
+@*Flipper*@
+@*Roundbuttons*@
+<style>
+    .icon-background1 {
+        color: #ffc0ff;
+    }
+
+    .icon-background2 {
+        color: #ffffc0;
+    }
+
+    .icon-background3 {
+        color: #c0ffff;
+    }
+
+    .icon-background4 {
+        color: #c0ffc0;
+    }
+
+    .icon-background6 {
+        color: #40c040;
+    }
+
+    .icon-background5 {
+        color: #e60000;
+    }
+
+    .circle-icon2 {
+        background: #e60000;
+        padding: 30px;
+        border-radius: 50%;
+    }
+
+    .circle-icon {
+        background: #e60000;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 100px;
+        vertical-align: middle;
+        padding: 30px;
+        cursor: pointer;
+    }
+</style>
+@*Roundbuttons*@
+
+<div class="row">
+    <br/>
+    <span class="row col-lg-12 col-mg-12 col-sm-12 col-xs-12" style="color:indianred;font-size:small;">
+        Note: if you do not see your workflow shortcuts in the grey bar above, please reload the page.
+    </span>
+</div>
+<div id="jqxLoader">
+</div>
+
+<body>
+    @Html.Hidden("PeriodCodes")
+    @Html.Hidden("GraphID1")
+    @Html.Hidden("GraphID2")
+    @Html.Hidden("GraphID3")
+    @Html.Hidden("GraphID4")
+    @Html.Hidden("ModelGraphID")
+    @Html.Hidden("GraphType1")
+    @Html.Hidden("GraphType2")
+    @Html.Hidden("GraphType3")
+    @Html.Hidden("GraphType4")
+    @*@Html.Hidden("PayeeId")*@
+    @Html.Hidden("PayeeList")
+    @Html.Hidden("PortfolioList")
+    @Html.Hidden("ModelDimension")
+    @Html.Hidden("BatchStatus")
+    
+    <div class="row graphicaltopbar">
+        <div class="col-xs-12 col-sm-8">
+            @Html.Label("Period", htmlAttributes: new { @class = "control-label  required" })
+            <div style="display:inline-block;vertical-align:middle;">
+                <div id="listboxCommPeriod">
+                </div>
+            </div>
+            @Html.Label("Select Batch Status", htmlAttributes: new { @class = "control-label required" })
+            <label>@Html.RadioButtonFor(m => m.BatchStatus, false, htmlAttributes: new { id = "rbPrelim", @checked = true, @onclick = "return SetBatchStatus();" }) Prelim </label>
+            <label>@Html.RadioButtonFor(m => m.BatchStatus, false, htmlAttributes: new { id = "rbApproved", @onclick = "return SetBatchStatus();" }) Approved </label>
+            <button type="button" class="btn btn-red" style="height:28px; line-height:15px; padding-top:initial;" id="RefreshDashboard" onclick="RefreshDashboard()">Go</button>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 text-right">
+
+            @*<span id="takesnap" class="fa-stack fa-1x">
+                    <i class="fa fa-circle fa-stack-2x icon-background5"></i>
+                    <i class="fa fa-camera fa-stack-1x" style="color:white"></i>
+                </span>*@
+            <span class="fa-stack fa-1x fa-inverse" style="cursor: pointer;">
+                <i class="fa fa-circle fa-stack-2x fa-inverse icon-background5"></i>
+                <i class="fa fa-cog fa-stack-1x fa-inverse " style="color:white" onclick="location.href = '/LDashboardConfig/Index';"></i>
+            </span>
+
+
+            @*<button onclick="location.href = '/LDashboardConfig/Index';" class="button" style="float:right; height:30px"><span>Configure </span></button>*@
+        </div>
+
+    </div>
+
+    <div id="mainSplitter" style="height:100%" class="row">
+        <div class="splitter-panel GrahicalDahsboardTopBlock" id="toppanel">
+            <div class="overview-list container-fluid" style="background-color:gray; ">
+
+            </div>
+        </div>
+
+        <div id="GraphPanel1">
+            <div class="splitter-panel" id="graphpanel">
+                <div class="row">
+                    <div id="ConfigSection1" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                        <div id="chartbuttons1" style="display:none;">
+                            <button class="btn" style="visibility:hidden"> Channel</button>
+                        </div>
+                        <div id="ChartArea1" style="height:400px; width:100%;" onclick="fnOpenNewTabOnGraphclick(document.getElementById('GraphID1').value, document.getElementById('GraphType1').value);">
+                            @*onclick="showmodel(document.getElementById('GraphID1').value, document.getElementById('GraphType1').value); "*@
+
+                        </div>
+
+                        @*<div class="flip-container">
+                                <div class="flipper" onclick="showmodel();">
+                                    <div class="front" id="ChartArea1" style="height:350px; width:100%;  ">
+                                    </div>
+                                    <div class="back" id="ChartData1" style="height:350px; width:100%;">
+                                    </div>
+                                </div>
+                            </div>*@
+                    </div>
+                    <div id="ConfigSection2" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                        <div id="chartbuttons2" style="display:none;">
+                            <button class="btn" style="visibility:hidden"> Channel</button>
+                        </div>
+                        <div id="ChartArea2" style="height:400px; width:100%; " onclick="fnOpenNewTabOnGraphclick(document.getElementById('GraphID2').value, document.getElementById('GraphType2').value);">
+
+                            @*onclick="showmodel(document.getElementById('GraphID2').value, document.getElementById('GraphType2').value); ">*@
+                        </div>
+                    </div>
+                    <div id="ConfigSection3" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                        <div id="chartbuttons3" style="display:none;">
+                            <button class="btn" style="visibility:hidden"> Channel</button>
+                        </div>
+                        <div id="ChartArea3" style="height:400px; width:100%; " onclick="fnOpenNewTabOnGraphclick(document.getElementById('GraphID3').value, document.getElementById('GraphType3').value);">
+                            @*onclick="showmodel(document.getElementById('GraphID3').value, document.getElementById('GraphType3').value); "*@
+                        </div>
+                    </div>
+                    <div id="ConfigSection4" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                        <div id="chartbuttons4" style="display:none;">
+                            <button class="btn" style="visibility:hidden"> Channel</button>
+                        </div>
+                        <div id="ChartArea4" style="height:400px; width:100%; vertical-align:top" onclick="fnOpenNewTabOnGraphclick(document.getElementById('GraphID4').value, document.getElementById('GraphType4').value);">
+                            @*onclick="showmodel(document.getElementById('GraphID4').value, document.getElementById('GraphType4').value); ">*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br style="line-height: 70%;" />
+        </div>
+    </div>
+    @*@Html.Partial("_GlobalPayeeGrid")*@
+    <script>
+        $(document).ready(function () {
+            //save return url
+            $.ajax({
+                data: { path: window.location.pathname },
+                url: "/Home/SaveReturnPath",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+            //RK Added
+        })
+    </script>
+</body>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog" style="height:500px; width:90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="PopupHeader">Graph Title goes here.</h4>
+                    <div class="form-group" style="display:none">
+                            @Html.LabelFor(model => model.PortfolioIds, htmlAttributes: new { @class = "control-label col-md-1" })
+                            <div class="col-md-4">
+                                <div id="listboxPortfolio">
+                                </div>
+                            </div>
+                            @Html.LabelFor(model => model.PayeeCodes, htmlAttributes: new { @class = "control-label col-md-1" })
+                            <div class="col-md-4">
+                                <div id="listboxPayee">
+                                </div>
+                            </div>
+                        </div>
+                        @*<button type="button" class="btn btn-red pull-right" id="RefreshModal" onclick="FnGo()" ;"style="height:28px; padding-top:initial; top:unset">Go</button>
+                    <button class="btn"> Channel</button><button class="btn"> Payee </button> <button class="btn"> Period</button>*@
+
+                </div>
+
+            <div class="modal-body" style="height:500px">
+          
+                @*style=" left:0; height:400px; width:99%;"*@
+                @*<div class="flipper" style="left:0; top:0; height:385px; width:100%; border:1px solid; " onclick="this.classList.toggle('flipped')">*@
+                @*<div class="front" id="ModelChart" style=" left:2px; height:375px; width: 98%;">
+        </div>*@
+
+                @*</div>*@
+                @*<div class="flip-container">*@
+                @*<div>*@
+                @*class="flipper" onclick="this.classList.toggle('flipped')"style="left:0; top:0; height:450px; width:100%; border:1px solid; "*@
+
+                @*<div class="front" id="ModelChart" style="height:450px; width:100%;">
+                </div>
+            <div id="ModelData" style="height:400px; width:100%;">
+            </div>
+        </div>*@
+                @*</div>*@
+
+
+                @*<div class="col-md-12 col-lg-12" style="border-radius: 5px; border: 1px solid lightgrey;width:100%;margin-top:10px;">*@
+                <div id='jqxTabs' class="inner-tabs tabbable boxed parentTabs" style="margin-top:0px;width:100%">
+                    <ul class="nav nav-tabs">
+                        <li id="tbGraphView" class="active"><a data-toggle="tab" href="#graphview" style="font-size: small;"><span id="graphtext"></span></a></li>
+                        <li id="tbGraphData"><a data-toggle="tab" href="#graphdata" style="font-size: small;"><span id="graphtextData"></span></a></li>
+
+                    </ul>
+                    <div class="tab-content">
+
+                        <div class="tab-pane fade active in" id="graphview">
+
+                            <div id="ChartView" style="height:400px; width:100%"></div>
+
+
+                        </div>
+                        <div class="tab-pane fade" id="graphdata">
+                            <div id="ModelData">
+                            </div>
+                            <button id="btnDownload " type="button" class="btn btn-red pull-right" onclick="DownloadGridData()">Download</button>
+                        </div>
+
+                    </div>
+                </div>
+                @*</div>*@
+
+
+            </div>
+            @*<div class="modal-footer">
+                    <button id="btnChannel" type="button" class="btn btn-red pull-left" onclick="RefreshModel('Channel')">Channel</button>
+                    <button id="btnPayee" type="button" class="btn btn-red pull-left" onclick="RefreshModel('Payee')">Payee</button>
+                    <button id="btnPeriod" type="button" class="btn btn-red pull-left" onclick="RefreshModel('Period')">Period</button>
+                    <button type="button" class="btn btn-red pull-right">Download Data</button>
+                    <button id="btnDownload " type="button" class="btn btn-red pull-right" onclick="DownloadGridData()">Download Data</button>
+                    <button id="opengraphsetting " type="button" class="btn btn-red pull-right" onclick="opengraphsetting()">open Graph setting</button>
+                </div>*@
+        </div>
+
+    </div>
+</div>
+
+<div id="loadertext" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                <input type="button" class="btn btn-red" value="Ok" data-dismiss="modal" />
+</div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+@* Modal related scripts *@
+<script>
+    var PortfolioCheckedIndexes = "";
+    var PayeeCheckedIndexes = "";
+    function LoadPortfolios() {
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+            }
+        });
+        var Channelsource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Portfolio', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LDashboardConfig/GetPortfolioForDropDown"
+        };
+        var ChannelAdapter = new $.jqx.dataAdapter(Channelsource)
+        // Create a jqxListBox
+        $("#listboxPortfolio").jqxDropDownList({ checkboxes: true, source: ChannelAdapter, displayMember: "Portfolio", valueMember: "Id", dropDownWidth: 280, placeHolder: "-- Select Here --", width: '280px' });
+        PortfolioCheckedIndexes = '';
+        GetPayeeListBox();//defualt binding
+        //FnLoadPayeeGrid();//Called in a function from GlobalPayeeGrid
+        $("#listboxPortfolio").on('bindingComplete', function (event) {
+            var PortfolioArray = document.getElementById('PortfolioList').value.split(',');
+            for (var i = 0; i < PortfolioArray.length; ++i) {
+                $("#listboxPortfolio").jqxDropDownList('checkItem', Number(PortfolioArray[i]));
+            }
+        });
+        $("#listboxPortfolio").on('checkChange', function (event) {
+            var args = event.args;
+            var items = $("#listboxPortfolio").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            PortfolioCheckedIndexes = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    PortfolioCheckedIndexes += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    PortfolioCheckedIndexes += this.index;
+                }
+            });
+            document.getElementById('PortfolioList').value = checkedItems;
+            SelectedPortfolios = checkedItems;
+            GetPayeeListBox(); 
+            //FnLoadPayeeGrid();//Called in a function from GlobalPayeeGrid
+        });
+    }
+    function GetPayeeListBox() {
+        var Portfolio = document.getElementById('PortfolioList').value
+        var source1 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' }
+            ],
+            data: { PortfolioList: Portfolio },
+            id: "Id",
+            url: "/LDashboardConfig/GetPayeeByPortfolioMatchingGrid"
+        };
+        var dataAdapter1 = new $.jqx.dataAdapter(source1)
+        // Create a jqxListBox
+        $("#listboxPayee").jqxDropDownList({ checkboxes: true, source: dataAdapter1, displayMember: "FullName", valueMember: "Id", dropDownWidth: 280, placeHolder: "-- Select Here --", width: '280px' });
+        $("#listboxPayee").on('bindingComplete', function (event) {
+            //var payeeArray = String(//atherate_Model.PayeeCodes).split(',');
+            var payeeArray = document.getElementById('PayeeList').value.split(',');
+            for (var i = 0; i < payeeArray.length; ++i) {
+                $("#listboxPayee").jqxDropDownList('checkItem', Number(payeeArray[i]));
+            }
+        });
+        $("#listboxPayee").on('checkChange', function (event) {
+            var args = event.args;
+            if (args.checked) {
+                $("#Events").text("Checked: " + args.label);
+            }
+            else {
+                $("#Events").text("Unchecked: " + args.label);
+            }
+            var items = $("#listboxPayee").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            PayeeCheckedIndexes = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    PayeeCheckedIndexes += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    PayeeCheckedIndexes += this.index;
+                }
+
+            });
+            document.getElementById('PayeeList').value = checkedItems;
+            SelectedPayees = checkedItems;
+
+        });
+    }
+
+    //function DownloadGridData() {
+    //    $("#ModelData").jqxGrid('exportdata', 'csv', 'Dashboard Data');
+    //}
+    function DownloadGridData() {
+        $('#loadertext').modal();
+        window.location.href = '/LDashboardConfig/DownloadGraphData?GraphId=' + graphgridid + "&strPeriods=" + SelectedPeriods + "&BatchStatus=" + document.getElementById('BatchStatus').value;
+
+    }
+</script>
+

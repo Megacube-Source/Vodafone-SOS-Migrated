@@ -1,0 +1,202 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<script>
+
+    $(document).ready(function () {
+       
+        $("#Changedate").jqxDateTimeInput({ width: '49%', height: '22px', placeHolder: "DD/MM/YYYY"});
+        $('#Changedate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LcrEffectiveStartDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+        });
+        $('#Changedate').jqxDateTimeInput('setDate', new Date());
+    })
+
+        $('#Changedate').jqxDateTimeInput('setDate', new Date());
+    function SubmitForm() {
+        $("#myModal1").modal();
+
+    }
+    function FinalSubmit() {
+       
+            document.getElementById('frm').submit()
+       
+    }
+    </script>
+
+<h3>Are you sure you want to delete this Payee ?</h3>
+<div>
+@using (Html.BeginForm(null, null, FormMethod.Post, new {id="frm",name="frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m=>m.LcrEffectiveStartDate)
+    <dl class="dl-horizontal">
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LppParentPayeeId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LppParentPayeeId)
+        </dd>
+
+       
+        <dt>
+            @Html.DisplayNameFor(model => model.LpFirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpFirstName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LpLastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpLastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpTradingName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpTradingName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpBusinessUnit)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpBusinessUnit)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RcName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RcName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RscName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RscName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpPayeeCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpPayeeCode)
+        </dd>
+
+     
+        <dt>
+            @Html.DisplayNameFor(model => model.LpPhone)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpPhone)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpEmail)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpEmail)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpEffectiveStartDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpEffectiveStartDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpEffectiveEndDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpEffectiveEndDate)
+        </dd>
+
+       
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpFileNames)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpFileNames)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LpUserFriendlyFileNames)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LpUserFriendlyFileNames)
+        </dd>
+
+        
+
+    </dl>
+
+
+        <div class="form-actions no-color">
+            <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-info" />
+            <input type="button" onclick="SubmitForm()" value="Delete" class="btn btn-danger" /> 
+           
+        </div>
+}
+</div>
+
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Please provide Effective Date for termination</h4>
+            </div>
+            <div class="modal-body">
+
+                <div id="Changedate"></div>&ensp;<br><input type="button" class="btn btn-info" value="Save" onclick="FinalSubmit()">
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>*@
+        </div>
+
+    </div>
+</div>
+<br />
+<br />&ensp;

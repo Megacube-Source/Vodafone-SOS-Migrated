@@ -1,0 +1,102 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LWorkflowGridColumnViewModel
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+
+<h3>Are you sure you want to delete this WorkFlow Configuration?</h3>
+
+
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" id="cid" name="cid" style="width:20%">
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+        @Html.Label("WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" style="width:20%">
+            @Html.DropDownList("WFId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+
+        </div>
+    </div>
+</div>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id)
+        @Html.Hidden("WFId")
+        @Html.Hidden("ConfigId")
+        @Html.Hidden("CompanyId")
+        @Html.Hidden("RoleId")
+        @Html.Hidden("Role")
+
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcColumnName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcColumnName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcUILabel)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcUILabel)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcShouldBeVisible)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcShouldBeVisible)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcOrderByOrdinal)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcOrderByOrdinal)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcAscDesc)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcAscDesc)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcWfConfigId)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcWfConfigId)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcOrdinal)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcOrdinal)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.LwfgcFunctionName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.LwfgcFunctionName)
+            </dd>
+        </dl>
+
+
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="submit" class="btn btn-red btn-cons">Delete&nbsp;</button>
+
+        </div>
+    }
+</div>

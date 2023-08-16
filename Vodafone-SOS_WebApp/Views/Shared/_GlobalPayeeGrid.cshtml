@@ -1,0 +1,514 @@
+﻿
+<script>
+    var SelectedOption = 'Payee'
+    $(document).ready(function () {
+        var totalcount = 0;
+        //Sction to display payee grid in popup
+        FnLoadPayeeGrid();
+        //Binding event
+        var PayeeNameList = '';
+        var Payee = '';
+        $("#jqxPopupgrid").on("bindingcomplete", function (event) {
+            if (SelectedOption == 'Payee') {
+                 Payee = document.getElementById('PayeeId').value
+            } else {
+                Payee = document.getElementById('ParentPayeeId').value
+            }
+            if (Payee && Payee != 0) {
+                var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+                var PayeeArray = String(Payee).split(',');
+                if (PayeeArray.length > 0) {
+                    // alert(ParentPayee)
+                    for (var i = 0; i < PayeeArray.length; ++i) {
+                        var PayeeId = PayeeArray[i];
+                        var rowboundindex = $('#jqxPopupgrid').jqxGrid('getrowboundindexbyid', PayeeId);
+                        $('#jqxPopupgrid').jqxGrid('selectrow', rowboundindex);
+                        //console.log(GridRows[rowboundindex])
+                        PayeeNameList += GridRows[rowboundindex].LpFirstName + ' ' + ((GridRows[rowboundindex].LpLastName) ? String(GridRows[rowboundindex].LpLastName) : '') + ' (' + String(GridRows[rowboundindex].LpPayeeCode) + ') ' + ",";
+                    }
+                    document.getElementById('PayeeName').value = PayeeNameList;
+                    //Load Parent Grid For Claims
+                    if (document.getElementById('LcParentPayeeId')) {
+                        FnLoadParentGrid();
+                    }
+                }
+            }
+        });
+        //Section ends here
+
+    });
+
+    //save Selected Payee from Grid
+    function FnSaveSelectedPayee() {
+        var SelectionMode = '@ViewBag.SelectionMode';
+        var PayeeId = '';
+        var PayeeName = '';
+        if (SelectionMode == 'checkbox') {
+
+            var datacheck = false;
+            var isAnothercallRequired = false;
+            if (totalcount != $('#jqxPopupgrid').jqxGrid('getselectedrowindexes').length) {
+
+                var items = $('#jqxPopupgrid').jqxGrid('getselectedrowindexes');
+                $.each(items, function (index) {
+                    if (items[index] >= 200)
+                    {
+                        isAnothercallRequired = true;
+                    }
+                });
+                if (isAnothercallRequired == false) {
+                    $.each(items, function (index) {
+                        //   var data = $('#jqxPopupgrid').jqxGrid('getrowdata', this);
+                        var data = $('#jqxPopupgrid').jqxGrid('getrowdata', items[index]);
+                        if (index < items.length - 1) {
+                            PayeeId += data.Id + ",";
+                            PayeeName += data.LpFirstName + ' ' + ((data.LpLastName) ? String(data.LpLastName) : '') + ' (' + String(data.LpPayeeCode) + ') ' + ",";
+                            //PayeeCheckedIndexes += this + ',';
+
+                        }
+                        else {
+                            PayeeId += data.Id;
+                            PayeeName += data.LpFirstName + ' ' + ((data.LpLastName) ? String(data.LpLastName) : '') + ' (' + String(data.LpPayeeCode) + ') ';
+                            //PayeeCheckedIndexes += this;
+
+                        }
+
+                    });
+                } else {
+
+                    $.ajax({
+                        data: { PortfolioList: '', PayeeId: '', pagesize: 10000, pagenum: 0, PayeeId: '' },
+                        url: "/LPayees/GetPayeeByPortfolioMatchingGridCommon",
+                        dataType: "json",
+                        type: "POST",
+                        async: false,
+                        success: function (data) {
+                            $.each(data, function (idx, data1) {
+                                $.each(items, function (index) {
+                                    if(items[index] == idx) {
+                                    PayeeId += data1.Id + ",";
+                                    PayeeName += data1.LpFirstName + ' ' + ((data1.LpLastName) ? String(data1.LpLastName) : '') + ' (' + String(data1.LpPayeeCode) + ') ' + ",";
+                                }
+                                });
+                            });
+                        },
+                        error: function (error) {
+                        }
+                    });
+                    PayeeId = PayeeId.slice(0, -1);
+                    PayeeName = PayeeName.slice(0, -1);
+                }
+
+
+            } else {
+
+                $.ajax({
+                    data: { PortfolioList: '', PayeeId: '', pagesize: 10000, pagenum: 0, PayeeId: '' },
+                    url: "/LPayees/GetPayeeByPortfolioMatchingGridCommon",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            PayeeId += data1.Id + ",";
+                            PayeeName += data1.LpFirstName + ' ' + ((data1.LpLastName) ? String(data1.LpLastName) : '') + ' (' + String(data1.LpPayeeCode) + ') ' + ",";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+                PayeeId = PayeeId.slice(0, -1);
+                PayeeName = PayeeName.slice(0, -1);
+            }
+
+
+            document.getElementById('PayeeId').value = PayeeId;
+            document.getElementById('PayeeName').value = PayeeName;
+            //Load Parent Grid For Claims
+            if (document.getElementById('LcParentPayeeId')) {
+                FnLoadParentGrid();
+            }
+            if (document.getElementById('LcParentPayeeId')) {
+                document.getElementById('LcParentPayeeId').value = 0;
+                document.getElementById('ParentName').value = ''
+            }
+            //var data = $('#jqxPopupgrid').jqxGrid('getrowdata', rowindex);
+        }
+        else {
+            var item = $('#jqxPopupgrid').jqxGrid('getselectedrowindex');
+            var Payeedata = $('#jqxPopupgrid').jqxGrid('getrowdata', item);
+            //console.log(Payeedata)
+            PayeeId = Payeedata.Id;
+            PayeeName = String(Payeedata.LpFirstName) + ' ' + ((Payeedata.LpLastName) ? String(Payeedata.LpLastName):'') + ' (' + String(Payeedata.LpPayeeCode)+') ';
+            document.getElementById('PayeeId').value = PayeeId;
+            document.getElementById('PayeeName').value = PayeeName;
+            //Load Parent Grid For Claims
+            if (document.getElementById('LcParentPayeeId')) {
+                FnLoadParentGrid();
+            }
+           // PayeeCheckedIndexes = item;
+            if ($("#ParentName").length !== 0) {
+                if (document.getElementById('LppParentPayeeId')) {
+                    document.getElementById('LppParentPayeeId').value = PayeeId;
+                    document.getElementById('ParentName').value = PayeeName;
+                }
+                if (document.getElementById('LcParentPayeeId')) {
+                    document.getElementById('LcParentPayeeId').value = 0;
+                    document.getElementById('ParentName').value = ''
+                }
+            }
+
+            if ($("#listboxChannels").length == 1) {
+                LoadChannels(PayeeId);
+            }
+        }
+    }
+
+    function FnSaveSelectedParentPayee() {
+
+        var SelectionMode = '@ViewBag.SelectionMode';
+        var PayeeId = '';
+        var PayeeName = '';
+        if (SelectionMode == 'checkbox') {
+
+            var datacheck = false;
+            var isAnothercallRequired = false;
+            if (totalcount != $('#jqxPopupgrid').jqxGrid('getselectedrowindexes').length) {
+
+                var items = $('#jqxPopupgrid').jqxGrid('getselectedrowindexes');
+                $.each(items, function (index) {
+                    if (items[index] >= 200) {
+                        isAnothercallRequired = true;
+                    }
+                });
+                if (isAnothercallRequired == false) {
+                    $.each(items, function (index) {
+                        var data = $('#jqxPopupgrid').jqxGrid('getrowdata', this);
+                        if (index < items.length - 1) {
+                            PayeeId += data.Id + ",";
+                            PayeeName += data.LpFirstName + ' ' + ((data.LpLastName) ? String(data.LpLastName) : '') + ' (' + String(data.LpPayeeCode) + ') ' + ",";
+                            //PayeeCheckedIndexes += this + ',';
+
+                        }
+                        else {
+                            PayeeId += data.Id;
+                            PayeeName += data.LpFirstName + ' ' + ((data.LpLastName) ? String(data.LpLastName) : '') + ' (' + String(data.LpPayeeCode) + ') ';
+                            //PayeeCheckedIndexes += this;
+
+                        }
+
+                    });
+                } else {
+                    $.ajax({
+                        data: { PortfolioList: '', PayeeId: '', pagesize: 10000, pagenum: 0, PayeeId: '' },
+                        url: "/LPayees/GetPayeeByPortfolioMatchingGridCommon",
+                        dataType: "json",
+                        type: "POST",
+                        async: false,
+                        success: function (data) {
+                            $.each(data, function (idx, data1) {
+                                $.each(items, function (index) {
+                                    if (items[index] == idx) {
+                                        PayeeId += data1.Id + ",";
+                                        PayeeName += data1.LpFirstName + ' ' + ((data1.LpLastName) ? String(data1.LpLastName) : '') + ' (' + String(data1.LpPayeeCode) + ') ' + ",";
+                                    }
+                                });
+                            });
+                        },
+                        error: function (error) {
+                        }
+                    });
+                    PayeeId = PayeeId.slice(0, -1);
+                    PayeeName = PayeeName.slice(0, -1);
+
+                }
+
+
+            } else {
+
+                $.ajax({
+                    data: { PortfolioList: '', PayeeId: '', pagesize: 10000, pagenum: 0, PayeeId: '' },
+                    url: "/LPayees/GetPayeeByPortfolioMatchingGridCommon",
+                    dataType: "json",
+                    type: "POST",
+                    async: false,
+                    success: function (data) {
+                        $.each(data, function (idx, data1) {
+                            PayeeId += data1.Id + ",";
+                            PayeeName += data1.LpFirstName + ' ' + ((data1.LpLastName) ? String(data1.LpLastName) : '') + ' (' + String(data1.LpPayeeCode) + ') ' + ",";
+                        });
+                    },
+                    error: function (error) {
+                    }
+                });
+                PayeeId = PayeeId.slice(0, -1);
+                PayeeName = PayeeName.slice(0, -1);
+            }
+
+
+            document.getElementById('ParentPayeeId').value = PayeeId;
+            document.getElementById('ParentName').value = PayeeName;
+
+        }
+
+    }
+
+
+    //Load Payee Grid in a Popup
+    function FnLoadPayeeGrid() {
+
+        //$("#jqxPopupgrid").jqxGrid('clear');
+        var PortfolioList = '';
+        if (document.getElementById('PortfolioList'))
+            PortfolioList = document.getElementById('PortfolioList').value
+        var PayeeIdList = '';
+        if (document.getElementById('PayeeId'))
+            PayeeIdList = document.getElementById('PayeeId').value
+        $.ajax({
+            data: { PortfolioList: PortfolioList},
+            url: "/LPayees/GetPayeeGridByPortfolioMatchingCounts",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+                //alert(counts)
+                //The below code will load a grid of portfolios on this page
+                totalcount = counts;
+                var Parentsource = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'FullName', type: 'string' },
+                        { name: 'LpPrimaryChannel', type: 'string' },
+                        { name: 'LpFirstName', type: 'string' },
+                        { name: 'LpLastName', type: 'string' },
+                        { name: 'LpTradingName', type: 'string' },
+                        { name: 'LpPayeeCode', type: 'string' },
+                        { name: 'LpEffectiveEndDate', type: 'date' },
+                        { name: 'LpCreateLogin', type: 'boolean' }
+
+                    ],
+                    id: "Id",
+                    data: { PortfolioList: PortfolioList, PayeeId: PayeeIdList },
+                    url: "/LPayees/GetPayeeByPortfolioMatchingGrid",
+                    // update the grid and send a request to the api
+                    filter: function () {
+                       // $("#jqxPopupgrid").jqxGrid('clear');
+                        $('#jqxPopupgrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxPopupgrid').jqxGrid('clearselection');
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                       // $("#jqxPopupgrid").jqxGrid('clear');
+                        $('#jqxPopupgrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxPopupgrid').jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        Parentsource.totalrecords = counts;
+                    }
+                };
+
+                var ParentdataAdapter = new $.jqx.dataAdapter(Parentsource)
+                var SelectionMode = '@ViewBag.SelectionMode';
+
+                $('#jqxPopupgrid').jqxGrid({
+                    source: ParentdataAdapter,
+                    width: '100%',
+                    height: '400px',
+                    // autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    altrows: true,
+                    pageable: true,
+                    pagesize: 200,
+                    pagesizeoptions: ['50', '100', '200', '500', '1000'],
+                    filterable: true,
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    autoshowcolumnsmenubutton: false,
+                    showstatusbar: false,
+                    virtualmode: true,
+                    selectionmode: SelectionMode,
+                    //ready: function () {
+
+                    //},
+                    rendergridrows: function () {
+                        return ParentdataAdapter.records;
+                    },
+                    
+                    columns: [
+                        { text: 'Payee Code', datafield: 'LpPayeeCode' },
+                        { text: 'First Name', datafield: 'LpFirstName' },
+                        { text: 'Last Name', datafield: 'LpLastName' },
+                        { text: 'Trading Name', datafield: 'LpTradingName' },
+                        { text: 'Primary Channel', datafield: 'LpPrimaryChannel' },
+                        { text: 'End Date', datafield: 'LpEffectiveEndDate', cellsformat: 'dd/MM/yyyy' },
+                        { text: 'Login',  datafield:'LpCreateLogin' }
+
+                    ]
+                });   
+
+            }
+        });
+    }
+
+    function FnLoadPopup() {
+        //LoadModal = true;
+       // FnLoadPayeeGrid();
+        SelectedOption = 'Payee';
+        var Form = '@ViewBag.FormType'
+     
+            $("#btnParentPayee").hide();
+            $("#btnPayee").show();
+        if (Form != 'disabled') {
+            $("#GlobalPayeeModal").modal({ backdrop: 'static', keyboard: false }, 'show');  // not allowing to close the popup when clicked outside the pop up
+            $('.modal-dialog').css('width', $(window).width() * 0.9); //increased the width of pop up
+            // $('#GlobalPayeeModal').modal(); //not required
+
+            $('#jqxPopupgrid').jqxGrid('clearselection');
+          
+            var example = document.getElementById('PayeeId').value;
+
+            // Split through each of your values and alert each number
+            var numbers = example.split(',');
+
+            // Iterate through each value
+            
+
+            var datainfo = $("#jqxPopupgrid").jqxGrid('getdatainformation');
+            var paginginfo = datainfo.paginginformation;
+
+            var page_size = paginginfo.pagesize;
+            var page_number = paginginfo.pagenum;
+
+
+
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows');
+            if (page_number == 0) {
+
+
+                for (var i = 0; i < GridRows.length; ++i) {
+
+                    for (var j = 0; j < numbers.length; j++) {
+                        if (GridRows[i].Id == numbers[j]) {
+                            $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                        }
+                    }
+
+
+                }
+            }
+            else {
+
+                var j = (page_size * page_number) + page_size;
+                var k = 0;
+                for (var i = (page_size * page_number); i < j; ++i) {
+                    for (var ii = 0; ii < numbers.length; ii++) {
+                        if (GridRows[k].Id == numbers[ii]) {
+                            $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                        }
+                    }
+
+                    //if (GridRows[k].Select == true) {
+                    //    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                    //}
+                    k++;
+                }
+            }
+
+        }
+    }
+    function FnLoadParentPopup() {
+        //LoadModal = true;
+        //FnLoadPayeeGrid();
+      //  document.getElementById("callFrom").value = "Parent";
+        SelectedOption = 'ParentPayee'
+        $("#btnParentPayee").show();
+        $("#btnPayee").hide();
+        var Form = '@ViewBag.FormType'
+        if (Form != 'disabled') {
+            $("#GlobalPayeeModal").modal({ backdrop: 'static', keyboard: false }, 'show');  // not allowing to close the popup when clicked outside the pop up
+            $('.modal-dialog').css('width', $(window).width() * 0.9); //increased the width of pop up
+            // $('#GlobalPayeeModal').modal(); //not required
+
+            $('#jqxPopupgrid').jqxGrid('clearselection');
+            var example = document.getElementById('ParentPayeeId').value;
+
+            // Split through each of your values and alert each number
+            var numbers = example.split(',');
+
+            // Iterate through each value
+
+
+            var datainfo = $("#jqxPopupgrid").jqxGrid('getdatainformation');
+            var paginginfo = datainfo.paginginformation;
+
+            var page_size = paginginfo.pagesize;
+            var page_number = paginginfo.pagenum;
+
+
+
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows');
+            if (page_number == 0) {
+
+
+                for (var i = 0; i < GridRows.length; ++i) {
+
+                    for (var j = 0; j < numbers.length; j++) {
+                        if (GridRows[i].Id == numbers[j]) {
+                            $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                        }
+                    }
+
+
+                }
+            }
+            else {
+
+                var j = (page_size * page_number) + page_size;
+                var k = 0;
+                for (var i = (page_size * page_number); i < j; ++i) {
+                    for (var ii = 0; ii < numbers.length; ii++) {
+                        if (GridRows[k].Id == numbers[ii]) {
+                            $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                        }
+                    }
+
+                    //if (GridRows[k].Select == true) {
+                    //    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                    //}
+                    k++;
+                }
+            }
+
+            
+        }
+    }
+    
+
+</script>
+
+<!-- This code displays a popup to get Selected Payees-->
+<div class="modal fade" id="GlobalPayeeModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">Select Payees</h4>
+            </div>
+            <div class="modal-body" >
+                <div id="jqxPopupgrid" style="height:400px !important"></div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button"  id="btnPayee" class="btn btn-red pull-left" onclick="FnSaveSelectedPayee();" data-dismiss="modal" >Ok</button>&ensp;
+                <button type="button" id="btnParentPayee" class="btn btn-red pull-left" onclick="FnSaveSelectedParentPayee();" data-dismiss="modal" style="display:none;">Ok</button>&ensp;
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>

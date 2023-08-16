@@ -1,0 +1,242 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+
+@{
+    ViewBag.Title = "PayeeTree";
+}
+
+<script src="~/Scripts/jqxribbon.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script>
+    $(document).ready(function () {
+
+        //This ajax call is being made to controller to save the current page url in session which will be the url of back button  in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //The below line adds a jqxdatetime control in view to get as of date to display tree
+        $("#TreeAsOfDate").jqxDateTimeInput({ width: '20%', height: '22px', placeHolder: "DD/MM/YYYY" });
+        $('#TreeAsOfDate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AsOfDate').value = date;
+            //This method is called to load tree on changing value of As of Date in view
+            GetPayeetree()
+        });
+        $('#TreeAsOfDate').jqxDateTimeInput('setDate', new Date());
+    })
+
+    var AlreadySelectedPayees = [];
+    //This function is called when we type any text in the search text box above payee tree to search that payee in tree
+    function FnSearchTree(SearchText) {
+        document.getElementById('SearchButton').className ='glyphicon glyphicon-arrow-right'
+        var items = $("#jqxPayeeTree").jqxTree('getItems');
+        var PreviousCount = AlreadySelectedPayees.length;
+        for (var i = 0; i < items.length; i++) {
+            var SearchData = SearchText.toLowerCase();
+            var TreeData = items[i].label;
+            var PayeeName = TreeData.toString().toLowerCase();
+            if (SearchData) {
+                if (PayeeName.search(SearchData) != -1 && AlreadySelectedPayees.indexOf(PayeeName) == -1) {
+                    AlreadySelectedPayees.push(PayeeName);
+                    $("#jqxPayeeTree").jqxTree('collapseAll')
+                    if (items[i].parentElement.parentElement.parentElement.parentElement) {
+                        $("#jqxPayeeTree").jqxTree('expandItem', items[i].parentElement.parentElement.parentElement.parentElement);
+                    }
+                    if (items[i].parentElement.parentElement.parentElement) {
+                        $("#jqxPayeeTree").jqxTree('expandItem', items[i].parentElement.parentElement.parentElement);
+                    }
+                    if (items[i].parentElement.parentElement)
+                    {
+                       $("#jqxPayeeTree").jqxTree('expandItem', items[i].parentElement.parentElement);
+                    }
+                    if (items[i].parentElement) {
+                        $("#jqxPayeeTree").jqxTree('expandItem', items[i].parentElement);
+                    }
+                    $("#jqxPayeeTree").jqxTree('selectItem', items[i])
+                    break;
+                }
+
+            }
+           // alert('No more results found')
+        }
+        var NewCount = AlreadySelectedPayees.length;
+        if (PreviousCount == NewCount)
+        {
+            alert('No more results found')
+            AlreadySelectedPayees = [];
+            document.getElementById('SearchButton').className = 'glyphicon glyphicon-search'
+        }
+        console.log(AlreadySelectedPayees)
+    }
+
+    //This method loads data in the payee tree
+    function GetPayeetree() {
+        var Form1 = $("#frm")
+        //alert(dat)
+        //adding tree for Approved Payees
+        $.ajax({
+            data: Form1.serialize(),
+            url: "/LPayees/GetApprovedPayeePortfolioTree",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var source1 =
+                    {
+                        datatype: "json",
+                        datafields: [
+                            { name: 'id' },
+                            { name: 'parentid' },
+                            { name: 'text' },
+                            { name: 'value' }
+                        ],
+                        id: 'id',
+                        localdata: data
+                    };
+
+                var dataAdapter = new $.jqx.dataAdapter(source1);
+
+                dataAdapter.dataBind();
+                var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                $('#jqxPayeeTree').jqxTree({ source: records, enableHover: false, width: '100%', keyboardNavigation: true });
+                $('#jqxPayeeTree').jqxTree('expandAll')
+                var contextMenu = null;
+                var clickedItem = null;
+
+                var attachContextMenu = function () {
+                    // open the context menu when the user presses the mouse right button.
+                    $("#jqxPayeeTree li").on('mousedown', function (event) {
+                        var target = $(event.target).parents('li:first')[0];
+                        var rightClick = isRightClick(event);
+                        if (rightClick && target != null) {
+                            $("#jqxPayeeTree").jqxTree('selectItem', target);
+                            var scrollTop = $(window).scrollTop();
+                            var scrollLeft = $(window).scrollLeft();
+
+                            var selectedItem = $('#jqxPayeeTree').jqxTree('getSelectedItem');
+                            var value = selectedItem.value;
+                            $.ajax({
+                                data: { SelectedValue: value },
+                                url: "/LPayees/GetTreeMenuItemsForPortfolioTree",
+                                dataType: "json",
+                                type: "POST",
+                                success: function (data) {
+                                    var sourceMenu =
+                                        {
+                                            datatype: "json",
+                                            datafields: [
+                                                { name: 'id' },
+                                                { name: 'parentid' },
+                                                { name: 'text' },
+                                                { name: 'subMenuWidth' }
+                                            ],
+                                            id: 'id',
+                                            localdata: data
+                                        };
+
+                                    var dataAdapterMenu = new $.jqx.dataAdapter(sourceMenu);
+                                    dataAdapterMenu.dataBind();
+                                    var MenuRecords = dataAdapterMenu.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                                    contextMenu = $("#ContextMenu").jqxMenu({ source: MenuRecords, width: '200px', autoOpenPopup: false, mode: 'popup' })
+                                    contextMenu.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+
+                                },
+                                error: function (reponse) {
+                                    //  alert("error : " + reponse);
+                                }
+                            });
+                            return false;
+                        }
+                    });
+                }
+                attachContextMenu();
+
+                // disable the default browser's context menu.
+                $(document).on('contextmenu', function (e) {
+                    if ($(e.target).parents('.jqx-tree').length > 0) {
+                        return false;
+                    }
+                    return true;
+                });
+                function isRightClick(event) {
+                    var rightclick;
+                    if (!event) var event = window.event;
+                    if (event.which) rightclick = (event.which == 3);
+                    else if (event.button) rightclick = (event.button == 2);
+                    return rightclick;
+                }
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    //This method is used to display payee details as popup by passing payee Id
+    function FnViewPayeeDetail(PayeeId) {
+
+        $.ajax({
+            data: { PayeeId: PayeeId },
+            url: "/LPayees/GetPayeeDetails",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                document.getElementById('PayeeDetails').innerHTML = data
+                $("#myModal").modal();
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.Hidden("AsOfDate")
+}
+<div class="boxes row">
+    <div class="col-md-6" id="search">
+        <input type="text" placeholder="Search" class="form-control col-md-11" id="SearchText" name="SearchText">
+        @*search-btn-color class is VodafoneThemes class*@
+        <button type="button" class="btn btn-primary search-btn-color col-md-1"><span id="SearchButton" class="glyphicon glyphicon-search" aria-hidden="true" onclick="var xx = document.getElementById('SearchText').value; FnSearchTree(xx);"></span></button>
+    </div>
+    <div class="col-md-12 col-lg-12"><div id="TreeAsOfDate"></div></div>
+
+    <div id='jqxPayeeTree'>
+    </div>
+    <div id="ContextMenu"></div>
+</div>
+
+<!-- The below lines of code are written to open a popup to display payee details -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+                <p id="PayeeDetails">
+                    Details
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>

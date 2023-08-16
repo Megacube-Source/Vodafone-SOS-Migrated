@@ -1,0 +1,291 @@
+﻿
+@{
+    ViewBag.Title = "WIAM";
+}
+
+<h2>WIAM</h2>
+
+
+<script type="text/javascript">
+    var Email = '';
+    $(document).ready(function () {
+    });
+
+
+    function FnGetAllDetails() {
+        Email = document.getElementById('Email').value;
+        if (Email == '' || Email == null) {
+            alert("Plese enter Email address.");
+            return;
+        }
+        FnCheckADAccount();
+        FnGetPayeeData();
+        FnGetUserData();
+        FnGetUserLobbyData();
+    }
+    function FnActivate() {
+        Email = document.getElementById('Email').value;
+        if (Email == '' || Email == null) {
+            alert("Plese enter Email address.");
+            return;
+        }
+
+        $.ajax({
+            data: { Email: Email },
+            url: "/TroubleShooting/UpdateActivateCreationLogin",
+            dataType: "json",
+            type: "GET",
+            async: true,
+            success: function (data) {
+                //FnGetPayeeData();
+                //FnGetUserData();
+               // alert("Create login updated successfully. ");
+                location.reload();
+            },
+            error: function (reponse) {
+                //FnGetPayeeData();
+                //FnGetUserData();
+               // alert("Something went wrong. ");
+                location.reload();
+            }
+        });
+
+        
+    }
+
+    function FnDeActivate() {
+        Email = document.getElementById('Email').value;
+        if (Email == '' || Email == null) {
+            alert("Plese enter Email address.");
+            return;
+        }
+
+        $.ajax({
+            data: { Email: Email },
+            url: "/TroubleShooting/UpdateDeActivateCreationLogin",
+            dataType: "json",
+            type: "GET",
+            async: true,
+            success: function (data) {
+                //FnGetPayeeData();
+                //FnGetUserData();
+                //alert("Create login updated successfully. ");
+                location.reload();
+            },
+            error: function (reponse) {
+                //FnGetPayeeData();
+                //FnGetUserData();
+                //alert("Something went wrong. ");
+                location.reload();
+            }
+        });
+
+
+    }
+
+
+    function FnCheckADAccount() {
+        $.ajax({
+            data: { Email: Email },
+            url: "/TroubleShooting/CheckADAccountExist",
+            dataType: "json",
+            data: { Email: Email },
+            type: "GET",
+            success: function (data) {
+                document.getElementById('divADAccount').style.display = 'block';
+                document.getElementById('ADValue').innerHTML = data;
+                document.getElementById('GetActivateAll').style.display = 'block';
+            },
+            error: function (reponse) {
+                        //  alert("error : " + reponse);
+             }
+        });
+    }
+
+    function FnGetPayeeData() {
+         document.getElementById('sPayee').style.display = 'block';
+        var sourcePayee = {
+            dataType: "json",
+            cache:false,
+            dataFields: [
+                { name: 'OpCo', type: 'string' },
+                { name: 'CreateLogin', type: 'bool' },
+                { name: 'BlockNotification', type: 'bool' },
+                //{ name: 'Phone', type: 'string' },
+                { name: 'CreatedBy', type: 'string' },
+                { name: 'CreatedOn', type: 'date' },
+                { name: 'UpdatedBy', type: 'string' },
+                { name: 'UpdatedOn', type: 'string' },
+                { name: 'Status', type: 'string' },
+                {name: 'LpPayeeCode', type: 'string' },
+                { name: 'LpEffectiveEndDate', type: 'date' },
+            ],
+            data: { Email: Email },
+            url: "/TroubleShooting/GetPayeeData"
+        };
+        var dataAdapterPayee = new $.jqx.dataAdapter(sourcePayee);
+        $("#jqxgridPayee").jqxGrid({
+            source: dataAdapterPayee,
+            width: '100%',
+            autoHeight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            enablebrowserselection: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            pagesize: 100,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,//down arrow always visible for filter and sorting
+            showstatusbar: false,
+            pagesizeoptions: ['50', '100', '200', '500', '1000'],
+            ready: function () {
+            },
+            columns: [
+                { text: 'PayeeCode', datafield: 'LpPayeeCode',width:'10%' },
+                { text: 'OpCo', datafield: 'OpCo',width:'10%' },
+                { text: 'Create Login', datafield: 'CreateLogin' , columntype: 'checkbox',width:'10%'},
+                { text: 'BlockNotification', datafield: 'BlockNotification',  columntype: 'checkbox' ,width:'15%'},
+                //{ text: 'Phone', datafield: 'Phone',width:'10%'},
+                { text: 'Created By', datafield: 'CreatedBy',width:'15%'},
+                { text: 'Created On', datafield: 'CreatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date' ,width:'10%'},
+                { text: 'Updated By', datafield: 'UpdatedBy' ,width:'15%'},
+                { text: 'Updated On', datafield: 'UpdatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date', width: '10%' },
+                { text: 'End Date', datafield: 'LpEffectiveEndDate', cellsformat: 'dd/MM/yyyy', columntype: 'date' ,width:'10%'},
+                { text: 'Status', datafield: 'Status' ,width:'10%'}
+            ]
+        });
+    }
+
+    function FnGetUserData() {
+        document.getElementById('sUser').style.display = 'block';
+        var sourceUser = {
+            dataType: "json",
+            cache:false,
+            dataFields: [
+                { name: 'OpCo', type: 'string' },
+                { name: 'CreateLogin', type: 'bool' },
+                { name: 'BlockNotification', type: 'bool' },
+                { name: 'Phone', type: 'string' },
+                { name: 'CreatedBy', type: 'string' },
+                { name: 'CreatedOn', type: 'date' },
+                { name: 'UpdatedBy', type: 'string' },
+                { name: 'UpdatedOn', type: 'date' },
+                { name: 'Status', type: 'string' },
+            ],
+            data: { Email: Email },
+            url: "/TroubleShooting/GetUserData"
+        };
+        var dataAdapterUser = new $.jqx.dataAdapter(sourceUser);
+        $("#jqxgridUser").jqxGrid({
+            source: dataAdapterUser,
+            width: '100%',
+            autoHeight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            enablebrowserselection: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            pagesize: 100,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,//down arrow always visible for filter and sorting
+            showstatusbar: false,
+            pagesizeoptions: ['50', '100', '200', '500', '1000'],
+            ready: function () {
+            },
+            columns: [
+                { text: 'OpCo', datafield: 'OpCo' },
+                { text: 'Create Login', datafield: 'CreateLogin' , columntype: 'checkbox',width:'10%'},
+                { text: 'BlockNotification', datafield: 'BlockNotification',  columntype: 'checkbox' ,width:'15%'},
+                { text: 'Phone', datafield: 'Phone',width:'10%'},
+                { text: 'Created By', datafield: 'CreatedBy' ,width:'15%'},
+                { text: 'Created On', datafield: 'CreatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date' ,width:'10%'},
+                { text: 'Updated By', datafield: 'UpdatedBy',width:'15%' },
+                { text: 'Updated On', datafield: 'UpdatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date',width:'10%' },
+                { text: 'Status', datafield: 'Status',width:'10%' }
+            ]
+        });
+    }
+
+    function FnGetUserLobbyData() {
+        document.getElementById('sLobby').style.display = 'block';
+        var sourceUserLobby = {
+            dataType: "json",
+            cache:false,
+            dataFields: [
+                { name: 'RequestType', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'Phone', type: 'string' },
+                { name: 'CreatedOn', type: 'date' },
+                { name: 'UpdatedOn', type: 'date' },
+                { name: 'Status', type: 'string' },
+            ],
+            data: { Email: Email },
+            url: "/TroubleShooting/GetUserLobbyData"
+        };
+        var dataAdapterUserLobby = new $.jqx.dataAdapter(sourceUserLobby);
+        $("#jqxgridUserLobby").jqxGrid({
+            source: dataAdapterUserLobby,
+            width: '100%',
+            autoHeight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            enablebrowserselection: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            pagesize: 100,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,//down arrow always visible for filter and sorting
+            showstatusbar: false,
+            pagesizeoptions: ['50', '100', '200', '500', '1000'],
+            ready: function () {
+            },
+            columns: [
+                { text: 'PayeeCode', datafield: 'PayeeCode' },
+                { text: 'RequestType', datafield: 'RequestType' },
+                { text: 'Status', datafield: 'Status' },
+                { text: 'Phone', datafield: 'Phone'},
+                { text: 'Created On', datafield: 'CreatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date' },
+                { text: 'Updated On', datafield: 'UpdatedOn', cellsformat: 'dd/MM/yyyy', columntype: 'date' },
+                
+            ]
+        });
+    }
+</script>
+<div class="col-md-12 col-lg-12">
+    <div class="boxes" style="min-height:90px;">
+        <div class="col-md-4 col-lg-4">
+            <label for="Email" class=" col-lg-2 col-md-2">Email</label>
+            @Html.TextBox("Email", null, new { @class = "form-control" })
+
+        </div>
+        <div class="col-md-1 col-lg-1">
+            <input type="button" id="GetDetails" class="btn btn-red" value="Go" onclick="FnGetAllDetails();" />
+        </div>
+        <div class="col-md-4 col-lg-4" id="GetActivateAll"  style="display:none;">
+            <input type="button" id="GetActivate" class="btn btn-red" value="Create Login = 1" onclick="FnActivate();"  />
+            <input type="button" id="GetDeActivate" class="btn btn-red" value="Create Login= 0" onclick="FnDeActivate();" />
+        </div>
+
+        @*<div class="col-md-1 col-lg-1">
+            <input type="button" id="GetDeActivate" class="btn btn-red" value="De-Activate" onclick="FnDeActivate();" />
+        </div>*@
+        <div id="divADAccount" style="display:none;">
+            AD Account Exists : <span id="ADValue"><b>No</b></span>
+        </div>
+        <br />
+        <span id="sPayee" style="display:none;">Payee Data</span>
+        <div id="jqxgridPayee"></div><br />
+        <span id="sUser" style="display:none;">User Data</span>
+        <div id="jqxgridUser"></div><br />
+        <span id="sLobby" style="display:none;">Lobby Data</span>
+        <div id="jqxgridUserLobby"></div>
+    </div>
+</div>
+
+

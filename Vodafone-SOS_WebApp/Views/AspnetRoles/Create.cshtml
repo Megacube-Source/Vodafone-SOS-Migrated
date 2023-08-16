@@ -1,0 +1,182 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.AspnetRoleViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+<script src="~/Scripts/jqxribbon.js"></script>
+<script>
+    $(document).ready(function () {
+
+       
+        $.ajax({
+            url: "/GMenus/GetMenuList",
+            dataType:"json",
+            type: "POST",
+            success: function (data) {
+                var source1 =
+                       {
+                           datatype: "json",
+                           datafields: [
+                               { name: 'id' },
+                               { name: 'parentid' },
+                               { name: 'text' },
+                               { name: 'value' }
+                           ],
+                           id: 'id',
+                           localdata: data
+                       };
+    
+                var dataAdapter = new $.jqx.dataAdapter(source1);
+      
+                dataAdapter.dataBind();
+                var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                $('#jqxWidget').jqxTree({ source: records,checkboxes:true,keyboardNavigation:true });
+                $('#jqxWidget').jqxTree('expandAll')
+
+                $('#jqxWidget').on('checkChange', function (event) {
+                    var args = event.args;
+                    var item = $('#jqxWidget').jqxTree('getItem', args.element);
+                    var value = item.value;
+                    var checkedItem = $('#jqxWidget').jqxTree('getCheckedItems');
+                    var checkedItems = "";
+                    $.each(checkedItem, function (index) {
+                        if (index < checkedItem.length - 1) {
+                                checkedItems += this.value + ", ";
+                            }
+                            else checkedItems += this.value;
+                        });
+                        //alert(checkedItems)
+                        document.getElementById('MenuList').value = checkedItems;
+                   
+                })
+
+                //var contextMenu=null ;
+                //var clickedItem = null;
+
+                //var attachContextMenu = function () {
+                //    // open the contextmenu on right click
+                //    $("#jqxWidget li").on('mousedown', function (event) {
+                //        var target = $(event.target).parents('li:first')[0];
+                //        var rightClick = isRightClick(event);
+                //        if (rightClick && target != null) {
+                //            $("#jqxWidget").jqxTree('selectItem', target);
+                //            var scrollTop = $(window).scrollTop();
+                //            var scrollLeft = $(window).scrollLeft();
+
+                //            var item = $('#jqxWidget').jqxTree('getSelectedItem');
+                //            var value = item.value;
+                //            $.ajax({
+                //                url: "/Dashboards/GetMenuItems",
+                //                data:{id:value},
+                //                dataType:"json",
+                //                type: "POST",
+                //                success: function (data11) {
+                //                    var Msource = {
+                //                        dataType: "json",
+                //                        dataFields: [
+                //                             { name: 'id', type: 'string' },
+                //                            { name: 'parentid', type: 'string' },
+                //                             { name: 'text', type: 'string' },
+                //                              { name: 'subMenuWidth', type: 'string' }
+                //                        ],
+                //                        id: "id",
+                //                        localdata:data11
+                //                        //url: "/MAgmUserTypesAppObjects/GetMapAgmUserType"
+                //                    };
+                //                    var MdataAdapter = new $.jqx.dataAdapter(Msource)
+                //                    MdataAdapter.dataBind();
+                //                    var Mrecords = MdataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }])
+                //                    contextMenu = $("#jqxMenu1").jqxMenu({ source: Mrecords, width: '200px', autoOpenPopup: false, mode: 'popup' });
+                //                    contextMenu.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                //                },
+                //                error: function (reponse) {
+                //                    //  alert("error : " + reponse);
+                //                }
+                //            });
+                   
+                //            return false;
+                //        }
+                //    });
+                //}
+                //attachContextMenu();
+
+                //$("#jqxMenu1").on('itemclick', function (event) {
+                //    var item = $.trim($(event.args).text());
+                //    switch (item) {
+                //        case "Add Item":
+                //            var selectedItem = $('#jqxWidget').jqxTree('selectedItem');
+                //            if (selectedItem != null) {
+                       
+                //                attachContextMenu();
+                //            }
+                //            break;
+                //        case "Remove Item":
+                //            var selectedItem = $('#jqxWidget').jqxTree('selectedItem');
+                //            if (selectedItem != null) {
+                   
+                //                attachContextMenu();
+                //            }
+                //            break;
+                //    }
+                //});
+                // disable the default browser's context menu.
+                $(document).on('contextmenu', function (e) {
+                    if ($(e.target).parents('.jqx-tree').length > 0) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                function isRightClick(event) {
+                    var rightclick;
+                    if (!event) var event = window.event;
+                    if (event.which) rightclick = (event.which == 3);
+                    else if (event.button) rightclick = (event.button == 2);
+                    return rightclick;
+                }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    });
+</script>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+    <div class="form-horizontal">
+     
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.MenuList, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.HiddenFor(m => m.MenuList)
+                @*<div id="listbox"></div>*@
+                <div id='jqxWidget'>
+                </div>
+                
+                @Html.ValidationMessageFor(model => model.MenuList, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-red btn-cons" />
+                <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-borderRed btn-cons" />
+            </div>
+        </div>
+    </div><br>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

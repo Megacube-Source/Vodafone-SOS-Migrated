@@ -1,0 +1,90 @@
+﻿
+@model Vodafone_SOS_WebApp.ViewModels.RevokeViewModel
+@{
+    ViewBag.Title = "Index";
+}
+<br>
+<h3>WIAM Simulator - Revoke</h3>
+
+<script>
+     $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+            }
+        });
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+    });
+    function FnSubmitForm() {
+        var Form = $("#frm");
+        if ($('#frm').valid()) {
+            $.ajax({
+                type: "POST",
+                cache: false,
+                data: Form.serialize(),
+                url: "/WIAMSimulator/Revoke",
+                success: function (data) {
+                    if (data.SuccessMessage) {
+                        alert(data.SuccessMessage);
+                        window.location.reload();
+                    }
+                    else {
+                        alert(data.ErrorMessage);
+                    }
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                }
+            });
+        }
+    }
+
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>
+
+    <div class="form-horizontal" id="FrmHorizontal">
+        <div class="col-md-4" style="min-height:80px">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "col-md-12 required" })
+            <div class="col-md-11">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4" style="min-height:80px">
+            @Html.LabelFor(model => model.RequestorEmail, htmlAttributes: new { @class = "col-md-12 " })
+            <div class="col-md-11">
+                @Html.EditorFor(model => model.RequestorEmail, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RequestorEmail, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+    </div>
+
+    <br>
+    <div class="form-group">
+        <div class="col-md-9">
+            <br>
+            <button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+            <button type="button" onclick="FnSubmitForm()" class="btn btn-red btn-cons">Submit &nbsp;</button>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

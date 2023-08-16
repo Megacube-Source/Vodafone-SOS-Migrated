@@ -1,0 +1,215 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="boxes">
+    <br>
+<div id="jqxgrid">
+
+</div><br>
+    @using (Html.BeginForm("SaveGridData", "LAllocationRules", FormMethod.Post, new { id = "frm", name = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("model")
+        <input type="button" value="Submit" onclick="SaveForm()" class="btn btn-red btn-cons">
+    }
+    </div>
+
+
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    //Dropdownvalues of keys
+    var KeySource = [
+  "Channel",
+  "Payee Code",
+    ];
+    var dropdownList = [];
+
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Message"]')
+        {
+            alert('@TempData["Message"]')
+        }
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            FnAddRowsToArray();
+        });
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'LarOrdinalPosition', type: 'string' },
+                { name: 'LarKey', type: 'string' },
+                { name: 'LarValue', type: 'string' },
+                { name: 'LarAllocatedToId', type: 'string' },
+                { name: 'UserName', type: 'string' }
+            ],
+           // id: "Id",
+            url: "/LAllocationRules/GetAllocationrules"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var dropdownSource = {
+            dataType: "json",
+            dataFields: [
+         { name: 'Id', type: 'string' },
+        { name: 'UserName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LAllocationRules/GetClaimsAnalystList/"
+        };
+        var dropdownlistAdapter = new $.jqx.dataAdapter(dropdownSource, { autoBind: true, async: false });
+        //dropdownList[0] = '-- Select Here --';
+        for (var i = 0; i < dropdownlistAdapter.records.length; i++) {
+            dropdownList[i] = dropdownlistAdapter.records[i]['UserName'];
+        }
+       
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var rowdata = $('#jqxgrid').jqxGrid('getrowdata',row)
+            if (rowdata.Id == 0) {
+                return '<button onclick="return Fndelete()" style="display:none" class="GridButton">Delete</button>';
+            } else {
+                return '<button onclick="return Fndelete()" class="GridButton">Delete</button>';
+            }
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            editable: true,
+            enableHover:false,
+            showstatusbar: true,
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: 'Company', datafield: 'GcCompanyName' },
+                { text: 'Order', datafield: 'LarOrdinalPosition' },
+                {
+                    text: 'Key', columntype: 'dropdownlist', datafield: 'LarKey', width: '20%',
+                    initeditor: function (row, cellvalue, editor) {
+                       
+                        editor.jqxDropDownList({ source: KeySource, dropDownWidth: 320, dropDownHeight: 250 });
+
+                        editor.on('select', function (event) {
+                            var args = event.args;
+                            var item = args.item;
+                            FnAddKeyDetail(item.label);
+
+                        });
+
+                    }
+                },
+                { text: 'Value', datafield: 'LarValue' },
+                {
+                    text: 'Allocate To', columntype: 'dropdownlist', datafield: 'UserName', width: '20%',
+                    initeditor: function (row, cellvalue, editor) {
+                        editor.jqxDropDownList({ source: dropdownList, displayMember: "UserName", valueMember: "Id", dropDownWidth: 320, dropDownHeight: 250 });
+
+                        editor.on('select', function (event) {
+                            var args = event.args;
+                            var item = args.item;
+                            FnAddAllocatedToDetail(item.label);
+
+                        });
+                    }
+                    },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'10%',editable:false  }
+            ]
+        });
+
+        //$("#jqxgrid").on("bindingcomplete", function (event) {
+        //    $('#jqxgrid').jqxGrid('addrow',null,'last')
+        //})
+    });
+
+    //This method adds  items in array  same as grid rows when grid data binding is complete
+    function FnAddRowsToArray() {
+        var rows = $('#jqxgrid').jqxGrid('getrows');
+        for (var i = 0; i < rows.length; i++) {
+            GridArray[i] = [];
+            if (rows[i].LarKey) {
+                GridArray[i][0] = rows[i].LarKey;
+            } 
+            if (rows[i].UserName) {
+                GridArray[i][1] = rows[i].UserName
+            }
+            
+        }
+    }
+
+    //This array is defined to save the selections of grid in an array
+    var GridArray = [];
+    function FnAddKeyDetail(Key) {
+
+        var rowindex = $('#jqxgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            GridArray[rowindex][0] = Key
+        }
+    }
+    //This method saves the allocated to dropdown in array
+    function FnAddAllocatedToDetail(AllocatedTo) {
+
+        var rowindex = $('#jqxgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            GridArray[rowindex][1] = AllocatedTo
+        }
+    }
+
+    function Fndelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        //alert(xx.Id)
+        if (xx.Id!=0) {
+            //$('#jqxgrid').jqxGrid('deleterow', selectedrowindex)
+            window.location.href = '/LAllocationRules/Delete/' + xx.Id;
+        }
+    }
+
+    function SaveForm()
+    {
+        var rows = $('#jqxgrid').jqxGrid('getrows');
+       // alert(rows.length)
+        for (var i = 0; i < rows.length; i++) {
+            GridArray[i][2] = rows[i].Id;//0 and 1 positions are reserved for Key and allocated to dropdown
+            GridArray[i][3] = rows[i].LarValue;
+            GridArray[i][4] = rows[i].LarOrdinalPosition;
+        }
+       // var ArrayData = JSON.stringify(GridArray );
+        document.getElementById('model').value = GridArray;
+        document.getElementById('frm').submit()
+    }
+
+</script>
+

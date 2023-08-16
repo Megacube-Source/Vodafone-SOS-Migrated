@@ -1,0 +1,962 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LUserViewModel
+@{
+    ViewBag.Title = "Edit";
+    var SupportingDocument = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LSupportingDocumentViewModel>)ViewBag.SupportingDocuments;
+    var IsWIAMEnabled = ViewBag.IsWIAMEnabled;
+}
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+<style>
+    .heightComment {
+        min-height: 80px
+    }
+</style>
+
+<script>
+    //This variable is defined to store value if form has any changes since it has loaded//
+   // var isChanged = false;
+    var FinalPortfolioString = "";
+    var FinalPortfolioNamesString = "";
+    var CurrentRole = '';
+    var RoleBasedPorfolioIdArray = [];
+    var RoleBasedPorfolioNameArray = [];
+    var SelectedRoleIndex = 0;
+    var PortfolioUrl = '';
+    var dataObj = {};
+    var entitytype = "LUsers";
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+        //Create array of RolebasedPortfolio ;ViewBag.RoleBasedPortfolioNameList
+        RoleBasedPorfolioIdArray = @Html.Raw(Json.Encode(ViewBag.RoleBasedPortfolioIdList));
+        RoleBasedPorfolioNameArray = @Html.Raw(Json.Encode(ViewBag.RoleBasedPortfolioNameList));
+        console.log(RoleBasedPorfolioIdArray)
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+        //The below code checks for changes in form controls and pdates the flag
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+
+      var Id = '@Model.Id';
+        var Role = String('@HttpContext.Current.Session["UserRole"]');
+        if (Role == 'Sales Operations') {
+            dataObj = { TransactionId: Id, EntityType: 'LUsers' };
+            PortfolioUrl = '/Home/GetPortfolioGridForEdit';
+        }
+        else {
+            dataObj = { UserId: Id };
+            PortfolioUrl = "/LUsers/GetPortfolioGridForEditPage";
+        }
+    var RolesUrl='';
+    var IsUserPayee='@ViewBag.IsUserPayee'
+    if(IsUserPayee=='True')
+    {
+    RolesUrl='/LUsers/GetRolesListForUserPayee';
+    }
+    else
+    {
+    RolesUrl="/LUsers/GetRolesListForEdit";
+    }
+
+        var UserId='@Model.LuUserId'
+        var source =
+               {
+                   datatype: "json",
+                   datafields: [
+                       { name: 'Id' },
+                       { name: 'Name' },
+                        { name: 'Selected',type:'bool' }
+                   ],
+                   id: 'Id',
+                   data:{UserId:UserId},
+                   url:RolesUrl
+               };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+           // var selectedindexes = $('#Rolesgrid').jqxGrid('getselectedindexes');
+           // if (document.getElementById('SamePortfoliosForAllRoles').checked == false){ //&& selectedindexes.indexOf(row)!=-1) {
+                var RowData = $('#Rolesgrid').jqxGrid('getrowdata', row);
+                return '&emsp;<a href="#" onclick="PopulatePortfolioPopup(\'' + RowData.Name + '\',' + row + ')">Portfolio </a>&emsp;';
+          //  }
+            //else {
+                //return '&emsp;<button style="display:none;">Edit</button>';
+           // }
+        };
+
+        $('#Rolesgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 200,
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Role', datafield: 'Name' },
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+
+            ]
+        });
+
+        $("#Rolesgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#Rolesgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Selected == true) {
+                    // Number. The row's bound index.
+                    $('#Rolesgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+
+            ],
+            id: "Id",
+            data: dataObj,
+            url: PortfolioUrl
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 200,
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' },
+
+            ]
+        });
+
+
+        // Create a jqxListBox
+        //$("#jqxListBox").jqxListBox({ width: '100%', source: dataAdapter, displayMember: "Name", checkboxes: true, height: '30%' });
+
+        //$("#jqxListBox").on('bindingComplete', function (event) {
+        //    for (var i = 0; i < dataAdapter.records.length; i++) {
+        //        if(dataAdapter.records[i]['Selected'])
+        //        {
+        //            $("#jqxListBox").jqxListBox('checkIndex', i);
+        //        }
+        //    }
+        //});
+
+        //$("#jqxListBox").on('checkChange', function (event) {
+        //    var CheckedItems = $("#jqxListBox").jqxListBox('getCheckedItems');
+        //    var CheckedList = "";
+        //    $.each(CheckedItems,function(index)
+        //    {
+        //        if(index<CheckedItems.length-1)
+        //        {
+        //            CheckedList += this.label + ",";
+        //        }
+        //        else {
+        //            CheckedList += this.label;
+        //        }
+
+        //    })
+        //    document.getElementById('RoleList').value = CheckedList;
+        //});
+
+        //If form type is review make entire form disabled except comments for the review page
+        if('@ViewBag.FormType'=="Review")
+        {
+            //disable entire form except back button
+            $('*', 'form').attr('disabled', 'disabled');
+            $(':button').removeAttr('disabled')
+            //document.getElementById("HorizontalDiv").disabled = false;
+            document.getElementById("CommentsDiv").disabled = false;//
+            document.getElementById("Comments").disabled = false;
+            //document.getElementById('PortfolioDiv').style.pointerEvents = 'none';
+           // document.getElementById('RoleDiv').style.pointerEvents = 'none'
+            //document.getElementById('PortfolioDiv').style.display = 'none';
+            document.getElementById('RoleDiv').style.display = 'none'
+            var RolesString = '';
+            for (var i = 0; i < RoleBasedPorfolioNameArray.length; i++)
+            {
+                var RoleArr = RoleBasedPorfolioNameArray[i].split(',');
+                for (var j = 0; j < RoleArr.length; j++) {
+                    if (j == 0) {
+                        RolesString += RoleArr[j] + '\n';
+                    }
+                    else {
+                        RolesString += '- ' + RoleArr[j] + '\n';
+                    }
+                }
+                RolesString +=  '\n';
+            }
+            document.getElementById('RolesTextArea').innerHTML = RolesString;
+            document.getElementById('RolesTextAreaDiv').style.display='block'
+           // $('#jqxgrid').jqxGrid({disabled:true})
+        }
+
+
+        $("#jqxPopupgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+            var SelectedRolesRow = RoleBasedPorfolioIdArray[SelectedRoleIndex];//SS This comma is used to seperate the ids for searching in an array
+            FnClearPopupGrid();
+            if (SelectedRolesRow) {
+                SelectedRolesRow += ',';
+                for (var i = 0; i < GridRows.length; ++i) {
+                    $('#jqxPopupgrid').jqxGrid('unselectrow', i);
+                    // if (GridRows[i].Select == true) {
+                    if (SelectedRolesRow.indexOf(','+GridRows[i].Id+',') != -1) {
+                        // Number. The row's bound index.
+                        $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                    }
+                }
+            }
+
+
+            //$('#jqxPopupgrid').jqxGrid('updatebounddata');
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+        $('#Comments').blur(function () {
+                var value = $(this).val();
+                FnAttachComments(value);
+
+            });
+
+    });
+
+      //to clear popup grid selection from page
+    function FnClearPopupGrid()
+    {
+     var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+     for (var k = 0; k < GridRows.length; ++k) {
+        $('#jqxPopupgrid').jqxGrid('unselectrow', k);
+     }
+    }
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost";
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+
+    //This function is defined to check email should contain vodafone.com
+    function CheckEmail(Email)
+    {
+        var UserEmail = Email.toLowerCase();
+        if (UserEmail.indexOf("vodafone.com") == -1)
+        {
+            document.getElementById('LuEmail').value = null;
+            alert("Invalid Vodafone Email")
+        }
+    }
+
+    //This method will be called when system analyst clicks on submit for approval button
+    function FnSubmitForApproval()
+    {
+        var Id='@Model.Id'
+        var Comments=document.getElementById('Comments').value
+        window.location.href = '/LUsers/UpdateUserStatus?Status=PendingApproval&Id=' +Id+'&Comments='+Comments;
+    }
+    //This function is called when we click on delete button
+    function FnDeleteUser()
+    {
+        debugger;
+        /*
+         When user clicks on Terminate button on user screen, it should save the comment and
+        also should not show the message which we usually display when the form is not getting submitted.h\
+        here we also need to changes the type of button so that it will not display the "Leave site " message
+         */
+        var Comments = document.getElementById('Comments').value
+        var EmailID = document.getElementById('LuEmail').value
+        if (Comments != null && Comments != "") {
+            isChanged = false;
+            if ('@ViewBag.FormType' == "Edit") {
+                window.location.href = '/LUsers/Delete?Id=@Model.Id&Comments=' + Comments;
+            }
+            if ('@ViewBag.FormType' == "ChangeRequest") {
+                var jsonInput = { Status: 'InActive', Id: @Model.Id, Comments: Comments, EmailID: EmailID};
+                $.ajax({
+                    url: "/LUsers/DeleteCR",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    async: false,
+                    success: function (reponse) {
+                        alert("A Change Request has been created for the requested change. Once the CR is approved then the change will become effective.");
+                        window.location.href = '../GenericGrid/Index?WorkFlow=Users';
+                    },
+                    error: function (reponse) {
+                        alert("There is some problem in creating the  Change Request");
+                        //window.location.href = '../GenericGrid/Index?WorkFlow=Users';
+                    }
+                });
+
+               // window.location.href = '/LUsers/Delete?Status=InActive&Id=@Model.Id&Comments=' + Comments + '&EmailID=' + EmailID;
+            }
+        } else {
+            alert("Comment is Mandatory");
+        }
+    }
+
+    //This function will select rows as per check box selection
+    function FnSelectRows() {
+        var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+        for (var i = 0; i < GridRows.length; ++i) {
+            $('#jqxgrid').jqxGrid('unselectrow', i);
+            var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+            var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+            if (PrimaryChannel == "indirect" && document.getElementById("InDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (PrimaryChannel == "direct" && document.getElementById("Direct").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            //Check for business unit
+            if (BusinessUnit == "cbu" && document.getElementById("CBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (BusinessUnit == "ebu" && document.getElementById("EBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+        }
+    }
+
+    //This method will check for validation errors in the page on submit
+    var PortfolioArray = [];//This variable is defined to store values of selected portfolio
+    var PortfolioNames = [];
+    function FnCheckValidationErrors() {
+        //var ReportsToId=document.getElementById('LuReportsToId').value;
+        var RolesArray = [];
+        var rows = $('#Rolesgrid').jqxGrid('getselectedrowindexes');
+        FinalPortfolioString = RoleBasedPorfolioIdArray.join('|');
+        for (var i = 0; i < rows.length; ++i) {
+            var data = $('#Rolesgrid').jqxGrid('getrowdata', rows[i]);
+            if (FinalPortfolioString.indexOf(data.Name+',') != -1) {
+                RolesArray[i] = data.Name;
+            }
+            else {
+                alert('Please choose Portfolio for all selected Roles')
+                return;
+            }
+        }
+
+        document.getElementById('RoleList').value = RolesArray;
+        var Roles = document.getElementById('RoleList').value
+        //This ajax call will send reports to id selected in dropdown and roles to verify whether these roles can have the selected reports to
+        $("#frm").validate();
+        if ($("#frm").valid()) {
+            //get selected rows in portfolios
+            var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            for (var i = 0; i < rowindexes.length; ++i) {
+                var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                PortfolioArray[i] = data.Id;
+            }
+            if (PortfolioArray.length > 0)//submit form only if user has selected atleast one portfolio--condition dictated by JS on 5 Apr 2017
+            {
+                if (Roles)//If User has selected roles from Checkbox
+                {
+
+                    //reset ischange to false so as to disable check of window on unload event
+                    isChanged = false;
+                    RoleBasedPorfolioIdArray = RoleBasedPorfolioIdArray.filter(function (str) {
+                        return /\S/.test(str)
+                    });
+                    RoleBasedPorfolioNameArray = RoleBasedPorfolioNameArray.filter(function (str) {
+                        return /\S/.test(str)
+                    });
+     //Loop through the portfolio array and check if any role is deleted from it
+    for (var i=0;i<RoleBasedPorfolioIdArray.length;i++)
+    {
+    var RoleName=String(RoleBasedPorfolioIdArray[i]).split(',');
+    if(Roles.indexOf(RoleName[0])==-1)
+    {
+    //Make this row as empty
+    RoleBasedPorfolioIdArray[i]='';
+    RoleBasedPorfolioNameArray[i]='';
+    }
+    }
+                    document.getElementById("PortfolioList").value = PortfolioArray;
+                    document.getElementById('RoleBasedPortfolios').value = RoleBasedPorfolioIdArray.join('|')//FinalPortfolioString;
+                    document.getElementById('PortfolioNamesList').value = RoleBasedPorfolioNameArray.join('|')//FinalPortfolioNamesString;
+                    document.getElementById('frm').submit();
+                }
+                else {
+                    alert("Please select Role")
+                }
+            }
+            else {
+                alert("Please select Portfolio")
+            }
+
+
+        }
+    }
+
+    function SubmitAndSave() {
+        //var ReportsToId=document.getElementById('LuReportsToId').value;
+        var RolesArray = [];
+        var rows = $('#Rolesgrid').jqxGrid('getselectedrowindexes');
+        document.getElementById('SubmitClicked').value = "True";
+        FinalPortfolioString = RoleBasedPorfolioIdArray.join('|');
+        for (var i = 0; i < rows.length; ++i) {
+            var data = $('#Rolesgrid').jqxGrid('getrowdata', rows[i]);
+            if (FinalPortfolioString.indexOf(data.Name + ',') != -1) {
+                RolesArray[i] = data.Name;
+            }
+            else {
+                alert('Please choose Portfolio for all selected Roles')
+                return;
+            }
+        }
+
+        document.getElementById('RoleList').value = RolesArray;
+        var Roles = document.getElementById('RoleList').value
+        //This ajax call will send reports to id selected in dropdown and roles to verify whether these roles can have the selected reports to
+        $("#frm").validate();
+        if ($("#frm").valid()) {
+            //get selected rows in portfolios
+            var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            for (var i = 0; i < rowindexes.length; ++i) {
+                var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                PortfolioArray[i] = data.Id;
+            }
+            if (PortfolioArray.length > 0)//submit form only if user has selected atleast one portfolio--condition dictated by JS on 5 Apr 2017
+            {
+                if (Roles)//If User has selected roles from Checkbox
+                {
+
+                    //reset ischange to false so as to disable check of window on unload event
+                    isChanged = false;
+                    RoleBasedPorfolioIdArray = RoleBasedPorfolioIdArray.filter(function (str) {
+                        return /\S/.test(str)
+                    });
+                    RoleBasedPorfolioNameArray = RoleBasedPorfolioNameArray.filter(function (str) {
+                        return /\S/.test(str)
+                    });
+                    //Loop through the portfolio array and check if any role is deleted from it
+                    for (var i = 0; i < RoleBasedPorfolioIdArray.length; i++) {
+                        var RoleName = String(RoleBasedPorfolioIdArray[i]).split(',');
+                        if (Roles.indexOf(RoleName[0]) == -1) {
+                            //Make this row as empty
+                            RoleBasedPorfolioIdArray[i] = '';
+                            RoleBasedPorfolioNameArray[i] = '';
+                        }
+                    }
+                    document.getElementById("PortfolioList").value = PortfolioArray;
+                    document.getElementById('RoleBasedPortfolios').value = RoleBasedPorfolioIdArray.join('|')//FinalPortfolioString;
+                    document.getElementById('PortfolioNamesList').value = RoleBasedPorfolioNameArray.join('|')//FinalPortfolioNamesString;
+                    document.getElementById('frm').submit();
+                }
+                else {
+                    alert("Please select Role")
+                }
+            }
+            else {
+                alert("Please select Portfolio")
+            }
+
+
+        }
+    }
+
+    function PopulatePortfolioPopup(label, row) {
+        var Id = '@Model.Id'
+        SelectedRoleIndex = row;
+        $('#Rolesgrid').jqxGrid('selectrow', row);
+         var Role = String('@HttpContext.Current.Session["UserRole"]');
+         if (Role == 'Sales Operations') {
+             dataObj = { TransactionId: Id, EntityType: 'LUsers', Role: label };
+            PortfolioUrl = '/Home/GetPortfolioGridForEdit';
+        }
+        else {
+            dataObj = { UserId: Id, Role: label };
+            PortfolioUrl = "/LUsers/GetPortfolioGridForEditPage";
+         }
+
+         //The below code will load a grid of portfolios on this page
+         var Portfoliosource = {
+             dataType: "json",
+             dataFields: [
+                 { name: 'Id', type: 'string' },
+                 { name: 'RcPrimaryChannel', type: 'string' },
+                 { name: 'LpBusinessUnit', type: 'string' },
+                 { name: 'RcName', type: 'string' },
+                 { name: 'Select', type: 'bool' }
+
+             ],
+             id: "Id",
+             data: dataObj,
+             url: PortfolioUrl
+         };
+
+         var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxPopupgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 300,
+            // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+
+            ]
+        });
+
+            document.getElementById('PopupHeader').innerHTML = 'Please select Portfolio for ' + label;
+            CurrentRole = label;
+            document.getElementById('PopupDirect').checked = false;
+            document.getElementById('PopupInDirect').checked = false;
+            document.getElementById('PopupEBU').checked = false;
+            document.getElementById('PopupCBU').checked = false;
+            FnSelectPopupRows();
+            //$('#jqxPopupgrid').jqxGrid('clearselection');
+           // $("#jqxPopupgrid").jqxGrid('refresh');
+           // $('#jqxPopupgrid').jqxGrid('updatebounddata');
+            $("#myModal1").modal();
+
+    }
+
+    function FnSelectPopupRows() {
+        var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+
+        for (var i = 0; i < GridRows.length; ++i) {
+            $('#jqxPopupgrid').jqxGrid('unselectrow', i);
+            var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+            var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+            if (PrimaryChannel == "indirect" && document.getElementById("PopupInDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            else if (PrimaryChannel == "direct" && document.getElementById("PopupDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            //Check for business unit
+            if (BusinessUnit == "cbu" && document.getElementById("PopupCBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+            else if (BusinessUnit == "ebu" && document.getElementById("PopupEBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxPopupgrid').jqxGrid('selectrow', i);
+            }
+        }
+    }
+
+    //this function will change portfolio grid behaviour based on the user selection
+   // function FnShowHidePortfolioGrid() {
+      // document.getElementById('Direct').checked = false;
+       // document.getElementById('InDirect').checked = false;
+      //  document.getElementById('EBU').checked = false;
+       // document.getElementById('CBU').checked = false;
+       // FnSelectRows();
+       // $('#Rolesgrid').jqxGrid('refresh');
+       // $('#jqxPopupgrid').jqxGrid('refresh');
+      // FnClearRoles();
+       // $('#jqxPopupgrid').jqxGrid('clearselection');
+       // $('#jqxgrid').jqxGrid('clearselection');
+        // $("#jqxListBox").jqxListBox('uncheckAll');
+       // if (document.getElementById('SamePortfoliosForAllRoles').checked == true) {
+       //     document.getElementById('PortfolioDIV').style.display = 'block';
+       // }
+       // else {
+       //     document.getElementById('PortfolioDIV').style.display = 'none';
+       // }
+ //   }
+
+    //to clear roles selection from grid
+    function FnClearRoles()
+    {
+     var GridRows = $('#Rolesgrid').jqxGrid('getrows')
+     for (var k = 0; k < GridRows.length; ++k) {
+        $('#Rolesgrid').jqxGrid('unselectrow', k);
+     }
+    }
+
+    function FnSavePortfolio() {
+        var xx = $('#jqxPopupgrid').jqxGrid('getselectedrowindexes');
+        PortfolioArray = [];
+        PortfolioNames = [];
+        PortfolioArray[0] = CurrentRole;
+        PortfolioNames[0] = CurrentRole;
+        for (var i = 1; i <= xx.length; i++) {
+            var rowdata = $('#jqxPopupgrid').jqxGrid('getrowdata', xx[i - 1]);
+            console.log(rowdata)
+            PortfolioArray[i] = rowdata.Id;
+            PortfolioNames[i] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
+        }
+
+        var CommaSeperatedString = PortfolioArray.join(',');
+       // if (FinalPortfolioString) {
+            //FinalPortfolioString = FinalPortfolioString + '|' + CommaSeperatedString;
+            //FinalPortfolioNamesString = FinalPortfolioNamesString + '|' + PortfolioNames.join(',');
+            RoleBasedPorfolioIdArray[SelectedRoleIndex] =  CommaSeperatedString;
+            RoleBasedPorfolioNameArray[SelectedRoleIndex] = PortfolioNames.join(',');
+        //}
+        //else {
+        //    FinalPortfolioString = CommaSeperatedString;
+        //    FinalPortfolioNamesString =  PortfolioNames.join(',');
+        //}
+
+    }
+
+</script>
+
+<div id="jqxLoader">
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.LuCreatedById)
+    @Html.HiddenFor(m => m.LuCreatedDateTime)
+    @Html.HiddenFor(m => m.LuStatus)
+    @Html.HiddenFor(m => m.LuUserId)
+    @Html.HiddenFor(m => m.LuIsManager)
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RoleList)
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LuEmail)
+    @Html.HiddenFor(m => m.WFAnalystId)
+    @Html.HiddenFor(m => m.WFCurrentOwnerId)
+    @Html.HiddenFor(m => m.WFManagerId)
+    @Html.HiddenFor(m => m.WFOrdinal)
+    @Html.HiddenFor(m => m.WFRequesterId)
+    @Html.HiddenFor(m => m.WFRequesterRoleId)
+    @Html.HiddenFor(m => m.WFStatus)
+    @Html.HiddenFor(m => m.WFType)
+    @Html.Hidden("PortfolioList")
+    @Html.Hidden("RoleBasedPortfolios")
+    @Html.Hidden("PortfolioNamesList")
+    @Html.HiddenFor(m => m.SubmitClicked)
+    @Html.HiddenFor(m=>m.LuCreateLogin)
+
+<div class="form-horizontal" id="HorizontalDiv">
+    <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+    @Html.HiddenFor(m => m.WFComments)
+    @Html.HiddenFor(m => m.WFCompanyId)
+    @Html.HiddenFor(m => m.LuCompanyId)
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+        @Html.LabelFor(model => model.LuFirstName, htmlAttributes: new { @class = "required col-md-10" })
+        <div class="col-md-12 col-lg-12">
+            @Html.EditorFor(model => model.LuFirstName, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LuFirstName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+        @Html.LabelFor(model => model.LuLastName, htmlAttributes: new { @class = "col-md-10 required" })
+        <div class="col-md-12 col-lg-12">
+            @Html.EditorFor(model => model.LuLastName, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LuLastName, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+        @Html.LabelFor(model => model.LuEmail, htmlAttributes: new { @class = " col-md-10 required" })
+        <div class="col-md-12 col-lg-12">
+            @Html.EditorFor(model => model.LuEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } }) @*R2.2.1 Vodafone email validation removed.*@
+            @Html.ValidationMessageFor(model => model.LuEmail, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+        @Html.LabelFor(model => model.LuPhone, htmlAttributes: new { @class = " col-md-10 " })
+        <div class="col-md-12 col-lg-12">
+            @Html.EditorFor(model => model.LuPhone, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.LuPhone, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+
+    @*<div class="col-md-4 col-lg-4" style="min-height:80px;">
+            @Html.LabelFor(model => model.LuBand, htmlAttributes: new { @class = "col-md-10 " })
+            <div class="col-md-12 col-lg-12">
+                @Html.DropDownListFor(model => model.LuBand, new List<SelectListItem> { new SelectListItem { Text = "-- Select Here --", Value = null }, new SelectListItem { Text = "I", Value = "I" }, new SelectListItem { Text = "J", Value = "J" }, new SelectListItem { Text = "H", Value = "H" }, new SelectListItem { Text = "G", Value = "G" }, new SelectListItem { Text = "F", Value = "F" }, new SelectListItem { Text = "E", Value = "E" }, new SelectListItem { Text = "D", Value = "D" } }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LuBand, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-4" style="min-height:80px;">
+            @Html.LabelFor(model => model.LuReportsToId, htmlAttributes: new { @class = " col-md-10 " })
+            <div class="col-md-12 col-lg-12">
+                @Html.DropDownListFor(model => model.LuReportsToId, null, "-- Select Here --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.LuReportsToId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+        @Html.LabelFor(model => model.LuBlockNotification, htmlAttributes: new { @class = " col-md-5" })
+        @Html.CheckBoxFor(model => model.LuBlockNotification, new { })
+        @Html.ValidationMessageFor(model => model.LuBlockNotification, "", new { @class = "text-danger" })
+    </div>
+
+
+
+    <div class="col-md-4 col-lg-4" style="min-height:80px;">
+
+        <label class=" col-md-5 " for="IsSuperUser">SuperUser &ensp;<i class="fa fa-lightbulb-o" aria-hidden="true" style="background-color:yellow" title="If checked, User will get all portfolios for given roles automatically(even in future when new  Channels/Portfolios are added to the system.)"></i></label>
+         @*@Html.LabelFor(model => model.IsSuperUser, htmlAttributes: new { @class = " col-md-5 " })*@
+        @Html.CheckBoxFor(model => model.IsSuperUser, new { })
+        @Html.ValidationMessageFor(model => model.IsSuperUser, "", new { @class = "text-danger" })
+
+    </div>
+
+    <div class="col-md-12 col-lg-12" style="min-height:80px;" id="RoleDiv">
+        @Html.Label("Roles", htmlAttributes: new { @class = " col-md-1 required" })
+        @*@Html.Label("( Keep same Portfolio for all Roles", htmlAttributes: new { @class = " col-md-3 " })
+            @Html.CheckBox("SamePortfoliosForAllRoles", new { onchange = "FnShowHidePortfolioGrid()" })
+            @Html.Label(" )", htmlAttributes: new { @class = "  " })*@
+        <div class="col-md-12 col-lg-12">
+            <div id="Rolesgrid"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12" id="RolesTextAreaDiv" style="display:none;">
+        <br>  @Html.Label("Portfolio", htmlAttributes: new { @class = " col-md-5" })
+        <textarea id="RolesTextArea" style="min-height:200px;" class="col-md-12 col-lg-12 textarea1" disabled="disabled"></textarea><br>
+    </div>
+
+
+    <div class="col-md-12" id="PortfolioDIV" style="display:none;">
+        <br>
+        @Html.Label("Portfolios", htmlAttributes: new { @class = " col-md-10 required" })
+        <br>
+        <div class="col-md-8">
+            @Html.Label("Direct", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("Direct", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("InDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("EBU", htmlAttributes: new { @class = " col-md-1 col-lg-1 " })
+            @Html.CheckBox("EBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("CBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+        </div>
+        <br>
+
+        <div id="jqxgrid"></div>
+    </div>
+
+    <div class="col-md-12 col-lg-12" style="min-height:80px;" id="CommentsDiv">
+        <br>
+        @Html.LabelFor(m => m.Comments, htmlAttributes: new { @class = " col-md-12 col-lg-12" })
+
+
+        @*<textarea id="Comments" name="Comments" style="min-height:80px" class="col-md-12 col-lg-12 textarea1" onchange="FnAttachComments(this.value)"></textarea><br>*@
+        @*@Html.TextAreaFor(m => m.Comments, htmlAttributes: new { @class = " col-md-12 col-lg-12 textarea1 heightComment", @onchange = "FnAttachComments(this.value);" })*@
+        @Html.TextAreaFor(m => m.Comments, htmlAttributes: new { @class = " col-md-12 col-lg-12 textarea1 heightComment" })
+        @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="col-md-10">
+        <br>
+        @Html.LabelFor(model => model.WFComments, htmlAttributes: new { })
+    </div>
+    <div>
+        <textarea id="WFComments" class="textarea1 form-control" style="height:100px" disabled="disabled">@Model.WFComments</textarea><br>
+
+    </div>
+
+    <div class="col-md-8 col-lg-8">
+        <br> <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+        @if (ViewBag.FormType == "Review")
+        {
+            if (ViewBag.ActionItems != null)
+            {
+                @Html.Raw(ViewBag.ActionItems)
+            }
+            @*if (Model.LuStatus == "Accepted" && HttpContext.Current.Session["UserRole"].ToString() == "System Analyst")
+                {
+
+                <button type="button" class="btn btn-success btn-cons" onclick="FnSubmitForApproval()">Submit For Approval&nbsp; <i class="fa fa-check" aria-hidden="true"></i></button>
+                }*@
+            @*else if (Model.LuStatus == "Accepted")
+                {
+                    <button type="submit" class="btn btn-blue btn-cons">Save Changes&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                }*@
+        }
+        else
+        {
+            //display these buttons  for all other statuses
+            <button type="button" class="btn btn-red btn-cons" onclick="FnCheckValidationErrors()">Save&nbsp;</button>
+            if (ViewBag.GetSudmitableorNot == "True")
+            {
+                <button class="btn btn-red btn-cons" id="SubmitButton" type="button" onclick="SubmitAndSave()">Submit&nbsp;</button>
+            }
+            if (Model.WFStatus == "Completed" || Model.WFStatus == "Suspended")
+            {
+                if (IsWIAMEnabled == "yes") {/*donot show Terminate button */}
+                else
+                {
+                    <button type="button" class="btn btn-red btn-cons" onclick="FnDeleteUser()">Terminate&nbsp;</button>
+                }
+            }
+
+            <label for="FileUpload" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+            @*<input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">*@
+
+            <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedCommon(this,@Model.Id,'LUsers','@Model.LuEmail')">
+        }
+
+
+    </div>
+</div>
+
+    <br>
+    @*This div will display uploaded file*@
+    @*<div class="col-md-12" id="AttachedFiles"></div>*@
+    <br>
+
+    @*Existing attachments will be shown only to those users which are active*@
+if (Model.LuStatus != "InActive" && ViewBag.FormType != "Review")
+{
+        <div class="col-md-12">
+            <table class="col-md-12 col-lg-12">
+                <tr><td>Existing Attachments</td></tr>
+                @if (SupportingDocument != null)
+                {
+                    foreach (var Files in SupportingDocument)
+                    {
+                        <tr><td><b>@Files.LsdFileName</b>&emsp; &emsp;<a href="/GenericGrid/DeleteSupportingDocument?id=@Files.Id&EntityId=@Model.Id&EntityType=LUsers&FormType=@ViewBag.FormType"><i class="glyphicon glyphicon-remove" style="color:red;"></i></a></td></tr>
+                    }
+                }
+            </table>
+            </div>
+}
+
+            <br ><br >
+            <div class="col-md-12">
+                <span>Attached Attachments</span>
+
+            </div>
+
+            <div class="col-md-12" id="AttachedFiles">
+
+
+            </div>
+            }
+
+            <style>
+                input[type="file"] {
+                    display: none;
+                }
+            </style>
+
+
+
+            @section Scripts {
+                @Scripts.Render("~/bundles/jqueryval")
+            }
+
+            <!-- This code displays a popup to get Selected Portfolios-->
+            <div class="modal fade" id="myModal1" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="PopupHeader">Please select Portfolio for this Role</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="col-md-12">
+
+                                <br>
+                                <div class="col-md-12">
+                                    @Html.Label("Direct", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                                    @Html.CheckBox("PopupDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                                    @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                                    @Html.CheckBox("PopupInDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                                    @Html.Label("EBU", htmlAttributes: new { @class = " col-md-2 col-lg-2 " })
+                                    @Html.CheckBox("PopupEBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                                    @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                                    @Html.CheckBox("PopupCBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                                </div>
+                                <br>
+
+                                <div id="jqxPopupgrid"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <br>&ensp;<br>
+                            <button type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio()" data-dismiss="modal">Save</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+

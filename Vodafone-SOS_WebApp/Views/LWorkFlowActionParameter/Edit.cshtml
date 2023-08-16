@@ -1,0 +1,84 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LWorkFlowActionParameterViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<script>
+
+    function FnError() {
+        alert("Can not change the field value");
+        return;
+    }
+</script>
+
+<div class="form-horizontal">
+
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" id="cid" name="cid" style="width:20%">
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+        @Html.Label("WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" style="width:20%">
+            @Html.DropDownList("WFId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <h3>Edit Action Parameters</h3>
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+
+        @Html.HiddenFor(m => m.Id)
+        @Html.Hidden("WFId")
+        @Html.Hidden("ActionItemId")
+        @Html.Hidden("CompanyId")
+        @Html.Hidden("RoleId")
+        @Html.Hidden("Role")
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.WFActionItemId, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.TextArea("ActionItem", new { @class = "TextAreaShapeSize required form-control", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ParameterName, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ParameterName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ParameterName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ParameterValueType, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.ParameterValueType, new { @class = "TextAreaShapeSize required form-control" })
+                @Html.ValidationMessageFor(model => model.ParameterValueType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ParameterValue, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.ParameterValue, new { @class = "TextAreaShapeSize required form-control" })
+                @Html.ValidationMessageFor(model => model.ParameterValue, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="submit" class="btn btn-red btn-cons">Submit&nbsp;</button>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

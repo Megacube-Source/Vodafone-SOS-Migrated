@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="b38c55606f3b4e33894b923c81b58af4" Name="Diagram1" ZoomLevel="78">
+        <EntityTypeShape EntityType="SosDevDbModel.C_LAllocationRules__" Width="1.5" PointX="3" PointY="144.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.C_LCommissionBatchAllocationRules_" Width="1.5" PointX="10.25" PointY="141.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.AspNetRole" Width="1.5" PointX="5.75" PointY="140.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.AspNetUserClaim" Width="1.5" PointX="10.25" PointY="332.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.AspNetUserLogin" Width="1.5" PointX="10.25" PointY="330.125" />
+        <EntityTypeShape EntityType="SosDevDbModel.AspNetUser" Width="1.5" PointX="8" PointY="132.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.GAuthorizableObject" Width="1.5" PointX="19.75" PointY="174.875" />
+        <EntityTypeShape EntityType="SosDevDbModel.GCompany" Width="1.5" PointX="0.75" PointY="138.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.GEmailConfiguration" Width="1.5" PointX="8" PointY="155.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.GErrorLog" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.GKeyValue" Width="1.5" PointX="3" PointY="172.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.GMenu" Width="1.5" PointX="12.75" PointY="179.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.GSecurityQuestion" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.GUserActivityLog" Width="1.5" PointX="10.25" PointY="145" />
+        <EntityTypeShape EntityType="SosDevDbModel.LAccrual" Width="1.5" PointX="13.25" PointY="150" />
+        <EntityTypeShape EntityType="SosDevDbModel.LAttachment" Width="1.5" PointX="10.25" PointY="335.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LAudit" Width="1.5" PointX="16.25" PointY="129.375" />
+        <EntityTypeShape EntityType="SosDevDbModel.LBatch" Width="1.5" PointX="10.25" PointY="156.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LBatchFile" Width="1.5" PointX="12.5" PointY="176.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.LCalc" Width="1.5" PointX="12.5" PointY="230.375" />
+        <EntityTypeShape EntityType="SosDevDbModel.LChangeRequest" Width="1.5" PointX="22.25" PointY="131" />
+        <EntityTypeShape EntityType="SosDevDbModel.LClaim" Width="1.5" PointX="12.5" PointY="157.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LCommissionPeriod" Width="1.5" PointX="16.25" PointY="147" />
+        <EntityTypeShape EntityType="SosDevDbModel.LCompanySpecificColumn" Width="1.5" PointX="3" PointY="175.125" />
+        <EntityTypeShape EntityType="SosDevDbModel.LCompanySpecificRawDataColumn" Width="1.5" PointX="5.25" PointY="178.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LDelegation" Width="1.5" PointX="13.25" PointY="129.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LEmailBucket" Width="1.5" PointX="10.25" PointY="150.375" />
+        <EntityTypeShape EntityType="SosDevDbModel.LEmailTemplate" Width="1.5" PointX="3" PointY="185.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LPay" Width="1.5" PointX="2.75" PointY="3.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LPayeeAuditLog" Width="1.5" PointX="15.5" PointY="136" />
+        <EntityTypeShape EntityType="SosDevDbModel.LPayeeParent" Width="1.5" PointX="12.5" PointY="125.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LPayee" Width="1.5" PointX="10.25" PointY="126.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LPortfolio" Width="1.5" PointX="5.25" PointY="134.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LRawData" Width="1.5" PointX="19.25" PointY="112.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LRawDataTable" Width="1.5" PointX="3" PointY="178.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.LRefFile" Width="1.5" PointX="13.25" PointY="142.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LRefFileType" Width="1.5" PointX="16.25" PointY="152.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LScheme" Width="1.5" PointX="16.25" PointY="139.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LSupportingDocument" Width="1.5" PointX="10.25" PointY="326.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LSupportRespons" Width="1.5" PointX="21.5" PointY="139.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LSupportTicketAssignment" Width="1.5" PointX="24.5" PointY="140.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.LSupportTicket" Width="1.5" PointX="13.25" PointY="133.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LUser" Width="1.5" PointX="22.25" PointY="143.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LWorkFlowActionItem" Width="1.5" PointX="24.5" PointY="123.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.LWorkFlowActionParameter" Width="1.5" PointX="26.75" PointY="124.375" />
+        <EntityTypeShape EntityType="SosDevDbModel.LWorkFlowConfig" Width="1.5" PointX="22.25" PointY="125.25" />
+        <EntityTypeShape EntityType="SosDevDbModel.LWorkflowGridColumn" Width="1.5" PointX="24.5" PointY="128" />
+        <EntityTypeShape EntityType="SosDevDbModel.MAspnetRolesGAuthorizableObject" Width="1.5" PointX="22" PointY="155.875" />
+        <EntityTypeShape EntityType="SosDevDbModel.MAspnetUsersGSecurityQuestion" Width="1.5" PointX="4.75" PointY="0.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.MEntityPortfolio" Width="1.5" PointX="7.5" PointY="129.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.MGMenusAspnetRole" Width="1.5" PointX="15" PointY="156.875" />
+        <EntityTypeShape EntityType="SosDevDbModel.RActivityType" Width="1.5" PointX="3" PointY="188.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.RBrand" Width="1.5" PointX="3" PointY="169.125" />
+        <EntityTypeShape EntityType="SosDevDbModel.RChannel" Width="1.5" PointX="3" PointY="123.875" />
+        <EntityTypeShape EntityType="SosDevDbModel.RCommissionType" Width="1.5" PointX="3" PointY="182" />
+        <EntityTypeShape EntityType="SosDevDbModel.RDeviceType" Width="1.5" PointX="3" PointY="140.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.RProductCode" Width="1.5" PointX="3" PointY="191.75" />
+        <EntityTypeShape EntityType="SosDevDbModel.RRejectionReason" Width="1.5" PointX="3" PointY="134.125" />
+        <EntityTypeShape EntityType="SosDevDbModel.RSubChannel" Width="1.5" PointX="5.25" PointY="124.125" />
+        <EntityTypeShape EntityType="SosDevDbModel.RSupportCategory" Width="1.5" PointX="3" PointY="127.5" />
+        <EntityTypeShape EntityType="SosDevDbModel.RSupportQuickTicket" Width="1.5" PointX="5.25" PointY="127.625" />
+        <EntityTypeShape EntityType="SosDevDbModel.RsupportTeam" Width="1.5" PointX="11" PointY="122.375" />
+        <EntityTypeShape EntityType="SosDevDbModel.RWorkFlow" Width="1.5" PointX="14" PointY="121.5" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAllocationRules" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LAllocationRules" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LCommissionBatchAllocationRules" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LCommissionBatchAllocationRules" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LAccruals_RequesterRoleId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LAudit" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LBatches" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LChangeRequests" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LPayees" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LRefFiles_RequesterRoleId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LSchemes_RequesterRoleId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LUsers" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_LWorkFlowConfig" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_MAspnetRolesGAuthorizableObjects" />
+        <AssociationConnector Association="SosDevDbModel.FK_ASpnetRoles_MGMenusAspnetRoles" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetRoles_RSupportTeams" />
+        <AssociationConnector Association="SosDevDbModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="SosDevDbModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="SosDevDbModel.FK__AspNetUse__GcCom__3B75D760" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUser_LChangeRequests_WFAnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_GUserActivityLog_UelActionBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_GUserActivityLog_UelUserId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_AnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_CurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_ManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_RequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAccruals_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAttachments_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAttachments_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LAudit_ActionedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LBatches" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LBatches_WFAnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LBatches_WFCurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LBatches_WFManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LBatches_WFRequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LCalc_LcAcceptedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LChangeRequests_RequestedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LChangeRequests_RequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LChangeRequests_ReviewerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LChangeRequests_WFCurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LChangeRequests_WFManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_AllocatedBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_AllocatedTo" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_ApprovedBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_CreatedBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_RejectedBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_SentForApprovalBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_WFAnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_WFCurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_WFManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_WFRequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LClaims_WithdrawnBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LCommissionPeriods_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LCommissionPeriods_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LDelegations_DelegationFrom" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LDelegations_DeletationTo" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LEmailBucket_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LEmailBucket_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayeeAuditLogs" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_WFAnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_WFManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LPayees_WFRequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRawData_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRawData_UpdtedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFiles_AnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFiles_CurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFiles_ManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFiles_RequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFileTypes_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LRefFileTypes_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_AnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_CurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_ManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_RequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSchemes_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportingDocuments_CreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportingDocuments_UpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportrtResponses" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTicket_LstCreatedBy" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTicketAssignments" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTicketAssignments_LstaAssignedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_CurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_L1Id" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_L2Id" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_L3Id" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_LstCreatedOnBehalfOf" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LSupportTickets_LstLastUpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_LuCreatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_LuReportsToId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_LuUserId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_WFAnalystId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_WFManagerId" />
+        <AssociationConnector Association="SosDevDbModel.FK_AspnetUsers_LUsers_WFRequesterId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_AspnetUsers" />
+        <AssociationConnector Association="SosDevDbModel.FK_GAuthorizableObjects_MAspnetRolesGAuthorizableObjects" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_GKeyValues" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_GUserActivitytLog" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LAccruals_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LAudit" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LBatches" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LBatches_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LChangeRequests" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LChangeRequests_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LClaims_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LCommissionPeriods" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LCompanyspecificLabels" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LDelegations" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LEmailTemplates" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LPayees" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LPayees_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LPortfolios" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LRawData" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LRefFiles_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LRefFileTypes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LSchemes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LSchemes_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LUsers" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_LUsers_WFCopanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RActiveTypes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RBrands" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RChannels" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RCommissionTypes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RDeviceTypes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RProductCodes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RRejectionReasons" />
+        <AssociationConnector Association="SosDevDbModel.FK_GCompanies_RSupportCategories_RscCompanyId" />
+        <AssociationConnector Association="SosDevDbModel.FK_LCompanies_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_LCompanies_LRawDataTypes" />
+        <AssociationConnector Association="SosDevDbModel.FK_GEmailConfigurations_LEmailBucket" />
+        <AssociationConnector Association="SosDevDbModel.FK_GMenus_MGMenusAspnetRoles" />
+        <AssociationConnector Association="SosDevDbModel.FK_GMenusGMenus_Id" />
+        <AssociationConnector Association="SosDevDbModel.FK_LAttachments_LCalc" />
+        <AssociationConnector Association="SosDevDbModel.FK_RWorkflows_LAudit" />
+        <AssociationConnector Association="SosDevDbModel.FK_LBatches_LBatches_LbParentBatchId" />
+        <AssociationConnector Association="SosDevDbModel.FK_LBatches_LBatchFiles" />
+        <AssociationConnector Association="SosDevDbModel.FK_LRawDataTypes_LBatches" />
+        <AssociationConnector Association="SosDevDbModel.FK_LPayees_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RActivityTypes_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RBrands_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RCommissionTypes_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RCommissionTypes_LClaims_Clawback" />
+        <AssociationConnector Association="SosDevDbModel.FK_RCommissionTypes_LClaims_Payment" />
+        <AssociationConnector Association="SosDevDbModel.FK_RDeviceTypes_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RProductCodes_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_RRejectionReasons_LClaims" />
+        <AssociationConnector Association="SosDevDbModel.FK_LRawDataTables_LCompanySpecificRawDataColumns" />
+        <AssociationConnector Association="SosDevDbModel.FK_LPayees_LPayeeAuditLogs" />
+        <AssociationConnector Association="SosDevDbModel.FK_LPayees_LPayeeParents_ParentPayeeId" />
+        <AssociationConnector Association="SosDevDbModel.FK_LPayees_LPayeeParents_PayeeId" />
+        <AssociationConnector Association="SosDevDbModel.FK_RChannels_Layees" />
+        <AssociationConnector Association="SosDevDbModel.FK_RSubChannels_LPayees" />
+        <AssociationConnector Association="SosDevDbModel.FK_LPortfolios_MEntityPortfolios" />
+        <AssociationConnector Association="SosDevDbModel.FK_RChannels_LPortfolios" />
+        <AssociationConnector Association="SosDevDbModel.FK_LRefFileTypes_LRefFiles" />
+        <AssociationConnector Association="SosDevDbModel.FK_LSupportTickets_LSupportResponses" />
+        <AssociationConnector Association="SosDevDbModel.FK_LSupportTickets_LSupportTicketAssignments" />
+        <AssociationConnector Association="SosDevDbModel.FK_RSupportTeams_RSupportTicketAssignments" />
+        <AssociationConnector Association="SosDevDbModel.FK_RSupportCategories_LSupportTickets" />
+        <AssociationConnector Association="SosDevDbModel.FK_RSupportTeams_LSupportTickets" />
+        <AssociationConnector Association="SosDevDbModel.FK_LWorkFlowActionItems_LWorkFlowActionParameters" />
+        <AssociationConnector Association="SosDevDbModel.FK_LWorkFlowConfig_LWorkFlowActionItems" />
+        <AssociationConnector Association="SosDevDbModel.FK_LWorkFlowConfig_LWorkFlowActionItems_LwfaiShowInTabWFConfigId" />
+        <AssociationConnector Association="SosDevDbModel.FK_LWorkFlowConfiguration_LWorkFlowGridColumns" />
+        <AssociationConnector Association="SosDevDbModel.FK_RWorkFlows_LWorkFlowConfig" />
+        <AssociationConnector Association="SosDevDbModel.FK_RChannels_RSubChannels" />
+        <AssociationConnector Association="SosDevDbModel.FK_RSupportCategories_RSupportQuickTickets" />
+        <AssociationConnector Association="SosDevDbModel.AspNetUserRoles" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

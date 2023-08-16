@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodafone-SOS_WebApp", "Vodafone-SOS_WebApp\Vodafone-SOS_WebApp.csproj", "{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AFE8A60B-015A-4564-AF15-604467B4A335} = {AFE8A60B-015A-4564-AF15-604467B4A335}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodafone-SOS_WebApi", "Vodafone-SOS_WebApi\Vodafone-SOS_WebApi.csproj", "{AFE8A60B-015A-4564-AF15-604467B4A335}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodafone-SOS_EmailService", "Vodafone-SOS_EmailService\Vodafone-SOS_EmailService.csproj", "{ED6AC10F-387E-465A-B6E3-FB3D53FA0753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodafone-SOS_NightlyJob", "Vodafone-SOS_NightlyJob\Vodafone-SOS_NightlyJob.csproj", "{F0C365F1-9FB0-402B-B4DF-CBEDB901F7B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodafone-SOS_NightlyJobConsole", "Vodafone-SOS_NightlyJobConsole\Vodafone-SOS_NightlyJobConsole.csproj", "{615B282D-D7A6-4A80-A132-17D93430ACD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WIAM-SOS", "UserAccessManagement\WIAM-SOS.csproj", "{30F5A6BB-896E-408F-A860-6159993414B2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8599FBC-8E5F-42B3-B5A5-71ECFFC30700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE8A60B-015A-4564-AF15-604467B4A335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE8A60B-015A-4564-AF15-604467B4A335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE8A60B-015A-4564-AF15-604467B4A335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE8A60B-015A-4564-AF15-604467B4A335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED6AC10F-387E-465A-B6E3-FB3D53FA0753}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED6AC10F-387E-465A-B6E3-FB3D53FA0753}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED6AC10F-387E-465A-B6E3-FB3D53FA0753}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED6AC10F-387E-465A-B6E3-FB3D53FA0753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0C365F1-9FB0-402B-B4DF-CBEDB901F7B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0C365F1-9FB0-402B-B4DF-CBEDB901F7B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0C365F1-9FB0-402B-B4DF-CBEDB901F7B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0C365F1-9FB0-402B-B4DF-CBEDB901F7B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{615B282D-D7A6-4A80-A132-17D93430ACD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{615B282D-D7A6-4A80-A132-17D93430ACD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{615B282D-D7A6-4A80-A132-17D93430ACD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{615B282D-D7A6-4A80-A132-17D93430ACD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30F5A6BB-896E-408F-A860-6159993414B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30F5A6BB-896E-408F-A860-6159993414B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30F5A6BB-896E-408F-A860-6159993414B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30F5A6BB-896E-408F-A860-6159993414B2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6FAAEC64-B955-4239-8276-E6026F7503DB}
+	EndGlobalSection
+EndGlobal

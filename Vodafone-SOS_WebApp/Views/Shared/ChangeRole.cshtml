@@ -1,0 +1,43 @@
+﻿<div class="col-xs-12 col-md-12 " style="display:none;" id="RoleDiv">
+    @Html.Label("Choose Role", new { @class = "col-md-3" })
+    <div class="col-md-5 col-lg-5">
+    <div id="RoleDropDown"></div></div>
+    <div class="col-md-2 col-lg-2">
+        <input type="button" class="btn btn-blue btn-cons" value="Go" onclick="FnGo()">
+    </div>
+</div>
+
+<script>
+    var UserRole='@HttpContext.Current.Session["UserRole"]'//This variable is defined to store dropdown selected value
+    $(document).ready(function () {
+        $.ajax({
+            url: "/Home/GetRolesList",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                if (data.length > 1) {
+                    document.getElementById('RoleDiv').style.display='block'
+                    $("#RoleDropDown").jqxDropDownList({ source: data, width: 200 })
+                    $("#RoleDropDown").jqxDropDownList('selectItem', UserRole)
+                }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+        $("#RoleDropDown").on('select', function (event) {
+            var item = event.args.item;
+           // alert(item.label)
+            if (item.label)
+            {
+                UserRole = item.label;
+            }
+        })
+
+    });
+
+    function FnGo()//This method is called when user clicks on Go button
+    {
+        window.location.href = '/Home/ChangeUserRole?UserRole=' + UserRole;
+    }
+    </script>

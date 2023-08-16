@@ -1,0 +1,188 @@
+﻿
+@{
+    ViewBag.Title = "AuditorDashboard";
+}
+
+<h2>AuditorDashboard</h2>
+
+<script>
+    $(document).ready(function () {
+        if('@TempData["Message"]')
+        {
+            alert('@TempData["Message"]')
+        }
+        var data = [
+           {
+               "id": "12",
+               "text": "<b>Commission</b>",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           },
+           {
+               "text": "<b>Claims</b>",
+               "id": "1",
+               "parentid": "-1",
+               "subMenuWidth": '250px'
+           }, {
+               "id": "3",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Upload</a>"
+           },
+           {
+               "id": "30",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Investigate</a>"
+           },
+           {
+               "id": "2",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Update</a>"
+           },
+           {
+               "id": "34",
+               "parentid": "1",
+               "text": "<a href='#' onclick='return Alerts()'>Finalize</a>"
+           }, {
+               "id": "6",
+               "text": "<b>Reports</b>",
+               "parentid": "-1",
+               "subMenuWidth": '200px'
+           }, {
+               "id": "13",
+               "text": "<a href='#'onclick='return Alerts()'>Adjust</a>",
+               "parentid": "12"
+           }, {
+               "id": "15",
+               "text": "<a href='#' onclick='return Alerts()'>Review</a>",
+               "parentid": "12"
+           }]
+        // prepare the data
+        var source =
+        {
+            datatype: "json",
+            datafields: [
+                { name: 'id' },
+                { name: 'parentid' },
+                { name: 'text' },
+                { name: 'subMenuWidth' }
+            ],
+            id: 'id',
+            localdata: data
+        };
+        // create data adapter.
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        // perform Data Binding.
+        dataAdapter.dataBind();
+        // get the menu items. The first parameter is the item's id. The second parameter is the parent item's id. The 'items' parameter represents
+        // the sub items collection name. Each jqxTree item has a 'label' property, but in the JSON data, we have a 'text' field. The last parameter
+        // specifies the mapping between the 'text' and 'label' fields.
+        var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+        $('#jqxWidget').jqxMenu({ source: records, width: '100%', animationShowDuration: 900 });
+
+        //date range
+        $("#Edate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+
+        $("#Tdate").jqxDateTimeInput({ width: '100%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+
+
+    });
+
+    function GetGrid()
+    {
+        //display grid for new payee
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Name', type: 'string' },
+                { name: 'Company', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'Action', type: 'string' },
+                { name: 'UpdatedDateTime', type: 'string' },
+                { name: 'UpdatedBy', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Vodafone/GetAuditLog"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<button onclick="return Review()" class="btn-info">Review</button>';
+        };
+        $('#jqxgrid').jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Name', datafield: 'Name' },
+                { text: 'Updated By', datafield: 'UpdatedBy' },
+                { text: 'Updated Date Time', datafield: 'UpdatedDateTime' },
+                { text: 'Company', datafield: 'Company' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'Action', datafield: 'Action' }
+
+                //{ text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer }
+            ]
+        });
+
+
+    }
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+</script>
+
+<div id='jqxWidget'>
+</div>
+<br />
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Country", htmlAttributes: new { @class = "control-label col-md-2 ", style = "font-size:12px;font-family: Arial, Verdana, Helvetica, sans-serif;color:#666;" })
+        <div class="col-md-10">
+            @Html.DropDownList("Country", new List<SelectListItem> { new SelectListItem { Text = "Albania", Value = "Albania" }, new SelectListItem { Text = "Czech Republic", Value = "Czech Republic" }, new SelectListItem { Text = "Ghana", Value = "Ghana" }, new SelectListItem { Text = "Hungary", Value = "Hungary" }, new SelectListItem { Text = "Greece", Value = "Greece" }, new SelectListItem { Text = "Malta", Value = "Malta" }, new SelectListItem { Text = "Qatar", Value = "Qatar" }, new SelectListItem { Text = "Romania", Value = "Romania" } }, new { @class = "form-control", style = "height:28px" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.Label("Controls", htmlAttributes: new { @class = "control-label col-md-2 ", style = "font-size:12px;font-family: Arial, Verdana, Helvetica, sans-serif;color:#666;" })
+        <div class="col-md-10">
+            @Html.DropDownList("Controls", new List<SelectListItem> { new SelectListItem { Text = "Payee", Value = "Payee" }, new SelectListItem { Text = "Scheme", Value = "Scheme" }, new SelectListItem { Text = "Tariff", Value = "Tariff" }, new SelectListItem { Text = "Commission", Value = "Commission" }, new SelectListItem { Text = "Claims", Value = "Claims" } }, new { @class = "form-control", style = "height:30px;padding-left:20px" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.Label("Date Range", htmlAttributes: new { @class = "control-label col-md-2", style = "font-size:12px;font-family: Arial, Verdana, Helvetica, sans-serif;color:#666;" })
+        <div class="col-md-10 pull-left">
+            <div class="col-md-3 ">
+                <div id="Edate"></div>
+            </div><div class="col-md-1">&emsp; to &emsp;</div>
+            <div class="col-md-3">  <div id="Tdate"></div></div>
+        </div>
+    </div>
+
+
+    <div class="col-md-4">
+        <input type="button" value="Extract" onclick="return GetGrid()" class="btn btn-info">
+        <input type="button" value="Download" class="btn btn-info">
+        @*<input type="button" value="Back" onclick="window.location.href='/Vodafone/Auditor'" class="btn btn-info"><br/>*@
+    </div>
+</div>
+<br />
+<div style="padding:10px;" id="grid">
+    <br>
+    <div id="jqxgrid">
+
+    </div>
+</div>
+

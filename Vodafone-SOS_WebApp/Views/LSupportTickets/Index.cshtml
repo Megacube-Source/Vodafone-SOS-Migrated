@@ -1,0 +1,1872 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LSupportTicketsViewModel
+@{
+    // var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+}
+<script src="~/Scripts/jqxsplitter.js"></script>
+<script src="~/Scripts/jqxlayout.js"></script>
+<script src="~/Scripts/jqxribbon.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script src="~/Scripts/jqxdata.export.js"></script>
+<script src="~/Scripts/jqxgrid.export.js"></script>
+<script src="~/Scripts/jqxgrid.storage.js"></script> @* script for client side state storage*@
+<script type="text/javascript">
+
+    var selectedTab = 0;
+    var CurrentRequesterState = null;
+    var CurrentSystemAnalystState = null
+    var CurrentL2SupportState = null;
+    var CurrentHistoryState = null;
+
+  //  var sortinformationReq = null;
+  //  var sortinformationSA = null;
+   // var sortinformationL2 = null;
+   // var sortinformationHistory = null;
+
+    var filterinfoReq = null;
+    var filterSA = null;
+    var filterL2 = null;
+    var filterHistory = null;
+
+    //var resizeReq = null;
+    //var resizeSA = null;
+    //var resizeL2 = null;
+    //var resizeHistory = null;
+
+    $(document).ready(function () {
+
+
+        $("#FilterImage").hide();
+      //This call is made to save url of current page which would be the url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                @*var UserRole = '@HttpContext.Current.Session["UserRole"]';
+                alert(UserRole);*@
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+//        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '80vh' });
+        //if (document.cookie != null && document.cookie != "")
+        //if (sessionStorage.getItem('lastTab') != null && sessionStorage.getItem('lastTab') != "")
+        //{
+        //    $('#jqxTabs').jqxTabs('select', parseInt(localStorage.getItem('lastTab')));
+        //}
+
+        $('#jqxTabs').on('selected', function (event) {
+
+            selectedTab = event.args.item;
+
+            switch (selectedTab) {
+                case 0:
+                    TabName = "Requestor";
+                   
+                    if ((filterinfoReq != null)) {
+                       // $("#FilterImage").show();
+                        if ((filterinfoReq == null || filterinfoReq.length == 0)) {
+                            $("#FilterImage").hide();
+                        }
+                        else {
+                            $("#FilterImage").show();
+                        }
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+                case 1:
+                    TabName = "SystemAnalyst";
+                    if ((filterSA != null)) {
+                        //$("#FilterImage").show();
+                        if ((filterSA == null || filterSA.length == 0)) {
+                            $("#FilterImage").hide();
+                        }
+                        else {
+                            $("#FilterImage").show();
+                        }
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                   // window.location.href = '/LSupportTickets/DownloadTickets?TabName=' + TabName;//
+                    break;
+                case 2:
+                    TabName = "L2Admin";
+                    if ((filterL2 != null)) {
+                        //$("#FilterImage").show();
+                        if ((filterL2 == null || filterL2.length == 0)) {
+                            $("#FilterImage").hide();
+                        }
+                        else {
+                            $("#FilterImage").show();
+                        }
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    //window.location.href = '/LSupportTickets/DownloadTickets?TabName=' + TabName;//
+                    break;
+                case 3:
+                    TabName = "History";
+                    if ((sortinformationHistory != null) || (filterHistory != null)) {
+                       // $("#FilterImage").show();
+                        if ((sortinformationHistory == null) && (filterHistory == null || filterHistory.length == 0)) {
+                            $("#FilterImage").hide();
+                        }
+                        else {
+                            $("#FilterImage").show();
+                        }
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+
+            }
+            //If Browser suppoerts  session storage save value in it else save in document.cookie
+            //if (window.sessionStorage) { sessionStorage.setItem('lastTab', selectedTab); } else { document.cookie = selectedTab;}
+            sessionStorage.setItem('lastTab', selectedTab);
+
+        });
+
+        //if (window.sessionStorage)
+        //{
+        var tabspos;
+        if (sessionStorage.getItem('lastTab') != null && sessionStorage.getItem('lastTab') != "") {
+            $('#jqxTabs').jqxTabs('select', parseInt(sessionStorage.getItem('lastTab')));
+
+            tabspos = parseInt(sessionStorage.getItem('lastTab'));
+
+            switch (tabspos) {
+                case 0:
+                    TabName = "Requestor";
+                    if ( (filterinfoReq != null)) {
+                        $("#FilterImage").show();
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+                case 1:
+                    TabName = "SystemAnalyst";
+                    if ( (filterSA != null)) {
+                        $("#FilterImage").show();
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+                case 2:
+                    TabName = "L2Admin";
+                    if ( (filterL2 != null)) {
+                        $("#FilterImage").show();
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+                case 3:
+                    TabName = "History";
+                    if ((sortinformationHistory != null) || (filterHistory != null)) {
+                        $("#FilterImage").show();
+                    }
+                    else {
+                        $("#FilterImage").hide();
+                    }
+                    break;
+
+            }
+
+
+        }
+        var newDate = new Date();
+        // add 6 month
+        newDate.setMonth(newDate.getMonth() - 6);
+        $("#FromDate").jqxDateTimeInput({ width: '91%', height: '30px', placeHolder: "DD/MM/YYYY",value: newDate });
+        $('#FromDate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            document.getElementById('LstSearchTicketFromDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+        });
+
+        $('#FromDate').jqxDateTimeInput('setDate', newDate );
+
+
+       // $('#FromDate').jqxDateTimeInput('setDate', newDate);
+        var day1 = newDate.getDate();        // yields date
+        var month1 = parseInt(newDate.getMonth()) + 1;    // yields month
+        var year1 = newDate.getFullYear();
+        var date1 = year1 + "/" + month1 + "/" + day1;
+
+        document.getElementById('LstSearchTicketFromDate').value = date1;
+        $("#ToDate").jqxDateTimeInput({ width: '91%', height: '30px', placeHolder: "DD/MM/YYYY" });
+        $('#ToDate').on('change', function (event) {
+            var jsDate2 = event.args.date;
+            var day2 = jsDate2.getDate() ;        // yields date
+            var month2 = parseInt(jsDate2.getMonth()) + 1;    // yields month
+            var year2 = jsDate2.getFullYear()
+            var date2 = year2 + "/" + month2 + "/" + day2
+      document.getElementById('LstSearchTicketToDate').value = date2//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+        });
+
+        $('#ToDate').jqxDateTimeInput('setDate', new Date());
+        ////$('#jqxLayout').jqxLayout({ width: '100%', layout: layout, contextMenu: true });
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '100vh' });
+
+
+        $("#jqxgridRequestor").on("bindingcomplete", function (event) {
+
+            var datainformations = $('#jqxgridRequestor').jqxGrid('getdatainformation');
+
+            if (datainformations)
+                document.getElementById('bRequestor').innerHTML = datainformations.rowscount;
+        });
+        //$("#jqxgridHistory").bind("columnresized", function (event) {
+        //    resizeHistory = event.args.columntext;
+        //    if ((filterHistory != null) || (sortinformationHistory != null) || (resizeHistory != null)) {
+        //        if ((resizeHistory == null) && (sortinformationHistory == null || sortinformationHistory.sortcolumn == null) && (filterHistory == null || filterHistory.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+        //});
+
+        $("#jqxgridHistory").bind("sort", function (event) {
+            sortinformationHistory = event.args.sortinformation;
+            if (((filterHistory != null)) || (sortinformationHistory != null)) {
+                if ((sortinformationHistory.sortcolumn == null || sortinformationHistory == null) && (filterHistory == null || filterHistory.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+
+        jQuery('#jqxgridHistory').bind('filter', function (event) {
+            filterHistory = $("#jqxgridHistory").jqxGrid('getfilterinformation');
+            if ((filterHistory != null) || (sortinformationHistory != null)) {
+                if ((sortinformationHistory == null || sortinformationHistory.sortcolumn == null) && (filterHistory == null || filterHistory.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+        $("#jqxgridSystemAnalyst").on("bindingcomplete", function (event) {
+
+            var datainformations = $('#jqxgridSystemAnalyst').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bSystemAnalyst').innerHTML = datainformations.rowscount;
+    });
+        $("#jqxgridL2Support").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxgridL2Support').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bL2Support').innerHTML = datainformations.rowscount;
+        });
+
+
+    //Earlier SupportTicket Code
+    /*$("#jqxgridMyTickets").on("bindingcomplete", function (event) {
+
+            var datainformations = $('#jqxgridMyTickets').jqxGrid('getdatainformation');
+
+            if (datainformations)
+                document.getElementById('bMy').innerHTML = datainformations.rowscount;*/
+
+       /* $("#jqxgridAllTickets").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxgridAllTickets').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bAll').innerHTML = datainformations.rowscount;
+        });*/
+
+      //  $("#jqxgridHistory").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxgridHistory').jqxGrid('getdatainformation');
+            //if (datainformations)
+              //  document.getElementById('bHistory').innerHTML = datainformations.rowscount;
+        //});
+       // $("#jqxgridSearch").on("bindingcomplete", function (event) {
+         //   var datainformations = $('#jqxgridSearch').jqxGrid('getdatainformation');
+          //  if (datainformations)
+          //      document.getElementById('bSearch').innerHTML = datainformations.rowscount;
+       // });
+        //Ticket#, Status, Priority, Category, Summary, Team, CurrentOwner
+        /*var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'RstTeamName', type: 'string' },
+                { name: 'LstCreatedById',type:'string'},
+                { name: 'LstCurrentOwnerId', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetMyTickets",
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return Fnedit()" class="GridButton">Edit</button>';
+        };
+        $('#jqxgridMyTickets').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            //autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+            columns: [
+                { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'RscName' },
+                { text: 'Summary', datafield: 'LstSummary' },
+                { text: 'Team', datafield: 'RstTeamName' },
+                { text: 'Requester', datafield: 'LstCreatedById' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' },
+                { text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer, width: '10%'
+               }
+            ]
+        });*/
+     /* var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'RstTeamName', type: 'string' },
+                { name: 'LstCreatedById',type:'string'},
+                { name: 'LstCurrentOwnerId', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetAllTickets",
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        var cellsrenderer2 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return SelfAssign()" class="GridButton">Self Assign</button>&emsp;<button onclick="return Fnedit2()" class="GridButton">Edit</button>&emsp;<button onclick="return FnReview()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button> &emsp; <button onclick="return Fnedit4()" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>';
+        };
+        $('#jqxgridAllTickets').jqxGrid({
+            source: dataAdapter2,
+            width: '100%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            //autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+
+            columns: [
+                { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'RscName' },
+                { text: 'Summary', datafield: 'LstSummary' },
+                { text: 'Team', datafield: 'RstTeamName' },
+                { text: 'Requester', datafield: 'LstCreatedById' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' },
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer2, width: '10%'
+               }
+            ]
+        });*/
+     /*  var source4 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'RstTeamName', type: 'string' },
+                { name: 'LstCreatedById',type:'string'},
+                { name: 'LstCurrentOwnerId', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetTicketsHistory",
+        };
+        var dataAdapter4 = new $.jqx.dataAdapter(source4)
+        var cellsrenderer4 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return Fnedit4()" class="GridButton">Edit</button>&emsp;<button onclick="return FnReviewHistory()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button> &emsp; <button onclick="return Fnedit6()" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>';
+        };
+        $('#jqxgridHistory').jqxGrid({
+            source: dataAdapter4,
+            width: '100%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            //autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+
+            columns: [
+                { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'LstCategory' },
+                { text: 'Summary', datafield: 'LstSummary' },
+                { text: 'Team', datafield: 'LstTeam' },
+                { text: 'Requester', datafield: 'LstCreatedById' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' },
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer4, width: '10%'
+               }
+            ]
+        });*/
+
+      /*  var source5 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'RstTeamName', type: 'string' },
+                { name: 'LstCreatedById',type:'string'},
+                { name: 'LstCurrentOwnerId', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetSearchTickets",
+        };
+        var dataAdapter5 = new $.jqx.dataAdapter(source4)
+        var cellsrenderer5 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return Fnedit5()" class="GridButton">Edit</button>';
+        };
+        $('#jqxgridSearch').jqxGrid({
+            source: dataAdapter5,
+            width: '100%',
+           // autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            //autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+
+            columns: [
+                { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'LstCategory' },
+                { text: 'Summary     ', datafield: 'LstSummary' },
+                { text: 'Team', datafield: 'LstTeam' },
+                { text: 'Requester', datafield: 'LstCreatedById' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' },
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer5, width: '10%'
+               }
+            ]
+
+        });*/
+
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstType', type: 'String' },
+                { name: 'RscName', type: 'string' },
+                { name: 'RstName', type: 'String' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstCreatedById', type: 'string' },
+                { name: 'LstCurrentOwnerId', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'LstLastUpdatedDateTime', type: 'date' },
+                { name: 'LstCreatedDateTime', type: 'date' },
+                { name: 'FirstDescription', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetRequestorTickets",
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, rowdata, displayfield, columnproperties) {
+            var LoggedInUser = '@HttpContext.Current.Session["UserName"]'
+            var SupportLevel='@ViewBag.strSupportLevel'
+            if(displayfield.LstCurrentOwnerId==LoggedInUser||displayfield.LstCreatedById==LoggedInUser)//show edit
+     {
+         return '<button onclick="return FnReviewRequestor(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>';
+     }
+            else if (SupportLevel=='L2')
+     {
+         return '<button onclick="return FnReviewRequestor(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>&emsp;<button onclick="return SelfAssignRequestor(' + value + ')" class="GridButton"><i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Self Assign\"></i></button>';
+     }
+            else
+     {
+         return '<button onclick="return FnReviewRequestor(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;';
+    }
+        };
+
+
+
+        $('#jqxgridRequestor').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: '400px',
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            //autoheight: true,
+            //pageable: false,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'></div>", rowdetailsheight: 150 },
+            pagesize: 20,
+            pagesizeoptions: [20, 50, 100],
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            selectionmode: 'checkbox',
+            showstatusbar: false,
+            autoloadstate: true,
+            autosavestate: true,
+
+            ready: function () {
+              //  alert("ready");
+                CurrentRequesterState = $("#jqxgridRequestor").jqxGrid('getstate')
+               console.log(CurrentRequesterState)
+                sessionStorage.CurrentRequesterState = CurrentRequesterState;
+            },
+            columns: [
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer, width: '10%'
+               },
+               { text: 'Ticket #', datafield: 'LstTicketNumber', width: '8%' },
+               { text: 'Type', datafield: 'LstType', width: '8%' },
+               { text: 'Category', datafield: 'RscName', width: '10%' },
+               { text: 'Stage', datafield: 'RstName', width: '8%' },
+               { text: 'Summary', datafield: 'LstSummary', width: '20%', editable: false },
+               { text: 'Status', datafield: 'LstStatus', width: '10%' },
+               { text: 'Requester', datafield: 'LstCreatedById', width: '20%' },
+               { text: 'Current Owner', datafield: 'LstCurrentOwnerId', width: '20%' },
+               { text: 'Priority', datafield: 'LstPriority', width: '10%' },
+               { text: 'Updated Date', datafield: 'LstLastUpdatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy"},
+               { text: 'Created Date', datafield: 'LstCreatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Comment', datafield: 'FirstDescription', width: '20%' }
+
+            ]
+        });
+        //$("#jqxgridRequestor").bind("columnresized", function (event) {
+        //    resizeReq = event.args.columntext;
+        //    if (( (filterinfoReq != null)) || (sortinformationReq != null)) {
+        //        if ((sortinformationReq.sortcolumn == null || sortinformationReq == null ) && (filterinfoReq == null || filterinfoReq.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+
+        //});
+
+        //$("#jqxgridRequestor").bind("sort", function (event) {
+        //    sortinformationReq = event.args.sortinformation;
+        //    if ((filterinfoReq != null) || (sortinformationReq != null) ) {
+        //        if ((sortinformationReq.sortcolumn == null || sortinformationReq == null) && (filterinfoReq == null || filterinfoReq.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+
+        //});
+
+        jQuery('#jqxgridRequestor').bind('filter', function (event) {
+
+            filterinfoReq = $("#jqxgridRequestor").jqxGrid('getfilterinformation');
+            if ((filterinfoReq != null)) {
+                if ((filterinfoReq == null || filterinfoReq.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+
+    var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstType', type: 'String' },
+                { name: 'RscName', type: 'string' },
+                { name: 'RstName', type: 'String' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstCreatedById', type: 'string' },
+                { name: 'LstCurrentOwnerId', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'LstLastUpdatedDateTime', type: 'date' },
+                { name: 'LstCreatedDateTime', type: 'date' },
+                { name: 'FirstDescription', type: 'string' }
+//
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/GetSystemAnalystTickets",
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        var cellsrenderer2 = function (row, columnfield, value, defaulthtml, rowdata, displayfield, columnproperties) {
+   //*SelfAssign only when CurrentOwner!=LoginUser
+    //console.log(displayfield)
+      var SupportLevel='@ViewBag.strSupportLevel'
+      var LoggedInUser='@HttpContext.Current.Session["UserName"]';
+    var UserRole='@HttpContext.Current.Session["UserRole"]';
+    if(displayfield.LstCurrentOwnerId!=LoggedInUser&&UserRole=='System Analyst')//show selfassign
+    {
+        return '<button onclick="return FnReviewSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="return FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return SelfAssignSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Self Assign\"></i></button>';
+    }
+      else if(displayfield.LstCurrentOwnerId==LoggedInUser||displayfield.LstCreatedById==LoggedInUser)//show edit
+    {
+        return '<button onclick="return FnReviewSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="return FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit2(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>';
+    }
+    else if (SupportLevel=='L2')
+    {
+        return '<button onclick="return FnReviewSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="return FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit2(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>&emsp;<button onclick="return SelfAssignSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Self Assign\"></i></button>';
+    }
+    else
+    {
+        return '<button onclick="return FnReviewSystemAnalyst(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="return FnDownload('+value+')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;';
+    }
+    };
+        $('#jqxgridSystemAnalyst').jqxGrid({
+            source: dataAdapter2,
+            width: '100%',
+            height:'400px',
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            sortable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            //autoheight: true,
+            //pageable: false,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'></div>", rowdetailsheight: 150 },
+            pagesize: 20,
+            pagesizeoptions: [20, 50, 100],
+            pageable: true,
+            selectionmode:'checkbox',
+            showstatusbar: false,
+            autoloadstate: true,
+            autosavestate: true,
+            ready: function () {
+                 CurrentSystemAnalystState = $("#jqxgridSystemAnalyst").jqxGrid('getstate');
+
+                sessionStorage.CurrentSystemAnalystState = CurrentSystemAnalystState;
+            },
+
+            columns: [
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer2, width: '10%'
+                },
+
+               { text: 'Ticket #', datafield: 'LstTicketNumber', width: '8%' },
+               { text: 'Type', datafield: 'LstType', width: '8%' },
+               { text: 'Category', datafield: 'RscName', width: '10%' },
+               { text: 'Stage', datafield: 'RstName', width: '8%' },
+               { text: 'Summary', datafield: 'LstSummary', width: '20%', editable: false },
+               { text: 'Status', datafield: 'LstStatus', width: '10%' },
+               { text: 'Requester', datafield: 'LstCreatedById', width: '20%' },
+               { text: 'Current Owner', datafield: 'LstCurrentOwnerId', width: '20%' },
+               { text: 'Priority', datafield: 'LstPriority', width: '10%' },
+               { text: 'Updated Date', datafield: 'LstLastUpdatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Created Date', datafield: 'LstCreatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Comment', datafield: 'FirstDescription', width: '20%' }
+
+            ]
+        });
+        //$("#jqxgridSystemAnalyst").bind("sort", function (event) {
+        //    sortinformationSA = event.args.sortinformation;
+        //    if ((filterSA != null) || (sortinformationSA != null)) {
+        //        if ((sortinformationSA.sortcolumn == null || sortinformationSA == null) && (filterSA == null || filterSA.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+        //});
+
+        jQuery('#jqxgridSystemAnalyst').bind('filter', function (event) {
+           // filterSA = jQuery(this).jqxGrid('getfilterinformation');
+            filterSA = $("#jqxgridSystemAnalyst").jqxGrid('getfilterinformation');
+            if ((filterSA != null) ) {
+                if ((filterSA == null || filterSA.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+
+
+     var source3 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstType', type: 'String' },
+                { name: 'RscName', type: 'string' },
+                { name: 'RstName', type: 'String' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstCreatedById', type: 'string' },
+                { name: 'LstCurrentOwnerId', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'LstLastUpdatedDateTime', type: 'date' },
+                { name: 'LstCreatedDateTime', type: 'date' },
+                { name: 'FirstDescription', type: 'string' }
+            ],
+            id: "Id",
+            cache: false,
+            url: "/LSupportTickets/GetL2SupportTickets",
+        };
+        var dataAdapter3 = new $.jqx.dataAdapter(source3)
+        var cellsrenderer3 =function (row, columnfield, value, defaulthtml, rowdata, displayfield, columnproperties) {
+    //*SelfAssign only when CurrentOwner!=LoginUser
+
+             var SupportLevel='@ViewBag.strSupportLevel'
+      var LoggedInUser='@HttpContext.Current.Session["UserName"]';
+      var UserRole = '@HttpContext.Current.Session["UserRole"]';
+      var tktType = displayfield.LstType;
+      if (displayfield.LstCurrentOwnerId != LoggedInUser && SupportLevel == 'L2')//show selfassign
+      {
+          //debugger;
+          return '<button onclick="return FnReviewL2Support(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit3(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>&emsp;<button onclick="return SelfAssignL2Support(' + value + ')" class="GridButton"><i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Self Assign\"></i></button>&emsp;<button onclick="FnAssignToL2(' + value + ', \'' + tktType + '\')" class="GridButton"><i class=\"fa fa-users\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Assign To L2\"></i></button>&emsp;';
+      }
+    else if(displayfield.LstCurrentOwnerId==LoggedInUser||displayfield.LstCreatedById==LoggedInUser)//show edit
+      {
+          //debugger;
+          return '<button onclick="return FnReviewL2Support(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit3(' + value + ')" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>&emsp;<button onclick="FnAssignToL2(' + value + ', \'' + tktType +  '\')" class="GridButton"><i class=\"fa fa-users\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Assign To L2\"></i></button>&emsp;';
+    }
+    else
+      {
+          //debugger;
+          return '<button onclick="return FnReviewL2Support(' + value + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload(' + value + ')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="FnAssignToL2(' + value + ', \'' + tktType +  '\')" class="GridButton"><i class=\"fa fa-users\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Assign To L2\"></i></button>&emsp;';
+    }
+    };
+
+        $('#jqxgridL2Support').jqxGrid({
+            source: dataAdapter3,
+            width: '100%',
+            height: '400px',
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            sortable: true,
+            //autoheight: true,
+            //pageable: false,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'></div>", rowdetailsheight: 150 },
+            pagesize: 20,
+            pagesizeoptions: [20, 50, 100],
+            pageable: true,
+            selectionmode: 'checkbox',
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            showstatusbar: false,
+            autoloadstate: true,
+            autosavestate: true,
+            ready: function () {
+                 CurrentL2SupportState = $("#jqxgridL2Support").jqxGrid('getstate');
+
+                 sessionStorage.CurrentL2SupportState = CurrentL2SupportState;
+
+            },
+
+            columns: [
+               {
+                   text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer3, width: '10%'},
+               { text: 'Ticket #', datafield: 'LstTicketNumber', width: '8%' },
+               { text: 'Type', datafield: 'LstType', width: '8%' },
+               { text: 'Category', datafield: 'RscName', width: '10%', },
+               { text: 'Stage', datafield: 'RstName', width: '8%' },
+               { text: 'Summary', datafield: 'LstSummary', width: '20%', editable: false },
+               { text: 'Status', datafield: 'LstStatus', width: '10%' },
+               { text: 'Requester', datafield: 'LstCreatedById', width: '20%' },
+               { text: 'Current Owner', datafield: 'LstCurrentOwnerId', width: '20%' },
+               { text: 'Priority', datafield: 'LstPriority', width: '10%' },
+               { text: 'Updated Date', datafield: 'LstLastUpdatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Created Date', datafield: 'LstCreatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Comment', datafield: 'FirstDescription', width: '20%' }
+
+            ]
+        });
+
+        //$("#jqxgridL2Support").bind("columnresized", function (event) {
+        //    resizeL2 = event.args.columntext;
+        //    if ((filterL2 != null) || (sortinformationL2 != null) || (resizeL2 != null)) {
+        //        if ((resizeL2 == null) && (sortinformationL2 == null || sortinformationL2.sortcolumn == null) && (filterL2 == null || filterL2.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+        //});
+
+        //$("#jqxgridL2Support").bind("sort", function (event) {
+        //    sortinformationL2 = event.args.sortinformation;
+        //    if ((filterL2 != null) || (sortinformationL2 != null) ) {
+        //        if ((sortinformationL2 == null || sortinformationL2.sortcolumn == null) && (filterL2 == null || filterL2.length == 0)) {
+        //            $("#FilterImage").hide();
+        //        }
+        //        else {
+        //            $("#FilterImage").show();
+        //        }
+        //    }
+        //    else {
+        //        $("#FilterImage").hide();
+        //    }
+        //});
+
+        jQuery('#jqxgridL2Support').bind('filter', function (event) {
+            //filterL2 = jQuery(this).jqxGrid('getfilterinformation');
+            filterL2 = $("#jqxgridL2Support").jqxGrid('getfilterinformation');
+
+            if ((filterL2 != null) ) {
+                if ( (filterL2 == null || filterL2.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+    /* var source4 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'LstCurrentOwnerId', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/LSupportTickets/Review",
+        };
+        var dataAdapter4 = new $.jqx.dataAdapter(source4)
+        var cellsrenderer4 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '<button onclick="return FnReview()" class="GridButton">Edit</button>';
+        };
+        $('#jqxgridReview').jqxGrid({
+            source: dataAdapter4,
+            width: '100%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            //autoheight: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            ready: function () {
+            },
+
+            columns: [
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer4, width: '10%'
+               },
+                { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'LstCategory' },
+                { text: 'Summary     ', datafield: 'LstSummary' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' }
+
+            ]
+
+        });*/
+
+      //Get role from session and make that tab selected in view
+        var UserRole = '@HttpContext.Current.Session["UserRole"]'
+        if(UserRole=='L2 Admin')
+    {
+    UserRole='L2';
+        }
+
+        //MS R2.3 Comment
+     //   var length = $('#jqxTabs').jqxTabs('length');
+     //   if (!sessionStorage.CurrentTab) {
+     //      // alert(sessionStorage.GridState)
+     //for (var i = 0; i < length; ++i) {
+     //           var text = $('#jqxTabs').jqxTabs('getTitleAt', i);
+     //           if (text.indexOf(UserRole) != -1) {
+     //               $('#jqxTabs').jqxTabs('select', i)
+     //           }
+     //       }
+     //   }
+     //   else {
+     //  $('#jqxTabs').jqxTabs('select', sessionStorage.CurrentTab)
+     //   }
+        if (sessionStorage.getItem('lastTab') != null && sessionStorage.getItem('lastTab') != "") {
+            // alert(sessionStorage.getItem('lastTab'));
+            $('#jqxTabs').jqxTabs('select', parseInt(sessionStorage.getItem('lastTab')));
+        }
+        else {
+       $('#jqxTabs').jqxTabs('select', sessionStorage.CurrentTab)
+        }
+
+    });
+
+    // window.onbeforeunload = function () {
+    //    var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+    //    if (typeof (Storage) !== "undefined") {
+    //        sessionStorage.CurrentTab = selectedItem;
+    //}
+    //}
+
+    //function to download supporting documents which are attached using attach button
+    function FnDownload(Id)
+    {
+        if (Id) {
+            window.location.href = '/Home/DownloadSupportingDocument?EntityId=' + Id + '&EntityType=LSupportTickets';
+        }
+    }
+
+
+    function Fnedit(xx) {
+        //var selectedrowindex = $('#jqxgridRequestor').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridRequestor').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            //var path = url.replace("__id__", xx);
+            //path = window.location.protocol + "//" + window.location.host + "/" + path;
+            //var popup = window.open(path);
+        }
+    }
+    function Fnedit2(xx) {
+        //var selectedrowindex = $('#jqxgridSystemAnalyst').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridSystemAnalyst').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            //var path = url.replace("__id__", xx);
+            //path = window.location.protocol + "//" + window.location.host + "/" + path;
+            //var popup = window.open(path);
+        }
+    }
+    function Fnedit3(xx) {
+        //var selectedrowindex = $('#jqxgridL2Support').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridL2Support').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            //var path = url.replace("__id__", xx);
+            //path = window.location.protocol + "//" + window.location.host + "/" + path;
+            //var popup = window.open(path);
+        }
+    }
+    function Fnedit4() {
+        var selectedrowindex = $('#jqxgridHistory').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgridHistory').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            //var path = url.replace("__id__", xx);
+            //path = window.location.protocol + "//" + window.location.host + "/" + path;
+            //var popup = window.open(path);
+        }
+    }
+    //function Fnedit5() {
+        //var selectedrowindex = $('#jqxgridSearch').jqxGrid('selectedrowindex');
+       // var xx = $('#jqxgridSearch').jqxGrid("getrowid", selectedrowindex);
+       // if (xx) {
+         //  var url = Url.Action("Edit", "LSupportTickets", new {Id = "__id__" })';
+          //  window.location.href = url.replace("__id__", xx);
+       // }
+    //}
+    function SelfAssignRequestor(xx) {
+        //var selectedrowindex = $('#jqxgridRequestor').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridRequestor').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("SelfAssignTicket", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function SelfAssignSystemAnalyst(xx) {
+        //var selectedrowindex = $('#jqxgridSystemAnalyst').jqxGrid('selectedrowindex');
+        //alert(selectedrowindex)
+        //var xx = $('#jqxgridSystemAnalyst').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("SelfAssignTicket", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+     function SelfAssignL2Support(xx) {
+        //var selectedrowindex = $('#jqxgridL2Support').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridL2Support').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("SelfAssignTicket", "LSupportTickets", new { Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+     function FnReviewRequestor(xx) {
+        //var selectedrowindex = $('#jqxgridRequestor').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridRequestor').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Review", "LSupportTickets", new { Id = "__id__" })';
+            //window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            var path = url.replace("__id__", xx);
+            path = window.location.protocol + "//" + window.location.host + "/" + path;
+            var popup = window.open(path);
+        }
+    }
+    function FnReviewSystemAnalyst(xx) {
+        //var selectedrowindex = $('#jqxgridSystemAnalyst').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridSystemAnalyst').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Review", "LSupportTickets", new { Id = "__id__" })';
+            //window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            var path = url.replace("__id__", xx);
+            path = window.location.protocol + "//" + window.location.host + "/" + path;
+            var popup = window.open(path);
+        }
+    }
+
+    function FnReviewL2Support(xx) {
+        //var selectedrowindex = $('#jqxgridL2Support').jqxGrid('selectedrowindex');
+        //var xx = $('#jqxgridL2Support').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Review", "LSupportTickets", new { Id = "__id__" })';
+            //window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            var path = url.replace("__id__", xx);
+            path = window.location.protocol + "//" + window.location.host + "/" + path;
+            var popup = window.open(path);
+
+        }
+    }
+     function FnReviewHistory() {
+        var selectedrowindex = $('#jqxgridHistory').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgridHistory').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Review", "LSupportTickets", new { Id = "__id__" })';
+            //window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            var path = url.replace("__id__", xx);
+            path = window.location.protocol + "//" + window.location.host + "/" + path;
+            var popup = window.open(path);
+         }
+    }
+
+    /*function getSelectedQuickTktID() {
+
+        var xx= document.getElementById('LstQuickTicketID').value;
+        document.location.href = '/LSupportTickets/CreateQuickTicket/'+xx;
+
+    }*/
+
+     function FnAssignToL2(xx, tktType) {
+         // alert(Comments)
+         if (xx) {
+            // alert('xx ' + xx + ' and ticket type=' + tktType);
+             window.location.href = '/LSupportTickets/AssignTo?TransactionId=' + xx + '&tckType=' + tktType;
+         }
+     }
+
+    function GetDateSearchGrid()
+    {
+        //debugger;
+        var Form1 = $("#frm")
+        var SearchStartDate = document.getElementById('LstSearchTicketFromDate').value//$("#LstSearchTicketFromDate").val()
+        var ToDate = document.getElementById('LstSearchTicketToDate').value
+        var searchstring = document.getElementById('txtsearch').value
+      
+        $.ajax({
+            data: { LstSearchTicketFromDate: SearchStartDate, LstSearchTicketToDate: ToDate, LstSearchString: searchstring},
+            url: "/LSupportTickets/GetTicketsForDateRange",
+            dataType: "json",
+            type: "GET",
+            success: function (data) {
+                var sourcea = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'LstTicketNumber', type: 'string' },
+                        { name: 'LstType', type: 'String' },
+                        { name: 'RscName', type: 'string' },
+                        { name: 'RstName', type: 'String' },
+                        { name: 'LstSummary', type: 'string' },
+                        { name: 'LstStatus', type: 'string' },
+                        { name: 'LstCreatedById', type: 'string' },
+                        { name: 'LstCurrentOwnerId', type: 'string' },
+                        { name: 'LstPriority', type: 'string' },
+                        { name: 'LstLastUpdatedDateTime', type: 'date' },
+                        { name: 'LstCreatedDateTime', type: 'date' }
+                    ],
+                    id: "Id",
+                    cache: false,
+                    async: false,
+                    localdata: data
+                };
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    return '<button onclick="return FnReviewHistory()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&emsp;<button onclick="FnDownload('+value+')" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&emsp;<button onclick="return Fnedit4()" class="GridButton"><i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>';
+
+                };
+
+                $('#jqxgridHistory').jqxGrid({
+                    source: sourcea,
+                    width: '100%',
+                    height: '400px',
+                    theme: 'bootstrap',
+                    sortable: true,
+                    filterable: true,
+                    autoshowcolumnsmenubutton: false,
+                    altrows: true,
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    showtoolbar: false,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    //editable: false,
+                    rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'></div>", rowdetailsheight: 150 },
+                    pagesize: 20,
+                    pagesizeoptions: [20, 50, 100],
+                    pageable: true,
+                    //rowdetails: true
+
+                    autoloadstate: true,
+                    autosavestate: true,
+                    ready: function () {
+                        CurrentHistoryState = $("#jqxgridHistory").jqxGrid('getstate');
+
+                        sessionStorage.CurrentHistoryState = CurrentHistoryState;
+                    },
+                    columns: [
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer, width: '10%'
+               },
+
+               { text: 'Ticket #', datafield: 'LstTicketNumber', width: '8%' },
+               { text: 'Type', datafield: 'LstType', width: '8%' },
+               { text: 'Category', datafield: 'RscName', width: '10%' },
+               { text: 'Stage', datafield: 'RstName', width: '8%' },
+               { text: 'Summary', datafield: 'LstSummary', width: '20%', editable: false },
+               { text: 'Status', datafield: 'LstStatus', width: '10%' },
+               { text: 'Requester', datafield: 'LstCreatedById', width: '20%' },
+               { text: 'Current Owner', datafield: 'LstCurrentOwnerId', width: '20%' },
+               { text: 'Priority', datafield: 'LstPriority', width: '10%' },
+               { text: 'Updated Date', datafield: 'LstLastUpdatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" },
+               { text: 'Created Date', datafield: 'LstCreatedDateTime', width: '20%', cellsformat: "dd/MM/yyyy" }
+
+
+                    ]
+                });
+
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+
+        });
+    }
+
+   /* function GetSearchTicketGrid() {
+        var Form1 = $("#frm")
+        var SearchString = document.getElementById('LstTicketSearchString').value
+
+        $.ajax({
+            //data: Form1.serialize(),
+            //data: { RoleId: RoleId },
+            data: { LstTicketSearchString: SearchString },
+            url: "/LSupportTickets/GetSearchTickets",
+            dataType: "json",
+            type: "GET",
+            success: function (data) {
+                var sources = {
+                    dataType: "json",
+                    dataFields: [
+                       { name: 'Id', type: 'string' },
+                { name: 'LstTicketNumber', type: 'string' },
+                { name: 'LstStatus', type: 'string' },
+                { name: 'LstPriority', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'LstSummary', type: 'string' },
+                { name: 'RstTeamName', type: 'string' },
+                { name: 'LstCurrentOwnerId', type: 'string' }
+                    ],
+                    localdata: data
+                };
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    return '<button onclick="return Fnedit4()" class="GridButton">Edit</button>';
+
+                };
+                $('#jqxgridSearch').jqxGrid({
+                    source: sources,
+                    width: '100%',
+                    //autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    showtoolbar: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                   // editable: true,
+                    pagesize: 20,
+                    pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                    rowdetails: true,
+
+                    ready: function () {
+                    },
+                    columns: [
+                         { text: 'Ticket #', datafield: 'LstTicketNumber' },
+                { text: 'Status', datafield: 'LstStatus' },
+                { text: 'Priority', datafield: 'LstPriority' },
+                { text: 'Category', datafield: 'RscName' },
+                { text: 'Summary', datafield: 'LstSummary' },
+                { text: 'Team', datafield: 'RstTeamName' },
+                { text: 'Current Owner', datafield: 'LstCurrentOwnerId' },
+               {
+                   text: 'Actions', datafield: 'Id',
+                   cellsrenderer: cellsrenderer, width: '10%'
+               }
+
+                    ]
+
+                });
+
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }*/
+
+
+function FnDownloadGrid()
+    {
+        var TabName = "";
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        // alert(selectedItem)
+        switch(selectedItem)
+        {
+            case 0:
+                TabName = "Requestor";
+                window.location.href = '/LSupportTickets/DownloadTickets?TabName=' + TabName;//
+            break;
+            case 1:
+                TabName = "SystemAnalyst";
+                window.location.href = '/LSupportTickets/DownloadTickets?TabName=' + TabName;//
+            break;
+            case 2:
+                TabName = "L2Admin";
+                window.location.href = '/LSupportTickets/DownloadTickets?TabName=' + TabName;//
+                break;
+            case 3:
+                TabName = "History";
+                var SearchStartDate = document.getElementById('LstSearchTicketFromDate').value;//$("#LstSearchTicketFromDate").val()
+                var ToDate = document.getElementById('LstSearchTicketToDate').value;
+                var searchstring = document.getElementById('txtsearch').value;
+                window.location.href = '/LSupportTickets/DownloadTicketsForDateRange?LstSearchTicketFromDate=' + SearchStartDate + '&LstSearchTicketToDate=' + ToDate + '&LstSearchString=' + searchstring;
+            break;
+
+        }
+    }
+
+    function ReloadPageWithoutFilter() {
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        switch (selectedItem) {
+            case 0:
+                $('#jqxgridRequestor').jqxGrid('loadstate', CurrentRequesterState);//it will load the grid into its normal state
+                break;
+            case 1:
+                $("#jqxgridSystemAnalyst").jqxGrid('loadstate', CurrentSystemAnalystState);
+                break;
+            case 2:
+                $("#jqxgridL2Support").jqxGrid('loadstate', CurrentL2SupportState);
+                break;
+            case 3:
+                $("#jqxgridHistory").jqxGrid('loadstate', CurrentHistoryState);
+                break;
+
+        }
+        //$("#jqxgridRequestor").jqxGrid('updatebounddata');
+        //$("#jqxgridSystemAnalyst").jqxGrid('updatebounddata');
+        //$("#jqxgridL2Support").jqxGrid('updatebounddata');
+        //$("#jqxgridHistory").jqxGrid('updatebounddata');
+    }
+    //GlobalArrayHavingListofIds
+    var ListOfIds = [];
+    var GlobalComment=undefined;
+    //method called when sa will select tickets to be sent to requestor
+    function FnSendToRequestorFromL1() {
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridSystemAnalyst').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridSystemAnalyst').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+
+                var jsonInput = { ActionName: 'BackToRequestor', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+                //window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=BackToRequestor&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    //When SA will send ticket to L2
+    function FnForwardToL2FromL1() {
+       // debugger
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridSystemAnalyst').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridSystemAnalyst').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+
+                var jsonInput = { ActionName: 'ForwardToL2', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    cache: false,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+
+              // window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=ForwardToL2&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    function FnForwardToL1FromRequester() {
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridRequestor').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridRequestor').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+
+                var jsonInput = { ActionName: 'ForwardToL1', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+
+                //window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=ForwardToL1&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    function FnForwardToL2FromRequester() {
+       // debugger
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridRequestor').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridRequestor').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+
+                var jsonInput = { ActionName: 'ForwardToL2', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    async:false,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+               // window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=ForwardToL2&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    //method called when l2 will select tickets to be sent to l1
+    function FnForwardToL1FromL2() {
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridL2Support').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridL2Support').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+                var jsonInput = { ActionName: 'BackToL1', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+
+
+               // window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=BackToL1&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    //method called when L2 will select tickets to be self assigned
+    function FnSelfAssignFromL2() {
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridL2Support').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridL2Support').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+                var jsonInput = { TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassSelfAssignL2",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+
+               // window.location.href = '/LSupportTickets/ExecuteMassSelfAssignL2?TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+    //When L2 will send ticket to Requestor
+    function FnSendToRequestorFromL2() {
+        ListOfIds = [];
+        var Selectedrows = $('#jqxgridL2Support').jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < Selectedrows.length; i++) {
+            var rowdata = $('#jqxgridL2Support').jqxGrid('getrowdata', Selectedrows[i]);
+            ListOfIds[i] = rowdata.Id;
+        }
+        if (ListOfIds.length > 0) {
+            if (GlobalComment) {
+
+                var jsonInput = { ActionName: 'BackToRequestor', TransactionId: ListOfIds.toString(), Comments: GlobalComment };
+
+                $.ajax({
+                    url: "/LSupportTickets/ExecuteMassAction",
+                    dataType: "json",
+                    type: "POST",
+                    data: jsonInput,
+                    success: function (data) {
+                        window.location.href = '../LSupportTickets/Index';
+                    },
+                    error: function (reponse) {
+                        window.location.href = '../LSupportTickets/Index';
+                        //  alert("error : " + reponse);
+                    }
+                });
+
+
+               // window.location.href = '/LSupportTickets/ExecuteMassAction?ActionName=BackToRequestor&TransactionId=' + ListOfIds + '&Comments=' + GlobalComment;
+            }
+            else {
+                alert('please provide comment')
+            }
+        }
+        else
+            alert('please select rows')
+    }
+
+</script>
+@*@{
+        ViewBag.Title = "Support Tickets";
+    }*@
+
+<div class="col-md-9">
+    <h5 class="text-danger text-capitalize">
+        Support Tickets &ensp;<i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" style="cursor:pointer;font-size:15px !important;"></i>
+        &ensp;<span id="FilterImage" style="display:none;cursor:pointer;" onclick="ReloadPageWithoutFilter()">
+    @*<i class="glyphicon glyphicon-filter" style="width: 5px;" title="Clear Filter"></i>*@
+    <img src="~/Content/Images/ClearImage.png" style="width: 15px;color:#a94442;" />
+</span>
+    </h5>
+    @*<i class="fa fa-refresh" aria-hidden="true" onclick="FnDeleteUserPreference()" style="cursor:pointer;font-size:15px !important;" title="Clear Changes"></i>*@
+
+</div>
+@using (Html.BeginForm("UpdateChangeRequest", "LSupportTickets", FormMethod.Post, new { id = "frm1", name = "frm1" }))
+{
+    @Html.AntiForgeryToken()
+    //RK Added above token while code review
+    @Html.Hidden("StatusName")
+    @Html.Hidden("GridData")
+    @Html.HiddenFor(m => m.LstSearchTicketFromDate)
+    @Html.HiddenFor(m => m.LstSearchTicketToDate)
+}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.Hidden("AsOfDate")
+}
+@*<h2><b>Support Tickets</b>  <i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" colour="red" title="click here to download selected tab record"></i></h2>*@
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+            window.onload = function () {
+                alert("@ViewBag.Message");
+            };
+    </script>
+}
+<div style="padding:10px;">
+    @*@if (ViewBag.strSupportLevel !="L2")
+        {*@
+    <div class="col-md-9" style="display:inline-block;margin-bottom:10px">
+        <a href="/LSupportTickets/CreateNormalTicket"> <u> Create New Ticket</u></a>
+    </div>
+    @*}*@
+    @*<div class="col-md-2">
+
+            @Html.Label("Generate Quick Ticket")
+        </div>*@
+
+    @*@Html.DropDownListFor(model => model.LstQuickTicketID, null, "-- Select Here --", new { id = "LstQuickTicketID", @class = "form-control", onchange = "getSelectedQuickTktID()" })*@
+
+
+    <div id="jqxLayout">
+        <div>
+            <div data-container="ChangeRequestPanel">
+                <div id='jqxTabs' class="inner-tabs ">
+                    <ul class="nav nav-tabs tabs tabs-container-border ">
+                        <li style="margin-left: 30px;">Requestor <span class="badge" id="bRequestor">0</span></li>
+                        <li style="margin-left: 30px;">L1 (System Analyst) <span class="badge" id="bSystemAnalyst">0</span></li>
+                        <li style="margin-left: 30px;">L2 Support <span class="badge" id="bL2Support">0</span></li>
+                        <li>History</li>
+                    </ul>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridRequestor">
+                        </div>
+                        <br>
+                        <textarea class="textarea1" style="height:70px;" placeholder="Enter Comments for Mass Action" onchange="GlobalComment=this.value;"></textarea>
+                        <br>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnForwardToL1FromRequester()" class="btn btn-red btn-cons">Send To L1&nbsp;</button>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnForwardToL2FromRequester()" class="btn btn-red btn-cons">Send To L2&nbsp;</button>
+                        <br>
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridSystemAnalyst">
+                        </div>
+                        <br>
+                        <textarea class="textarea1" style="height:70px;" placeholder="Enter Comments for Mass Action" onchange="GlobalComment=this.value;"></textarea>
+                        <br>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnSendToRequestorFromL1()" class="btn btn-red btn-cons">Send To Requestor&nbsp;</button>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnForwardToL2FromL1()" class="btn btn-red btn-cons">Send To L2&nbsp;</button> <br>
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridL2Support">
+                        </div>
+                        <br>
+                        <textarea class="textarea1" style="height:70px;" placeholder="Enter Comments for Mass Action" onchange="GlobalComment=this.value;"></textarea>
+                        <br>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnForwardToL1FromL2()" class="btn btn-red btn-cons">Send To L1&nbsp;</button>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnSendToRequestorFromL2()" class="btn btn-red btn-cons">Send To Requestor&nbsp;</button>
+                        <button type="submit" id="btnSubmit" name="Command" onclick="FnSelfAssignFromL2()" class="btn btn-red btn-cons">Self Assign&nbsp;</button><br>
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        @*<div style="margin-bottom:20px;">
+            <div class="col-md-2">
+                @Html.Label("Select Date Range")
+            </div>
+            <div class="col-md-3 ">
+                <div id="FromDate"></div>
+            </div>
+            <div class="col-md-3">
+                <div id="ToDate"></div>
+            </div>
+            <div class="col-md-2">
+                @Html.TextBox("txtsearch", "", new { @class = "form-control", placeholder = "search", style = "width: 80%;height: 23px" })
+            </div>
+            <button type="button" value="Go" style="margin-left:10px" onclick="return GetDateSearchGrid()" class="btn btn-red btn-cons">Go&nbsp;</button>
+        </div>*@
+
+
+
+
+                        <div class="container-fluid col-md-12 col-lg-12">
+                            <div class="row col-lg-10 col-mg-10">
+                                <div class="col-lg-3 col-mg-3" style="padding-top:5px">
+                                    @*@Html.Label("Select Date Range")*@
+                                    @Html.Label("Closed Ticket created between")
+                                </div>
+                                <div class="col-lg-2 col-mg-2">
+                                    <div id="FromDate"></div>
+
+                                </div>
+                                <div class="col-lg-1 col-mg-1" style="text-align:center;padding-top:5px">
+
+                                    @Html.Label("and")
+                                </div>
+                                <div class="col-lg-2 col-mg-2">
+                                    <div id="ToDate"></div>
+                                </div>
+                                <div class="col-lg-2 col-mg-2">
+                                </div>
+                                <div class="col-lg-1 col-mg-1">
+                                </div>
+
+
+                            </div>
+                        </div>
+                        @*<div class="container-fluid col-md-12 col-lg-12">
+        <div class="row col-lg-10 col-mg-10">
+            </div>
+        </div>*@
+                        <br />
+                        <br />
+                        <br />
+                        <div class="col-md-12 col-lg-12">
+                            <div class="row col-lg-10 col-mg-10">
+                                <div class="col-lg-7 col-mg-7">
+                                    @Html.TextBox("txtsearch", "", new { @class = "form-control pull-left", placeholder = "Search By TicketNumber/Summary/Description/CreatedBy", style = "width: 100%;height: 23px;max-width: 100%" })
+                                </div>
+                                <div class="col-lg-3 col-mg-3" >
+                                    <button type="button" value="Go" onclick="return GetDateSearchGrid()" class="btn btn-red btn-cons pull-left">Go</button>
+                                </div>
+                            </div>
+                        </div>
+                        &nbsp;
+                        <div id="jqxgridHistory">
+                        </div>
+                    </div>
+
+                        </div>
+                    </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+@*@*<div class="tab-content" style="padding:10px;">
+    <div class="col-md-12" style="min-height:60px">
+        <div class="col-md-2">
+            @Html.Label("Enter Search String")
+        </div>
+        <div class="col-md-3">
+            @Html.EditorFor(model => model.LstTicketSearchString, new { htmlAttributes = new { @class = "form-control text-box single-line" } })
+            @*<input class="form-control text-box single-line" id="LstTicketSearchString" />*@
+@* </div>
+            <div class="col-md-2">
+                <button type="submit" value="Go" onclick="return GetSearchTicketGrid()" class="btn  btn-red btn-cons">Go&nbsp;</button>
+            </div>
+        </div>
+        <div id="jqxgridSearch">
+        </div>
+    </div>*@

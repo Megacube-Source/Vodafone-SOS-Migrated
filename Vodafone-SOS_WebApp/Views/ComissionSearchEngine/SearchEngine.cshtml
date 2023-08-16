@@ -1,0 +1,896 @@
+﻿
+@{
+    ViewBag.Title = "SearchEngine";
+}
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxswitchbutton.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxcheckbox.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxdata.export.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        var sourcePortfolio = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Portfolio', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioForDropDown"
+        };
+        var dataAdapterPortfolio = new $.jqx.dataAdapter(sourcePortfolio)//, { async: true, autoBind: true })
+        // Create a jqxListBox
+        $("#listboxPortfolio").jqxDropDownList({ checkboxes: false, source: dataAdapterPortfolio, displayMember: "Portfolio", valueMember: "Id", dropDownWidth: 350, placeHolder: "-- All --", width: '254px' });
+
+        var source2 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcpStatus', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LCalc/GetCommissionPeriod"
+        };
+        var dataAdapter2 = new $.jqx.dataAdapter(source2)
+
+        // Create a jqxListBox for Commissionperiod multi selection
+        $("#listboxCommPeriod").jqxDropDownList({ checkboxes: true, source: dataAdapter2, displayMember: "LcpStatus", valueMember: "Id", dropDownWidth: 350, placeHolder: "-- Select Here --", width: '254px' });
+
+        $("#listboxCommPeriod").on('checkChange', function (event) {
+            if (event.args) {
+                var item = event.args.item;
+                var value = item.value;
+                var label = item.label;
+                var checked = item.checked;
+                var items = $("#listboxCommPeriod").jqxDropDownList('getCheckedItems');
+                var checkedItems = '';
+                PortfolioCheckedIndexes = '';
+                $.each(items, function (index) {
+                    if (index < items.length - 1) {
+                        checkedItems += this.value + ",";
+                        // PortfolioCheckedIndexes += this.index + ",";
+                    }
+                    else {
+                        checkedItems += this.value;
+                        // PortfolioCheckedIndexes += this.index;
+                    }
+
+                });
+                //document.getElementById('PayeeAll').checked=false;
+                ChannelChanged = true;
+                //PayeeCheckedIndexes = '';
+                document.getElementById('hdnCommPeriod').value = checkedItems;
+            }
+        });
+    });
+    function GetDataForBothTabs() {
+        FnGetSummary("Claims");
+        FnGetSummary("XCalc");
+    }
+
+    function GetDataForClaimsTabs() {
+        //  $("#jqxgridClaims").jqxGrid('clearGridData');
+        debugger;
+        $("#jqxgridClaims").jqxGrid('clear');
+
+        FnGetSummary("Claims");
+
+    }
+    function GetDataForCalculationTabs() {
+        //$("#jqxgridXCalc").jqGrid("clearGridData");
+        $("#jqxgridXCalc").jqxGrid('clear');
+        FnGetSummary("XCalc");
+    }
+
+    function ClearFilterForSearchEngine() {
+        document.getElementById('SubscriberNumber').value = '';
+        document.getElementById('CustomerSegment').value = '';
+        document.getElementById('ActivityTypeId').value = '';
+        document.getElementById('ActivationOrder').value = '';
+        document.getElementById('CommissionTypeId').value = '';
+        // document.getElementById('listboxPortfolio').value = '--All--';
+        $("#listboxPortfolio").jqxDropDownList('clearSelection', true);
+        document.getElementById('ParentPayeeId').value = '';
+        document.getElementById('ParentName').value = '';
+        document.getElementById('SubChannel').value = '';
+        document.getElementById('PayeeId').value = '';
+        document.getElementById('PayeeName').value = '';
+        document.getElementById('hdnCommPeriod').value = '';
+        $("#dropdown").jqxDropDownList('clearSelection', true);
+        $("#dropdown").jqxDropDownList('checkIndex', 0);
+        $("#dropdown").jqxDropDownList('checkIndex', 1);
+        $("#dropdown").jqxDropDownList('checkIndex', 2);
+        $("#dropdown").jqxDropDownList('checkIndex', 3);
+        $("#dropdown").jqxDropDownList('checkIndex', 4);
+        $("#dropdown").jqxDropDownList('checkIndex', 5);
+        // $("#dropdown").jqxDropDownList('uncheckAll');
+        $("#listboxCommPeriod").jqxDropDownList('clearSelection', true);
+        $("#listboxCommPeriod").jqxDropDownList('uncheckAll');
+        $("#jqxgridXCalc").jqxGrid('clear');
+        $("#jqxgridClaims").jqxGrid('clear');
+        //var BatchStatus = $("#dropdown").jqxDropDownList('val');
+        $('#ChkSubscriberNumber').prop('checked', false);
+        $('#ChkCustomerSegment').prop('checked', false);
+        $('#ChkActivityType').prop('checked', false);
+        $('#ChkActivationOrder').prop('checked', false);
+        $('#ChkCommType').prop('checked', false);
+        $('#ChkChannel').prop('checked', false);
+        $('#ChkParentPayee').prop('checked', false);
+        $('#ChkSubChannel').prop('checked', false);
+        $('#ChkPayee').prop('checked', false);
+        $('#ChkPeriod').prop('checked', false);
+        $('#ChkBatchStatus').prop('checked', false);
+    }
+    function FnGetSummary(TabName) {
+        debugger;
+        var atleastOnefound = false;
+
+        var SubscriberNumber = document.getElementById('SubscriberNumber').value;
+        var CustomerSegment = document.getElementById('CustomerSegment').value;
+        var ActivityType = document.getElementById('ActivityTypeId').value;
+        var ActivationOrder = document.getElementById('ActivationOrder').value;
+        var CommissionType = document.getElementById('CommissionTypeId').value;
+        var Channel = $("#listboxPortfolio").jqxDropDownList('val');
+        var PayeeParent = document.getElementById('ParentPayeeId').value;
+        var SubChannel = document.getElementById('SubChannel').value;
+        var Payees = document.getElementById('PayeeId').value;
+        var Period = document.getElementById('hdnCommPeriod').value;
+        var BatchStatus = $("#dropdown").jqxDropDownList('val');
+
+        if (Period == '') {
+            alert("Kindly select at least one Period");
+            return false;
+        }
+
+
+        if (BatchStatus == '') {
+            alert("Kindly select Batch Status");
+            return false;
+        }
+        //  $('#jqxLoader').jqxLoader('open');
+
+        var Summarycolumns = new Array();
+
+        var ChkSubscriberNumber = $('#ChkSubscriberNumber').prop("checked");
+        var ChkCustomerSegment = $('#ChkCustomerSegment').prop("checked");
+        var ChkActivityType = $('#ChkActivityType').prop("checked");
+        var ChkActivationOrder = $('#ChkActivationOrder').prop("checked");
+        var ChkCommType = $('#ChkCommType').prop("checked");
+        var ChkChannel = $('#ChkChannel').prop("checked");
+        var ChkParentPayee = $('#ChkParentPayee').prop("checked");
+        var ChkSubChannel = $('#ChkSubChannel').prop("checked");
+        var ChkPayee = $('#ChkPayee').prop("checked");
+        var ChkPeriod = $('#ChkPeriod').prop("checked");
+        var ChkBatchStatus = $('#ChkBatchStatus').prop("checked");
+
+        if (Period == '' && SubscriberNumber == '' && Payees == '' && ChkSubscriberNumber == false && ChkPeriod == false && ChkPayee == false && TabName == 'Claims') {
+            alert("Kindly provide MSISDN or Period or Payee.");
+            return false;
+        }
+
+        // Dont Allow the grouping in case of Calculation
+        if (Period == '' && SubscriberNumber == '' && Payees == '' && TabName == "XCalc") {
+            alert("Kindly fill the value for MSISDN or Period or Payee.");
+            return false;
+        }
+        if (ChkSubscriberNumber == true || ChkCustomerSegment == true || ChkActivityType == true || ChkActivationOrder == true || ChkCommType == true || ChkChannel == true || ChkParentPayee == true || ChkSubChannel == true || ChkPayee == true || ChkPeriod == true || ChkBatchStatus == true) {
+            atleastOnefound = true;
+        }
+
+        if (atleastOnefound == true && TabName == "XCalc") {
+            alert("Please remove grouping, Grouping not allowed in case of calculation.");
+            return false;
+        }
+
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+        $('#jqxLoader').jqxLoader('open');
+        // Summarycolumns.push({ text: 'Payee Code', datafield: 'Payee', editable: false });
+        // Summarycolumns.push({ text: 'Source', datafield: 'Source', editable: false });
+
+
+        if (ChkSubscriberNumber) {
+            Summarycolumns.push({ text: 'Subscriber Number', datafield: 'SubscriberNumber', editable: false });
+            // Summarycolumns.push({ text: 'MSISDN', datafield: 'LcMSISDN ', editable: false });
+        }
+        if (ChkCustomerSegment) {
+            Summarycolumns.push({ text: 'Customer Segment', datafield: 'CustomerSegment', editable: false });
+        }
+        if (ChkActivityType) {
+            Summarycolumns.push({ text: 'Activity Type', datafield: 'ActivityType', editable: false });
+            // Summarycolumns.push({ text: 'Activity Type', datafield: 'LcActivityTypeId', editable: false });
+
+        }
+        if (ChkActivationOrder) {
+            Summarycolumns.push({ text: 'Activation Order', datafield: 'ActivationOrder', editable: false });
+        }
+        if (ChkCommType) {
+            Summarycolumns.push({ text: 'CommType', datafield: 'CommType', editable: false });
+            // Summarycolumns.push({ text: 'CommType', datafield: 'LcCommissionTypeId ', editable: false });
+        }
+        if (ChkChannel) {
+            Summarycolumns.push({ text: 'Channel', datafield: 'Channel', editable: false });
+            // Summarycolumns.push({ text: 'Portfolios', datafield: 'Portfolios', editable: false });
+        }
+
+        if (ChkParentPayee) {
+            Summarycolumns.push({ text: 'ParentPayee', datafield: 'ParentPayee', editable: false });
+            // Summarycolumns.push({ text: 'ParentPayee', datafield: 'LcParentPayeeID', editable: false });
+        }
+
+        if (ChkSubChannel) {
+            Summarycolumns.push({ text: 'Subchannel', datafield: 'Subchannel', editable: false });
+        }
+
+        if (ChkPayee) {
+            Summarycolumns.push({ text: 'Payee', datafield: 'Payee', editable: false });
+            // Summarycolumns.push({ text: 'Payee', datafield: 'LcPayeeID', editable: false });
+        }
+
+
+        if (ChkPeriod) {
+            Summarycolumns.push({ text: 'Period', datafield: 'Period', editable: false });
+            // Summarycolumns.push({ text: 'CommissionPeriod', datafield: 'LcCommissionPeriod', editable: false });
+        }
+
+        if (ChkBatchStatus) {
+            Summarycolumns.push({ text: 'Status', datafield: 'Status', editable: false });
+            // Summarycolumns.push({ text: 'Status', datafield: 'WFStatus', editable: false });
+        }
+
+
+        Summarycolumns.push({ text: 'Amt Ex tax', datafield: 'AmtExtax', editable: false });
+
+
+        if (FnIsGroupBy() == false) {
+            if (TabName == 'XCalc') {
+                Summarycolumns.push({ text: 'Batch Number', datafield: 'BatchNumber', editable: false });
+                Summarycolumns.push({ text: 'Status', datafield: 'Status', editable: false });
+            }
+            Summarycolumns.push({ text: 'Subscriber Number', datafield: 'SubscriberNumber', editable: false });
+            Summarycolumns.push({ text: 'Comm Type', datafield: 'CommType', editable: false });
+            Summarycolumns.push({ text: 'Period', datafield: 'Period', editable: false });
+            Summarycolumns.push({ text: 'Payee', datafield: 'Payee', editable: false });
+
+            if (TabName == 'XCalc') {
+                Summarycolumns.push({ text: 'Payee Name', datafield: 'PayeeName', editable: false });
+                Summarycolumns.push({ text: 'Parent Payee', datafield: 'ParentPayee', editable: false });
+                Summarycolumns.push({ text: 'Parent Payee Name', datafield: 'ParentPayeeName', editable: false });
+            }
+
+            if (TabName == 'Claims') {
+                Summarycolumns.push({ text: 'Payee First Name', datafield: 'PayeeFirstName', editable: false });
+                Summarycolumns.push({ text: 'Payee Last Name', datafield: 'PayeeLastName', editable: false });
+                Summarycolumns.push({ text: 'Parent Payee', datafield: 'ParentPayee', editable: false });
+                Summarycolumns.push({ text: 'Parent Payee First Name', datafield: 'ParentPayeeFirstName', editable: false });
+                Summarycolumns.push({ text: 'Parent Payee Last Name', datafield: 'ParentPayeeLastName', editable: false });
+            }
+
+        }
+        //   $("#btnDownload").show();
+        $.ajax({
+
+            data: {
+                ChkSubscriberNumber: ChkSubscriberNumber, SubscriberNumber: SubscriberNumber,
+                ChkCustomerSegment: ChkCustomerSegment, CustomerSegment: CustomerSegment,
+                ChkActivityType: ChkActivityType, ActivityType: ActivityType,
+                ChkActivationOrder: ChkActivationOrder, ActivationOrder: ActivationOrder,
+                ChkCommType: ChkCommType, CommissionType: CommissionType,
+                ChkChannel: ChkChannel, Channel: Channel,
+                ChkParentPayee: ChkParentPayee, PayeeParent: PayeeParent,
+                ChkSubChannel: ChkSubChannel, SubChannel: SubChannel,
+                ChkPayee: ChkPayee, Payees: Payees,
+                ChkPeriod: ChkPeriod, Period: Period,
+                ChkBatchStatus: ChkBatchStatus, BatchStatus: BatchStatus,
+                SelectedTab: TabName
+            },
+            url: "/ComissionSearchEngine/GetSearchEngineCount",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+
+                document.getElementById('jqxTabsDiv').style.display = 'block';
+                //document.getElementById('b' + TabName).innerHTML = counts;
+                var sourcea = {
+                    dataType: "json",
+                    mtype: 'POST',
+                    dataFields: [
+                        //{ name: 'Source', type: 'string' },
+                        { name: 'AmtExtax', type: 'string' },
+                        { name: 'Payee', type: 'string' },
+                        { name: 'ParentPayee', type: 'string' },
+                        { name: 'SubscriberNumber', type: 'string' },
+                        { name: 'CustomerSegment', type: 'string' },
+                        { name: 'ActivityType', type: 'string' },
+                        { name: 'ActivationOrder', type: 'string' },
+                        { name: 'CommType', type: 'string' },
+                        { name: 'Channel', type: 'string' },
+                        { name: 'Subchannel', type: 'string' },
+                        { name: 'Period', type: 'string' },
+                        { name: 'Status', type: 'string' },
+                        { name: 'BatchNumber', type: 'string' }
+                    ],
+                    url: "/ComissionSearchEngine/GetSearchEngine",
+                    data: {
+                        ChkSubscriberNumber: ChkSubscriberNumber, SubscriberNumber: SubscriberNumber,
+                        ChkCustomerSegment: ChkCustomerSegment, CustomerSegment: CustomerSegment,
+                        ChkActivityType: ChkActivityType, ActivityType: ActivityType,
+                        ChkActivationOrder: ChkActivationOrder, ActivationOrder: ActivationOrder,
+                        ChkCommType: ChkCommType, CommissionType: CommissionType,
+                        ChkChannel: ChkChannel, Channel: Channel,
+                        ChkParentPayee: ChkParentPayee, PayeeParent: PayeeParent,
+                        ChkSubChannel: ChkSubChannel, SubChannel: SubChannel,
+                        ChkPayee: ChkPayee, Payees: Payees,
+                        ChkPeriod: ChkPeriod, Period: Period,
+                        ChkBatchStatus: ChkBatchStatus, BatchStatus: BatchStatus,
+                        SelectedTab: TabName
+                    },
+                    // localdata: result
+                    filter: function () {
+
+                        //$("#jqxgrid" + TabName).jqGrid("clearGridData");
+                        $("#jqxgrid" + TabName).jqxGrid('updatebounddata', 'filter');
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                        //$("#jqxgrid" + TabName).jqGrid("clearGridData");
+                        $("#jqxgrid" + TabName).jqxGrid('updatebounddata', 'sort');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        console.log('Vijay');
+                        console.log(sourcea);
+                        sourcea.totalrecords = counts;
+                    }
+                };
+                var dataAdapter = new $.jqx.dataAdapter(sourcea)
+
+
+                //    columns: Summarycolumns
+                //Check whether the grid is already defined or not and ready for use.
+                var ready = $("#jqxgrid" + TabName).jqxGrid('ready');
+                //if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                if (typeof ready != 'undefined') {
+                    //$('#jqxgrid' + TabName).jqxGrid('updatebounddata');
+                    //  $('#jqxgridSummary').jqxGrid({ columns: Summarycolumns });
+                    // dataAdapter = new $.jqx.dataAdapter(sourcea);
+                    $("#jqxgrid" + TabName).jqxGrid({
+                        columns: Summarycolumns,
+                        source: dataAdapter, virtualmode: true, rendergridrows: function () {
+                            return dataAdapter.records;
+                        }
+                    });
+                }
+                else {
+                    $("#jqxgrid" + TabName).jqxGrid({
+                        source: dataAdapter,
+                        width: "100%",
+                        // columnsresize: true,
+                        pageable: true,
+                        pagesize: 200,
+                        filterable: true,
+                        columnsresize: true,
+                        autoshowcolumnsmenubutton: false,
+                        sortable: true,
+                        enablebrowserselection: true,
+                        pagesizeoptions: ['50', '100', '200', '500', '1000'],
+                        virtualmode: true,
+                        enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                        //autoshowfiltericon: true,
+                        //: function () {
+                        // $("#jqxgrid" + TabName).jqxGrid('updatebounddata')
+                        //},
+                        columns: Summarycolumns,
+                        rendergridrows: function () {
+                            return dataAdapter.records;
+                        }
+
+
+
+                    });
+
+                    $("#jqxgrid" + TabName).on("bindingcomplete", function (event) {
+                        $('#jqxLoader').jqxLoader('close');
+                    });
+                }
+            },
+
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+
+        })
+
+    }
+
+    function FnDownload(xx) {
+
+        //var GridRows = $('#jqxPopupgrid').jqxGrid('getrows');
+        //$("#jqxDownloadLoader").show();
+        //$("#jqxDownloadLoader").jqxLoader({ isModal: true, width: 320, height: 70, imagePosition: 'center' });
+        //$('#jqxDownloadLoader').jqxLoader('open');
+
+        /* $('#loadertext').modal();*/
+
+        var SubscriberNumber = document.getElementById('SubscriberNumber').value;
+        var CustomerSegment = document.getElementById('CustomerSegment').value;
+        var ActivityType = document.getElementById('ActivityTypeId').value;
+        var ActivationOrder = document.getElementById('ActivationOrder').value;
+        var CommissionType = document.getElementById('CommissionTypeId').value;
+        var Channel = $("#listboxPortfolio").jqxDropDownList('val');
+        var PayeeParent = document.getElementById('ParentPayeeId').value;
+        var SubChannel = document.getElementById('SubChannel').value;
+        var Payees = document.getElementById('PayeeId').value;
+        var Period = document.getElementById('hdnCommPeriod').value;
+        var BatchStatus = $("#dropdown").jqxDropDownList('val');
+        // var xx = $('#jqxTabs').jqxTabs('selectedItem');
+        //if (Period == '') {
+        //    alert("Kindly select Period");
+        //    return false;
+        //}
+        //  $('#jqxLoader').jqxLoader('open');
+        var Summarycolumns = new Array();
+
+        var ChkSubscriberNumber = $('#ChkSubscriberNumber').prop("checked");
+        var ChkCustomerSegment = $('#ChkCustomerSegment').prop("checked");
+        var ChkActivityType = $('#ChkActivityType').prop("checked");
+        var ChkActivationOrder = $('#ChkActivationOrder').prop("checked");
+        var ChkCommType = $('#ChkCommType').prop("checked");
+        var ChkChannel = $('#ChkChannel').prop("checked");
+        var ChkParentPayee = $('#ChkParentPayee').prop("checked");
+        var ChkSubChannel = $('#ChkSubChannel').prop("checked");
+        var ChkPayee = $('#ChkPayee').prop("checked");
+        var ChkPeriod = $('#ChkPeriod').prop("checked");
+        var ChkBatchStatus = $('#ChkBatchStatus').prop("checked");
+
+        var atleastOnefound = false;
+        if (Period == '' && SubscriberNumber == '' && Payees == '' && ChkSubscriberNumber == false && ChkPeriod == false && ChkPayee == false && xx == '0') {
+            alert("Kindly provide MSISDN or Period or Payee.");
+            return false;
+        }
+
+        if (Period == '' && SubscriberNumber == '' && Payees == '' && xx == "1") {
+            alert("Kindly fill the value for MSISDN or Period or Payee.");
+            return false;
+        }
+        // Dont Allow the grouping in case of Calculation
+        else if (ChkSubscriberNumber == true || ChkCustomerSegment == true || ChkActivityType == true || ChkActivationOrder == true || ChkCommType == true || ChkChannel == true || ChkParentPayee == true || ChkSubChannel == true || ChkPayee == true || ChkPeriod == true || ChkBatchStatus == true) {
+            atleastOnefound = true;
+
+            if (atleastOnefound == true && xx == "1") {
+                alert("Please remove grouping, Grouping not allowed in case of calculation.");
+                return false;
+            }
+            else {
+                $('#loadertext').modal();
+                window.location.href = '/ComissionSearchEngine/DownloadFile?SelectedTab=' + xx;
+            }
+        }
+        else {
+
+            //window.location.href = '/ComissionSearchEngine/DownloadFile?ChkSubscriberNumber=' + ChkSubscriberNumber + '&SubscriberNumber=' + SubscriberNumber + '&ChkCustomerSegment=' + ChkCustomerSegment + '&CustomerSegment=' + CustomerSegment + '&ChkActivityType=' + ChkActivityType + '&ActivityType=' + ActivityType + '&ChkActivationOrder=' + ChkActivationOrder + '&ActivationOrder=' + ActivationOrder + '&ChkCommType=' + ChkCommType + '&CommissionType=' + CommissionType + '&ChkChannel=' + ChkChannel + '&Channel=' + Channel + '&ChkParentPayee=' + ChkParentPayee + '&PayeeParent=' + PayeeParent + '&ChkSubChannel=' + ChkSubChannel + '&SubChannel=' + SubChannel + '&ChkPayee=' + ChkPayee + '&Payees=' + Payees + '&ChkPeriod=' + ChkPeriod + '&Period=' + Period + '&ChkBatchStatus=' + ChkBatchStatus + '&BatchStatus=' + BatchStatus + '&SelectedTab=' + xx;
+
+            $('#loadertext').modal();
+            window.location.href = '/ComissionSearchEngine/DownloadFile?SelectedTab=' + xx;
+
+            //setTimeout(function () {
+            //    $('#jqxDownloadLoader').jqxLoader('close');
+            //}, 4000)
+        }
+
+
+    }
+
+    function FnIsGroupBy() {
+        var isGroupBy = false;
+        var ChkSubscriberNumber = $('#ChkSubscriberNumber').prop("checked");
+        var ChkCustomerSegment = $('#ChkCustomerSegment').prop("checked");
+        var ChkActivityType = $('#ChkActivityType').prop("checked");
+        var ChkActivationOrder = $('#ChkActivationOrder').prop("checked");
+        var ChkCommType = $('#ChkCommType').prop("checked");
+        var ChkChannel = $('#ChkChannel').prop("checked");
+        var ChkParentPayee = $('#ChkParentPayee').prop("checked");
+        var ChkSubChannel = $('#ChkSubChannel').prop("checked");
+        var ChkPayee = $('#ChkPayee').prop("checked");
+        var ChkPeriod = $('#ChkPeriod').prop("checked");
+        var ChkBatchStatus = $('#ChkBatchStatus').prop("checked");
+
+        if (ChkSubscriberNumber) {
+            isGroupBy = true;
+
+        }
+        if (ChkCustomerSegment) {
+            isGroupBy = true;
+
+        }
+        if (ChkActivityType) {
+            isGroupBy = true;
+
+
+        }
+        if (ChkActivationOrder) {
+            isGroupBy = true;
+
+        }
+        if (ChkCommType) {
+            isGroupBy = true;
+
+        }
+        if (ChkChannel) {
+            isGroupBy = true;
+        }
+
+        if (ChkParentPayee) {
+            isGroupBy = true;
+
+        }
+
+        if (ChkSubChannel) {
+            isGroupBy = true;
+
+        }
+
+        if (ChkPayee) {
+            isGroupBy = true;
+
+        }
+
+
+        if (ChkPeriod) {
+            isGroupBy = true;
+
+        }
+
+        if (ChkBatchStatus) {
+            isGroupBy = true;
+
+        }
+        return isGroupBy;
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var selectedId = 3; // the default id that should be selected on load
+
+        var data = [
+            { id: "Saved", title: "New" },
+            { id: "Prelim", title: "Prelim" },
+            { id: "InProgress", title: "InProgress" },
+            { id: "Completed", title: "Approved" },
+            { id: "Paid", title: "Paid" }
+        ];
+
+        var source =
+        {
+            localdata: data,
+            datatype: "array",
+            datafields: [
+                { name: 'id' },
+                { name: 'title' }
+            ]
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+
+        $("#dropdown").jqxDropDownList(
+            {
+                theme: "metro",
+                height: '30px',
+                source: dataAdapter,
+                valueMember: 'id',
+                displayMember: 'title',
+                width: "254px"
+            });
+
+        $("#dropdown").jqxDropDownList({ checkboxes: true, placeHolder: "-- Select Here --" }); // select the default value (using the integer id)
+        $("#dropdown").jqxDropDownList('checkIndex', 0);
+        $("#dropdown").jqxDropDownList('checkIndex', 1);
+        $("#dropdown").jqxDropDownList('checkIndex', 2);
+        $("#dropdown").jqxDropDownList('checkIndex', 3);
+        $("#dropdown").jqxDropDownList('checkIndex', 4);
+        $("#dropdown").jqxDropDownList('checkIndex', 5);
+
+        //$("#dropdown").on("select", function (event) {
+        //    // checks whether the event is raised by the web browser of by the widget.
+        //    if (!event.args) return;
+
+        //    var item = event.args.item;
+        //    if (selectedId != item.value) {
+        //        selectedId = item.value;
+        //        alert(selectedId);
+        //    }
+        //});
+        //$('#dropdown').keyup(function () {
+        //    $(this).attr('title', $(this).val())
+        //});
+        //$('#PayeeName').keyup(function () {
+        //    alert("aasd");
+        //   // $(this).attr('title', $(this).val())
+        //    $(this).attr('title', "test")
+        //});
+
+
+    });
+</script>
+
+
+
+<div class="col-md-12">
+    <div class="col-md-6">
+
+
+        <h5 class="text-danger text-capitalize" style="float:left;">Commission Search Engine</h5>
+    </div>
+
+    <div class="col-md-6">
+        <h5 class="text-danger text-capitalize" style="float:right;"><u><a href="#" onclick="ClearFilterForSearchEngine()"> Clear Filter </a></u> </h5>
+
+    </div>
+</div>
+<br />
+<br />
+
+
+<div class="form-horizontal">
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+
+
+                @Html.Label("Check to Group ", htmlAttributes: new { @class = "control-label ", style = "color:red;" })
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Add Filter", htmlAttributes: new { @class = "control-label ", style = "color:red;" })
+
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.Label("Check to Group ", htmlAttributes: new { @class = "control-label ", style = "color:red;" })
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Add Filter", htmlAttributes: new { @class = "control-label ", style = "color:red;" })
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkSubscriberNumber")
+
+                @Html.Label("MSISDN", htmlAttributes: new { @class = "control-label " })
+
+            </div>
+            <div class="col-md-6">
+                @Html.TextBox("SubscriberNumber", null, new { @class = "form-control" })
+
+                <span style="font-size:11px;color:red">
+                    <i> (Note:-You can provide comma seperated MSIDN however ensure that there is no space in between.)</i>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkCustomerSegment")
+                @Html.Label("Customer Segment ", htmlAttributes: new { @class = "control-label " })
+            </div>
+            <div class="col-md-6">
+                @Html.TextBox("CustomerSegment", null, new { @class = "form-control" })
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkActivityType")
+                @Html.Label("Activity Type ", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @*@Html.TextBox("ActivityType");*@
+                @Html.DropDownList("ActivityTypeId", null, "-- Select Here --", new { @class = "form-control" })
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkActivationOrder")
+                @Html.Label("Activation Order", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @Html.TextBox("ActivationOrder", null, new { @class = "form-control" })
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkCommType")
+                @Html.Label("Comm Type ", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownList("CommissionTypeId", null, "-- Select Here --", new { @class = "form-control" })
+
+
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkChannel")
+                @Html.Label("Channel", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @*@Html.TextBox("Channel")*@
+                <div id="listboxPortfolio" class="form-control" style="width:254px;">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkParentPayee")
+                @Html.Label("Parent Payee ", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @*@Html.TextBox("ParentPayee")*@
+                @Html.Editor("ParentName", new { htmlAttributes = new { @class = "form-control", style = "pointer-Events:none;background:lightgray;", value = " --All-- " } })
+                @*<a href="#" onclick="FnLoadPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select payee" style="color:#e60000;"></i></a>*@
+
+            </div>
+            <div class="col-md-2">
+                <a href="#" onclick="FnLoadParentPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select parent payee" style="color:#e60000;"></i></a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkSubChannel")
+                @Html.Label("Sub Channel", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @Html.TextBox("SubChannel", null, new { @class = "form-control" })
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkPayee", false)
+                @Html.Label("Payee", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class="col-md-6">
+                @Html.Editor("PayeeName", new { htmlAttributes = new { @class = "form-control", style = "pointer-Events:none;background:lightgray;", value = " --All-- " } })
+
+
+
+
+            </div>
+            <div class="col-md-2">
+                <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select payee" style="color:#e60000;"></i></a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkPeriod")
+                @Html.Label("Period", htmlAttributes: new { @class = "control-label required" })
+                @*@Html.Label("Period", htmlAttributes: new { @class = "control-label required" })*@
+
+
+            </div>
+            <div class="col-md-6">
+                <div id="listboxCommPeriod" class="form-control">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                @Html.CheckBox("ChkBatchStatus")
+                @Html.Label("Batch Status ", htmlAttributes: new { @class = "control-label required" })
+            </div>
+            <div class="col-md-6">
+
+
+                <div id='dropdown' class="form-control">
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-6">
+                <div class="col-md-4">
+                    @*<input type="button" class="btn btn-red btn-cons" value="Go" onclick="GetDataForBothTabs()">  &nbsp; &nbsp;*@
+                </div>
+                <div class="col-md-4">
+                    @*<input type="button" id="btnDownload" class="btn btn-red btn-cons" value="Export Data" onclick="FnDownload()" style="display:none;">*@
+                    @*<i class="fa fa-download" id="btnDownload" aria-hidden="true" style="color:#e60000;font-size:35px !important;display:none;cursor:pointer;" title="Download" onclick="FnDownload()"></i>*@
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<br>
+<span>
+    NOTE:
+    <ul>
+        <li>
+            Due to high number of rows in Calculation table, the engine might not return records for multiple periods. In this case, try reducing selected period count to 2 or 3 or more (depending upon volume).
+        </li>
+
+        <li>
+            Grouping is not allowed in Calc.
+        </li>
+    </ul>
+</span>
+<br />
+<div class="col-md-12" id="jqxTabsDiv">
+    <div id='jqxTabs' class="inner-tabs">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Claims @*<span class="badge" id="bClaims">0</span>*@ &nbsp; <i class="fa fa-paper-plane" aria-hidden="true" style="color:#e60000;font-size:18px !important;" title="Go" onclick="GetDataForClaimsTabs()"></i> &nbsp;<i class="fa fa-download" id="btnDownload2" aria-hidden="true" style="color:#e60000;font-size:20px !important;cursor:pointer;" title="Download" onclick="FnDownload('0')"></i> </li> &nbsp; &nbsp;
+            <li>Calculation @*<span class="badge" id="bXCalc">0</span> *@&nbsp;<i class="fa fa-paper-plane" aria-hidden="true" style="color:#e60000;font-size:18px !important;" title="Go" onclick="GetDataForCalculationTabs()"></i>  &nbsp; <i class="fa fa-download" id="btnDownload1" aria-hidden="true" style="color:#e60000;font-size:20px !important;cursor:pointer;" title="Download" onclick="FnDownload('1')"></i> </li>
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridClaims">
+            </div>
+        </div>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridXCalc">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="jqxgridSummary">
+</div>
+<div id="jqxLoader">
+</div>
+<div id="jqxDownloadLoader" style="display:none;">
+    <span>Please  wait ...downloading will take some time.</span>
+</div>
+
+<div id="loadertext" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                @*<input type="button" class="btn btn-red" value="OK" data-dismiss="modal" />*@
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("PayeeId")
+@Html.Hidden("ParentPayeeId")
+@Html.Hidden("hdnCommPeriod")
+
+@Html.Partial("_GlobalPayeeGrid")
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

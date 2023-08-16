@@ -1,0 +1,284 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.ReportsViewModel
+@{
+    ViewBag.Title = "PayeeDashboard";
+}
+@*RK Commented*@
+@*<link rel="stylesheet" href="~/Content/Styles/jqx.base.css" type="text/css" />
+<link rel="stylesheet" href="~/Content/Styles/jqx.metro.css" type="text/css" />
+<link rel="stylesheet" href="~/Content/Styles/jqx.metrodark.css" type="text/css" />
+<link rel="stylesheet" href="~/Content/Styles/jqx.web.css" type="text/css" />
+
+
+<script src="~/Scripts/jqxdraw.js"></script>
+<script src="~/Scripts/jqxchart.core.js"></script>*@
+@* RK Added *@
+@*<script src="~/Scripts/jqxcore.js"></script>
+<script src="~/Scripts/jqxdata.js"></script>
+<script src="~/Scripts/jqxdraw.js"></script>
+<script src="~/Scripts/jqxbargauge.js"></script>
+<script src="~/Scripts/jqxchart.core.js"></script>
+<script src="~/Scripts/jqxbuttons.js"></script>
+<script src="~/Scripts/jqxscrollbar.js"></script>
+<script src="~/Scripts/jqxgrid.js"></script>
+<script src="~/Scripts/jqxlistbox.js"></script>
+<script src="~/Scripts/jqxdropdownlist.js"></script>
+<script src="~/Scripts/jqxlayout.js"></script>
+<script src="~/Scripts/jqxribbon.js"></script>
+<script src="~/Scripts/jqxdatatable.js"></script>
+<script src="~/Scripts/jqxmenu.js"></script>
+<script src="~/Scripts/jqxtabs.js"></script>
+<script src="~/Scripts/jqxbuttons.js"></script>
+<script src="~/Scripts/jqxresponse.js"></script>
+<script src="~/Scripts/jqxsplitter.js"></script>
+<script src="~/Scripts/jqxpanel.js"></script>
+<script src="~/Scripts/jqxprogressbar.js"></script>
+<script src="~/Scripts/jqxgrid.selection.js"></script>
+<script src="~/Scripts/jqxgrid.grouping.js"></script>
+<script src="~/Scripts/jqxgrid.filter.js"></script>
+<script src="~/Scripts/jqxexpander.js"></script>
+<script src="~/Scripts/jqxsortable.js"></script>*@
+
+<div style="visibility: visible; width: 100%; height: 979px;" id="mainSplitter" class="jqx-reset jqx-splitter jqx-widget jqx-widget-content">
+
+    <div class="" id="leftPanel" style="left: 0px; top: 0px; height: 100%; width: 200px;">
+        @*<header class="clearfix">*@
+            <div class="">
+                <div id="listContainer">
+                    @*<li item-label="<a href='#'>Reports</a>" id="86" class="jqx-item jqx-menu-item-top jqx-rc-all" style="float: left;" role="menuitem"><a href="#" tabindex="-1">Report</a></li>*@
+                    <div id='content'>
+                        <script type="text/javascript">
+                            
+                        </script>
+                        <div id='jqxWidget'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @*</header>*@
+    </div>
+    @*<div class="jqx-splitter-splitbar-vertical jqx-fill-state-normal" style="cursor: default; display: none; height: 100%; width: 0px; left: 200px;"><div class="jqx-splitter-collapse-button-vertical jqx-fill-state-pressed" style="width: 0px; height: 45px; position: relative; top: 50%; left: 0px; margin-top: -23px; margin-left: 0px;"></div></div>*@
+
+    <div class="splitter-panel jqx-widget-content jqx-splitter-panel jqx-reset" id="rightPanel" style="visibility: visible; left: 200px; top: 0px; height: 100%; width: 1099px;">
+
+        <div id="overview" style="display: block; margin-top: 0px;">
+            @*<div class="vodafone_redbg navbar jqx-widget jqx-menu jqx-widget-header jqx-menu-horizontal jqx-rc-all">
+                <ul class="list-inline">
+                    <li><h2>23</h2><p>Claims</p></li>
+                    <li><h2>30,204</h2><p>Open Claims</p></li>
+                    <li><h2>11,800</h2><p>Closed Claims</p></li>
+                    <li><h2>125,360</h2><p>Claim Amount</p></li>
+                    <li><h2>64%</h2><p>Performance</p></li>
+                </ul>
+            </div>*@
+            @*<div class="data container-fluid">
+                
+                <div id="overviewChart" style="width: 100%; height: 500px; cursor: default;">
+                    <table class="tblChart" cellspacing="0" cellpadding="0" border="0" align="left" valign="top">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" class="tdTop" style="height: 0.5px;"></td>
+                            </tr>
+                            <tr>
+                            <td class="tdLeft"></td>
+                            <td><div class="chartContainer" style="position: relative; width: 1099px; height: 500px;" onselectstart="return false;">
+                                <svg id="svgChart" version="1.1" width="100%" height="100%" overflow="hidden">
+                                <defs>
+                                    <clipPath id="cl1504161458965_1">
+                                    <rect x="1" y="1" width="1098" height="499" fill="none"></rect>
+                                    </clipPath><clipPath id="cl1504161458965_2">
+                                    <rect x="11" y="9" width="2" height="449" fill="none"></rect>
+                                        </clipPath><clipPath id="cl1504161458965_3"><rect x="30" y="10" width="1055" height="447" fill="none"></rect></clipPath></defs><g clip-path="url(http://jqwidgets.com/jquery-widgets-demo/demos/interactivedemos/businessdashboard/#cl1504161458965_1)"><rect x="1.5" y="1.5" width="1096" height="497" fill="#FFFFFF"></rect><text class="jqx-chart-axis-text" cursor="default" x="86" y="472" width="44" height="8">Monday</text><text class="jqx-chart-axis-text" cursor="default" x="234" y="472" width="47" height="8">Tuesday</text><text class="jqx-chart-axis-text" cursor="default" x="376" y="472" width="64" height="8">Wednesday</text><text class="jqx-chart-axis-text" cursor="default" x="531" y="472" width="53" height="8">Thursday</text><text class="jqx-chart-axis-text" cursor="default" x="690" y="472" width="35" height="8">Friday</text><text class="jqx-chart-axis-text" cursor="default" x="832" y="472" width="51" height="8">Saturday</text><text class="jqx-chart-axis-text" cursor="default" x="987" y="472" width="42" height="8">Sunday</text><line x1="32.5" y1="457.5" x2="1084.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><g clip-path="url(http://jqwidgets.com/jquery-widgets-demo/demos/interactivedemos/businessdashboard/#cl1504161458965_2)"><g transform="translate(12,234)"><g transform="rotate(-90)"><text class="jqx-chart-axis-description" cursor="default" x="0" y="0" width="0" height="0"></text></g></g></g><text class="jqx-chart-axis-text" cursor="default" x="19" y="462" width="7" height="8">0</text><text class="jqx-chart-axis-text" cursor="default" x="12" y="372" width="14" height="8">10</text><text class="jqx-chart-axis-text" cursor="default" x="12" y="283" width="14" height="8">20</text><text class="jqx-chart-axis-text" cursor="default" x="12" y="193" width="14" height="8">30</text><text class="jqx-chart-axis-text" cursor="default" x="12" y="104" width="14" height="8">40</text><text class="jqx-chart-axis-text" cursor="default" x="12" y="15" width="14" height="8">50</text><line x1="32.5" y1="10" x2="32.5" y2="457" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="10.5" x2="1083.5" y2="10.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="99.5" x2="1083.5" y2="99.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="188.5" x2="1083.5" y2="188.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="278.5" x2="1083.5" y2="278.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="367.5" x2="1083.5" y2="367.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="457" x2="1083.5" y2="457" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="457" x2="28" y2="457" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="367.5" x2="28" y2="367.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="278.5" x2="28" y2="278.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="188.5" x2="28" y2="188.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="99.5" x2="28" y2="99.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32" y1="10.5" x2="28" y2="10.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="10.5" x2="32.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="182.5" y1="10.5" x2="182.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="332.5" y1="10.5" x2="332.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="482.5" y1="10.5" x2="482.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="632.5" y1="10.5" x2="632.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="782.5" y1="10.5" x2="782.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="932.5" y1="10.5" x2="932.5" y2="457.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="32.5" y1="457.5" x2="32.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="182.5" y1="457.5" x2="182.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="332.5" y1="457.5" x2="332.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="482.5" y1="457.5" x2="482.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="632.5" y1="457.5" x2="632.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="782.5" y1="457.5" x2="782.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="932.5" y1="457.5" x2="932.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><line x1="1082.5" y1="457.5" x2="1082.5" y2="461.5" stroke="#BCBCBC" stroke-width="1" stroke-dasharray=""></line><g clip-path="url(http://jqwidgets.com/jquery-widgets-demo/demos/interactivedemos/businessdashboard/#cl1504161458965_3)"><path d="M107.5,368.5 Q197.5,323.5 257.5,323.5  C317.5,323.5 350.5,377.5 407.5,368.5  C470.5,359.5 492.5,297.5 557.5,278.5  C612.5,261.5 647.5,278.5 707.5,278.5  C767.5,278.5 802.5,294.5 857.5,278.5  Q922.5,259.5 1007.5,189.5 " stroke-width="3" stroke="#1F99D3" stroke-opacity="1" fill-opacity="1" stroke-dasharray="" fill="none"></path><path d="M107.5,189.5 Q197.5,233.5 257.5,233.5  C317.5,233.5 350.5,214.5 407.5,189.5  C470.5,161.5 494.5,127.5 557.5,99.5  C614.5,74.5 655.5,39.5 707.5,55.5  C775.5,75.5 788.5,158.5 857.5,189.5  L1007.5,189.5 " stroke-width="3" stroke="#2B9641" stroke-opacity="1" fill-opacity="1" stroke-dasharray="" fill="none"></path></g></g><rect x="105.5" y="366.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="95.5" y="347.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="101" y="359" width="14" height="8">10</text></g><rect x="255.5" y="321.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="245.5" y="302.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="251" y="314" width="14" height="8">15</text></g><rect x="405.5" y="366.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="395.5" y="347.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="401" y="359" width="14" height="8">10</text></g><rect x="555.5" y="276.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="545.5" y="257.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="551" y="269" width="14" height="8">20</text></g><rect x="705.5" y="276.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="695.5" y="257.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="701" y="269" width="14" height="8">20</text></g><rect x="855.5" y="276.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="845.5" y="257.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="851" y="269" width="14" height="8">20</text></g><rect x="1005.5" y="187.5" width="5" height="5" fill="#12A7ED" fill-opacity="1" stroke="#169CDC" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="995.5" y="168.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="1001" y="180" width="14" height="8">30</text></g><rect x="105.5" y="187.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="95.5" y="168.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="101" y="180" width="14" height="8">30</text></g><rect x="255.5" y="231.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="245.5" y="212.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="251" y="224" width="14" height="8">25</text></g><rect x="405.5" y="187.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="395.5" y="168.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="401" y="180" width="14" height="8">30</text></g><rect x="555.5" y="97.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="545.5" y="78.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="551" y="90" width="14" height="8">40</text></g><rect x="705.5" y="53.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="695.5" y="34.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="701" y="46" width="14" height="8">45</text></g><rect x="855.5" y="187.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="845.5" y="168.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="851" y="180" width="14" height="8">30</text></g><rect x="1005.5" y="187.5" width="5" height="5" fill="#25A640" fill-opacity="1" stroke="#269B3E" stroke-width="1" stroke-opacity="1" stroke-dasharray="" r="2.5"></rect><g><rect x="995.5" y="168.5" width="24" height="14" fill="#FEFEFE" fill-opacity="0.2" stroke="#7FC4EF" stroke-opacity="0.7" stroke-width="1"></rect><text class="jqx-chart-label-text" opacity="1" cursor="default" x="1001" y="180" width="14" height="8">30</text></g></svg></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="overviewBottomRight" style="width: 757px;">
+                    
+                    
+                </div>
+                
+            </div>*@
+        </div>
+        <div id='chartContainer' style="width:850px; height:500px">
+        </div>
+    </div>
+
+</div>
+    @*<div class="row">
+        <div class="col-md-12 col-lg-12">
+            <h3>Welcome Payee</h3>
+        </div>
+    </div>*@
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/Reports/GetXReportsTreeStructure",
+                dataType: "json",
+                success: function (data) {
+                    var source1 =
+                        {
+                            datatype: "json",
+                            datafields: [
+                                { name: 'Id' },
+                                { name: 'ParentId' },
+                                { name: 'XCommissionPeriod' }],
+                            id: 'Id',
+                            localdata: data
+                        };
+                    var dataAdapter = new $.jqx.dataAdapter(source1);
+                    dataAdapter.dataBind();
+                    var records = dataAdapter.getRecordsHierarchy('Id', 'ParentId', 'items', [{ name: 'XCommissionPeriod', map: 'label' }]);
+                    $('#jqxWidget').jqxTree({ source: records, width: '300px' });
+                    $('#jqxWidget').on('select', function (event) {
+                        //selected parent
+                        var parentElement = event.args.element.parentElement.parentElement;
+                        var parent = $('#jqxWidget').jqxTree('getItem', parentElement);
+                        //selected item
+                        var htmlElement = event.args.element;
+                        var item = $('#jqxWidget').jqxTree('getItem', htmlElement);
+                        if (parent) {
+                            //alert(parent.label + "," + item.label);
+                            window.location.href = '/Reports/DownloadXReports?strFileName=' + item.label + '&strParent=' + parent.label;
+                        };
+                    });
+                }
+            });
+        });
+            
+
+    //function FnDisplayChart(CommissionPeriodCount)
+    //{
+
+    //    $.ajax({
+    //        data: { CommissionPeriodCount: CommissionPeriodCount },
+    //        url: "/Home/GetPayeeDashboardChartData",
+    //        dataType: "json",
+    //        type: "POST",
+    //        success: function (data) {
+    //    // prepare chart data as an array
+    //    //var sampleData = [
+    //    //    { Day: 'P1', Prelim: 30, Completed: 0 },
+    //    //    { Day: 'P2', Prelim: 25, Completed: 25 },
+    //    //    { Day: 'P3', Prelim: 30, Completed: 0 },
+    //    //    { Day: 'P4', Prelim: 20, Completed: 20 },
+    //    //    { Day: 'P5', Prelim: 0, Completed: 20 },
+
+    //    //        ];
+    //    var source =
+    //        {
+    //            datatype: "json",
+    //            datafields: [
+    //                { name: 'CommissionPeriod' ,type:'string'},
+    //                { name: 'PrelimCount', type: 'string'},
+    //                { name: 'CompletedCount', type: 'string' },
+    //                { name: 'RowNumber', type: 'string' }
+    //            ],
+    //            localdata: data
+    //        };
+
+    //    var dataAdapter = new $.jqx.dataAdapter(source, {
+    //        async: false, autoBind: true, beforeLoadComplete: function (records) {
+    //            var colorsArray = new Array();
+    //            colorsArray.push("#DFDFDF");
+    //            colorsArray.push("#FFA600");
+    //            colorsArray.push("#1691D6");
+
+
+    //            $.jqx._jqxChart.prototype.colorSchemes.push({ name: 'myScheme', colors: colorsArray });
+    //        }, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); }
+    //    });
+
+
+    //    // prepare jqxChart settings
+    //    var settings = {
+    //        title: "",
+    //        description: "",
+    //        enableAnimations: true,
+    //        showLegend: true,
+    //        padding: { left: 5, top: 5, right: 5, bottom: 5 },
+    //        titlePadding: { left: 90, top: 0, right: 0, bottom: 10 },
+    //        source: dataAdapter,
+    //        colorScheme: 'myScheme',
+    //        borderLineColor: '#888888',
+    //        xAxis:
+    //        {
+    //            dataField: 'CommissionPeriod',
+    //            labels:
+    //            {
+    //                angle: -45,
+    //                horizontalAlignment: 'center',
+    //                verticalAlignment: 'center',
+    //                rotationPoint: 'center',
+    //                offset: { x: 5, y: 0 }
+    //            },
+    //            unitInterval: 1,
+    //            tickMarks:
+    //            {
+    //                visible: true,
+    //                interval: 1,
+    //                color: '#888888'
+    //            },
+    //            gridLines: {
+    //                visible: false,
+    //                interval: 1,
+    //                color: '#888888'
+    //            },
+    //            axisSize: 'auto'
+    //        },
+    //        valueAxis:
+    //        {
+    //            visible: true,
+    //            unitInterval: 1000,
+    //            minValue: 0,
+    //            maxValue: 10000,
+    //            title: { text: 'Calculations (in dollars)' },
+    //            tickMarks: { color: '#888888' },
+    //            gridLines: { color: '#888888' },
+    //            axisSize: 'auto'
+    //        },
+    //        seriesGroups:
+    //        [
+    //            {
+    //                type: 'splinearea',
+    //                series: [
+    //                    { dataField: 'Target', displayText: 'Target', opacity: 0.7 }
+    //                ]
+    //            },
+    //            {
+    //                type: 'stackedcolumn',
+    //                columnsGapPercent: 50,
+    //                seriesGapPercent: 5,
+    //                series: [
+    //                    { dataField: 'PrelimCount', displayText: 'Prelim' },
+    //                    { dataField: 'CompletedCount', displayText: 'Completed' }
+    //                ]
+    //            }
+    //        ]
+    //    };
+    //    // setup the chart
+    //    $('#chartContainer').jqxChart(settings);
+    //        },
+    //        error: function (reponse) {
+    //            //  alert("error : " + reponse);
+    //        }
+    //    });
+    //}
+
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+       // FnDisplayChart(10) commented due to out of memory error in prod
+
+    })
+    </script>
+

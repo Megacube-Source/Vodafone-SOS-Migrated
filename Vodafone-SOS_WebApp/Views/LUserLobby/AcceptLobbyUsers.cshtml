@@ -1,0 +1,271 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<br>
+<h3>Send Users for Approval</h3>
+@Scripts.Render("~/bundles/jqxgridbundle")
+<script src="~/Scripts/jqxgrid.storage.js"></script> @* script for client side state storage*@
+<script type="text/javascript">
+    var filterinfoUsers = null;
+    var filterinfoPayees = null;
+    var CurrentUsersState = null;
+    var CurrentPayeesState = null;
+    $(document).ready(function () {
+        $("#FilterImage").hide();
+        var selectedTab = null;
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+       // $('#jqxTabs').jqxTabs({ position: 'top' });
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        var UserType = 'FinOps';
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'CompanyCode', type: 'string' },
+                { name: 'Email', type: 'string' },
+                { name: 'PayeeCode', type: 'string' },
+                { name: 'FirstName', type: 'string' },
+                { name: 'LastName', type: 'string' },
+                { name: 'Phone', type: 'string' },
+                { name: 'Status', type: 'string' },
+                { name: 'UserType', type: 'string' },
+            ],
+            id: "Id",
+            data: { UserType: UserType },
+            url: "/LUserLobby/GetUsersFromLobby"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            var RowData = $('#jqxgridUsers').jqxGrid('getrowdata', row);
+            return '<button onclick="FnCreateUser(' + RowData.Id + ',\'' + RowData.UserType + '\')" class="GridButton"><i class="fa fa-check" aria-hidden="true" style="color:#e60000;font-size:20px !important;font-size:20px !important;" title="Accept"></i></button>&ensp;'
+                + '<button onclick="FnRejectUser(' + RowData.Id + ',\'' + RowData.UserType + '\')" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Reject\"></i></button>&ensp;';
+
+        };
+        $('#jqxgridUsers').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            filterable:true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            showstatusbar: true,
+            selectionmode: 'singlerow',
+            autoloadstate: true,//for maintaining state of the grid
+            autosavestate: true,
+            ready: function () {
+                CurrentUsersState = $("#jqxgridUsers").jqxGrid('getstate')//save grid state with filters etc. 
+              //  sessionStorage.CurrentUsersState = CurrentUsersState;
+            },
+            columns: [
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '10%' },
+                { text: 'User Type', datafield: 'UserType' },
+                { text: 'Email', datafield: 'Email', width: '20%' },
+                { text: 'Payee Code', datafield: 'PayeeCode' },
+                { text: 'First Name', datafield: 'FirstName' },
+                { text: 'Last Name', datafield: 'LastName' },
+                { text: 'Phone Name', datafield: 'Phone' },
+            ]
+        });
+
+        //binding the grid's filter and show/hide the filter image according to filterinfo
+        jQuery('#jqxgridUsers').bind('filter', function (event) {
+
+            filterinfoReq = $("#jqxgridUsers").jqxGrid('getfilterinformation');
+            if ((filterinfoReq != null)) {
+                if ((filterinfoReq == null || filterinfoReq.length == 0)) {
+                    $("#FilterImage").hide();
+                }
+                else {
+                    $("#FilterImage").show();
+                }
+            }
+            else {
+                $("#FilterImage").hide();
+            }
+        });
+        //$('#jqxTabs').on('selected', function (event) {
+        //    selectedTab = event.args.item;
+
+        //    if (selectedTab == 0) {
+        //        UserType = 'FinOps';
+        //        //if ((filterinfoUsers != null)) {
+        //        //    if ((filterinfoUsers == null || filterinfoUsers.length == 0)) {
+        //        //        $("#FilterImage").hide();
+        //        //    }
+        //        //    else {
+        //        //        $("#FilterImage").show();
+        //        //    }
+        //        //}
+        //        //else {
+        //        //    $("#FilterImage").hide();
+        //        //}
+        //    }
+        //    else if (selectedTab == 1) { //check for whether previous tab was WorkFlow, current tab is Steps
+        //        UserType = 'Payee';
+        //        var source = {
+        //            dataType: "json",
+        //            dataFields: [
+        //                { name: 'Id', type: 'int' },
+        //                { name: 'CompanyCode', type: 'string' },
+        //                { name: 'Email', type: 'string' },
+        //                { name: 'FirstName', type: 'string' },
+        //                { name: 'LastName', type: 'string' },
+        //                { name: 'Phone', type: 'string' },
+        //                { name: 'Status', type: 'string' },
+        //                { name: 'UserType', type: 'string' },
+        //            ],
+        //            id: "Id",
+        //            data: { UserType: UserType },
+        //            url: "/LUserLobby/GetUsersFromLobby"
+        //        };
+        //        var dataAdapter = new $.jqx.dataAdapter(source)
+        //        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+        //            var RowData = $('#jqxgridPayees').jqxGrid('getrowdata', row);
+        //            return '<button onclick="FnCreateUser(' + RowData.Id + ',\'' + RowData.UserType + '\')" class="GridButton"><i class="fa fa-check" aria-hidden="true" style="color:#e60000;font-size:20px !important;font-size:20px !important;" title="Accept"></i></button>&ensp;'
+        //                + '<button onclick="FnRejectUser(' + RowData.Id + ',\'' + RowData.UserType +'\')" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Reject\"></i></button>&ensp;';
+
+        //        };
+        //        $('#jqxgridPayees').jqxGrid({
+        //            source: dataAdapter,
+        //            width: '100%',
+        //            autoheight: true,
+        //            theme: 'bootstrap',
+        //            sortable: true,
+        //            filterable: true,
+        //            columnsresize: true,
+        //            columnsreorder: true,
+        //            altrows: true,
+        //            showstatusbar: true,
+        //            selectionmode: 'singlerow',
+        //            ready: function () {
+        //                //CurrenPayeesState = $("#jqxgridPayees").jqxGrid('getstate')
+        //                //sessionStorage.CurrenPayeesState = CurrenPayeesState;
+
+        //            },
+        //            columns: [
+        //                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'10%' },
+        //                { text: 'Email', datafield: 'Email', width: '20%' },
+        //                { text: 'First Name', datafield: 'FirstName' },
+        //                { text: 'Last Name', datafield: 'LastName' },
+        //                { text: 'Phone Name', datafield: 'Phone' },
+        //            ]
+        //        });
+        //        //$('#jqxgridPayees').bind('filter', function (event) {
+
+        //        //    filterinfoReq = $("#jqxgridPayees").jqxGrid('getfilterinformation');
+        //        //    if ((filterinfoReq != null)) {
+        //        //        if ((filterinfoReq == null || filterinfoReq.length == 0)) {
+        //        //            $("#FilterImage").hide();
+        //        //        }
+        //        //        else {
+        //        //            $("#FilterImage").show();
+        //        //        }
+        //        //    }
+        //        //    else {
+        //        //        $("#FilterImage").hide();
+        //        //    }
+        //        //});
+        //        //if ((filterinfoPayees != null)) {
+        //        //    if ((filterinfoPayees == null || filterinfoPayees.length == 0)) {
+        //        //        $("#FilterImage").hide();
+        //        //    }
+        //        //    else {
+        //        //        $("#FilterImage").show();
+        //        //    }
+        //        //}
+        //        //else {
+        //        //    $("#FilterImage").hide();
+        //        //}
+
+        //    }
+
+        //});
+
+
+    });
+
+    function FnCreateUser(Id, User) {
+        $.ajax({
+            data: { User: User, LobbyUserId: Id },
+            url: "/LUserLobby/SetWorkFlowInSession",
+            dataType: "json",
+            type: "GET",
+            success: function (data) {
+                if (data != '' && data != null && data != 0 ) {
+                    alert("User accepted from lobby"); 
+                    window.location.reload();
+                    return;
+                }
+                if (User == 'FinOps') {
+                    window.location.href = "/LUsers/Create?Source=Lobby&UserLobbyId=" + Id;
+                }
+                else if (User == 'Payee') {
+
+                    window.location.href = "/LPayees/Create?FormType=Create&Source=Lobby&UserLobbyId=" + Id;
+                }
+            },
+            error: function (reponse) {
+            }
+        });
+
+    }
+
+    function FnRejectUser(Id,UserType) {
+        $.ajax({
+            data: { Id: Id, UserType: UserType },
+            url: "/LUserLobby/RejectUser",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                window.location.reload();
+            },
+            error: function (reponse) {
+            }
+        });
+    }
+
+    function ReloadPageWithoutFilter() {
+                $('#jqxgridUsers').jqxGrid('loadstate', CurrentUsersState);//it will load the grid into its normal state
+
+    }
+</script>
+
+ &ensp;<span id="FilterImage" style="display:none;cursor:pointer;" onclick="ReloadPageWithoutFilter()">
+    @*<i class="glyphicon glyphicon-filter" style="width: 5px;" title="Clear Filter"></i>*@
+    <img src="~/Content/Images/ClearImage.png" style="width: 15px;color:#a94442;" />
+</span>
+@*<div id='jqxTabs'>
+        <ul id="navigation_links" style='margin-left: 20px;'>
+            <li>Users</li>
+            <li>Payees</li>
+        </ul>
+
+        <div>
+
+        </div>
+        <div>
+            <div id="jqxgridPayees">
+            </div>
+        </div>
+    </div>*@
+<div id="jqxgridUsers">
+</div>

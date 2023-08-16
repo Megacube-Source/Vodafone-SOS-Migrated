@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "CompanyDashboard";
+}
+
+<h3>Opco Dashboard</h3>
+<script type="text/javascript" src="~/Scripts/jqxcolorpicker.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxwindow.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxeditor.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxtooltip.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxcheckbox.js"></script>
+<script>
+    var dataAdapter = undefined;
+    $(document).ready(function () {
+
+        var UserId='@HttpContext.Current.Session["UserId"]'
+       //Load MFA List Box
+        FnLoadMFAListBox();
+        $("#RolesListBox").on('bindingComplete', function (event) {
+            for (var i = 0; i < dataAdapter.records.length; i++) {
+                if(dataAdapter.records[i]['Selected'])
+                {
+                    $("#RolesListBox").jqxListBox('checkIndex', i);
+                }
+            }
+        });
+
+        $("#RolesListBox").on('checkChange', function (event) {
+            var CheckedItems = $("#RolesListBox").jqxListBox('getCheckedItems');
+            var CheckedList = "";
+            $.each(CheckedItems,function(index)
+            {
+                if(index<CheckedItems.length-1)
+                {
+                    CheckedList += this.value + ",";
+                }
+                else {
+                    CheckedList += this.value;
+                }
+
+            })
+            document.getElementById('RoleList').value = CheckedList;
+        });
+
+        //Add the editor for Policy Text
+        $('#editor').jqxEditor({
+            height: "300px",
+            width: '90%'
+        });
+        // Set value.
+        @*var EditorText = '@ViewBag.PolicyText';
+        alert(EditorText)
+        $("#editor").jqxEditor('val', EditorText );*@
+    });
+
+    //Load MFA List Box
+    function FnLoadMFAListBox() {
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'Id' },
+                    { name: 'Name' },
+                    { name: 'Selected', type: 'bool' }
+                ],
+                id: 'Id',
+                //data:{UserId:UserId},
+                url: "/Home/GetMFARoles"
+            };
+        dataAdapter = new $.jqx.dataAdapter(source);
+        // Create a jqxListBox for MFA Roles
+        $("#RolesListBox").jqxListBox({ width: '100%', source: dataAdapter, displayMember: "Name",valueMember:"Id", checkboxes: true, height: '30%' });
+    }
+
+    //Function to save MFA
+    function FnSaveMFA() {
+        //This ajax call is being made to controller to save the current page url in session which will be the url of back button  in subsequent pages
+        var RoleList = document.getElementById('RoleList').value;
+        $.ajax({
+            data: { RoleList: RoleList },
+            url: "/Home/SaveMFARoles",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                alert('MFA enabled for selected roles.');
+                //Load MFA List Box
+                FnLoadMFAListBox();
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.Hidden("RoleList")
+}
+
+<div class="panel panel-default" style="outline:solid 1px;margin-bottom:20px !important;">
+    <div class="panel-heading">
+        <h4>MFA</h4>
+    </div>
+    <div class="panel-body" style="background-color:white;">
+        <div id="RolesListBox"></div>
+        <br>
+        <button class="btn btn-red" onclick="FnSaveMFA()">Save</button>
+    </div>
+</div>
+<div class="panel panel-default" style="outline:solid 1px;margin-bottom:20px !important;">
+    <div class="panel-heading">
+        <h3>Password Policy</h3>
+    </div>
+    <div class="panel-body" style="background-color:white;">
+        <textarea name="editor" id="editor">
+      @ViewBag.PolicyText
+    </textarea>
+        <br>
+        <button class="btn btn-red" onclick="FnSavePasswordPolicy()">Save</button>
+    </div>
+</div>
+<div class="panel panel-default" style="outline:solid 1px;margin-bottom:20px !important;">
+    <div class="panel-heading">
+        <h3>Default Rows in Grids</h3>
+    </div>
+    <div class="panel-body" style="background-color:white;">
+        <input type="number" id="NumberOfRowsInGrid" class="form-control"/>
+        <br>
+        <button class="btn btn-red" onclick="">Save</button>
+    </div>
+</div>
+
+<div class="panel panel-default" style="outline:solid 1px;margin-bottom:20px !important;">
+    <div class="panel-heading">
+        <h3>Payee Dropdown Configuration</h3>
+    </div>
+    <div class="panel-body" style="background-color:white;">
+        <div id="RecommendedScenario"></div>
+    </div>
+</div>
+<div class="panel panel-default" style="outline:solid 1px;margin-bottom:20px !important;">
+    <div class="panel-heading">
+        <h3>Dashbord Assignment</h3>
+    </div>
+    <div class="panel-body" style="background-color:white;">
+        <div id="AccountingScenario"></div>
+    </div>
+</div>
+
+

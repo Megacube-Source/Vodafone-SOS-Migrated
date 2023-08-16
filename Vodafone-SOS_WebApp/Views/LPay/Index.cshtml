@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Index";
+    var comments = ViewBag.Comment as string;
+    var PayRowCount = ViewBag.PayRowCount as string;
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+<div class="boxes">
+    <h4 class="vodafone_txt">PAY GRID </h4>
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Data </li>@*<span class="badge" id="TabNA">0</span>*@
+        </ul>
+
+        @*Display Data Grid*@
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridNA"></div>
+                <div class="col-md-3"><b>Batch Level Comments</b></div>
+                <div class="col-md-9"> <textarea id="NewComment" placeholder="Type Here" class="textarea1 form-control" onchange="FnAttachComments(this.value)"></textarea></div>
+                <br>&ensp;<br>
+                <div class="row" style="padding-left:20px;">
+                    <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+                    @*@if (HttpContext.Current.Session["UserRole"].ToString() == "Reporting Analyst")
+            {
+                <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-red btn-cons" onclick="return UpdateBatchStatus('PayCancelled')">Cancel Batch&nbsp; <i class="fa fa-times" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('PayPendingApproval')">Prelim OK&nbsp; <i class="fa fa-check" aria-hidden="true"></i></button>
+            }
+            else if (HttpContext.Current.Session["UserRole"].ToString() == "Manager")
+            {
+                <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-success btn-cons" onclick="return UpdateBatchStatus('PayManagerApproved')">Approve &nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+            }*@
+
+                    @if (ViewBag.ActionItems != null)
+                    {
+                        @Html.Raw(ViewBag.ActionItems)
+                    }
+                </div>
+
+                </div>
+            </div>
+        </div>
+   
+<br>
+@*Display existing comments on view in a disabled field*@
+<div class="col-md-2"><b>Existing Comments</b></div>
+<div class="col-md-10"><textarea id="LbComment" class="textarea1" style="height:200px" placeholder="@ViewBag.Comment" disabled="disabled"></textarea></div>
+<br>&emsp;
+<br>
+
+@*Below style is created to make the text darker in Existing comments text area. If removed text in the text area will look faded*@
+<style>
+    ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: black;
+    }
+
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: black;
+        opacity: 1;
+    }
+
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: black;
+        opacity: 1;
+    }
+
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: black;
+    }
+</style>
+
+<br>
+
+
+<script type="text/javascript">
+
+    //Below variable (NewComment) will automaticlly get updated using 'OnChange' event of 'NewComment' Text Area control
+    var NewComment = "";
+    var datafields = new Array();
+    var columns = new Array();
+
+    //Redirect when manager sends the batch for re-examination to Reporting  Analyst
+    function UpdateBatchStatus(NewStatus) {
+        if(NewStatus=='PayCancelled'){
+            if (!confirm('If you do so, you will need to fix data at source and reimport raw files')){
+                return; //Return from here and do not do anything.
+            }
+        }
+        window.location.href = '/LPay/UpdateBatchStatus?SOSBatchNumber=@ViewBag.SOSBatchNumber&BatchLevelComment=' + NewComment + '&NewStatus=' + NewStatus;
+    }
+
+    $(document).ready(function () {
+
+     //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+        @foreach (var d in CompanySpecificColumns) {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+             if (d.LcscDisplayOnForm == true)
+            {
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+            }
+        }
+        //This ajax call is being made to controller to save the current page url in session which will be the url of back button  in subsequent pages
+        //$.ajax({
+        //    data: { path: window.location.pathname },
+        //    url: "/Home/SaveReturnPath",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+
+        //This line adds tabs in the view
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+
+        //Populate data in different grids available on the page
+        FnGetGrid('NA'); //Populate Pay Grid
+
+        //this line is added to display any message from controller as popup
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+
+        //Display RowCounts on tab headers
+        //document.getElementById('TabNA').innerHTML = PayRowCount;
+
+        //disable Excluded data column in Data grid if manager has logged in to application
+        if ('@HttpContext.Current.Session["UserRole"]' == "Manager") {
+            //$("#jqxgridNA").jqxGrid('hidecolumn', 'LrdExclusionComments');
+            $("#jqxgridNA").jqxGrid('selectionmode','none')
+        }
+
+        @*var ActionItems = '@ViewBag.ActionItems'
+        document.getElementById('Actions').innerHTML = ActionItems;*@
+
+    });
+
+    function FnGetGrid(Status) {
+        var SOSBatchNumber = '@ViewBag.SOSBatchNumber'
+        @*//var RawDataTableId = '@ViewBag.RawDataTableId'*@
+
+        //New method to load dynamic grid
+
+
+
+        var source = {
+            dataType: "json",
+     dataFields: datafields,
+          
+            id: "Id",
+            data: {
+                SOSBatchNumber: SOSBatchNumber,
+                //RawDataTableId: RawDataTableId,
+                Status: Status
+            },
+            url: "/LPay/GetLPay",
+            root: 'Rows',
+           
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $("#jqxgrid" + Status).jqxGrid(
+        {
+            width: "100%",
+            source: dataAdapter,
+            columnsresize: true,
+            pageable: true,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            sortable:true,
+            pagesize:50,
+            editable:true,
+            pagesizeoptions:['50','100','200','500','1000'],
+            virtualmode: true,
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+      columns:columns
+          
+        });
+    }
+</script>
+
+

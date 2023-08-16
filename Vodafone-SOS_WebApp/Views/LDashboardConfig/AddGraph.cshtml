@@ -1,0 +1,375 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LDashboardConfigViewModel
+@{
+    ViewBag.Title = "Save Configuration";
+}
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<h4>Add New Dashboard Graph</h4>
+<script type="text/javascript">
+    var PortfolioCheckedIndexes = "";
+    var PayeeCheckedIndexes = "";
+    var KpiCheckedIndexes = "";
+    var SelectedKpis = "";
+    var SelectedPortfolios = "";
+    var SelectedPayees = "";
+
+    function FillGroup() {
+        var val1 = $('#KpiTypeId').val();
+        $.ajax({
+            url: "/LDashboardConfig/GetKpiGroups",
+            type: "GET",
+            dataType: "JSON",
+            data: { TypeId: val1 },
+            success: function (data) {
+                if (data.length != 0) {
+                    var markup = "<option value=0>-- Select Here --</option>";
+                    for (var x = 0; x < data.length; x++) {
+                        markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                    }
+                    $("#KpiGroupId").html(markup).show();
+                }
+            }
+        });
+    }
+    function FillKpis() {
+        //Multiselect
+        var GroupID = $('#KpiGroupId').val();
+        var sourceKpi = {
+            dataType: "json",
+            dataFields: [
+                { name: 'KpiId', type: 'string' },
+                { name: 'KpiName', type: 'string' }
+            ],
+            data: { GroupIds: GroupID },
+            id: "KpiId",
+            url: "/LDashboardConfig/GetKpis"
+        };
+        var dataAdapterKpi = new $.jqx.dataAdapter(sourceKpi)
+        $("#listboxKpi").jqxDropDownList({ checkboxes: true, source: dataAdapterKpi, displayMember: "KpiName", valueMember: "KpiId", dropDownWidth: 280, placeHolder: "-- Select Here --", width: '280px' });
+        $("#listboxKpi").on('checkChange', function (event) {
+            var args = event.args;
+
+            var items = $("#listboxKpi").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            KpiCheckedIndexes = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    KpiCheckedIndexes += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    KpiCheckedIndexes += this.index;
+                }
+
+            });
+            document.getElementById('KpiList').value = checkedItems;
+            SelectedKpis = checkedItems;
+        });
+
+    }
+    function SaveConfiguration() {
+     
+        if (SelectedKpis == "") {
+            alert('Please select Kpi first.');
+            return false;
+        }
+        if (SelectedPayees == "") {
+            alert('Please select Payee(s).');
+            return false;
+        }
+
+        if (SelectedPortfolios == "") {
+            alert('please select Channel(s).');
+            return false;
+        }
+        if (document.getElementById('Dimension').value == "") {                        // Added by TB//
+            alert('Please select Dimension');
+            return false;
+        }
+        var GType = document.getElementById('GraphType').value;
+        if ((SelectedKpis.indexOf(',') > -1) && (SelectedPayees.indexOf(',') > -1) && ( GType == "Pie Chart"|| GType == "Donut Chart"))
+        {
+            alert("For multiple Kpi and multiple payees, please select Column/Line series as graph type.");
+            return false;
+        }
+
+        var sucess = $("#frm").validate({
+
+        })
+        if ($('#frm').valid()) {
+           
+                document.getElementById('frm').submit()
+            }
+
+    }
+    function SetDimension()
+    {
+        var radio = $('input[name=Dimension]:checked');
+        var updateDay = radio.attr('id');
+        console.log(radio);
+        //alert(updateDay);
+        if (updateDay == "DimPeriod") {
+            document.getElementById('Dimension').value = "Period";
+        }
+        if (updateDay == "DimPayee") {
+            document.getElementById('Dimension').value = "Payee";
+        }
+        if (updateDay == "DimChannel") {
+            document.getElementById('Dimension').value = "Channel";
+        }
+
+
+    }
+    $(document).ready(function () {
+        FillKpis();//Blank Kpis, just to enable view of control
+        //Select all channels
+        $("#PortfolioAll").click(function () {
+            if ($(this).is(':checked')) {                                               //   Added by TB //
+                $("#listboxPortfolio").jqxDropDownList('checkAll');
+                var items = $("#listboxPortfolio").jqxDropDownList('getCheckedItems');
+                var checkedItems = "";
+                //PortfolioCheckedIndexes = '';
+                $.each(items, function (index) {
+                    if (index < items.length - 1) {
+                        checkedItems += this.value + ",";
+                        //PortfolioCheckedIndexes += this.index + ",";
+                    }
+                    else {
+                        checkedItems += this.value;
+                        //PortfolioCheckedIndexes += this.index;
+                    }
+
+                });
+                document.getElementById('PortfolioList').value = checkedItems;
+                SelectedPortfolios = checkedItems;
+            }
+            else {
+                $("#listboxPortfolio").jqxDropDownList('uncheckAll');
+           }
+        });
+        //Select all payee
+        $("#PayeeAll").click(function () {                                    // Added by TB to select all payee//
+            if ($(this).is(':checked')) {
+                $("#listboxPayee").jqxDropDownList('checkAll');
+                if (args.checked) {
+                    $("#Events").text("Checked: " + args.label);
+                }
+                else {
+                    $("#Events").text("Unchecked: " + args.label);
+                }
+                var items = $("#listboxPayee").jqxDropDownList('getCheckedItems');
+               
+                var checkedItems = "";
+                PayeeCheckedIndexes = '';
+                $.each(items, function (index) {
+                    if (index < items.length - 1) {
+                        checkedItems += this.value + ",";
+                        PayeeCheckedIndexes += this.index + ",";
+                    }
+                    else {
+                        checkedItems += this.value;
+                        PayeeCheckedIndexes += this.index;
+                    }
+
+                });
+                document.getElementById('PayeeList').value = checkedItems;
+                SelectedPayees = checkedItems;
+                
+            }
+            else {
+                $("#listboxPayee").jqxDropDownList('uncheckAll');
+           }
+        });
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+
+            }
+        });
+        var Channelsource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Portfolio', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LDashboardConfig/GetPortfolioForDropDown"
+        };
+        var ChannelAdapter = new $.jqx.dataAdapter(Channelsource)
+        // Create a jqxListBox
+        $("#listboxPortfolio").jqxDropDownList({ checkboxes: true, source: ChannelAdapter, displayMember: "Portfolio", valueMember: "Id", dropDownWidth: 280, placeHolder: "-- Select Here --",width:'280px' });
+        PortfolioCheckedIndexes = '';
+        GetPayeeListBox();//defualt binding
+        $("#listboxPortfolio").on('checkChange', function (event) {
+            var args = event.args;
+
+            var items = $("#listboxPortfolio").jqxDropDownList('getCheckedItems');
+            var checkedItems = "";
+            //PortfolioCheckedIndexes = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    //PortfolioCheckedIndexes += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    //PortfolioCheckedIndexes += this.index;
+                }
+
+            });
+            document.getElementById('PortfolioList').value = checkedItems;
+            SelectedPortfolios = checkedItems;
+            //GetPayeeListBox();
+        });
+    });
+    function GetPayeeListBox()
+    {
+        var Portfolio=document.getElementById('PortfolioList').value
+        var source1 = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' }
+            ],
+            data: { PortfolioList: Portfolio},
+            id: "Id",
+            url: "/LDashboardConfig/GetPayeeByPortfolioMatchingGrid"
+        };
+        var dataAdapter1 = new $.jqx.dataAdapter(source1)
+        // Create a jqxListBox
+        $("#listboxPayee").jqxDropDownList({ checkboxes: true, source: dataAdapter1, displayMember: "FullName", valueMember: "Id", dropDownWidth: 280, placeHolder: "-- Select Here --",width:'280px' });
+        $("#listboxPayee").on('checkChange', function (event) {
+            
+            var args = event.args;
+            if (args.checked) {
+                $("#Events").text("Checked: " + args.label);
+            }
+            else {
+                $("#Events").text("Unchecked: " + args.label);
+            }
+            var items = $("#listboxPayee").jqxDropDownList('getCheckedItems');
+
+         
+            var checkedItems = "";
+            PayeeCheckedIndexes = '';
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ",";
+                    PayeeCheckedIndexes += this.index + ",";
+                }
+                else {
+                    checkedItems += this.value;
+                    PayeeCheckedIndexes += this.index;
+                }
+
+            });
+
+           
+            document.getElementById('PayeeList').value = checkedItems;
+            SelectedPayees = checkedItems;
+        });
+    }
+
+    </script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("KpiList")
+    @Html.Hidden("PayeeList")
+    @Html.Hidden("PortfolioList")
+    @Html.Hidden("Dimension")
+    <div class="form-horizontal">
+        <div class="form-group">
+            @Html.LabelFor(model => model.KpiTypeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.KpiTypeId, null, "-- Select Here --", new { @class = "form-control ", @onchange = "FillGroup()" })
+                @Html.ValidationMessageFor(model => model.KpiTypeId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.KpiGroupId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.KpiGroupId, null, "-- Select Here --", new { @class = "form-control ", @onchange = "FillKpis()" })
+                @Html.ValidationMessageFor(model => model.KpiGroupId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.KpiId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                <div id="listboxKpi">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Channel", htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                <div id="listboxPortfolio">
+                </div>
+            </div>
+            @Html.Label("Select All", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.CheckBox("PortfolioAll", false, new { @class = "col-md-1" })
+
+            @*@Html.LabelFor(model => model.ChannelIds, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.ChannelIds, null, "-- Select Here --", new { @class = "form-control " })
+                    @Html.ValidationMessageFor(model => model.ChannelIds, "", new { @class = "text-danger" })
+                </div>*@
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.PayeeCodes, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                <div id="listboxPayee">
+                </div>
+            </div>
+            @Html.Label("Select All", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.CheckBox("PayeeAll", false, new { @class = "col-md-1" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.GraphType, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @*new SelectListItem { Text = "Line Series", Value = "Line Series" },*@
+                @Html.DropDownListFor(model => model.GraphType, new List<SelectListItem> { new SelectListItem { Text = "Column Series", Value = "Column Series" }, new SelectListItem { Text = "Pie Chart", Value = "Pie Chart" }, new SelectListItem { Text = "Donut Chart", Value = "Donut Chart" } }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.GraphType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Dimension, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-3">
+                <div class="form-control">
+                    <label>@Html.RadioButtonFor(m => m.Dimension, false, htmlAttributes: new { id = "DimChannel", @onclick = "return SetDimension();" }) Channel </label>
+                    <label>@Html.RadioButtonFor(m => m.Dimension, false, htmlAttributes: new { id = "DimPayee", @onclick = "return SetDimension();" }) Payee </label>
+                    <label>@Html.RadioButtonFor(m => m.Dimension, false, htmlAttributes: new { id = "DimPeriod", @onclick = "return SetDimension();" }) Period </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.TileLabel, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.TileLabel, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.TileLabel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+            <button type="submit" class="btn btn-red btn-cons">Save Configuration&nbsp;</button>  @*onclick="return SaveConfiguration();"*@
+        </div>
+    </div>
+}
+<div id="jqxLoader">
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+

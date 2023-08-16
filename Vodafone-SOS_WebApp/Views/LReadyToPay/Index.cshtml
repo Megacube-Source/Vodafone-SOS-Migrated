@@ -1,0 +1,445 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LReadyToPayViewModel
+@{
+    ViewBag.Title = "Manage Ready To Pay Batches";
+    var RoleID = ViewBag.LoggedInRoleId;
+}
+
+<script type="text/javascript">
+    //Portfolio change
+    var IsRecordValid=true;
+    var RoleBasedPorfolioIdArray = [];
+    var RoleBasedPorfolioNameArray = [];
+    var SelectedRoleIndex = 0;
+    var ValidationErrorMessage = "";
+    var FinalPortfolioString = "";
+    var CurrentRole = '';
+    var dataObj = {};
+    var PortfolioUrl = '';
+    var selectedTab=0;
+    $(document).ready(function () {
+
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+    $.ajax({
+        data: { path: window.location.pathname },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+        });
+
+    $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '80vh' });
+    if (document.cookie != null && document.cookie != "") {
+        $('#jqxTabs').jqxTabs('select', parseInt(document.cookie));
+    }
+
+    $('#jqxTabs').on('selected', function (event)
+{
+        selectedTab = event.args.item;
+        document.cookie = selectedTab;
+        //$.session.set('mySelectedTab', selectedTab);
+        //@Session["mySelectedTab"] =  selectedTab;
+        //alert(parseInt(@Session["mySelectedTab"]));
+});
+        //Calc Grid
+        $("#jqxGridNew").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxGridNew').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bNew').innerHTML = datainformations.rowscount;
+        });
+        $("#jqxGridCancelled").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxGridCancelled').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bCancelled').innerHTML = datainformations.rowscount;
+        });
+        $("#jqxGridPayG").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxGridPayG').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bPaymentGenerated').innerHTML = datainformations.rowscount;
+        });
+        $("#jqxGridPublished").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxGridPublished').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bPublished').innerHTML = datainformations.rowscount;
+        });
+        var UserRole = '@HttpContext.Current.Session["UserRole"]'
+        //Also, HR should see only the 'Published' tab (as they can only download files) for the Payment Batches that belong to their portfolio
+        if (UserRole != "HR") {
+            //New Tab
+            var sourceNew = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'PaymentBatchNo', type: 'int' },
+                    { name: 'PaymentBatchName', type: 'string' },
+                    { name: 'PeriodName', type: 'string' },
+                    { name: 'CreatedDateTime', type: 'date' },
+                    { name: 'CreatedByID', type: 'string' },
+                    { name: 'UpdatedDateTime', type: 'date' },
+                    { name: 'UpdatedByID', type: 'string' },
+                    { name: 'Status', type: 'string' }
+                ],
+                id: "Id",
+                //url: "/LReadyToPay/GetBatches",
+                //data: { iRTPID: "0",blnIsBatchList:"True",strType:"",strRTPStatus:"New"},
+                url: "/LReadyToPay/GetNewRTPByCompanyID",
+
+            };      
+            var NewdataAdapter = new $.jqx.dataAdapter(sourceNew)
+            var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                //return '<button onclick="return FnNewReview()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;  <button onclick="return FnNewEdit()" class="GridButton"><i class=\"fa fa-edit\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i></button>&ensp; <button onclick="return FnNewCancel()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Cancel\"></i></button>';
+                return '<button onclick="return FnNewReview()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;   <button onclick="return FnNewCancel()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Cancel\"></i></button>';
+            };
+            $('#jqxGridNew').jqxGrid({
+                source: NewdataAdapter,
+                width: '100%',
+                theme: 'bootstrap',
+                columnsresize: true,
+                columnsreorder: true,
+                altrows: true,
+                sortable: true,
+                autoheight: false,
+                pageable: true,
+                filterable: true,
+                autoshowcolumnsmenubutton: false,
+                showstatusbar: true,
+                enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                ready: function () {
+                },
+                columns: [
+                    {
+                        text: 'Actions', datafield: 'Id',
+                        cellsrenderer: cellsrenderer, width: '10%'
+                    },
+                    { text: 'Payment BatchNo', datafield: 'PaymentBatchNo', width: 200, editable: false },
+                    { text: 'Payment Batch Name', datafield: 'PaymentBatchName', width: 400, editable: false },
+                    //{ text: 'Commission Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Payment Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Created Date', datafield: 'CreatedDateTime', width: 150, editable: false },
+                    { text: 'Created By', datafield: 'CreatedByID', width: 150, editable: false },
+                    { text: 'Last Updated Date', datafield: 'UpdatedDateTime', width: 200, editable: false },
+                    { text: 'Last Updated By', datafield: 'UpdatedByID', width: 200, editable: false },
+                    { text: 'Status', datafield: 'Status', width: 100, editable: false }
+
+                ]
+            });
+
+            //Cancelled Tab
+            var sourceCancelled = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'PaymentBatchNo', type: 'int' },
+                    { name: 'PaymentBatchName', type: 'string' },
+                    { name: 'PeriodName', type: 'string' },
+                    { name: 'CreatedDateTime', type: 'date' },
+                    { name: 'CreatedByID', type: 'string' },
+                    { name: 'UpdatedDateTime', type: 'date' },
+                    { name: 'UpdatedByID', type: 'string' },
+                    { name: 'Status', type: 'string' }
+                ],
+                id: "Id",
+                url: "/LReadyToPay/GetCancelledRTPByCompanyID",
+
+            };
+            var CancelleddataAdapter = new $.jqx.dataAdapter(sourceCancelled)
+            var cellsrendererCancelled = function (row, columnfield, value, defaulthtml, columnproperties) {
+                return '<button onclick="return FnReviewCancelled()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button> ';
+            };
+            $('#jqxGridCancelled').jqxGrid({
+                source: CancelleddataAdapter,
+                width: '100%',
+                theme: 'bootstrap',
+                columnsresize: true,
+                columnsreorder: true,
+                altrows: true,
+                sortable: true,
+                autoheight: false,
+                pageable: true,
+                filterable: true,
+                autoshowcolumnsmenubutton: false,
+                showstatusbar: true,
+                enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                ready: function () {
+                },
+                columns: [
+                    {
+                        text: 'Actions', datafield: 'Id',
+                        cellsrenderer: cellsrendererCancelled, width: '10%'
+                    },
+                    { text: 'Payment BatchNo', datafield: 'PaymentBatchNo', width: 200, editable: false },
+                    { text: 'Payment Batch Name', datafield: 'PaymentBatchName', width: 400, editable: false },
+                    //{ text: 'Commission Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Payment Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Created Date', datafield: 'CreatedDateTime', width: 150, editable: false },
+                    { text: 'Created By', datafield: 'CreatedByID', width: 150, editable: false },
+                    { text: 'Last Updated Date', datafield: 'UpdatedDateTime', width: 200, editable: false },
+                    { text: 'Last Updated By', datafield: 'UpdatedByID', width: 200, editable: false },
+                    { text: 'Status', datafield: 'Status', width: 100, editable: false }
+
+                ]
+            });
+            //Pay Batch Created tab
+            var sourcePAYG = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'PaymentBatchNo', type: 'int' },
+                    { name: 'PaymentBatchName', type: 'string' },
+                    { name: 'PeriodName', type: 'string' },
+                    { name: 'CreatedDateTime', type: 'date' },
+                    { name: 'CreatedByID', type: 'string' },
+                    { name: 'UpdatedDateTime', type: 'date' },
+                    { name: 'UpdatedByID', type: 'string' },
+                    { name: 'Status', type: 'string' }
+                ],
+                id: "Id",
+                url: "/LReadyToPay/GetPayGeneratedRTPByCompanyID",
+
+            };
+            var PAYGdataAdapter = new $.jqx.dataAdapter(sourcePAYG)
+            var cellsrendererPAYG = function (row, columnfield, value, defaulthtml, columnproperties) {
+                //Removed extra review icon: &ensp;   <button onclick="return FnPayReview()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review Pay\"></i></button>
+                //SS removed download and dashboard:- &ensp;  <button onclick="return FnDownloadDashboardPAYG()" class="GridButton"><i class=\"fa fa-dashboard\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download Dashboard\"></i></button>&ensp;  <button onclick="return FnDownloadPAYG()" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>
+                return '<button onclick="return FnReviewPAYG()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button> &ensp;  <button onclick="return FnPublishPAYG()" class="GridButton"><i class=\"fa fa-check\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Publish\"></i></button>&ensp; <button onclick="return FnCancelPAYG()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Cancel\"></i></button> ';
+            };
+            $('#jqxGridPayG').jqxGrid({
+                source: PAYGdataAdapter,
+                width: '100%',
+                theme: 'bootstrap',
+                columnsresize: true,
+                columnsreorder: true,
+                altrows: true,
+                sortable: true,
+                autoheight: false,
+                pageable: true,
+                filterable: true,
+                autoshowcolumnsmenubutton: false,
+                showstatusbar: true,
+                enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                ready: function () {
+                },
+                columns: [
+                    {
+                        text: 'Actions', datafield: 'Id',
+                        cellsrenderer: cellsrendererPAYG, width: '15%'
+                    },
+                    { text: 'Payment BatchNo', datafield: 'PaymentBatchNo', width: 200, editable: false },
+                    { text: 'Payment Batch Name', datafield: 'PaymentBatchName', width: 400, editable: false },
+                    //{ text: 'Commission Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Payment Period', datafield: 'PeriodName', width: 300, editable: false },
+                    { text: 'Created Date', datafield: 'CreatedDateTime', width: 150, editable: false },
+                    { text: 'Created By', datafield: 'CreatedByID', width: 150, editable: false },
+                    { text: 'Last Updated Date', datafield: 'UpdatedDateTime', width: 200, editable: false },
+                    { text: 'Last Updated By', datafield: 'UpdatedByID', width: 200, editable: false },
+                    { text: 'Status', datafield: 'Status', width: 100, editable: false }
+
+                ]
+            });
+        }
+        //Published Tab
+
+        var sourcePublished = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'PaymentBatchNo', type: 'int' },
+                { name: 'PaymentBatchName', type: 'string' },
+                { name: 'PeriodName', type: 'string' },
+                { name: 'CreatedDateTime', type: 'date' },
+                { name: 'CreatedByID', type: 'string' },
+                { name: 'UpdatedDateTime', type: 'date' },
+                { name: 'UpdatedByID', type: 'string' },
+                { name: 'Status', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LReadyToPay/GetPublishedRTPByCompanyID",
+
+        };
+        var publilsheddataAdapter = new $.jqx.dataAdapter(sourcePublished)
+        var cellsrendererpublished = function (row, columnfield, value, defaulthtml, columnproperties) {
+              return '<button onclick="return FnReviewPublished()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button> ';
+          };
+        $('#jqxGridPublished').jqxGrid({
+              source: publilsheddataAdapter,
+            width: '100%',
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: false,
+            pageable: true,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            showstatusbar: true,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+              },
+            columns: [
+                {
+                  text: 'Actions', datafield: 'Id',
+                    cellsrenderer: cellsrendererpublished, width: '10%'
+                },
+                { text: 'Payment BatchNo', datafield: 'PaymentBatchNo', width: 200, editable: false },
+                { text: 'Payment Batch Name', datafield: 'PaymentBatchName', width: 400, editable: false },
+                //{ text: 'Commission Period', datafield: 'PeriodName', width: 300, editable: false },
+                { text: 'Payment Period', datafield: 'PeriodName', width: 300, editable: false },
+                { text: 'Created Date', datafield: 'CreatedDateTime', width: 150, editable: false },
+                { text: 'Created By', datafield: 'CreatedByID', width: 150, editable: false },
+                { text: 'Last Updated Date', datafield: 'UpdatedDateTime', width: 200, editable: false },
+                { text: 'Last Updated By', datafield: 'UpdatedByID', width: 200, editable: false },
+                { text: 'Status', datafield: 'Status', width: 100, editable: false }
+
+            ]
+        });
+
+    });
+    //dialog code
+
+
+    //
+    //Edit Link
+        function FnNewEdit() {
+            var selectedrowindex = $('#jqxGridNew').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridNew').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Edit", "LReadyToPay", new {Id = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+        function FnNewReview() {
+            var selectedrowindex = $('#jqxGridNew').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridNew').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Review", "LReadyToPay", new {Id = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+        function FnNewCancel() {
+            if (confirm("Are you sure you want to cancel selected Payment Batch?")) {
+                var selectedrowindex = $('#jqxGridNew').jqxGrid('selectedrowindex');
+                var xx = $('#jqxGridNew').jqxGrid("getrowid", selectedrowindex);
+                if (xx) {
+                    var url = '@Url.Action("Cancel", "LReadyToPay", new {ID = "__Id__" })';
+                    window.location.href = url.replace("__Id__", xx);
+                }
+            }
+
+        }
+        function FnReviewCancelled() {
+            var selectedrowindex = $('#jqxGridCancelled').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridCancelled').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Review", "LReadyToPay", new {Id = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+
+//    //SS added this because it is used in code but need to disscuss functionality with Rk/JS
+//        function FnPayReview() {
+//alert('no data')
+//        }
+
+        function FnReviewPAYG() {
+            var selectedrowindex = $('#jqxGridPayG').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridPayG').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                @*var url = '@Url.Action("Review", "LReadyToPay", new {Id = "__Id__" })';*@
+                //window.location.href = url.replace("__Id__", xx);
+     window.location.href = '/LReadyToPay/Review?Id='+xx+'&DisplayPayGrid=true';
+            }
+        }
+        function FnCancelPAYG() {
+            if (confirm("Are you sure you want to cancel selected Payment Batch?")) {
+                var selectedrowindex = $('#jqxGridPayG').jqxGrid('selectedrowindex');
+                var xx = $('#jqxGridPayG').jqxGrid("getrowid", selectedrowindex);
+                if (xx) {
+                    var url = '@Url.Action("Cancel", "LReadyToPay", new {ID = "__Id__" })';
+                    window.location.href = url.replace("__Id__", xx);
+                }
+            }
+
+        }
+        function FnPublishPAYG() {
+            var selectedrowindex = $('#jqxGridPayG').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridPayG').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("Publish", "LReadyToPay", new {Id = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+        }
+        function FnReviewPublished() {
+            var selectedrowindex = $('#jqxGridPublished').jqxGrid('selectedrowindex');
+            var xx = $('#jqxGridPublished').jqxGrid("getrowid", selectedrowindex);
+      //var text = $('#jqxTabs').jqxTabs('getTitleAt',selectedTab);
+            if (xx) {
+                @*var url = '@Url.Action("Review", "LReadyToPay", new {Id = "__Id__" })';*@
+                window.location.href = '/LReadyToPay/Review?Id='+xx+'&DisplayPayGrid=true';//url.replace("__Id__", xx);
+            }
+        }
+
+
+
+</script>
+
+@Html.Hidden("Portfolios")
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+            window.onload = function () {
+                alert("@ViewBag.Message");
+            };
+    </script>
+}
+@if (HttpContext.Current.Session["UserRole"].ToString() != "HR")
+{
+    <p>
+
+        <a  href="/LReadyToPay/CreatePaymentBatch"> <u>Create New Payment Batch</u></a>
+    </p>
+}
+
+    <div class="form-horizontal" id="FrmHorizontal">
+
+        <div id='jqxTabs'>
+            <ul class="nav nav-tabs tabs tabs-container-border ">
+                @if (HttpContext.Current.Session["UserRole"].ToString() != "HR")
+                {
+                    <li style="margin-left: 30px;">New <span class="badge" id="bNew">0</span></li>
+                    <li style="margin-left: 30px;">Cancelled <span class="badge" id="bCancelled">0</span></li>
+                    <li style="margin-left: 30px;">Payment Generated <span class="badge" id="bPaymentGenerated">0</span></li>
+                }
+                <li style="margin-left: 30px;">Published <span class="badge" id="bPublished">0</span></li>
+            </ul>
+            @if (HttpContext.Current.Session["UserRole"].ToString() != "HR")
+            {
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxGridNew">
+                    </div>
+                </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxGridCancelled">
+                    </div>
+                </div>
+                <div class="tab-content" style="padding:10px;">
+                    <div id="jqxGridPayG">
+                    </div>
+                </div>
+            }
+            <div class="tab-content" style="padding:10px;">
+                <div id="jqxGridPublished">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+

@@ -1,0 +1,1868 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="SosDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
+        <EntityType Name="AspNetRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="CompanyCode" Type="nvarchar" MaxLength="2" Nullable="false" />
+          <Property Name="ShowDashboard" Type="bit" Nullable="false" />
+          <Property Name="MFAEnabled" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AspNetUsers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="256" />
+          <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar(max)" />
+          <Property Name="SecurityStamp" Type="nvarchar(max)" />
+          <Property Name="PhoneNumber" Type="nvarchar(max)" />
+          <Property Name="PhoneNumberConfirmed" Type="bit" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="bit" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="datetime" />
+          <Property Name="LockoutEnabled" Type="bit" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="int" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="GcCompanyId" Type="int" Nullable="false" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="OTP" Type="nvarchar" MaxLength="8" />
+          <Property Name="OTPValidUpto" Type="datetime" />
+          <Property Name="PolicyAccepted" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Debug">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime" />
+          <Property Name="Msg" Type="nvarchar" MaxLength="4000" />
+        </EntityType>
+        <EntityType Name="GCompanies">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GcCompanyName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="GcCode" Type="nvarchar" MaxLength="2" />
+          <Property Name="GcISDCode" Type="nvarchar" MaxLength="5" />
+          <Property Name="GcFirstNameFirst" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="GEmailConfigurations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GecAccountName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="GecAccountDescription" Type="nvarchar" MaxLength="500" />
+          <Property Name="GecEmailId" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="GecDisplayName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="GecReplyTo" Type="nvarchar" MaxLength="200" />
+          <Property Name="GelSmtpHost" Type="nvarchar" MaxLength="1000" Nullable="false" />
+          <Property Name="GecPortNumber" Type="int" Nullable="false" />
+          <Property Name="GecSmtpLoginId" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="GecSMTPPassword" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="GecRequiresSSL" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="GErrorLogs">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GelErrorDateTime" Type="datetime" Nullable="false" />
+          <Property Name="GelSourceProject" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="GelController" Type="nvarchar" MaxLength="200" />
+          <Property Name="GelMethod" Type="nvarchar" MaxLength="200" />
+          <Property Name="GelStackTrace" Type="nvarchar(max)" />
+          <Property Name="GelUserName" Type="nvarchar" MaxLength="256" />
+          <Property Name="GelErrorType" Type="nvarchar" MaxLength="10" />
+          <Property Name="GelErrorDescription" Type="nvarchar" MaxLength="2000" />
+          <Property Name="GelResolution" Type="nvarchar" MaxLength="2000" />
+          <Property Name="GelErrorOwner" Type="nvarchar" MaxLength="20" />
+          <Property Name="GelFieldName" Type="nvarchar" MaxLength="100" />
+          <Property Name="GelSOSBatchNumber" Type="int" />
+          <Property Name="GelStatus" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="GKeyValues">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GkvCompanyId" Type="int" Nullable="false" />
+          <Property Name="GkvKey" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="GkvValue" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="GkvDescription" Type="nvarchar" MaxLength="500" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LEmailTemplates">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LetTemplateName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="LetEmailSubject" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="LetEmailBody" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="LetSignature" Type="nvarchar" MaxLength="4000" />
+          <Property Name="LetCompanyId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LPasswordHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="100" />
+          <Property Name="CreatedDateTime" Type="datetime" Nullable="false" />
+          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LPayees">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LpUserId" Type="nvarchar" MaxLength="128" />
+          <Property Name="LpCompanyId" Type="int" Nullable="false" />
+          <Property Name="LpChannelId" Type="int" />
+          <Property Name="LpSubChannelId" Type="int" />
+          <Property Name="LpCreatedById" Type="nvarchar" MaxLength="128" />
+          <Property Name="LpUpdatedById" Type="nvarchar" MaxLength="128" />
+          <Property Name="LpPrimaryChannel" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="LpPayeeCode" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="LpEmail" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="LpEffectiveStartDate" Type="date" Nullable="false" />
+          <Property Name="LpEffectiveEndDate" Type="date" />
+          <Property Name="LpFileNames" Type="nvarchar(max)" />
+          <Property Name="LpUserFriendlyFileNames" Type="nvarchar" MaxLength="4000" />
+          <Property Name="LpBusinessUnit" Type="nvarchar" MaxLength="50" />
+          <Property Name="LpCanRaiseClaims" Type="bit" Nullable="false" />
+          <Property Name="LpChannelManager" Type="nvarchar" MaxLength="100" />
+          <Property Name="LpCreatedDateTime" Type="datetime" />
+          <Property Name="LpUpdatedDateTime" Type="datetime" />
+          <Property Name="LpTIN" Type="nvarchar" MaxLength="50" />
+          <Property Name="LpDistributionChannel" Type="nvarchar" MaxLength="50" />
+          <Property Name="LpPosition" Type="nvarchar" MaxLength="100" />
+          <Property Name="LpBatchNumber" Type="int" />
+          <Property Name="LpCreateLogin" Type="bit" Nullable="false" />
+          <Property Name="WFRequesterId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFAnalystId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFManagerId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFOrdinal" Type="int" />
+          <Property Name="WFCurrentOwnerId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="WFType" Type="nvarchar" MaxLength="20" />
+          <Property Name="WFRequesterRoleId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFCompanyId" Type="int" Nullable="false" />
+          <Property Name="WFComments" Type="nvarchar" MaxLength="4000" />
+          <Property Name="LpFinOpsRoles" Type="nvarchar" MaxLength="255" />
+          <Property Name="ParameterCarrier" Type="nvarchar(max)" />
+          <Property Name="LpCreatedByForm" Type="bit" Nullable="false" />
+          <Property Name="LpPhone" Type="varbinary" MaxLength="8000" />
+          <Property Name="LpAddress" Type="varbinary" MaxLength="8000" />
+          <Property Name="A01" Type="varbinary" MaxLength="8000" />
+          <Property Name="A02" Type="varbinary" MaxLength="8000" />
+          <Property Name="A03" Type="varbinary" MaxLength="8000" />
+          <Property Name="A04" Type="varbinary" MaxLength="8000" />
+          <Property Name="A05" Type="varbinary" MaxLength="8000" />
+          <Property Name="A06" Type="varbinary" MaxLength="8000" />
+          <Property Name="A07" Type="varbinary" MaxLength="8000" />
+          <Property Name="A08" Type="varbinary" MaxLength="8000" />
+          <Property Name="A09" Type="varbinary" MaxLength="8000" />
+          <Property Name="A10" Type="varbinary" MaxLength="8000" />
+          <Property Name="LpBlockNotification" Type="bit" Nullable="false" />
+          <Property Name="LpFirstName" Type="varbinary" MaxLength="8000" />
+          <Property Name="LpLastName" Type="varbinary" MaxLength="8000" />
+          <Property Name="LpTradingName" Type="varbinary" MaxLength="8000" />
+          <Property Name="WFUpdatedDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="LUserLobby">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CompanyCode" Type="nvarchar" MaxLength="2" />
+          <Property Name="FirstName" Type="varchar" MaxLength="255" />
+          <Property Name="LastName" Type="varchar" MaxLength="255" />
+          <Property Name="Email" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Phone" Type="varchar" MaxLength="20" />
+          <Property Name="UserType" Type="nvarchar" MaxLength="20" />
+          <Property Name="PayeeCode" Type="nvarchar" MaxLength="255" />
+          <Property Name="IsVFADUser" Type="bit" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="UserGroup" Type="nvarchar" MaxLength="255" />
+          <Property Name="NewUserGroup" Type="nvarchar" MaxLength="255" />
+          <Property Name="NewEmail" Type="nvarchar" MaxLength="255" />
+          <Property Name="RequestorEmail" Type="nvarchar" MaxLength="255" />
+          <Property Name="ManagerEmail" Type="nvarchar" MaxLength="255" />
+          <Property Name="RequestType" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="CreatedBy" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="CreatedDateTime" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedBy" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="UpdatedDateTime" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedByRoleId" Type="int" />
+          <Property Name="Response" Type="nvarchar" MaxLength="255" />
+          <Property Name="ResponseCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="ResponseMessage" Type="nvarchar(max)" />
+          <Property Name="Comments" Type="nvarchar" MaxLength="2000" />
+        </EntityType>
+        <EntityType Name="LUsers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LuUserId" Type="nvarchar" MaxLength="128" />
+          <Property Name="LuCompanyId" Type="int" Nullable="false" />
+          <Property Name="LuCreatedById" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="LuUpdatedById" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="LuFirstName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="LuLastName" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="LuEmail" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="LuPhone" Type="nvarchar" MaxLength="20" />
+          <Property Name="LuIsManager" Type="bit" Nullable="false" />
+          <Property Name="LuBand" Type="nvarchar" MaxLength="20" />
+          <Property Name="LuStatus" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="LuCreatedDateTime" Type="datetime" Nullable="false" />
+          <Property Name="LuUpdatedDateTime" Type="datetime" Nullable="false" />
+          <Property Name="A01" Type="nvarchar" MaxLength="255" />
+          <Property Name="A02" Type="nvarchar" MaxLength="255" />
+          <Property Name="A03" Type="nvarchar" MaxLength="255" />
+          <Property Name="A04" Type="nvarchar" MaxLength="255" />
+          <Property Name="A05" Type="nvarchar" MaxLength="255" />
+          <Property Name="AN01" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="AN02" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="AN03" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="AN04" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="AN05" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="AD01" Type="date" />
+          <Property Name="AD02" Type="date" />
+          <Property Name="AD03" Type="date" />
+          <Property Name="AD04" Type="date" />
+          <Property Name="AD05" Type="date" />
+          <Property Name="LuReportsToId" Type="nvarchar" MaxLength="128" />
+          <Property Name="LuIsAlteryxUser" Type="bit" Nullable="false" />
+          <Property Name="LuBlockNotification" Type="bit" Nullable="false" />
+          <Property Name="WFRequesterId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFAnalystId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFManagerId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFOrdinal" Type="int" />
+          <Property Name="WFCurrentOwnerId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="WFType" Type="nvarchar" MaxLength="20" />
+          <Property Name="WFRequesterRoleId" Type="nvarchar" MaxLength="128" />
+          <Property Name="WFCompanyId" Type="int" Nullable="false" />
+          <Property Name="WFComments" Type="nvarchar" MaxLength="4000" />
+          <Property Name="ParameterCarrier" Type="nvarchar(max)" />
+          <Property Name="LuCreateLogin" Type="bit" />
+          <Property Name="LuCreatedByForm" Type="bit" />
+          <Property Name="WFUpdatedDateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="MAspnetUsersGSecurityQuestions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MAuqsqUserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="MAuqsqQuestionId" Type="int" Nullable="false" />
+          <Property Name="MAugsqAnswer" Type="nvarchar" MaxLength="200" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__AspNetUse__GcCom__3B75D760">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUsers">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetRoles_LPayees">
+          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFRequesterRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetRoles_LUsers">
+          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFRequesterRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="LpUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_CreatedById">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="LpCreatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_LastUpdatedById">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="LpUpdatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFAnalystId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFAnalystId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFCurrentOwnerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFManagerId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFManagerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFRequesterId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFRequesterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuCreatedById">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="LuCreatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuReportsToId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="LuReportsToId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuUpdatedById">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="LuUpdatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuUserId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="LuUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFAnalystId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFAnalystId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFCurrentOwnerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFManagerId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFManagerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFRequesterId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="0..1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFRequesterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_AspnetUsers">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUsers">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_GKeyValues">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="GKeyValues" Type="Self.GKeyValues" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GKeyValues">
+              <PropertyRef Name="GkvCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LEmailTemplates">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="LEmailTemplates" Type="Self.LEmailTemplates" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LEmailTemplates">
+              <PropertyRef Name="LetCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="LpCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees_WFCopanyId">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="LPayees" Type="Self.LPayees" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayees">
+              <PropertyRef Name="WFCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LUsers">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="LuCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LUsers_WFCopanyId">
+          <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
+          <End Role="LUsers" Type="Self.LUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompanies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUsers">
+              <PropertyRef Name="WFCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="SpLogAudit" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="SOSProcessName" Type="nvarchar" Mode="In" />
+          <Parameter Name="L3ProcessName" Type="nvarchar" Mode="In" />
+          <Parameter Name="ControlCode" Type="nvarchar" Mode="In" />
+          <Parameter Name="ControlDecription" Type="nvarchar" Mode="In" />
+          <Parameter Name="Action" Type="nvarchar" Mode="In" />
+          <Parameter Name="ActionType" Type="nvarchar" Mode="In" />
+          <Parameter Name="ActionedById" Type="nvarchar" Mode="In" />
+          <Parameter Name="ActionDateTime" Type="datetime" Mode="In" />
+          <Parameter Name="OldStatus" Type="nvarchar" Mode="In" />
+          <Parameter Name="NewStatus" Type="nvarchar" Mode="In" />
+          <Parameter Name="EntityType" Type="nvarchar" Mode="In" />
+          <Parameter Name="EntityId" Type="int" Mode="In" />
+          <Parameter Name="EntityName" Type="nvarchar" Mode="In" />
+          <Parameter Name="WorkFlowId" Type="int" Mode="In" />
+          <Parameter Name="CompanyId" Type="int" Mode="In" />
+          <Parameter Name="Comments" Type="nvarchar" Mode="In" />
+          <Parameter Name="RoleId" Type="nvarchar" Mode="In" />
+          <Parameter Name="LaPeriod" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="SpLogEmail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="RecipientList" Type="nvarchar" Mode="In" />
+          <Parameter Name="CCList" Type="nvarchar" Mode="In" />
+          <Parameter Name="BCCList" Type="nvarchar" Mode="In" />
+          <Parameter Name="ReplyToList" Type="nvarchar(max)" Mode="In" />
+          <Parameter Name="Subject" Type="nvarchar" Mode="In" />
+          <Parameter Name="Body" Type="nvarchar(max)" Mode="In" />
+          <Parameter Name="IsHTML" Type="bit" Mode="In" />
+          <Parameter Name="EmailType" Type="nvarchar" Mode="In" />
+          <Parameter Name="Priority" Type="nvarchar" Mode="In" />
+          <Parameter Name="AttachmentList" Type="nvarchar" Mode="In" />
+          <Parameter Name="Status" Type="nvarchar" Mode="In" />
+          <Parameter Name="Comments" Type="nvarchar" Mode="In" />
+          <Parameter Name="CreatedById" Type="nvarchar" Mode="In" />
+          <Parameter Name="UpdatedById" Type="nvarchar" Mode="In" />
+          <Parameter Name="SenderAccountName" Type="nvarchar" Mode="In" />
+          <Parameter Name="BucketName" Type="nvarchar" Mode="In" />
+          <Parameter Name="AcessKey" Type="nvarchar" Mode="In" />
+          <Parameter Name="SecretKey" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="SpLogError" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="SourceProject" Type="nvarchar" Mode="In" />
+          <Parameter Name="Controller" Type="nvarchar" Mode="In" />
+          <Parameter Name="Method" Type="nvarchar" Mode="In" />
+          <Parameter Name="StackTrace" Type="nvarchar(max)" Mode="In" />
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorType" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorDescription" Type="nvarchar" Mode="In" />
+          <Parameter Name="Resolution" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorOwner" Type="nvarchar" Mode="In" />
+          <Parameter Name="FieldName" Type="nvarchar" Mode="In" />
+          <Parameter Name="SOSBatchNumber" Type="int" Mode="In" />
+          <Parameter Name="Status" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="SpLogErrorNew" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="SourceProject" Type="nvarchar" Mode="In" />
+          <Parameter Name="Controller" Type="nvarchar" Mode="In" />
+          <Parameter Name="Method" Type="nvarchar" Mode="In" />
+          <Parameter Name="StackTrace" Type="nvarchar(max)" Mode="In" />
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorType" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorDescription" Type="nvarchar" Mode="In" />
+          <Parameter Name="Resolution" Type="nvarchar" Mode="In" />
+          <Parameter Name="ErrorOwner" Type="nvarchar" Mode="In" />
+          <Parameter Name="FieldName" Type="nvarchar" Mode="In" />
+          <Parameter Name="SOSBatchNumber" Type="int" Mode="In" />
+          <Parameter Name="Status" Type="nvarchar" Mode="In" />
+          <Parameter Name="Result" Type="int" Mode="InOut" />
+        </Function>
+        <EntityContainer Name="SosDbModelStoreContainer">
+          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Debug" EntityType="Self.Debug" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="GCompanies" EntityType="Self.GCompanies" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="GEmailConfigurations" EntityType="Self.GEmailConfigurations" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="GErrorLogs" EntityType="Self.GErrorLogs" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="GKeyValues" EntityType="Self.GKeyValues" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="LEmailTemplates" EntityType="Self.LEmailTemplates" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="LPasswordHistory" EntityType="Self.LPasswordHistory" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="LPayees" EntityType="Self.LPayees" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="LUserLobby" EntityType="Self.LUserLobby" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="LUsers" EntityType="Self.LUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="Self.MAspnetUsersGSecurityQuestions" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="Self.FK__AspNetUse__GcCom__3B75D760">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetRoles_LPayees" Association="Self.FK_AspnetRoles_LPayees">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetRoles_LUsers" Association="Self.FK_AspnetRoles_LUsers">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees" Association="Self.FK_AspnetUsers_LPayees">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_CreatedById" Association="Self.FK_AspnetUsers_LPayees_CreatedById">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_LastUpdatedById" Association="Self.FK_AspnetUsers_LPayees_LastUpdatedById">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFAnalystId" Association="Self.FK_AspnetUsers_LPayees_WFAnalystId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId" Association="Self.FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFManagerId" Association="Self.FK_AspnetUsers_LPayees_WFManagerId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFRequesterId" Association="Self.FK_AspnetUsers_LPayees_WFRequesterId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuCreatedById" Association="Self.FK_AspnetUsers_LUsers_LuCreatedById">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuReportsToId" Association="Self.FK_AspnetUsers_LUsers_LuReportsToId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUpdatedById" Association="Self.FK_AspnetUsers_LUsers_LuUpdatedById">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUserId" Association="Self.FK_AspnetUsers_LUsers_LuUserId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFAnalystId" Association="Self.FK_AspnetUsers_LUsers_WFAnalystId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId" Association="Self.FK_AspnetUsers_LUsers_WFCurrentOwnerId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFManagerId" Association="Self.FK_AspnetUsers_LUsers_WFManagerId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFRequesterId" Association="Self.FK_AspnetUsers_LUsers_WFRequesterId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_AspnetUsers" Association="Self.FK_GCompanies_AspnetUsers">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_GKeyValues" Association="Self.FK_GCompanies_GKeyValues">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="GKeyValues" EntitySet="GKeyValues" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LEmailTemplates" Association="Self.FK_GCompanies_LEmailTemplates">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="LEmailTemplates" EntitySet="LEmailTemplates" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LPayees" Association="Self.FK_GCompanies_LPayees">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LPayees_WFCopanyId" Association="Self.FK_GCompanies_LPayees_WFCopanyId">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="LPayees" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LUsers" Association="Self.FK_GCompanies_LUsers">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LUsers_WFCopanyId" Association="Self.FK_GCompanies_LUsers_WFCopanyId">
+            <End Role="GCompanies" EntitySet="GCompanies" />
+            <End Role="LUsers" EntitySet="LUsers" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SosDbModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+        <EntityContainer Name="SosDbEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AspNetRoles" EntityType="SosDbModel.AspNetRole" />
+          <EntitySet Name="AspNetUsers" EntityType="SosDbModel.AspNetUser" />
+          <EntitySet Name="Debugs" EntityType="SosDbModel.Debug" />
+          <EntitySet Name="GCompanies" EntityType="SosDbModel.GCompany" />
+          <EntitySet Name="GEmailConfigurations" EntityType="SosDbModel.GEmailConfiguration" />
+          <EntitySet Name="GErrorLogs" EntityType="SosDbModel.GErrorLog" />
+          <EntitySet Name="GKeyValues" EntityType="SosDbModel.GKeyValue" />
+          <EntitySet Name="LPayees" EntityType="SosDbModel.LPayee" />
+          <EntitySet Name="LUserLobbies" EntityType="SosDbModel.LUserLobby" />
+          <AssociationSet Name="FK_AspnetRoles_LPayees" Association="SosDbModel.FK_AspnetRoles_LPayees">
+            <End Role="AspNetRole" EntitySet="AspNetRoles" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="SosDbModel.FK__AspNetUse__GcCom__3B75D760">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees" Association="SosDbModel.FK_AspnetUsers_LPayees">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_CreatedById" Association="SosDbModel.FK_AspnetUsers_LPayees_CreatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_LastUpdatedById" Association="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFAnalystId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFManagerId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFRequesterId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_AspnetUsers" Association="SosDbModel.FK_GCompanies_AspnetUsers">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_GKeyValues" Association="SosDbModel.FK_GCompanies_GKeyValues">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="GKeyValue" EntitySet="GKeyValues" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LPayees" Association="SosDbModel.FK_GCompanies_LPayees">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LPayees_WFCopanyId" Association="SosDbModel.FK_GCompanies_LPayees_WFCopanyId">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LPayee" EntitySet="LPayees" />
+          </AssociationSet>
+          <FunctionImport Name="SpLogAudit">
+            <Parameter Name="SOSProcessName" Mode="In" Type="String" />
+            <Parameter Name="L3ProcessName" Mode="In" Type="String" />
+            <Parameter Name="ControlCode" Mode="In" Type="String" />
+            <Parameter Name="ControlDecription" Mode="In" Type="String" />
+            <Parameter Name="Action" Mode="In" Type="String" />
+            <Parameter Name="ActionType" Mode="In" Type="String" />
+            <Parameter Name="ActionedById" Mode="In" Type="String" />
+            <Parameter Name="ActionDateTime" Mode="In" Type="DateTime" />
+            <Parameter Name="OldStatus" Mode="In" Type="String" />
+            <Parameter Name="NewStatus" Mode="In" Type="String" />
+            <Parameter Name="EntityType" Mode="In" Type="String" />
+            <Parameter Name="EntityId" Mode="In" Type="Int32" />
+            <Parameter Name="EntityName" Mode="In" Type="String" />
+            <Parameter Name="WorkFlowId" Mode="In" Type="Int32" />
+            <Parameter Name="CompanyId" Mode="In" Type="Int32" />
+            <Parameter Name="Comments" Mode="In" Type="String" />
+            <Parameter Name="RoleId" Mode="In" Type="String" />
+            <Parameter Name="LaPeriod" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SpLogEmail">
+            <Parameter Name="RecipientList" Mode="In" Type="String" />
+            <Parameter Name="CCList" Mode="In" Type="String" />
+            <Parameter Name="BCCList" Mode="In" Type="String" />
+            <Parameter Name="ReplyToList" Mode="In" Type="String" />
+            <Parameter Name="Subject" Mode="In" Type="String" />
+            <Parameter Name="Body" Mode="In" Type="String" />
+            <Parameter Name="IsHTML" Mode="In" Type="Boolean" />
+            <Parameter Name="EmailType" Mode="In" Type="String" />
+            <Parameter Name="Priority" Mode="In" Type="String" />
+            <Parameter Name="AttachmentList" Mode="In" Type="String" />
+            <Parameter Name="Status" Mode="In" Type="String" />
+            <Parameter Name="Comments" Mode="In" Type="String" />
+            <Parameter Name="CreatedById" Mode="In" Type="String" />
+            <Parameter Name="UpdatedById" Mode="In" Type="String" />
+            <Parameter Name="SenderAccountName" Mode="In" Type="String" />
+            <Parameter Name="BucketName" Mode="In" Type="String" />
+            <Parameter Name="AcessKey" Mode="In" Type="String" />
+            <Parameter Name="SecretKey" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="SpLogError">
+            <Parameter Name="SourceProject" Mode="In" Type="String" />
+            <Parameter Name="Controller" Mode="In" Type="String" />
+            <Parameter Name="Method" Mode="In" Type="String" />
+            <Parameter Name="StackTrace" Mode="In" Type="String" />
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="ErrorType" Mode="In" Type="String" />
+            <Parameter Name="ErrorDescription" Mode="In" Type="String" />
+            <Parameter Name="Resolution" Mode="In" Type="String" />
+            <Parameter Name="ErrorOwner" Mode="In" Type="String" />
+            <Parameter Name="FieldName" Mode="In" Type="String" />
+            <Parameter Name="SOSBatchNumber" Mode="In" Type="Int32" />
+            <Parameter Name="Status" Mode="In" Type="String" />
+          </FunctionImport>
+          <EntitySet Name="LUsers" EntityType="SosDbModel.LUser" />
+          <AssociationSet Name="FK_AspnetRoles_LUsers" Association="SosDbModel.FK_AspnetRoles_LUsers">
+            <End Role="AspNetRole" EntitySet="AspNetRoles" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuCreatedById" Association="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuReportsToId" Association="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUpdatedById" Association="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUserId" Association="SosDbModel.FK_AspnetUsers_LUsers_LuUserId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFAnalystId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFManagerId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFRequesterId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LUsers" Association="SosDbModel.FK_GCompanies_LUsers">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LUsers_WFCopanyId" Association="SosDbModel.FK_GCompanies_LUsers_WFCopanyId">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <EntitySet Name="LEmailTemplates" EntityType="SosDbModel.LEmailTemplate" />
+          <EntitySet Name="LPasswordHistories" EntityType="SosDbModel.LPasswordHistory" />
+          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="SosDbModel.MAspnetUsersGSecurityQuestion" />
+          <AssociationSet Name="FK_GCompanies_LEmailTemplates" Association="SosDbModel.FK_GCompanies_LEmailTemplates">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LEmailTemplate" EntitySet="LEmailTemplates" />
+          </AssociationSet>
+          <FunctionImport Name="SpLogErrorNew" ReturnType="Collection(Int32)">
+            <Parameter Name="SourceProject" Mode="In" Type="String" />
+            <Parameter Name="Controller" Mode="In" Type="String" />
+            <Parameter Name="Method" Mode="In" Type="String" />
+            <Parameter Name="StackTrace" Mode="In" Type="String" />
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="ErrorType" Mode="In" Type="String" />
+            <Parameter Name="ErrorDescription" Mode="In" Type="String" />
+            <Parameter Name="Resolution" Mode="In" Type="String" />
+            <Parameter Name="ErrorOwner" Mode="In" Type="String" />
+            <Parameter Name="FieldName" Mode="In" Type="String" />
+            <Parameter Name="SOSBatchNumber" Mode="In" Type="Int32" />
+            <Parameter Name="Status" Mode="In" Type="String" />
+            <Parameter Name="Result" Mode="InOut" Type="Int32" />
+          </FunctionImport>
+        </EntityContainer>
+        <EntityType Name="AspNetRole">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="CompanyCode" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="ShowDashboard" Type="Boolean" Nullable="false" />
+          <Property Name="MFAEnabled" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_AspnetRoles_LPayees" FromRole="AspNetRole" ToRole="LPayee" />
+          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_AspnetRoles_LUsers" FromRole="AspNetRole" ToRole="LUser" />
+        </EntityType>
+        <EntityType Name="AspNetUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SecurityStamp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
+          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="GcCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="OTP" Type="String" MaxLength="8" FixedLength="false" Unicode="true" />
+          <Property Name="OTPValidUpto" Type="DateTime" Precision="3" />
+          <Property Name="PolicyAccepted" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK__AspNetUse__GcCom__3B75D760" FromRole="AspNetUser" ToRole="GCompany" />
+          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_AspnetUsers_LPayees" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees1" Relationship="SosDbModel.FK_AspnetUsers_LPayees_CreatedById" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees2" Relationship="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees3" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees4" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees5" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees6" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_AspnetUsers" FromRole="AspNetUser" ToRole="GCompany" />
+          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers1" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers2" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers3" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUserId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers4" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers5" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers6" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers7" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="AspNetUser" ToRole="LUser" />
+        </EntityType>
+        <EntityType Name="Debug">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedDateTime" Type="DateTime" Precision="3" />
+          <Property Name="Msg" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="GCompany">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GcCompanyName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GcCode" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="GcISDCode" Type="String" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="GcFirstNameFirst" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="AspNetUsers" Relationship="SosDbModel.FK__AspNetUse__GcCom__3B75D760" FromRole="GCompany" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUsers1" Relationship="SosDbModel.FK_GCompanies_AspnetUsers" FromRole="GCompany" ToRole="AspNetUser" />
+          <NavigationProperty Name="GKeyValues" Relationship="SosDbModel.FK_GCompanies_GKeyValues" FromRole="GCompany" ToRole="GKeyValue" />
+          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_GCompanies_LPayees" FromRole="GCompany" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees1" Relationship="SosDbModel.FK_GCompanies_LPayees_WFCopanyId" FromRole="GCompany" ToRole="LPayee" />
+          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_GCompanies_LUsers" FromRole="GCompany" ToRole="LUser" />
+          <NavigationProperty Name="LUsers1" Relationship="SosDbModel.FK_GCompanies_LUsers_WFCopanyId" FromRole="GCompany" ToRole="LUser" />
+          <NavigationProperty Name="LEmailTemplates" Relationship="SosDbModel.FK_GCompanies_LEmailTemplates" FromRole="GCompany" ToRole="LEmailTemplate" />
+        </EntityType>
+        <EntityType Name="GEmailConfiguration">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GecAccountName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GecAccountDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="GecEmailId" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GecDisplayName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GecReplyTo" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GelSmtpHost" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="GecPortNumber" Type="Int32" Nullable="false" />
+          <Property Name="GecSmtpLoginId" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="GecSMTPPassword" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="GecRequiresSSL" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="GErrorLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GelErrorDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="GelSourceProject" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GelController" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GelMethod" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="GelStackTrace" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="GelUserName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="GelErrorType" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="GelErrorDescription" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="GelResolution" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="GelErrorOwner" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="GelFieldName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="GelSOSBatchNumber" Type="Int32" />
+          <Property Name="GelStatus" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="GKeyValue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GkvCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="GkvKey" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="GkvValue" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="GkvDescription" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_GKeyValues" FromRole="GKeyValue" ToRole="GCompany" />
+        </EntityType>
+        <EntityType Name="LPayee">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LpUserId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LpCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="LpChannelId" Type="Int32" />
+          <Property Name="LpSubChannelId" Type="Int32" />
+          <Property Name="LpCreatedById" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LpUpdatedById" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LpPrimaryChannel" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LpPayeeCode" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LpEmail" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LpEffectiveStartDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="LpEffectiveEndDate" Type="DateTime" Precision="0" />
+          <Property Name="LpFileNames" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LpUserFriendlyFileNames" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="LpBusinessUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LpCanRaiseClaims" Type="Boolean" Nullable="false" />
+          <Property Name="LpChannelManager" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LpCreatedDateTime" Type="DateTime" Precision="3" />
+          <Property Name="LpUpdatedDateTime" Type="DateTime" Precision="3" />
+          <Property Name="LpTIN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LpDistributionChannel" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LpPosition" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="LpBatchNumber" Type="Int32" />
+          <Property Name="LpCreateLogin" Type="Boolean" Nullable="false" />
+          <Property Name="WFRequesterId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFAnalystId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFManagerId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFOrdinal" Type="Int32" />
+          <Property Name="WFCurrentOwnerId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="WFType" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="WFRequesterRoleId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="WFComments" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="LpFinOpsRoles" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ParameterCarrier" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LpCreatedByForm" Type="Boolean" Nullable="false" />
+          <Property Name="LpPhone" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="LpAddress" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A01" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A02" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A03" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A04" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A05" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A06" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A07" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A08" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A09" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="A10" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="LpBlockNotification" Type="Boolean" Nullable="false" />
+          <Property Name="LpFirstName" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="LpLastName" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <Property Name="LpTradingName" Type="Binary" MaxLength="8000" FixedLength="false" />
+          <NavigationProperty Name="AspNetRole" Relationship="SosDbModel.FK_AspnetRoles_LPayees" FromRole="LPayee" ToRole="AspNetRole" />
+          <NavigationProperty Name="AspNetUser" Relationship="SosDbModel.FK_AspnetUsers_LPayees" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser1" Relationship="SosDbModel.FK_AspnetUsers_LPayees_CreatedById" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser2" Relationship="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser3" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser4" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser5" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser6" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LPayees" FromRole="LPayee" ToRole="GCompany" />
+          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_LPayees_WFCopanyId" FromRole="LPayee" ToRole="GCompany" />
+          <Property Name="WFUpdatedDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="LUserLobby">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CompanyCode" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="FirstName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Phone" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UserType" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="PayeeCode" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IsVFADUser" Type="Boolean" Nullable="false" />
+          <Property Name="Status" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UserGroup" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="NewUserGroup" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="NewEmail" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="RequestorEmail" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ManagerEmail" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="RequestType" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedBy" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="UpdatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedByRoleId" Type="Int32" />
+          <Property Name="Response" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ResponseCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ResponseMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Comments" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="FK_AspnetRoles_LPayees">
+          <End Type="SosDbModel.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRole">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFRequesterRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__AspNetUse__GcCom__3B75D760">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUser">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_CreatedById">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpCreatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_LastUpdatedById">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpUpdatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFAnalystId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFAnalystId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFCurrentOwnerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFManagerId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFManagerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFRequesterId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFRequesterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_AspnetUsers">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUser">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_GKeyValues">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.GKeyValue" Role="GKeyValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GKeyValue">
+              <PropertyRef Name="GkvCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees_WFCopanyId">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="LUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LuUserId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LuCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="LuCreatedById" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LuUpdatedById" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LuFirstName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="LuLastName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="LuEmail" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="LuPhone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LuIsManager" Type="Boolean" Nullable="false" />
+          <Property Name="LuBand" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="LuStatus" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="LuCreatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="LuUpdatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="A01" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="A02" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="A03" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="A04" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="A05" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="AN01" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="AN02" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="AN03" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="AN04" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="AN05" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="AD01" Type="DateTime" Precision="0" />
+          <Property Name="AD02" Type="DateTime" Precision="0" />
+          <Property Name="AD03" Type="DateTime" Precision="0" />
+          <Property Name="AD04" Type="DateTime" Precision="0" />
+          <Property Name="AD05" Type="DateTime" Precision="0" />
+          <Property Name="LuReportsToId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="LuIsAlteryxUser" Type="Boolean" Nullable="false" />
+          <Property Name="LuBlockNotification" Type="Boolean" Nullable="false" />
+          <Property Name="WFRequesterId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFAnalystId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFManagerId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFOrdinal" Type="Int32" />
+          <Property Name="WFCurrentOwnerId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="WFType" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="WFRequesterRoleId" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="WFCompanyId" Type="Int32" Nullable="false" />
+          <Property Name="WFComments" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="ParameterCarrier" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="AspNetRole" Relationship="SosDbModel.FK_AspnetRoles_LUsers" FromRole="LUser" ToRole="AspNetRole" />
+          <NavigationProperty Name="AspNetUser" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser1" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser2" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser3" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUserId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser4" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser5" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser6" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser7" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LUsers" FromRole="LUser" ToRole="GCompany" />
+          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_LUsers_WFCopanyId" FromRole="LUser" ToRole="GCompany" />
+          <Property Name="LuCreateLogin" Type="Boolean" />
+          <Property Name="LuCreatedByForm" Type="Boolean" />
+          <Property Name="WFUpdatedDateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <Association Name="FK_AspnetRoles_LUsers">
+          <End Type="SosDbModel.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRole">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFRequesterRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuCreatedById">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="LuCreatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuReportsToId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="LuReportsToId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuUpdatedById">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="LuUpdatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_LuUserId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="LuUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFAnalystId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFAnalystId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFCurrentOwnerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFManagerId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFManagerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LUsers_WFRequesterId">
+          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFRequesterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LUsers">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="LuCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LUsers_WFCopanyId">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LUser">
+              <PropertyRef Name="WFCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="LEmailTemplate">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LetTemplateName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="LetEmailSubject" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="LetEmailBody" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LetSignature" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="LetCompanyId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LEmailTemplates" FromRole="LEmailTemplate" ToRole="GCompany" />
+        </EntityType>
+        <EntityType Name="LPasswordHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Password" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="MAspnetUsersGSecurityQuestion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MAuqsqUserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="MAuqsqQuestionId" Type="Int32" Nullable="false" />
+          <Property Name="MAugsqAnswer" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="FK_GCompanies_LEmailTemplates">
+          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="SosDbModel.LEmailTemplate" Role="LEmailTemplate" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LEmailTemplate">
+              <PropertyRef Name="LetCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="urn:schemas-microsoft-com:windows:storage:mapping:CS">
+        <EntityContainerMapping StorageEntityContainer="SosDbModelStoreContainer" CdmEntityContainer="SosDbEntities">
+          <EntitySetMapping Name="AspNetRoles">
+            <EntityTypeMapping TypeName="SosDbModel.AspNetRole">
+              <MappingFragment StoreEntitySet="AspNetRoles">
+                <ScalarProperty Name="MFAEnabled" ColumnName="MFAEnabled" />
+                <ScalarProperty Name="ShowDashboard" ColumnName="ShowDashboard" />
+                <ScalarProperty Name="CompanyCode" ColumnName="CompanyCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AspNetUsers">
+            <EntityTypeMapping TypeName="SosDbModel.AspNetUser">
+              <MappingFragment StoreEntitySet="AspNetUsers">
+                <ScalarProperty Name="PolicyAccepted" ColumnName="PolicyAccepted" />
+                <ScalarProperty Name="OTPValidUpto" ColumnName="OTPValidUpto" />
+                <ScalarProperty Name="OTP" ColumnName="OTP" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="GcCompanyId" ColumnName="GcCompanyId" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="AccessFailedCount" ColumnName="AccessFailedCount" />
+                <ScalarProperty Name="LockoutEnabled" ColumnName="LockoutEnabled" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="TwoFactorEnabled" ColumnName="TwoFactorEnabled" />
+                <ScalarProperty Name="PhoneNumberConfirmed" ColumnName="PhoneNumberConfirmed" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Debugs">
+            <EntityTypeMapping TypeName="SosDbModel.Debug">
+              <MappingFragment StoreEntitySet="Debug">
+                <ScalarProperty Name="Msg" ColumnName="Msg" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GCompanies">
+            <EntityTypeMapping TypeName="SosDbModel.GCompany">
+              <MappingFragment StoreEntitySet="GCompanies">
+                <ScalarProperty Name="GcFirstNameFirst" ColumnName="GcFirstNameFirst" />
+                <ScalarProperty Name="GcISDCode" ColumnName="GcISDCode" />
+                <ScalarProperty Name="GcCode" ColumnName="GcCode" />
+                <ScalarProperty Name="GcCompanyName" ColumnName="GcCompanyName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GEmailConfigurations">
+            <EntityTypeMapping TypeName="SosDbModel.GEmailConfiguration">
+              <MappingFragment StoreEntitySet="GEmailConfigurations">
+                <ScalarProperty Name="GecRequiresSSL" ColumnName="GecRequiresSSL" />
+                <ScalarProperty Name="GecSMTPPassword" ColumnName="GecSMTPPassword" />
+                <ScalarProperty Name="GecSmtpLoginId" ColumnName="GecSmtpLoginId" />
+                <ScalarProperty Name="GecPortNumber" ColumnName="GecPortNumber" />
+                <ScalarProperty Name="GelSmtpHost" ColumnName="GelSmtpHost" />
+                <ScalarProperty Name="GecReplyTo" ColumnName="GecReplyTo" />
+                <ScalarProperty Name="GecDisplayName" ColumnName="GecDisplayName" />
+                <ScalarProperty Name="GecEmailId" ColumnName="GecEmailId" />
+                <ScalarProperty Name="GecAccountDescription" ColumnName="GecAccountDescription" />
+                <ScalarProperty Name="GecAccountName" ColumnName="GecAccountName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GErrorLogs">
+            <EntityTypeMapping TypeName="SosDbModel.GErrorLog">
+              <MappingFragment StoreEntitySet="GErrorLogs">
+                <ScalarProperty Name="GelStatus" ColumnName="GelStatus" />
+                <ScalarProperty Name="GelSOSBatchNumber" ColumnName="GelSOSBatchNumber" />
+                <ScalarProperty Name="GelFieldName" ColumnName="GelFieldName" />
+                <ScalarProperty Name="GelErrorOwner" ColumnName="GelErrorOwner" />
+                <ScalarProperty Name="GelResolution" ColumnName="GelResolution" />
+                <ScalarProperty Name="GelErrorDescription" ColumnName="GelErrorDescription" />
+                <ScalarProperty Name="GelErrorType" ColumnName="GelErrorType" />
+                <ScalarProperty Name="GelUserName" ColumnName="GelUserName" />
+                <ScalarProperty Name="GelStackTrace" ColumnName="GelStackTrace" />
+                <ScalarProperty Name="GelMethod" ColumnName="GelMethod" />
+                <ScalarProperty Name="GelController" ColumnName="GelController" />
+                <ScalarProperty Name="GelSourceProject" ColumnName="GelSourceProject" />
+                <ScalarProperty Name="GelErrorDateTime" ColumnName="GelErrorDateTime" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GKeyValues">
+            <EntityTypeMapping TypeName="SosDbModel.GKeyValue">
+              <MappingFragment StoreEntitySet="GKeyValues">
+                <ScalarProperty Name="GkvDescription" ColumnName="GkvDescription" />
+                <ScalarProperty Name="GkvValue" ColumnName="GkvValue" />
+                <ScalarProperty Name="GkvKey" ColumnName="GkvKey" />
+                <ScalarProperty Name="GkvCompanyId" ColumnName="GkvCompanyId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LPayees">
+            <EntityTypeMapping TypeName="SosDbModel.LPayee">
+              <MappingFragment StoreEntitySet="LPayees">
+                <ScalarProperty Name="WFUpdatedDateTime" ColumnName="WFUpdatedDateTime" />
+                <ScalarProperty Name="LpTradingName" ColumnName="LpTradingName" />
+                <ScalarProperty Name="LpLastName" ColumnName="LpLastName" />
+                <ScalarProperty Name="LpFirstName" ColumnName="LpFirstName" />
+                <ScalarProperty Name="LpBlockNotification" ColumnName="LpBlockNotification" />
+                <ScalarProperty Name="A10" ColumnName="A10" />
+                <ScalarProperty Name="A09" ColumnName="A09" />
+                <ScalarProperty Name="A08" ColumnName="A08" />
+                <ScalarProperty Name="A07" ColumnName="A07" />
+                <ScalarProperty Name="A06" ColumnName="A06" />
+                <ScalarProperty Name="A05" ColumnName="A05" />
+                <ScalarProperty Name="A04" ColumnName="A04" />
+                <ScalarProperty Name="A03" ColumnName="A03" />
+                <ScalarProperty Name="A02" ColumnName="A02" />
+                <ScalarProperty Name="A01" ColumnName="A01" />
+                <ScalarProperty Name="LpAddress" ColumnName="LpAddress" />
+                <ScalarProperty Name="LpPhone" ColumnName="LpPhone" />
+                <ScalarProperty Name="LpCreatedByForm" ColumnName="LpCreatedByForm" />
+                <ScalarProperty Name="ParameterCarrier" ColumnName="ParameterCarrier" />
+                <ScalarProperty Name="LpFinOpsRoles" ColumnName="LpFinOpsRoles" />
+                <ScalarProperty Name="WFComments" ColumnName="WFComments" />
+                <ScalarProperty Name="WFCompanyId" ColumnName="WFCompanyId" />
+                <ScalarProperty Name="WFRequesterRoleId" ColumnName="WFRequesterRoleId" />
+                <ScalarProperty Name="WFType" ColumnName="WFType" />
+                <ScalarProperty Name="WFStatus" ColumnName="WFStatus" />
+                <ScalarProperty Name="WFCurrentOwnerId" ColumnName="WFCurrentOwnerId" />
+                <ScalarProperty Name="WFOrdinal" ColumnName="WFOrdinal" />
+                <ScalarProperty Name="WFManagerId" ColumnName="WFManagerId" />
+                <ScalarProperty Name="WFAnalystId" ColumnName="WFAnalystId" />
+                <ScalarProperty Name="WFRequesterId" ColumnName="WFRequesterId" />
+                <ScalarProperty Name="LpCreateLogin" ColumnName="LpCreateLogin" />
+                <ScalarProperty Name="LpBatchNumber" ColumnName="LpBatchNumber" />
+                <ScalarProperty Name="LpPosition" ColumnName="LpPosition" />
+                <ScalarProperty Name="LpDistributionChannel" ColumnName="LpDistributionChannel" />
+                <ScalarProperty Name="LpTIN" ColumnName="LpTIN" />
+                <ScalarProperty Name="LpUpdatedDateTime" ColumnName="LpUpdatedDateTime" />
+                <ScalarProperty Name="LpCreatedDateTime" ColumnName="LpCreatedDateTime" />
+                <ScalarProperty Name="LpChannelManager" ColumnName="LpChannelManager" />
+                <ScalarProperty Name="LpCanRaiseClaims" ColumnName="LpCanRaiseClaims" />
+                <ScalarProperty Name="LpBusinessUnit" ColumnName="LpBusinessUnit" />
+                <ScalarProperty Name="LpUserFriendlyFileNames" ColumnName="LpUserFriendlyFileNames" />
+                <ScalarProperty Name="LpFileNames" ColumnName="LpFileNames" />
+                <ScalarProperty Name="LpEffectiveEndDate" ColumnName="LpEffectiveEndDate" />
+                <ScalarProperty Name="LpEffectiveStartDate" ColumnName="LpEffectiveStartDate" />
+                <ScalarProperty Name="LpEmail" ColumnName="LpEmail" />
+                <ScalarProperty Name="LpPayeeCode" ColumnName="LpPayeeCode" />
+                <ScalarProperty Name="LpPrimaryChannel" ColumnName="LpPrimaryChannel" />
+                <ScalarProperty Name="LpUpdatedById" ColumnName="LpUpdatedById" />
+                <ScalarProperty Name="LpCreatedById" ColumnName="LpCreatedById" />
+                <ScalarProperty Name="LpSubChannelId" ColumnName="LpSubChannelId" />
+                <ScalarProperty Name="LpChannelId" ColumnName="LpChannelId" />
+                <ScalarProperty Name="LpCompanyId" ColumnName="LpCompanyId" />
+                <ScalarProperty Name="LpUserId" ColumnName="LpUserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LUserLobbies">
+            <EntityTypeMapping TypeName="SosDbModel.LUserLobby">
+              <MappingFragment StoreEntitySet="LUserLobby">
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="ResponseMessage" ColumnName="ResponseMessage" />
+                <ScalarProperty Name="ResponseCode" ColumnName="ResponseCode" />
+                <ScalarProperty Name="Response" ColumnName="Response" />
+                <ScalarProperty Name="UpdatedByRoleId" ColumnName="UpdatedByRoleId" />
+                <ScalarProperty Name="UpdatedDateTime" ColumnName="UpdatedDateTime" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="RequestType" ColumnName="RequestType" />
+                <ScalarProperty Name="ManagerEmail" ColumnName="ManagerEmail" />
+                <ScalarProperty Name="RequestorEmail" ColumnName="RequestorEmail" />
+                <ScalarProperty Name="NewEmail" ColumnName="NewEmail" />
+                <ScalarProperty Name="NewUserGroup" ColumnName="NewUserGroup" />
+                <ScalarProperty Name="UserGroup" ColumnName="UserGroup" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsVFADUser" ColumnName="IsVFADUser" />
+                <ScalarProperty Name="PayeeCode" ColumnName="PayeeCode" />
+                <ScalarProperty Name="UserType" ColumnName="UserType" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="CompanyCode" ColumnName="CompanyCode" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SpLogAudit" FunctionName="SosDbModel.Store.SpLogAudit" />
+          <FunctionImportMapping FunctionImportName="SpLogEmail" FunctionName="SosDbModel.Store.SpLogEmail" />
+          <FunctionImportMapping FunctionImportName="SpLogError" FunctionName="SosDbModel.Store.SpLogError" />
+          <EntitySetMapping Name="LUsers">
+            <EntityTypeMapping TypeName="SosDbModel.LUser">
+              <MappingFragment StoreEntitySet="LUsers">
+                <ScalarProperty Name="WFUpdatedDateTime" ColumnName="WFUpdatedDateTime" />
+                <ScalarProperty Name="LuCreatedByForm" ColumnName="LuCreatedByForm" />
+                <ScalarProperty Name="LuCreateLogin" ColumnName="LuCreateLogin" />
+                <ScalarProperty Name="ParameterCarrier" ColumnName="ParameterCarrier" />
+                <ScalarProperty Name="WFComments" ColumnName="WFComments" />
+                <ScalarProperty Name="WFCompanyId" ColumnName="WFCompanyId" />
+                <ScalarProperty Name="WFRequesterRoleId" ColumnName="WFRequesterRoleId" />
+                <ScalarProperty Name="WFType" ColumnName="WFType" />
+                <ScalarProperty Name="WFStatus" ColumnName="WFStatus" />
+                <ScalarProperty Name="WFCurrentOwnerId" ColumnName="WFCurrentOwnerId" />
+                <ScalarProperty Name="WFOrdinal" ColumnName="WFOrdinal" />
+                <ScalarProperty Name="WFManagerId" ColumnName="WFManagerId" />
+                <ScalarProperty Name="WFAnalystId" ColumnName="WFAnalystId" />
+                <ScalarProperty Name="WFRequesterId" ColumnName="WFRequesterId" />
+                <ScalarProperty Name="LuBlockNotification" ColumnName="LuBlockNotification" />
+                <ScalarProperty Name="LuIsAlteryxUser" ColumnName="LuIsAlteryxUser" />
+                <ScalarProperty Name="LuReportsToId" ColumnName="LuReportsToId" />
+                <ScalarProperty Name="AD05" ColumnName="AD05" />
+                <ScalarProperty Name="AD04" ColumnName="AD04" />
+                <ScalarProperty Name="AD03" ColumnName="AD03" />
+                <ScalarProperty Name="AD02" ColumnName="AD02" />
+                <ScalarProperty Name="AD01" ColumnName="AD01" />
+                <ScalarProperty Name="AN05" ColumnName="AN05" />
+                <ScalarProperty Name="AN04" ColumnName="AN04" />
+                <ScalarProperty Name="AN03" ColumnName="AN03" />
+                <ScalarProperty Name="AN02" ColumnName="AN02" />
+                <ScalarProperty Name="AN01" ColumnName="AN01" />
+                <ScalarProperty Name="A05" ColumnName="A05" />
+                <ScalarProperty Name="A04" ColumnName="A04" />
+                <ScalarProperty Name="A03" ColumnName="A03" />
+                <ScalarProperty Name="A02" ColumnName="A02" />
+                <ScalarProperty Name="A01" ColumnName="A01" />
+                <ScalarProperty Name="LuUpdatedDateTime" ColumnName="LuUpdatedDateTime" />
+                <ScalarProperty Name="LuCreatedDateTime" ColumnName="LuCreatedDateTime" />
+                <ScalarProperty Name="LuStatus" ColumnName="LuStatus" />
+                <ScalarProperty Name="LuBand" ColumnName="LuBand" />
+                <ScalarProperty Name="LuIsManager" ColumnName="LuIsManager" />
+                <ScalarProperty Name="LuPhone" ColumnName="LuPhone" />
+                <ScalarProperty Name="LuEmail" ColumnName="LuEmail" />
+                <ScalarProperty Name="LuLastName" ColumnName="LuLastName" />
+                <ScalarProperty Name="LuFirstName" ColumnName="LuFirstName" />
+                <ScalarProperty Name="LuUpdatedById" ColumnName="LuUpdatedById" />
+                <ScalarProperty Name="LuCreatedById" ColumnName="LuCreatedById" />
+                <ScalarProperty Name="LuCompanyId" ColumnName="LuCompanyId" />
+                <ScalarProperty Name="LuUserId" ColumnName="LuUserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LEmailTemplates">
+            <EntityTypeMapping TypeName="SosDbModel.LEmailTemplate">
+              <MappingFragment StoreEntitySet="LEmailTemplates">
+                <ScalarProperty Name="LetCompanyId" ColumnName="LetCompanyId" />
+                <ScalarProperty Name="LetSignature" ColumnName="LetSignature" />
+                <ScalarProperty Name="LetEmailBody" ColumnName="LetEmailBody" />
+                <ScalarProperty Name="LetEmailSubject" ColumnName="LetEmailSubject" />
+                <ScalarProperty Name="LetTemplateName" ColumnName="LetTemplateName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LPasswordHistories">
+            <EntityTypeMapping TypeName="SosDbModel.LPasswordHistory">
+              <MappingFragment StoreEntitySet="LPasswordHistory">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MAspnetUsersGSecurityQuestions">
+            <EntityTypeMapping TypeName="SosDbModel.MAspnetUsersGSecurityQuestion">
+              <MappingFragment StoreEntitySet="MAspnetUsersGSecurityQuestions">
+                <ScalarProperty Name="MAugsqAnswer" ColumnName="MAugsqAnswer" />
+                <ScalarProperty Name="MAuqsqQuestionId" ColumnName="MAuqsqQuestionId" />
+                <ScalarProperty Name="MAuqsqUserId" ColumnName="MAuqsqUserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="SpLogErrorNew" FunctionName="SosDbModel.Store.SpLogErrorNew" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2007/06/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams />
+  </Designer>
+</edmx:Edmx>

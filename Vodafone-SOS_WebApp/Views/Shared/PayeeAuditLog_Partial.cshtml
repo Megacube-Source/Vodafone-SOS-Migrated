@@ -1,0 +1,244 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.AuditFormViewModel
+
+<div style="padding:15px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+
+    <div id="AuditGrid">
+
+    </div>
+
+</div>
+
+<script>
+
+        function FnReview()
+        {
+            var rowindex = $('#AuditGrid').jqxGrid('getselectedrowindex');
+            var data = $('#AuditGrid').jqxGrid('getrowdata', rowindex);
+            if (data)
+            {
+                var Entity = '@Model.Entity';
+
+                //MS R2.2 Change open the Entity Review in New window
+                var path = window.location.protocol + "//" + window.location.host + "/" + '/LAudit/RedirectToReview?EntityType=' + Entity + '&TransactionId=' + data.LaEntityId;
+
+                var popup = window.open(path);
+
+                //window.location.href = '/LAudit/RedirectToReview?EntityType=' + Entity + '&TransactionId=' + data.LaEntityId;
+
+            }
+        }
+
+        //This function loads the payee audit grid and change request grid on click of view button
+    window.onload = function FnGetGrids() {
+            var Entity = '@Model.Entity';
+            var StartDate = '@Model.StartDate'
+        var EndDate = '@Model.EndDate'//$("#frm")
+            $.ajax({
+                data: {StartDate: StartDate, EndDate: EndDate, Entity: Entity  },
+                url: "/LAudit/GetAuditGridCounts",
+                dataType: "json",
+                type: "GET",
+                success: function (counts) {
+                    var source = {
+                        dataType: "json",
+                        dataFields: [
+                            { name: 'Id', type: 'string' },
+                            { name: 'LaSOSProcessName', type: 'string' },
+                            { name: 'LaL3ProcessName', type: 'string' },
+                            { name: 'GcCompanyName', type: 'string' },
+                            { name: 'LaControlCode', type: 'string' },
+                            { name: 'LaControlDescription', type: 'string' },
+                            { name: 'LaActionedById', type: 'string' },
+                            { name: 'LaActioDateTime', type: 'date' },
+                            { name: 'LaOldStatus', type: 'string' },
+                            { name: 'LaNewStatus', type: 'string' },
+                            { name: 'LaEntityType', type: 'string' },
+                            { name: 'LaEntityId', type: 'string' },
+                            { name: 'LaEntityName', type: 'string' },
+                            { name: 'LaRoleId', type: 'string' },
+                            { name: 'LaAction', type: 'string' },
+                            { name: 'LcrOldValue', type: 'string' },
+                            { name: 'LcrNewValue', type: 'string' },
+                            { name: 'LcrColumnLabel', type: 'string' },
+                            { name: 'LcrColumnName', type: 'string' },
+                            { name: 'laPeriod', type: 'string' },
+                            { name: 'PayeeCode', type: 'string' }
+                        ],
+                        data: { StartDate: StartDate, EndDate: EndDate, Entity: Entity },
+                        url: "/LAudit/GetAuditGrid",
+                        // update the grid and send a request to the api
+                        filter: function () {
+                            //$("#" + GridId).jqxGrid('clear');
+                            $('#AuditGrid').jqxGrid('updatebounddata', 'filter');
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $('#AuditGrid').jqxGrid('updatebounddata', 'sort');
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                        source.totalrecords = counts;
+                        }
+                        };
+
+                    var dataAdapter = new $.jqx.dataAdapter(source);
+
+                    if (source) {
+                        $("#btndownloadgrid").show();
+                    }
+                    else {
+                        $("#btndownloadgrid").hide();
+                    }
+
+                    ////This method loads the buttons/links displayed in the action column of the grid
+                    var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                        return '<button onclick="FnReview()" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;<button onclick="FnDownload()" class="GridButton"><i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i></button>&ensp;';
+                    };
+
+                    var columns = [];
+                    if (Entity.indexOf('UsersCR') != -1 || Entity.indexOf('PayeesCR') != -1)
+                    {
+                        if (Entity.indexOf('PayeesCR') != -1) {
+                            columns = [
+                                { text: 'Actions', datafield: 'Id', width: '15%', cellsrenderer: cellsrenderer },
+                                { text: 'Company', datafield: 'GcCompanyName', width: '15%' },
+                                { text: 'Action', datafield: 'LaAction', width: '15%' },
+                                { text: 'SOS Process Name', datafield: 'LaSOSProcessName', width: '15%' },
+                                { text: 'Entity Name', datafield: 'LaEntityName', width: '15%' },
+                                { text: 'Payee Code', datafield: 'PayeeCode', width: '15%' },
+                                { text: 'Column Name', datafield: 'LcrColumnName', width: '15%' },
+                                { text: 'Column Label', datafield: 'LcrColumnLabel', width: '15%' },
+                                { text: 'Old Value', datafield: 'LcrOldValue', width: '15%' },
+                                { text: 'New Value', datafield: 'LcrNewValue', width: '15%' },
+                                { text: 'Role', datafield: 'LaRoleId', width: '15%' },
+                                { text: 'Actioned By', datafield: 'LaActionedById', width: '15%' },
+                                { text: 'Actioned Date Time', datafield: 'LaActioDateTime', cellsformat: "dd/MM/yyyy hh:mm", width: '15%' },
+                                { text: 'Old Status', datafield: 'LaOldStatus', width: '15%' },
+                                { text: 'New Status', datafield: 'LaNewStatus', width: '15%' }
+                            ];
+                        } else {
+                            columns = [
+                                { text: 'Actions', datafield: 'Id', width: '15%', cellsrenderer: cellsrenderer },
+                                { text: 'Company', datafield: 'GcCompanyName', width: '15%' },
+                                { text: 'Action', datafield: 'LaAction', width: '15%' },
+                                { text: 'SOS Process Name', datafield: 'LaSOSProcessName', width: '15%' },
+                                { text: 'Entity Name', datafield: 'LaEntityName', width: '15%' },
+                                { text: 'Column Name', datafield: 'LcrColumnName', width: '15%' },
+                                { text: 'Column Label', datafield: 'LcrColumnLabel', width: '15%' },
+                                { text: 'Old Value', datafield: 'LcrOldValue', width: '15%' },
+                                { text: 'New Value', datafield: 'LcrNewValue', width: '15%' },
+                                { text: 'Role', datafield: 'LaRoleId', width: '15%' },
+                                { text: 'Actioned By', datafield: 'LaActionedById', width: '15%' },
+                                { text: 'Actioned Date Time', datafield: 'LaActioDateTime', cellsformat: "dd/MM/yyyy hh:mm", width: '15%' },
+                                { text: 'Old Status', datafield: 'LaOldStatus', width: '15%' },
+                                { text: 'New Status', datafield: 'LaNewStatus', width: '15%' }
+                            ];
+                        }
+                    }
+                    else {
+                        if (Entity.indexOf('Payees') != -1) {
+                            columns = [
+                                { text: 'Actions', datafield: 'Id', width: '15%', cellsrenderer: cellsrenderer },
+                                { text: 'Company', datafield: 'GcCompanyName', width: '15%' },
+                                { text: 'Action', datafield: 'LaAction', width: '15%' },
+                                { text: 'SOS Process Name', datafield: 'LaSOSProcessName', width: '15%' },
+                                { text: 'Entity Name', datafield: 'LaEntityName', width: '15%' },
+                                { text: 'Payee Code', datafield: 'PayeeCode', width: '15%' },
+                                { text: 'Role', datafield: 'LaRoleId', width: '15%' },
+                                { text: 'Actioned By', datafield: 'LaActionedById', width: '15%' },
+                                { text: 'Actioned Date Time', datafield: 'LaActioDateTime', cellsformat: "dd/MM/yyyy hh:mm", width: '15%' },
+                                { text: 'Old Status', datafield: 'LaOldStatus', width: '15%' },
+                                { text: 'New Status', datafield: 'LaNewStatus', width: '15%' },
+                                { text: 'Commision Period', datafield: 'laPeriod', width: '15%' }
+                            ];
+                        } else {
+                            columns = [
+                                { text: 'Actions', datafield: 'Id', width: '15%', cellsrenderer: cellsrenderer },
+                                { text: 'Company', datafield: 'GcCompanyName', width: '15%' },
+                                { text: 'Action', datafield: 'LaAction', width: '15%' },
+                                { text: 'SOS Process Name', datafield: 'LaSOSProcessName', width: '15%' },
+                                { text: 'Entity Name', datafield: 'LaEntityName', width: '15%' },
+                                { text: 'Role', datafield: 'LaRoleId', width: '15%' },
+                                { text: 'Actioned By', datafield: 'LaActionedById', width: '15%' },
+                                { text: 'Actioned Date Time', datafield: 'LaActioDateTime', cellsformat: "dd/MM/yyyy hh:mm", width: '15%' },
+                                { text: 'Old Status', datafield: 'LaOldStatus', width: '15%' },
+                                { text: 'New Status', datafield: 'LaNewStatus', width: '15%' },
+                                { text: 'Commision Period', datafield: 'laPeriod', width: '15%' }
+                            ];
+                        }
+                    }
+
+                    $('#AuditGrid').jqxGrid({
+                        source: dataAdapter,
+                        width: '100%',
+                        //height: '60%', /*commented by RS on 1st Febuary as by this property Grid was not able to visible*/
+                        autoheight: true,
+                        theme: 'bootstrap',
+                        pageable: true,
+                        pagesize: 200,
+                        editable: false,
+                        filterable: true,
+                        sortable: true,
+                        showtoolbar: true,
+                        columnsresize: true,
+                        columnsreorder: true,
+                        rowdetails: true,
+                        rendertoolbar: function (toolbar) {
+                            var container = $('<div style="margin: 5px;"></div>');
+                            toolbar.append(container);
+                            var Names = $("<div style='margin: 15px;'><b> AUDIT</b></div>");
+                            container.append(Names);
+                        },
+                        enablebrowserselection: true,
+                        pagesizeoptions: ['10', '50', '150', '200', '500', '1000'],
+                        virtualmode: true,
+                        rendergridrows: function () {
+                            return dataAdapter.records;
+                        },
+
+                        columns: columns
+                        //count: dataAdapter.records.count
+                    });
+                },
+                error: function (reponse) {
+                //  alert("error : " + reponse);
+                }
+            });
+        }
+
+            function FnDownload() {
+                var rowindex = $('#AuditGrid').jqxGrid('getselectedrowindex');
+                var data = $('#AuditGrid').jqxGrid('getrowdata', rowindex);
+                if (data)
+                {
+                    window.location.href = '/Home/DownloadSupportingDocument?EntityType=' + data.LaEntityType + '&EntityId=' + data.LaEntityId;
+                }
+            }
+
+            //This method is called when we click on downloadbutton in payee grid
+            function FnDownloadFiles()
+            {
+            var row = $('#AuditGrid').jqxGrid('selectedrowindex');
+            var yy = $('#AuditGrid').jqxGrid("getrowdata", row);
+            var PayeeId = yy.LpalPayeeId
+            window.location.href = '/LPayeeAuditLogs/DownloadPayeeFiles?PayeeId='+PayeeId
+            //$.ajax({
+            //    data: { LpalPayeeId: PayeeId },
+            //    url: "/LPayeeAuditLogs/DownloadPayeeFiles",
+            //    dataType: "json",
+            //    type: "POST",
+            //    success: function (data) {
+            //        //$.each(data, function (index,value)
+            //        //{
+            //        //       window.open(value);
+            //        //})
+            //    },
+            //    error: function (reponse) {
+            //        //  alert("error : " + reponse);
+            //    }
+            //});
+            }
+
+</script>

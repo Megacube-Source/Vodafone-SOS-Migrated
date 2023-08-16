@@ -1,0 +1,195 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<br />
+
+<div class="form-horizontal">
+  
+    <div class="col-md-10">
+        <h5 class="text-danger text-capitalize">Notification Configuration </h5>
+    </div>
+</div>
+
+<br/>
+<br />
+<div class="boxes">
+   
+
+    <div id="jqxgrid">
+
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'id', type: 'string' },
+                { name: 'WorkFlowName', type: 'string' },
+                { name: 'StepName', type: 'string' },
+                { name: 'Recipient', type: 'string' },
+                { name: 'Description', type: 'string' },
+                { name: 'LetEmailSubject', type: 'string' },
+                { name: 'LetEmailBody', type: 'string' },
+                { name: 'IsActive', type: 'bool' }
+
+            ],
+            id: "id",
+            url: "/LNotification/GetNotification"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '&emsp;<button onclick="return Fnedit()" class="GridButton">Edit</button>';
+        };
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: true,
+            pagesize: 50,
+            pagesizeoptions: ['50', '100', '200', '500', '1000'],
+            filterable: true,
+            showstatusbar: false,
+            editable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+            },
+            cellhover: function (element, pageX, pageY, record) {
+                var cellValue = $(element.innerHTML).html();
+                $(element).jqxTooltip({ content: cellValue });
+            },
+            columns: [
+                      //{ text: 'Id', datafield: 'IsActive'},
+                { text: 'Active', datafield: 'IsActive', columntype: 'checkbox', width: 80 },
+                { text: 'Id', datafield: 'id', width: 80 },
+                { text: 'Workflow', datafield: 'WorkFlowName', width: 150 },
+                { text: 'Landing Step', datafield: 'StepName', width: 150},
+                { text: 'Recipient', datafield: 'Recipient', width: 150 },  
+                { text: 'Description', datafield: 'Description', width: 300 },
+                { text: 'Email Subject', datafield: 'LetEmailSubject', width: 300},
+                { text: 'Email Body', datafield: 'LetEmailBody', width: 300 }
+                
+            ]   ,
+            
+        });
+        //$(".checkboxclickmethod").jqxCheckBox({ width: 120, height: 25 });
+        //$(".checkboxclickmethod").onb('change', function (event) {
+        //    var checked = event.args.checked;
+        //    alert('checked: ' + checked);
+        //});
+        $("#jqxGrid").on("cellclick", function (event) {
+        // event arguments.
+        var args = event.args;
+        // row's bound index.
+        var rowBoundIndex = args.rowindex;
+        // row's visible index.
+        var rowVisibleIndex = args.visibleindex;
+        // right click.
+        var rightclick = args.rightclick;
+        // original event.
+        var ev = args.originalEvent;
+        // column index.
+        var columnindex = args.columnindex;
+        // column data field.
+        var dataField = args.datafield;
+        // cell value
+        var value = args.value;
+        }); 
+        $("#jqxgrid").bind('cellbeginedit', function (event) {
+            var args = event.args;
+            var id = $('#jqxgrid').jqxGrid('getrowid', args.rowindex);
+           // alert("Column: " + args.datafield + ",Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+            $.ajax({
+                data: { id: id, IsActive: args.value  },
+                url: "/LNotification/UpdateNotification",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        });
+    });
+
+    function Fnedit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "RProductCodes", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+
+    function Fnedit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "RProductCodes", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+
+    //$("#jqxGrid").on("cellclick", function (event) {
+    //    var dataField = args.datafield;
+    //    if (dataField == "IsActive") {
+    //        var value = args.value;
+
+    //    }
+    //)};
+    //$("#jqxGrid").on("cellclick", function (event) {
+    //    // event arguments.
+    //    var args = event.args;
+    //    // row's bound index.
+    //    var rowBoundIndex = args.rowindex;
+    //    // row's visible index.
+    //    var rowVisibleIndex = args.visibleindex;
+    //    // right click.
+    //    var rightclick = args.rightclick;
+    //    // original event.
+    //    var ev = args.originalEvent;
+    //    // column index.
+    //    var columnindex = args.columnindex;
+    //    // column data field.
+    //    var dataField = args.datafield;
+    //    // cell value
+    //    var value = args.value;
+    //}); 
+    
+</script>

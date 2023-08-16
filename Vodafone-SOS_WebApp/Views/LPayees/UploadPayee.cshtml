@@ -1,0 +1,296 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+@{
+    ViewBag.Title = "UploadPayee";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+
+}
+<style>
+    #pageloader {
+        background: rgba( 255, 255, 255, 0.8 );
+        display: none;
+        height: 100%;
+        position: fixed;
+        width: 100%;
+        z-index: 9999;
+    }
+
+        #pageloader img {
+            left: 50%;
+            margin-left: -32px;
+            margin-top: -32px;
+            position: absolute;
+            top: 50%;
+        }
+</style>
+
+
+<style>
+    /*//added by SB//*/
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 9999; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        if ('@ViewBag.ReturnMessage')
+        {
+            alert('@ViewBag.ReturnMessage')
+        }
+    });
+    window.onload = function GetGridData() {
+        FnGetGrid()
+    }
+
+    function FnGetGrid() {
+        $.ajax({
+            url: "/LBatches/GetByUserForPayeeUploadGrid",
+            dataType: "json",
+            type: "GET",
+            cache: false,
+            success: function (data) {
+                var sourcea = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'LbStatus', type: 'string' },
+                        { name: 'LbBatchNumber', type: 'string' },
+                        { name: 'LbfFileName', type: 'string' },
+                        { name: 'LbRecordCount', type: 'string' },
+                        { name: 'LbUploadStartDateTime', type: 'date' },
+                        { name: 'IsImport', type: 'int' },
+                    ],
+                    localdata: data
+                };
+                var cellsrendererPayee = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+                    var xx = $('#jqxgrid').jqxGrid("getrowid", row);
+                    var yy = $('#jqxgrid').jqxGrid("getrowdata", row);
+                    var Id = yy.Id;
+                    var IsImport = yy.IsImport;
+                    var status = yy.LbStatus;
+                    if (IsImport==1)//means Import is on and no errors.
+                    {
+                        if (status == 'Validated') {
+                            return ''//RK22122019'<button onclick="FnReview(' + Id + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;'
+                                + '<a href="#" onclick="FnUploadValidatedPayeeBatch(' + Id + ')" class="GridButton"><i class=\"fa fa-upload\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Import File\"><font> </font></i></a>&ensp;'
+                                + '<a href="#" onclick="FnDelete(' + Id + ')" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></a>&ensp;'
+                                + '<a href="#" onclick="FnDownloadFile(' + Id + ')" class="GridButton"><i class=\"fa fa-file-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:18px !important;margin-top:5px;\" title=\"Download File\"></i></a>&ensp;'
+
+                        } else {
+                            return ''//RK22122019'<button onclick="FnReview(' + Id + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;'
+                                //+ '<button onclick="FnDownloadFile(' + Id + ')" class="GridButton"><i class=\"fa fa-file-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:18px !important;margin-top:5px;\" title=\"Download File\"></i></button>&ensp;'
+                            + '<a href="#" onclick="FnDownloadFile(' + Id + ')"><i class=\"fa fa-file-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:18px !important;margin-top:5px;\" title=\"Download File\"></i></a>&ensp;'
+                        }
+                    } else {//DonwloadErrors is on here
+                        return ''//RK22122019'<button onclick="FnReview(' + Id + ')" class="GridButton"><i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i></button>&ensp;'
+                            + '<a href="#" onclick="FnDelete(' + Id + ')" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></button>&ensp;'
+                            + '<a href="#" onclick="FnDownloadFile(' + Id + ')" class="GridButton"><i class=\"fa fa-file-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:18px !important;margin-top:5px;\" title=\"Download File\"></i></a>&ensp;'
+                            + '<a href="#" onclick="FnDownloadErrors(' + Id + ')" class="GridButton"><i class=\"fa fa-exclamation-triangle\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download Errors\"></i></a>&ensp;'
+                    }
+
+                };
+                var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+                $('#jqxgrid').jqxGrid({
+                    source: dataAdaptera,
+                    width: '100%',
+                    //autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    autorowheight: true,
+                    pageable: true,
+                    pagesize: 20,
+                    pagesizeoptions:[5,10,20,50,100],
+                    ready: function () {
+                    },
+                    columns: [
+                        { text: 'Action', datafield: 'Id', cellsrenderer: cellsrendererPayee, editable: false, width: '15%' },
+                        { text: 'Status', datafield: 'LbStatus', editable: false },
+                        { text: 'Batch Number', datafield: 'LbBatchNumber', editable: false, width: '10%' },
+                        { text: 'File Name', datafield: 'LbfFileName', editable: false },
+                        { text: 'Payee count', datafield: 'LbRecordCount', editable: false, width: '10%' },
+                        { text: 'Date', datafield: 'LbUploadStartDateTime', editable: false, cellsformat: "dd/MM/yyyy" },
+                    ]
+                });
+            },
+            error: function (reponse) {
+            }
+        });
+    }
+
+    function FnUpload() {
+        if (document.getElementById('File1').value) {
+            return Fnchecksubmit()
+        }
+        else {
+            alert('Please choose a file')
+        }
+    }
+
+    //This method checks the type of file which is being uploaded while submitting form
+    function Fnchecksubmit() {
+        var Form1 = $('#frm');
+        var xx = document.getElementById('File1').value
+        if (xx.split(".")[1].toLowerCase() == 'xls' || xx.split(".")[1].toLowerCase() == 'xlsx') {
+             document.getElementById('Submit').disabled = true;
+            document.getElementById('Message').style.display = 'block'
+            document.getElementById('frm').submit();
+            //alert("Your file has been  validated and added in the grid. Please press Upload button under Actions column to import this file in SOS. ");
+        } else {
+            alert("File Format is not supported")
+        }
+    }
+    //This will download the error which were there in XUploadPayees for the selected batch
+    function FnDownloadErrors(Id) {
+        window.location.href = '/LPayees/DownloadErrorFile?Id=' + Id;
+    }
+    //This will download the uploaded excel file
+    function FnDownloadFile(Id) {
+        window.location.href = '/LPayees/DownloadDocument?Id=' + Id;
+    }
+    //
+    function FnReview(Id) {
+        FnLoadPayeePopup(Id);
+    }
+
+    function FnUploadValidatedPayeeBatch(Id) {
+        $("#pageloader").fadeIn();
+        $.ajax({
+            url: "/LPayees/UploadValidatedPayeeBatch",
+            dataType: "json",
+            data: { Id: Id },
+            type: "GET",
+            cache : false,
+            success: function (data) {
+                alert("New Payees successfully created.If there were any existing payees, the Payee CRs created.");
+                window.location.href = '/Lpayees/UploadPayee';
+            },
+            error: function (reponse) {
+            }
+        });
+    }
+    //This will mark the batch as "Deleted" and row will get removed from the grid
+    function FnDelete(Id) {
+        var r = confirm("Are you sure to delete the selected batch?");
+        if (r == false) {
+            return;
+        }
+        else {
+            $.ajax({
+                url: "/LPayees/DeletePayeeUploadBatch",
+                dataType: "json",
+                data: { Id: Id },
+                type: "GET",
+                cache: false,
+                success: function (data) {
+                    alert("Data deleted successfully.");
+                    FnGetGrid();
+                    return;
+                },
+                error: function (reponse) {
+                }
+            });
+        }
+    }
+</script>
+
+
+<script>
+    function FnOpenInstructions() {
+        document.getElementById('myModal').style.display = "block";
+    }
+    //Close instruction modal box
+    function closeDialog() {
+        document.getElementById('myModal').style.display = "none";
+    }
+</script>
+
+<div id="pageloader">
+    <img src="~/Content/Images/loader.gif" alt="loading..." />
+</div>
+
+<div style="padding:10px;">
+
+
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+
+    {
+
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-2 control-label" })
+                <div class="col-lg-10">
+                    <input type="file" name="File1" id="File1" accept=".xls,.xlsx" class="form-control col-lg-5">
+                    <div class="col-lg-1"></div>
+                    <button class="btn btn-red btn-cons  col-lg-1" value="Submit" id="Submit" onclick="FnUpload();">Validate &nbsp;</button>&nbsp;
+                    <button class="btn btn-red btn-cons" type="button" value="myBtn" id="myBtn" onclick="FnOpenInstructions();">Instruction</button>
+                    @*<a style="color:black !important; float:right" href="/Lpayees/UploadPayeeHierarchy" title="Use Old Payee Upload"><u> Use Old Payee Upload</u></a>&nbsp;*@
+                </div>
+            </div>
+        </div>
+        <p class="text-danger" style="font-size:smaller;">
+            To change existing payees, download populated template from Reports->MyPayees. Remove payees where there is no change and edit the ones that are changed. Then validate your file by pressing the above validate button. Once successfully validated, press Upload button under Actions column to import this file in SOS.
+            <br/><br/>
+            Note :- In case validation fails for certain column(but you feel data is correct),try again after converting that excel column to TEXT type.
+        </p>
+    }
+    <div id="jqxgrid"></div>
+    <br />
+    <div class="form-group">
+        &emsp;&emsp;<button class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+    </div>
+
+    <div id="Message" style="display:none;"><b>Please Wait</b> ! while record is being validated/uploaded</div><br>
+</div>
+
+
+@Html.Partial("_PayeeUploadReview")
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeDialog()">&times;</span>
+        @Html.Raw((string)ViewBag.PayeeUploadHelpHTML)
+    </div>
+
+</div>
+
+

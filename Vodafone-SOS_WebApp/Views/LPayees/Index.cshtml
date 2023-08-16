@@ -1,0 +1,1097 @@
+﻿@{
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+}
+
+<script src="~/Scripts/jqxsplitter.js"></script>
+<script src="~/Scripts/jqxlayout.js"></script>
+<script src="~/Scripts/jqxribbon.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript">
+
+    //This method will export grid data in csv format
+    function FnDownloadGrid()
+    {
+        var TabName = "";
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        switch (selectedItem) {
+            case 0: TabName = "Open"; break;
+            case 1: TabName = "ReExamine"; break;
+            case 2: TabName = "ReInvestigate"; break;
+            case 3: TabName = "PendingApproval"; break;
+            case 4: TabName = "Withdrawn"; break;
+            case 5: TabName = "Rejected"; break;
+            case 6: TabName = "Approved"; break;
+          
+        }
+        $.ajax({
+            data: { TabName: TabName },
+            url: "/LPayees/DownloadPayeeGridByTabName",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+
+                window.open(data)
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+    //This ajax call saves the current page url in a session variable whichwould be used as url of back button in subsequent pages
+    $.ajax({
+        data: { path: window.location.pathname },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+    });
+
+    //The below lines are added to display message from controller as popup
+    if ('@TempData["Message"]')
+    {
+        alert('@TempData["Message"]')
+    }
+
+
+        //This splitter is defined to restrict thre height of payee index 
+       // $("#mainSplitter").jqxSplitter({ width: '100%', height: 600, orientation: 'horizontal',showSplitBar:false, panels: [{ size: 595, min: 595 }, {min:5,size:5}]})
+        var layout = [{
+            type: 'layoutGroup',
+            orientation: 'horizontal',
+            items: [{
+                type: 'layoutGroup',
+                orientation: 'vertical',
+                allowPin: true,
+                width:"25%",//the rest 75% is defined in upcoming layout group
+                pinnedWidth: 80,
+                items: [{
+                    type: 'tabbedGroup',
+                    orientation: 'vertical',
+                    height: '590px',
+                    pinnedHeight: 30,
+                    items: [{
+                        type: 'layoutPanel',
+                        title: 'Payee Tree ',
+                        contentContainer: 'PayeeTreePanel',
+                        initContent: function () {
+                            //$('#contactsTable').html(teamSalesContacts);
+                        }
+                    }]
+                }]
+            },
+                {
+                    type: 'layoutGroup',
+                    orientation: 'vertical',
+                  
+                    width: "75%",//rest remaining 25 % is defined in previous layout group
+                    items: [{
+                        type: 'documentGroup',
+                        height: 300,
+                        allowPin: true,
+                        pinnedHeight: 30,
+                        items: [{
+                            type: 'documentPanel',
+                            title: 'Payee Grid <i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" title="click here to download selected tab record"></i>',
+                            contentContainer: 'PayeeGridPanel',
+                            initContent: function () {
+                                //initTeamDataTable();
+                            }
+                        }]
+                    }, {
+                        type: 'documentGroup',
+                        height: 395,
+                        allowClose: false,
+                        allowPin: true,
+                        pinnedHeight: 30,
+                        items: [{
+                            type: 'documentPanel',
+                            title: 'Change Requests',
+                            contentContainer:'ChangeRequestPanel',
+                            initContent: function () {
+                                //initProjectsListBox();
+                            }
+
+                        }]
+                    }]
+                }]
+        }];
+
+        //This line adds jqxlayout control in the view of Payee Index
+        $('#jqxLayout').jqxLayout({ width: '100%', layout: layout, contextMenu: true });
+       //This line adds the tabs in Change request grid panel
+        $('#ChangejqxTabs').jqxTabs({ keyboardNavigation: true, height: '80vh' });
+        //The belowline adds jqxTabs control in payee grid panel
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true, height: '80vh'});
+
+        //###
+        //The below line adds a jqxdatetime control in view to get as of date to display tree
+        $("#TreeAsOfDate").jqxDateTimeInput({ width: '90%', height: '22px', placeHolder: "DD/MM/YYYY" });
+        $('#TreeAsOfDate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('AsOfDate').value = date;
+            //This method is called to load tree on changing value of As of Date in view
+            GetPayeetree()
+        });
+        $('#TreeAsOfDate').jqxDateTimeInput('setDate', new Date());
+        //###
+
+        //The below function loads the data in grids in the ChangeRequest grid panel
+        FnGetChangeRequestGrid("Open")
+        FnGetChangeRequestGrid("PendingApproval")
+        FnGetChangeRequestGrid("Withdrawn")
+        FnGetChangeRequestGrid("Rejected")
+        FnGetChangeRequestGrid("Approved")
+
+      
+
+        //tThe below method loads data in the grids of payee grid panel
+        FnGetPayeeGrid("Open")
+        FnGetPayeeGrid("ReExamine")
+        FnGetPayeeGrid("PendingApproval")
+        FnGetPayeeGrid("Withdrawn")
+        FnGetPayeeGrid("Rejected")
+        FnGetPayeeGrid("Approved")
+        FnGetPayeeGrid("ReInvestigate")
+
+        //This variable is defined to get user role from session
+        var Roles='@HttpContext.Current.Session["UserRole"]'
+        if (Roles == "Sales Operations")
+        {
+            //This line is added to remove ReInvestigate tab from payee grid in view as it will not be visible to salesop
+            $('#jqxTabs').jqxTabs('removeAt',2)
+        }
+
+        //This method is called when we double click on the grid rows
+        $('#jqxgridOpen').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridOpen').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridOpen').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+        $('#jqxgridReExamine').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridReExamine').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridReExamine').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+        $('#jqxgridWithdrawn').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridWithdrawn').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridWithdrawn').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+        $('#jqxgridReInvestigate').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridReInvestigate').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridReInvestigate').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+
+        $('#jqxgridPendingApproval').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPendingApproval').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPendingApproval').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+
+        $('#jqxgridRejected').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridRejected').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridRejected').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx;
+            }
+        });
+       
+
+        $('#jqxgridApproved').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridApproved').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridApproved').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LPayees/ViewPayeeDetails/" + xx ;
+            }
+        });
+
+
+        //This method is called when data binding is complete in agrid
+        $("#jqxgridOpen").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+            $('#jqxgridOpen').jqxGrid('selectionmode', 'singlerow')
+        });
+
+
+        $("#jqxgridReExamine").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridReExamine').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+        });
+
+        $("#jqxgridReInvestigate").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridReInvestigate').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('b3').innerHTML = datainformations.rowscount;
+            $('#jqxgridReInvestigate').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#jqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingApproval').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('b4').innerHTML = datainformations.rowscount;
+            $('#jqxgridPendingApproval').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#jqxgridWithdrawn").on("bindingcomplete", function (event) {
+            $('#jqxgridWithdrawn').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#jqxgridRejected").on("bindingcomplete", function (event) {
+            $('#jqxgridRejected').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#jqxgridApproved").on("bindingcomplete", function (event) {
+            $('#jqxgridApproved').jqxGrid('selectionmode', 'singlerow')
+        });
+
+
+        //This method is called when data binding is complete in a grid
+        //Change request grids method
+        $("#CjqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#CjqxgridOpen').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('Cb1').innerHTML = datainformations.rowscount;
+        });
+
+        $("#CjqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#CjqxgridPendingApproval').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('Cb2').innerHTML = datainformations.rowscount;
+        });
+
+        $("#CjqxgridWithdrawn").on("bindingcomplete", function (event) {
+            $('#CjqxgridWithdrawn').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#CjqxgridRejected").on("bindingcomplete", function (event) {
+            $('#CjqxgridRejected').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#CjqxgridApproved").on("bindingcomplete", function (event) {
+            $('#CjqxgridApproved').jqxGrid('selectionmode', 'singlerow')
+        });
+
+    });
+
+    //function Alerts()
+    //{
+    //    alert('Functionality not implemented yet')
+    //}
+
+    //This function loads data in the payee grid as per tab name passed as parameter
+    function FnGetPayeeGrid(TabName)
+    {
+        //This variable is defined to redirect to method to get grid data as per user role 
+        var PayeeUrl = ''
+        var Roles = '@HttpContext.Current.Session["UserRole"]'
+        if (Roles == "System Analyst") {
+            PayeeUrl = '/LPayees/GetPayeeGridForSystemAnalystOrManager'
+        }
+        else if (Roles == "Sales Operations") {
+            PayeeUrl = '/LPayees/GetPayeeGridForSalesOperations'
+        }
+     
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' },
+                { name: 'LpTradingName', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'LpPayeeCode', type: 'string' },
+                { name: 'ParentCode', type: 'string' },
+                { name: 'LpComments', type: 'string' },
+                 { name: 'LpEffectiveStartDate', type: 'date' },
+                  { name: 'LpEffectiveEndDate', type: 'date' },
+                { name: 'LpPrimaryChannel', type: 'string' },
+                 { name: 'LpCreatedDateTime', type: 'date' },
+                  { name: 'CreatedBy', type: 'string' },
+                  { name: 'LpCreatedById', type: 'string' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'LpUpdatedDateTime', type: 'date' },
+            { name: 'Count', type: 'string' },
+             { name: 'select', type: 'string' }
+            ],
+            id: "Id",
+            data:{TabName:TabName},
+            url: PayeeUrl
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+
+        //This method loads expander in the payee grid to display comments and additional information
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LpComments == null) {
+                    datarecord.LpComments = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+                if (datarecord.LpUpdatedDateTime == null) {
+                    datarecord.LpUpdatedDateTime = ""
+                }
+
+
+                var WhoWhen = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Created Date Time: </b> " + datarecord.LpCreatedDateTime + " </div><div class='col-md-4'> <b>Updated By: </b>" + datarecord.UpdatedBy + "</div><div class='col-md-4'> <b>Updated Date Time: </b>" + datarecord.LpUpdatedDateTime + "</div></div>";
+                var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-8'><b> Comments:&emsp;&emsp;</b><br/><textarea rows='5' style='width:100%' placeHolder='" + datarecord.LpComments + "' disabled='disabled'></textarea></div><div class='col-md-4'><b>Created By: </b> " + datarecord.CreatedBy + " </div>";
+
+                $(leftcolumn).append(Comments);
+                $(leftcolumn).append(WhoWhen);
+
+                $(tabsdiv).jqxPanel({ width: '97%', height: 200 });
+
+            }
+
+        }
+
+
+      //This method is defined to add buttons in the action column of the payee grid
+        var cellsrenderer1 = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+            var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+                var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+
+                if (TabName == "ReExamine" || TabName == "ReInvestigate") {
+                    if (xx.LpCreatedById == UserId) {
+                        if(Userrole=="System Analyst")
+                        {
+                            return '<a href="#" onclick="return FnReviewPayee(' + xx.Id + ')" >Review</a>&ensp;<a href="#" onclick="return FnEditPayee(' + xx.Id + ')">Edit</a>&ensp;<a href="#" onclick="return FnWithdrawPayee(' + xx.Id + ')" >Withdraw</a>&ensp;';
+                        }
+                        else{
+                            return '<a href="#" onclick="return FnEditPayee(' + xx.Id + ')" >Edit</a>&ensp;<a href="#" onclick="return FnWithdrawPayee(' + xx.Id + ')" >Withdraw</a>&ensp;';
+                        }
+                    }
+                    else {
+                        if (Userrole == "System Analyst") {
+                            return '<a href="#" onclick="return FnReviewPayee(' + xx.Id + ')" >Review</a>&ensp;';
+                        }
+                        return '<a href="#" onclick="return Alerts()" class="btn-info" style="display:none">Edit</a>'
+                    }
+
+
+
+                }
+
+
+                if (TabName == "Open") {
+
+                        if (Userrole == "System Analyst") {
+                            return '<a href="#" onclick="return FnReviewPayee(' + xx.Id + ')" >Review</a>';
+                        }
+                        else{
+                            if (xx.LpCreatedById == UserId && Userrole == "Sales Operations") {
+                                return '<a href="#" onclick="return FnEditPayee(' + xx.Id + ')">Edit</a>';
+                            }
+                        }
+
+
+                }
+
+                if (TabName == "PendingApproval") {
+                    if (xx.LpCreatedById == UserId) {
+                        if (Userrole == "System Analyst") {
+                            return '<a href="#" onclick="return FnWithdrawPayee(' + xx.Id + ')" >Withdraw</a>&ensp;';
+                        }
+                        else {
+                            return '<a href="#" onclick="return Alerts()"  style="display:none">Edit</a>'
+                        }
+                    }
+                    else {
+                        return '<a onclick="return Alerts()" class="btn-info" style="display:none">Edit</a>'
+                    }
+                    }
+                    else {
+                        return '<a onclick="return Alerts()" class="btn-info" style="display:none">Edit</a>'
+                    }
+            };
+
+            $('#jqxgrid'+TabName).jqxGrid({
+                source: dataAdaptera,
+                width: '100%',
+                autoheight: true,
+                theme: 'bootstrap',
+                sortable: true,
+                columnsresize: true,
+                columnsreorder: true,
+                //pagesize: 20,
+                //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                //rowdetails: true,
+                // rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <div class='information'></div></div>", rowdetailsheight: 150 },
+                //initrowdetails: initrowdetails,
+                editable: true,
+                selectionMode: 'checkbox',
+                pageable: false,
+                filterable: true,
+                enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                showstatusbar: false,
+                ready: function () {
+
+                },
+
+                columns: [
+                   // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                    { text: 'Payee', datafield: 'FullName',editable:false,width: '17%' },
+                    { text: 'Trading Name', datafield: 'LpTradingName', editable: false },
+
+                   // { text: 'Payee Code', datafield: 'LpPayeeCode', editable: false },
+                    { text: 'Parent', datafield: 'ParentCode', editable: false },
+                      { text: 'Start Date', datafield: 'LpEffectiveStartDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                    { text: 'End Date', datafield: 'LpEffectiveEndDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                 //  { text: 'Payee Status', datafield: 'RsStatus', editable: false },
+                   { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer1, width: '17%', editable: false }
+                ]
+            });
+
+        }
+
+    //This method loads the data in change request grid 
+        function FnGetChangeRequestGrid(TabName)
+        {
+            //This variable is defined to redirect to method to get change request as per user role
+            var ChangeRequestUrl = "";
+            var Roles = '@HttpContext.Current.Session["UserRole"]'
+
+            if (Roles == "System Analyst") {
+                ChangeRequestUrl = "/LPayees/GetChangeRequestGridForSystemAnalyst"
+            }
+            else if (Roles == "Sales Operations")
+            {
+                ChangeRequestUrl = "/LPayees/GetChangeRequestGridForSalesOperations"
+            }
+
+            var sourcea = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'LcrEntityName', type: 'string' },
+                    { name: 'LcrColumnName', type: 'string' },
+                    { name: 'LcrColumnLabel', type: 'string' },
+                    { name: 'LcrOldValue', type: 'string' },
+                    { name: 'LcrNewValue', type: 'string' },
+                    { name: 'LcrComments', type: 'string' },
+                    { name: 'Comments', type: 'string' },
+                    { name: 'LcrCreatedById', type: 'string' },
+                    { name: 'LcrCreatedDateTime', type: 'date' },
+                     { name: 'LcrUpdatedDateTime', type: 'date' },
+                     { name: 'LcrAction', type: 'string' },
+                   { name: 'LcrApprovalRejectionDateTime', type: 'string' },
+                 { name: 'FullName', type: 'string' },
+                  { name: 'CreatedBy', type: 'string' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'LcrEffectiveStartDate', type: 'date' },
+                { name: 'Count', type: 'string' },
+                 { name: 'select', type: 'string' }
+                ],
+                id: "Id",
+                data:{TabName:TabName},
+                url: ChangeRequestUrl
+            };
+            var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+            //This method loads the expander in change request grid
+            var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+                // alert("ok")
+                var tabsdiv = null;
+                var information = null;
+                var notes = null;
+                tabsdiv = $($(parentElement).children()[0]);
+                if (tabsdiv != null) {
+                    information = tabsdiv.find('.information');
+
+                    var container = $('<div style="margin: 5px;"></div>')
+                    container.appendTo($(information));
+
+                    var leftcolumn = $('<div ></div><br/>');
+
+                    container.append(leftcolumn);
+
+                    if (datarecord.LcrComments == null) {
+                        datarecord.LcrComments = ""
+                    }
+                    if (datarecord.LcrUpdatedDateTime == null) {
+                        datarecord.LcrUpdatedDateTime = ""
+                    }
+                    if (datarecord.UpdatedBy == null) {
+                        datarecord.UpdatedBy = ""
+                    }
+                   
+
+
+                    var WhoWhenColumns = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Created Date Time: </b> " + datarecord.LcrCreatedDateTime + " </div><div class='col-md-4'> <b>Created By: </b>" + datarecord.CreatedBy + "</div><div class='col-md-4'> <b>Updated Date Time: </b>" + datarecord.LcrUpdatedDateTime + "</div><div class='col-md-4'> <b>Updated By: </b>" + datarecord.UpdatedBy + "</div></div>";
+                    var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-8'><b> Comments:&emsp;&emsp;</b><br/><textarea rows='5' style='width:100%' placeHolder='" + datarecord.LcrComments + "' disabled='disabled'></textarea></div>";
+
+                    $(leftcolumn).append(Comments);
+                    $(leftcolumn).append(WhoWhenColumns);
+
+                    $(tabsdiv).jqxPanel({ width: '97%', height: 200 });
+
+                }
+
+            }
+
+           ////This method is defined to add buttons in action column of change request grid
+           // var cellsrenderer1 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+           //     if (TabName == "Open") {
+           //         return '<button onclick="return Alerts()" class="btn-info">Edit</button>';
+           //     }
+           //     else {
+           //         return '<button onclick="return Alerts()" class="btn-info" style="display:none">Edit</button><button onclick="return Alerts()" class="btn-info" style="display:none;">Remove</button>'
+           //     }
+           // };
+
+            $('#Cjqxgrid'+TabName).jqxGrid({
+                source: dataAdaptera,
+                width: '100%',
+                autoheight: true,
+                theme: 'bootstrap',
+                sortable: true,
+                columnsresize: true,
+                columnsreorder: true,
+                //pagesize: 20,
+                //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+                rowdetails: true,
+                rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <div class='information'></div></div>", rowdetailsheight: 150 },
+                initrowdetails: initrowdetails,
+                editable: true,
+                selectionMode: 'checkbox',
+                pageable: false,
+                filterable: true,
+                enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                showstatusbar: false,
+                ready: function () {
+                },
+
+
+                    columns: [
+                       // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                        { text: 'Comments', datafield: 'Comments'},
+                       { text: 'Change', datafield: 'LcrAction', editable: false },
+                         { text: 'Payee', datafield: 'FullName', editable: false },
+                        
+                       // { text: 'Column Name', datafield: 'LcrColumnName', editable: false },
+                        { text: 'Field', datafield: 'LcrColumnLabel', editable: false },
+                        { text: 'Old Value', datafield: 'LcrOldValue', editable: false },
+                        { text: 'New Value', datafield: 'LcrNewValue', editable: false },
+                        { text: 'Change Effective Start Date', datafield: 'LcrEffectiveStartDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                       //{ text: 'Payee Status', datafield: 'RsStatus', editable: false },
+                      // { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer1,width:'12%' }
+                    ]
+                });
+
+        }
+    //$("#jqxGrid" + 6).on("bindingcomplete", function (event) {
+
+    //});
+
+    //This method is used to display payee details as popup by passing payee Id
+    function FnViewPayeeDetail(PayeeId)
+    {
+
+        $.ajax({
+            data: { PayeeId:PayeeId },
+            url: "/LPayees/GetPayeeDetails",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                document.getElementById('PayeeDetails').innerHTML = data
+                $("#myModal").modal();
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    }
+
+    function FnEditPayee(Id)
+    {
+    window.location.href='/LPayees/Create?FormType=EditDetails&PayeeId='+Id
+    }
+
+    function FnReviewPayee(Id) {
+        window.location.href = '/LPayees/Create?FormType=Review&PayeeId=' + Id
+    }
+
+    //This variable is defined to store the list of payees selected in payee grid
+    //This method is called when sales op/ System Analyst click on withdraw button in action column or withdraw button in top and bottom of grid
+    var PayeeArray=[];
+    function FnWithdrawPayee(PayeeId)
+    {
+        if (PayeeId)
+        {
+            PayeeArray[0] = PayeeId;
+        }
+        else {
+            var xx = $('#jqxgridOpen').jqxGrid("getselectedrowindexes");
+            for (var i = 0; i < xx.length; i++)
+            {
+                var data = $('#jqxgridOpen').jqxGrid("getrowdata", xx[i]);
+                PayeeArray[i] = data.Id;
+            }
+        }
+        //redirect to method to withdraw payee
+            if (PayeeArray.length > 0) {
+                window.location.href = '/LPayees/WithdrawPayee?PayeeList=' + PayeeArray;
+            }
+            else {
+                alert("Please select Payee")
+            }
+       
+    }
+
+    //This method is called when sales op/ systemanalyst clicks on button in top and bottom of grid to get comments for the update
+    function FnUpdateChangeRequest(TabName,Status)
+    {
+        var arr = [];
+        var xx = $('#Cjqxgrid'+TabName).jqxGrid("getselectedrowindexes");
+        for (var i = 0; i < xx.length; i++) {
+            var data = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", xx[i]);
+            arr[i] = [];
+            arr[i][0]=data.Id
+           // arr[i][1] = data.Comments;Coomenting this on 9 Feb will uncomment once api method will start working
+        }
+        if (arr.length > 0) {
+            //The below method will save selected rows comments along with their status
+            document.getElementById('StatusName').value = Status;
+            document.getElementById('GridData').value = arr;
+            document.getElementById('frm1').submit();
+            ////This ajax call has been made to save list of Ids to session variable which wil be used when user finally submits the form after writing comment in popup
+            //$.ajax({
+            //    data: { ChangeRequestList: arr.join(",") },
+            //    url: "/LPayees/SaveChangeRequestList",
+            //    dataType: "json",
+            //    type: "POST",
+            //    success: function (data) {
+            //        $("#myModal1").modal();
+            //    },
+            //    error: function (reponse) {
+            //        //  alert("error : " + reponse);
+            //    }
+            //});
+        }
+        else {
+         alert("Please select Change Request")
+        }
+    }
+
+    //###
+    //This function is called when we type any text in the search text box above payee tree to search that payee in tree
+    function FnSearchTree(SearchText)
+    {
+        var items = $("#jqxPayeeTree").jqxTree('getItems');
+        for(var i=0;i<items.length;i++)
+        {
+            var SearchData = SearchText.toLowerCase();
+            var TreeData = items[i].label;
+            var PayeeName = TreeData.toString().toLowerCase();
+            if (SearchData) {
+                if (PayeeName.search(SearchData) != -1) {
+                    $("#jqxPayeeTree").jqxTree('expandAll')
+                   // $("#jqxWidget").jqxTree('expandItem', items[i].parentElement);
+                    $("#jqxPayeeTree").jqxTree('selectItem', items[i])
+                }
+            }
+        }
+    }
+    //##
+    //###
+    //This method loads data in the payee tree
+    function GetPayeetree()
+    {
+        var Form1=$("#frm")
+        //alert(dat)
+        //adding tree for Approved Payees
+        $.ajax({
+            data:Form1.serialize(),
+            url: "/LPayees/GetApprovedPayeeTree",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var source1 =
+                       {
+                           datatype: "json",
+                           datafields: [
+                               { name: 'id' },
+                               { name: 'parentid' },
+                               { name: 'text' },
+                               { name: 'value' }
+                           ],
+                           id: 'id',
+                           localdata: data
+                       };
+
+                var dataAdapter = new $.jqx.dataAdapter(source1);
+
+                dataAdapter.dataBind();
+                var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                $('#jqxPayeeTree').jqxTree({ source: records, enableHover: false, width: '100%', keyboardNavigation: true });
+                $('#jqxPayeeTree').jqxTree('expandAll')
+                var contextMenu = null;
+                var clickedItem = null;
+
+                var attachContextMenu = function () {
+                    // open the context menu when the user presses the mouse right button.
+                    $("#jqxPayeeTree li").on('mousedown', function (event) {
+                        var target = $(event.target).parents('li:first')[0];
+                        var rightClick = isRightClick(event);
+                        if (rightClick && target != null) {
+                            $("#jqxPayeeTree").jqxTree('selectItem', target);
+                            var scrollTop = $(window).scrollTop();
+                            var scrollLeft = $(window).scrollLeft();
+
+                            var selectedItem = $('#jqxPayeeTree').jqxTree('getSelectedItem');
+                            var value = selectedItem.value;
+                            $.ajax({
+                                data: {SelectedValue:value},
+                                url: "/LPayees/GetTreeMenuItems",
+                                dataType: "json",
+                                type: "POST",
+                                success: function (data) {
+                                    var sourceMenu =
+                                           {
+                                               datatype: "json",
+                                               datafields: [
+                                                   { name: 'id' },
+                                                   { name: 'parentid' },
+                                                   { name: 'text' },
+                                                   { name: 'subMenuWidth' }
+                                               ],
+                                               id: 'id',
+                                               localdata: data
+                                           };
+
+                                    var dataAdapterMenu = new $.jqx.dataAdapter(sourceMenu);
+                                    dataAdapterMenu.dataBind();
+                                    var MenuRecords = dataAdapterMenu.getRecordsHierarchy('id', 'parentid', 'items', [{name:'text',map:'label'}]);
+                                    contextMenu = $("#ContextMenu").jqxMenu({ source: MenuRecords, width: '200px', autoOpenPopup: false, mode: 'popup' })
+                                    contextMenu.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                           
+                                },
+                                error: function (reponse) {
+                                    //  alert("error : " + reponse);
+                                }
+                            });
+                            return false;
+                        }
+                    });
+                }
+                attachContextMenu();
+               
+                // disable the default browser's context menu.
+                $(document).on('contextmenu', function (e) {
+                    if ($(e.target).parents('.jqx-tree').length > 0) {
+                        return false;
+                    }
+                    return true;
+                });
+                function isRightClick(event) {
+                    var rightclick;
+                    if (!event) var event = window.event;
+                    if (event.which) rightclick = (event.which == 3);
+                    else if (event.button) rightclick = (event.button == 2);
+                    return rightclick;
+                }
+
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    }
+    //###
+</script>
+
+@using (Html.BeginForm("UpdateChangeRequest", "LPayees", FormMethod.Post, new { id = "frm1", name = "frm1" }))
+{
+    @*@Html.AntiForgeryToken()*@
+    @Html.Hidden("StatusName")
+    @Html.Hidden("GridData")
+
+}
+@*<a href="/LPayees/Create" style="padding-left:10px">Create New Payee</a>*@
+@**###*@
+@using (Html.BeginForm(null, null, FormMethod.Post, new {id="frm",name="frm" }))
+{
+  @Html.Hidden("AsOfDate")  
+}
+@**###*@
+<div style="padding:10px;">
+    @*The below code adds a jqxdatetime widget to get tree based on as of date of payee tree*@
+    @*<div class="col-md-2 col-xs-12"><b>As Of Date</b></div><div class="col-md-10 col-xs-12"></div>*@
+   
+    <div  id="jqxLayout">
+        <div>
+            <div  data-container="ChangeRequestPanel">
+                <div id='ChangejqxTabs' class="inner-tabs ">
+
+                    @*tabs tabs-container-border class is VodafoneThemes class*@
+                    <ul class="nav nav-tabs tabs tabs-container-border ">
+                        <li style="margin-left: 30px;">Open <span class="badge" id="Cb1">0</span></li>
+                        <li>Pending Approval <span class="badge" id="Cb2">0</span></li>
+                        <li>Withdrawn </li>
+                        <li>Rejected </li>
+                        <li>Approved </li>
+                    </ul>
+
+                    @*tab-content class is VodafoneThemes class*@
+                    <div class="tab-content" style="padding:10px;">
+
+                        <div id="CjqxgridOpen">
+
+                        </div>
+                      
+                        <div class="row no_margin">
+                            <div class="col-xs-12 buttons">
+                               
+                                @if (HttpContext.Current.Session["UserRole"] as string == "System Analyst")
+                                {
+                                    <br> <button class="btn btn-success btn-cons" onclick="FnUpdateChangeRequest('Open','PendingApproval')">Send Manager For Approval &nbsp; <i class="fa fa-check" aria-hidden="true"></i> </button>
+                                }
+                                <button class="btn btn-gray btn-cons" onclick="FnUpdateChangeRequest('Open','Withdrawn')">Withdraw <i class="fa fa-undo" aria-hidden="true"></i></button><br>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    @*tab-content class is VodafoneThemes class*@
+                    <div class="tab-content" style="padding:10px;">
+
+                        <div id="CjqxgridPendingApproval">
+
+                        </div>
+                        <div class="row no_margin">
+                            <div class="col-xs-12 buttons"><br>
+                                <button class="btn btn-gray btn-cons" onclick="FnUpdateChangeRequest('PendingApproval','Withdrawn')">Withdraw <i class="fa fa-undo" aria-hidden="true"></i></button>
+                           </div>
+                            </div> </div>
+                            @*tab-content class is VodafoneThemes class*@
+                            <div class="tab-content" style="padding:10px;">
+                                <div id="CjqxgridWithdrawn">
+
+                                </div>
+
+                            </div>
+                            @*tab-content class is VodafoneThemes class*@
+                            <div class="tab-content" style="padding:10px;">
+                                <div id="CjqxgridRejected">
+
+                                </div>
+
+                            </div>
+                            @*tab-content class is VodafoneThemes class*@
+                            <div class="tab-content" style="padding:10px;">
+                                <div id="CjqxgridApproved">
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+            <div class="boxes" data-container="PayeeGridPanel">
+               
+                <a  href="/LPayees/Create?FormType=Create"> <u> Create Payee</u></a>&nbsp;@*<i class="glyphicon glyphicon-pencil"></i>*@
+                <a  href="/Lpayees/UploadPayeeHierarchy" title="Upload Payee Hierarchy"><u> Upload Payee</u></a>&nbsp;@*<i class="glyphicon glyphicon-upload"></i>*@
+                <a  href="#" title="Download Payee Hierarchy Template" onclick="window.location.href = '/Content/PayeeUploadv01.xlsx'"><u> Download Template</u></a>@*<i class="glyphicon glyphicon-download"></i>*@ <br />
+
+                <div id='jqxTabs' class="inner-tabs ">
+                    <ul class="nav nav-tabs tabs tabs-container-border ">
+                        <li style="margin-left: 30px;">Open <span class="badge" id="b1">0</span></li>
+                        <li>Re-Examine <span class="badge" id="b2">0</span></li>
+
+                        <li>Re-Investigate <span class="badge" id="b3">0</span></li>
+
+                        <li>Pending Approval <span class="badge" id="b4">0</span></li>
+                        <li>Withdrawn </li>
+                        <li>Rejected </li>
+                        <li>Approved </li>
+                    </ul>
+
+                    <div class="tab-content" style="padding:10px;">
+
+                        <div id="jqxgridOpen" class="table">
+
+                        </div>
+                       <div class="row no_margin">
+                              <div class="col-xs-12 buttons">
+                                  @*btn-withdraw btn-cons class is VodafoneThemes class*@
+                                  &ensp;<button onclick="return FnWithdrawPayee()" class="btn btn-gray btn-cons">Withdraw&nbsp; <i class="fa fa-undo" aria-hidden="true"></i></button>&ensp;
+                              </div>
+                       </div>
+                       
+                    </div>
+                    <div class="tab-pane" style="padding:10px;">
+                        <div id="jqxgridReExamine">
+
+                        </div>
+
+                    </div>
+
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridReInvestigate">
+
+                        </div>
+
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridPendingApproval">
+
+                        </div>
+
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridWithdrawn">
+
+                        </div>
+
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridRejected">
+
+                        </div>
+
+                    </div>
+                    <div class="tab-content" style="padding:10px;">
+                        <div id="jqxgridApproved" class="table">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        @*<div data-container="ProjectsTimelinePanel">
+
+            <div id="projectsTimelineDiv" style="margin: 5px 0 0 5px;">
+            </div>
+        </div>*@
+        <div><div>
+
+            @*###*@
+            <div  data-container="PayeeTreePanel">
+                <div class="input-group" id="search">
+                    <input type="text" placeholder="Search" class="form-control" id="SearchText" name="SearchText">
+                    <div class="input-group-btn">
+                        <div class="btn-group" role="group">
+                            @*search-btn-color class is VodafoneThemes class*@
+                            <button type="button" class="btn btn-primary search-btn-color"><span class="glyphicon glyphicon-search" aria-hidden="true" onclick="var xx = document.getElementById('SearchText').value; FnSearchTree(xx);"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-12"><div id="TreeAsOfDate"></div></div>
+
+                <div id='jqxPayeeTree'>
+                </div>
+                <div id="ContextMenu"></div>
+            </div>
+            @*##*@
+        </div>
+
+        @*<div data-container="StaffPanel">
+            <div id="staffDiv" class="no-border" style="margin-left: 5px; margin: 20px;">
+            </div>
+        </div>*@
+
+    </div>
+
+    
+</div>
+    
+   </div>
+
+<!-- The below lines of code are written to open a popup to display payee details -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+                <p id="PayeeDetails">
+                   Details
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- The below lines of code are written to open a popup to display comments box to add comments while updating change request -->
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Update Change Requests</h4>
+            </div>
+            <div class="modal-body">
+              
+                @Html.Partial("UpdateStatus_Partial")
+               
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>*@
+        </div>
+
+    </div>
+</div>
+<br />
+<br/>&ensp;

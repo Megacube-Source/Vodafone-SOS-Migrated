@@ -1,0 +1,179 @@
+﻿@model Vodafone_SOS_WebApp.Models.ResetSecurityQuestionsBindingModel
+@{
+    ViewBag.Title = "Reset Security Question answer";
+}
+
+<script type="text/javascript">
+    var IsLengthValid = false;
+    var IsUppercaseValid = false;
+    var IsLowercaseValid = false;
+    var IsNumberValid = false;
+    var IsSpecialCharValid = false;
+    var DefaultQuestion1Elemnt = '';
+    var DefaultQuestion2Elemnt = '';
+    var DefaultQuestion3Elemnt = '';
+    $(document).ready(function () {
+        DefaultQuestion1Elemnt = document.getElementById('Question1').outerHTML;
+        DefaultQuestion2Elemnt = document.getElementById('Question2').outerHTML;
+        DefaultQuestion3Elemnt = document.getElementById('Question3').outerHTML;
+
+        if ('@TempData["Message"]') {
+          alert('@TempData["Message"]')
+          
+       }
+        if ('@TempData["Error"]') {
+          alert('@TempData["Error"]')
+           
+        }
+
+
+    });
+
+    function FnSubmitForm()
+    {
+
+           $("#frm").validate({
+            });
+            if ($('#frm').valid()) {
+    if(document.getElementById('Question1').value&&document.getElementById('Question2').value&&document.getElementById('Question3').value)
+    {
+                document.getElementById('frm').submit();
+    }
+    else
+    {
+    alert('Please select all Questions')
+    }
+            }
+
+    }
+
+    //This function will remove values from other dropdowns if a value is selected in any of the one dropdown
+    function ManageQuestionsDropdown(QuestionElement,SelectedQuestionId)
+    {
+        var contentId = jQuery(QuestionElement).attr("id");
+        //if (SelectedQuestionId) {
+            switch (contentId) {
+                case 'Question1':
+                    if (document.getElementById('Question2').value == SelectedQuestionId || document.getElementById('Question3').value == SelectedQuestionId) {
+                        alert('Question already selected')
+                        document.getElementById('Question1').value = ''
+                    } else {
+                        document.getElementById('Answer1').focus();
+                    }
+                    //$('#Question2 option[value="' + SelectedQuestionId + '"]').remove();
+                    //$('#Question3 option[value="' + SelectedQuestionId + '"]').remove();
+                    break;
+                case 'Question2':
+                    if (document.getElementById('Question3').value == SelectedQuestionId || document.getElementById('Question1').value == SelectedQuestionId) {
+                        alert('Question already selected')
+                        document.getElementById('Question2').value = ''
+                    }
+                    else {
+                        document.getElementById('Answer2').focus();
+                    }
+                    //$('#Question1 option[value="' + SelectedQuestionId + '"]').remove();
+                    //$('#Question3 option[value="' + SelectedQuestionId + '"]').remove();
+                    break;
+                case 'Question3':
+                    if (document.getElementById('Question2').value == SelectedQuestionId || document.getElementById('Question1').value == SelectedQuestionId) {
+                        alert('Question already selected')
+                        document.getElementById('Question3').value = ''
+                    }
+                    else {
+                        document.getElementById('Answer3').focus();
+                    }
+                    //$('#Question1 option[value="' + SelectedQuestionId + '"]').remove();
+                    //$('#Question2 option[value="' + SelectedQuestionId + '"]').remove();
+                    break;
+            }
+        //}
+        //else {
+
+        //    $('#Question1').empty();
+        //    $('#Question1').html(DefaultQuestion1Elemnt);
+        //    $('#Question2').empty();
+        //    $('#Question2').html(DefaultQuestion2Elemnt);
+        //    $('#Question3').empty();
+        //    $('#Question3').html(DefaultQuestion3Elemnt);
+        //}
+    }
+
+</script>
+
+    @using (Html.BeginForm("ResetSecurityQuestionAnswer", "Account", FormMethod.Post, new { id = "frm", name = "frm", @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="col-md-12 col-lg-12">
+            <h5 style="color:red;">Answer three secret questions of your choice</h5>
+            <h5>Select three different questions of your choice and answer them accordingly. These questions will be randomly shown to you in order to confirm your identity during retrieval of forgotten password.</h5>
+            <h5>Please do not write down the Secure Access Questions. They are designed to have unique answers that you, and only you would remember.</h5>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Question1", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.DropDownList("Question1", null, "-- Select Here --", new { @class = "form-control", onchange = "ManageQuestionsDropdown(this,this.value)", style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Question1", "Please enter Question1", new { @class = "text-danger" })*@
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.Label("Answer1", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBox("Answer1", null, htmlAttributes: new { @class = "form-control" , style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Answer1", "Please enter Answer1", new { @class = "text-danger" })*@
+
+
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Question2", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.DropDownList("Question2", null, "-- Select Here --", new { @class = "form-control", onchange = "ManageQuestionsDropdown(this,this.value)", style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Question2", "Please enter Question2", new { @class = "text-danger" })*@
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Answer2", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBox("Answer2", null, htmlAttributes: new { @class = "form-control", style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Answer2", "Please enter Answer2", new { @class = "text-danger" })*@
+
+
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Question3", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.DropDownList("Question3", null, "-- Select Here --", new { @class = "form-control", onchange = "ManageQuestionsDropdown(this,this.value)", style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Question3", "Please enter Question3", new { @class = "text-danger" })*@
+
+
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Answer3", htmlAttributes: new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBox("Answer3", null, htmlAttributes: new { @class = "form-control" , style = "max-width: 500px;" })
+                @*@Html.ValidationMessage("Answer3", "Please enter Answer3", new { @class = "text-danger" })*@
+
+
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" onclick="FnSubmitForm()" class="btn btn-red btn-cons" value="Save" />
+            </div>
+        </div>
+
+        @Html.HiddenFor(x=>x.Email)
+    }
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

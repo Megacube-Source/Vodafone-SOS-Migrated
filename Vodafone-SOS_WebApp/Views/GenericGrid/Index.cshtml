@@ -1,0 +1,1580 @@
+﻿@{
+    ViewBag.Title = "Generic Grid";
+    var comments = ViewBag.Comment as string;
+    var ConfigIdList = (List<Vodafone_SOS_WebApp.ViewModels.LWorkflowConfigViewModel>)ViewBag.ConfigIds;
+    var RoleList = (List<string>)ViewBag.Roles;
+    var GenericGridGridColumnDetailsList = (List<Vodafone_SOS_WebApp.ViewModels.GenericGridDetails>)ViewBag.GenericGridGridColumnDetails;
+    var BotButtons = (List<string>)ViewBag.BottomButtons;
+    int TabCount = 0;
+    bool CanRaiseClaim = (bool)ViewBag.CanRaiseClaims;
+    var Counttable = (System.Data.DataTable)ViewBag.CountTable;
+    //var UserPreference = (List<Vodafone_SOS_WebApp.ViewModels.FilterDataViewModel>)ViewBag.UserPreference;
+    var UserPreference = (System.Data.DataTable)ViewBag.UserPreference;
+}
+
+&ensp;
+<div class="boxes">
+    <div class="col-md-9">
+        <h5 class="text-danger text-capitalize">
+            @ViewBag.GridPageTitle &ensp;
+        <i class="fa fa-download" aria-hidden="true" onclick="FnExportGridcsv()" style="cursor:pointer;font-size:15px !important;"></i>
+        &ensp;<span id="FilterImage" style="display:none;cursor:pointer;" onclick="ReloadPageForfully()">
+            @*<i class="glyphicon glyphicon-filter" style="width: 5px;" title="Clear Filter"></i>*@
+
+            <img src="~/Content/Images/ClearImage.png" style="width: 15px;color:#a94442;" />
+        </span>
+    </h5>
+    @*<i class="fa fa-refresh" aria-hidden="true" onclick="FnDeleteUserPreference()" style="cursor:pointer;font-size:15px !important;" title="Clear Changes"></i>*@
+
+</div>
+<div class="col-md-3">
+    <a style="color:black !important" href="#" onclick="PopulatePortfolioPopup()"><u>Filter Portfolios</u></a>
+    @*&nbsp; <a href="#" onclick="ReloadPageForfully()"><u>Clear Filter</u></a>*@
+</div>
+<br>&ensp;<br>
+@* Add Create/upload Links in the view based on work flow name*@
+@if (GenericGridGridColumnDetailsList.Where(p => p.UserRole.Equals(HttpContext.Current.Session["UserRole"])).FirstOrDefault().LwfcCanCreate)
+{
+    switch (GenericGridGridColumnDetailsList.FirstOrDefault().RwfName)
+    {
+        case "ManualAdjustments":
+            <p>
+                <a style="color:black !important" href="/ManualAdjustments/UploadManualAdjustment"><u>Upload</u></a>&ensp;
+                <a style="color:black !important" href="/Content/ManualAdjustmentTemplate.xlsx"><u>Download Template</u></a>
+            </p>
+            break;
+        case "Users":
+            <p>
+                <a style="color:black !important" href="/LUsers/Create"><u>Create User</u></a>&ensp;
+                <a style="color:black !important" href="/LUsers/UploadUsers"><u>Upload</u></a>&ensp;
+                <a style="color:black !important" href="DownloadUserTemplate"><u>Download Users Template</u></a>
+            </p>
+            break;
+        case "Claims":
+            if (CanRaiseClaim == true || HttpContext.Current.Session["UserRole"].ToString() != "Payee")
+            {
+                <span>
+                    <a style="color:black !important" href="/LClaims/Create"><u>Create Claim</u></a>&emsp;&emsp;
+                    <a  style="color:black !important" href="/LClaims/UploadClaims"><u>Upload Claims</u></a>&emsp;&emsp;
+                    <a style="color:black !important"   href="DownloadClaimTemplate"><u>Download Claims Template</u></a>
+                </span>
+            }
+            break;
+        case "Payees":
+<p>
+    <a style="color:black !important" href="/LPayees/Create?FormType=Create"> <u> Create Payee</u></a>&nbsp;@*<i class="glyphicon glyphicon-pencil"></i>*@
+    @* RK 16022020 Enabled the new payee upload page *@
+    @*<a  style="color:black !important" href="/Lpayees/UploadPayeeHierarchy" title="Upload Payee Hierarchy"><u> Upload Payee</u></a>&nbsp;*@@*<i class="glyphicon glyphicon-upload"></i>*@
+    <a style="color:black !important" href="/Lpayees/UploadPayee" title="Upload Payee Hierarchy"><u> Upload Payee</u></a>&nbsp;
+    @*<a href="#" title="Download Payee Hierarchy Template" onclick="window.location.href = '/Content/PayeeUploadv01.xlsx'"><u> Download Template</u></a>*@
+    <a style="color:black !important" href="DownloadPayeeTemplate" title="Download Payee Hierarchy Template"><u> Download Template</u></a>
+</p>
+            break;
+        case "RefFiles":
+            <p>
+                <a style="color:black !important" href="/LUploadedFiles/Create"><u>Upload Reference</u></a>&ensp;
+            </p>
+            break;
+        case "Schemes":
+            <p>
+                <a style="color:black !important" href="/LSchemes/Create"><u>Upload Scheme</u></a>&ensp;
+            </p>
+            break;
+        case "Accruals":
+            <p>
+                <a style="color:black !important"  href="/LAccruals/Upload"><u>Upload Accrual</u></a>&ensp;
+            </p>
+            break;
+        case "DocumentSets":
+            <p>
+                <a style="color:black !important" href="/LDocumentSets/Create"><u>Upload DocumentSets</u></a>&ensp;
+            </p>
+            break;
+
+    }
+}
+          
+                <div id='jqxTabs' class="inner-tabs">
+                    @*Display Tabs along with Count of records in each of the grid contained within tab*@
+                    <ul class="nav nav-tabs tabs tabs-container-border" >
+                        @foreach (System.Data.DataRow i in Counttable.Rows)
+            {
+                var TabId = "Tab" + System.Text.RegularExpressions.Regex.Replace(Convert.ToString(i["TabName"]), @"\s+", string.Empty);//i.Replace(" ", "");
+                <li style="min-width:fit-content">@i["TabName"] <span class="badge" id=@TabId>@Convert.ToString(i["TabCount"])</span></li>
+}
+                        @*<li style="margin-left: 30px;">Finished <span class="badge" id="TabFinished">0</span></li>
+                <li style="margin-left: 30px;">Active <span class="badge" id="TabActive">0</span></li>*@
+                    </ul>
+                    @*Display data grid in each tab (using loop)*@
+                    @for (var i = 0; i < RoleList.Count(); i++)
+        {
+            var GridId = "Grid" + System.Text.RegularExpressions.Regex.Replace(RoleList.ElementAt(i).Trim(), @"\s+", string.Empty);//.Replace(" ", "");
+            var ButtonId = "Button" + System.Text.RegularExpressions.Regex.Replace(RoleList.ElementAt(i).Trim(), @"\s+", string.Empty);//RoleList.ElementAt(i).Trim().Replace(" ", "");
+            <div class="tab-content" style="padding:10px;">
+                <div id=@GridId></div>
+                @*Code to Display Banner*@
+                @if (GenericGridGridColumnDetailsList.Where(p => p.UserRole.Equals(RoleList[i])).Count() > 0)
+    {
+            <br>
+            <p style="width:100%;text-decoration:underline;text-transform:uppercase;color:red;">@GenericGridGridColumnDetailsList.Where(p => p.UserRole.Equals(RoleList[i])).Select(p => p.LwfcBanner).FirstOrDefault()</p>
+}
+                <br>
+                <textarea class="textarea1" style="height:100px;" placeholder="Enter Comments for Mass Action" onchange="FnAttachComment(this.value);"></textarea>@*onfocus="FnAttachComment(this.value);"*@
+                <br>&ensp;<br>
+                <p style="color:red;">These buttons  are for Mass Action on selected rows. This action will be applied only to those selected rows where action is valid</p>
+                @*The below line is used to add mass action buttons*@
+                @Html.Raw(BotButtons.ElementAt(i))
+                @*<p id=@ButtonId></p>*@
+                <br>
+            </div>
+}
+                    <div class="tab-content">
+                        <div id="GridFinished"></div>
+                    </div>
+                    <div class="tab-content">
+                        <div id="GridActive"></div>
+                        <br>&ensp;<br>
+                        <button type="button" class="btn btn-red btn-cons" onclick="FnClickBottomButtons('SelfAssign','Active')">SelfAssign&ensp;<i class="fa fa-user" aria-hidden="true" style="color:white;" title="Self Assign"></i></button>&ensp;
+                        <br>&ensp;<br>
+                    </div>
+                </div>
+               
+           
+</div>
+
+<!-- This code displays a popup to get Selected Portfolios-->
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="PopupHeader">Filter Portfolio</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="PortfolioDIV">
+                    <br>
+                    <div class="col-md-12">
+                        @Html.Label("Direct", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-2 col-lg-2" })
+                        @Html.CheckBox("PopupInDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("EBU", htmlAttributes: new { @class = " col-md-2 col-lg-2 " })
+                        @Html.CheckBox("PopupEBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                        @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+                        @Html.CheckBox("PopupCBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectPopupRows()" })&ensp;
+                    </div>
+                    <br>
+                    <div id="jqxPopupgrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <br>&ensp;<br>
+                <button type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio()" data-dismiss="modal">Save</button>&ensp;
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="loadertext" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                @*<input type="button" class="btn btn-red" value="OK" data-dismiss="modal" />*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+    function FnSelectDeSelectAll(event) {
+        event.stopPropagation();
+        return false;
+    }
+</script>
+
+<script type="text/javascript">
+    var TabArray = [];
+    var WfConfigId = 0;
+    //this function will  open a new window in browser for uploading file
+    //function OpenUploadPage(url)
+    //{
+    //    var w = window.open(url, "_blank")//, "status=1" ,"fullscreen=yes"
+    //            w.focus();
+    //            if (w.closed) {
+    //                location.reload(true)
+    //            }
+    //}
+
+    //This function will export grid in csv of current tab
+    function FnExportGridcsv()
+    {
+        var xx = $('#jqxTabs').jqxTabs('selectedItem');
+
+        //var TabName = TabArray[xx]; --R2.2 Commented bu SG it not setting the Tab Name.
+        $('#loadertext').modal();
+        var TabName = TabArray[xx].TabName;
+        window.location.href = '/GenericGrid/ExportGenericGrid?SelectedTabIndex=' + xx + '&TabName=' + TabName + '&PortfolioList=@ViewBag.PortfolioList';
+    }
+    //Global variable to save grid's list'
+    var GridArray = [];
+    var GridSetting = [];
+    var IsGridReloading = true;//variable to retain grid state
+
+    function setAttributes() {
+        var width = $('#jqxTabs').width();
+        var height = $('#jqxTabs').height();
+
+        $('#jqxTabs').jqxTabs({
+            width: width,
+            height: "800px"
+        });
+    }
+    $(document).ready(function () {
+       // $('#jqxTabs').jqxTabs({ width: '100%' });
+        //$('#jqxTabs').jqxTabs({ height: "400px" });
+
+
+
+        setAttributes();
+       // $('#jqxTabs').jqxTabs({  width: '100%', showCloseButtons: true });
+       // $("#jqxTabs").jqxTabs({ collapsible: true });
+        $('#loadertext').hide();
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+        $('#jqxLoader').jqxLoader('open');
+        //This ajax call is being made to controller to save the current page url in session which will be the url of back button  in subsequent pages
+        $.ajax({
+            data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //This line adds tabs in the view
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        var RolesArray = @Html.Raw(Json.Encode(RoleList));
+        //SS:-R2.1 Load Generic Grid on demand
+        $('#jqxTabs').on('tabclick', function (event) {
+            var clickedItem = event.args.item;
+            if (TabArray.length > (clickedItem)) {
+               // console.log(TabArray[clickedItem].TabName)
+                var GridId = "Grid" + TabArray[clickedItem].TabName.replace(/\s/g, "");//.replace(' ', '');
+                //console.log(TabArray[clickedItem])
+                FnGetTabCount(TabArray[clickedItem].TabName.replace(/\s/g, ""), TabArray[clickedItem].TabCount.replace(/\s/g, ""));
+                // FnGetGrid(GridId, true,0);
+                // $('#jqxLoader').jqxLoader('open');
+            }
+        });
+        //The below method to Load the Grid has been commented by SS so that we will load only that grid which is currently visible to user. 2 second wait is added to avoid conflict
+        //with the later code which uses grid data.
+        @*//FnGetGrid("@GridId", true, "@Counttable.Rows[i]["TabCount"].ToString()");*@
+       // setTimeout(function () {
+            //Populate data in different grids available on the page
+            @{
+                for (var i = 0; i < Counttable.Rows.Count; ++i) {
+                    var GridId = "Grid" + Counttable.Rows[i]["TabName"].ToString().Replace(@"\s+", "");
+                        @:TabArray.push({ TabName: "@Counttable.Rows[i]["TabName"].ToString().Replace(@"\s+", string.Empty)", TabCount: "@Counttable.Rows[i]["TabCount"].ToString().Replace(@"\s+", string.Empty)"});
+                @:$("#" + GridId).on("bindingcomplete", function (event) {
+                    @:$('#jqxLoader').jqxLoader('close');
+               @: });
+                }
+
+                }
+            //    TabArray.push('Finished');
+            //TabArray.push('Active');
+      //  }, 2000);
+
+        //Add Non Workflow Grid at the end
+        //TabArray.push('Finished');
+        //TabArray.push('Active');
+        //FnGetGrid("GridFinished", true);
+        //FnGetGrid("GridActive", true);
+        //    //this line is added to display any message from controller as popup
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+        //Get role from session and make that tab selected in view
+        var UserRole = String('@HttpContext.Current.Session["UserRole"]').replace(/\s/g, "");
+        var length = $('#jqxTabs').jqxTabs('length');
+        var WFName = '@HttpContext.Current.Session["Workflow"]'
+        console.log(TabArray)
+
+        //Load data in only current tab by below code
+        if (TabArray[sessionStorage.CurrentTab] && sessionStorage.Workflow == WFName) {
+            $('#jqxTabs').jqxTabs('select', sessionStorage.CurrentTab)
+            var GridId = "Grid" + TabArray[sessionStorage.CurrentTab].TabName.replace(/\s/g, "");//.replace(' ', '');;
+            FnGetTabCount(TabArray[sessionStorage.CurrentTab].TabName.replace(/\s/g, ""), TabArray[sessionStorage.CurrentTab].TabCount.replace(/\s/g, ""));
+            //FnGetGrid(GridId, true, tabCount);
+                    }
+        else {
+            for (var i = 0; i < TabArray.length; ++i) {
+                var text = $('#jqxTabs').jqxTabs('getTitleAt', i).replace(/\s/g, "");
+                if (text.indexOf(UserRole) != -1) {
+                    $('#jqxTabs').jqxTabs('select', i)
+                    var GridId = "Grid" + TabArray[i].TabName.replace(/\s/g, "");//.replace(' ', '');
+                    FnGetTabCount(TabArray[i].TabName.replace(/\s/g, ""), TabArray[i].TabCount.replace(/\s/g, ""));
+                   // FnGetGrid(GridId, true, tabCount);
+                                                                           //  FnGetGrid(GridId, true);
+                                                                           // $('#jqxLoader').jqxLoader('close');
+                }
+            }
+        }
+        IsGridReloading = false;//Loading is finished
+        setTimeout(function () {
+            $('#jqxLoader').jqxLoader('close');
+                },5000)
+        $("#jqxPopupgrid").on("bindingcomplete", function (event) {
+                    var GridRows = $('#jqxPopupgrid').jqxGrid('getrows');
+                    FnClearPopupGrid();
+                    var SelectedRows = String('@ViewBag.PortfolioList');
+                    //console.log(GridRows)
+                    //console.log(SelectedRows)
+                    if (SelectedRows) {
+                        var ArrayOfRows = SelectedRows.split(',');
+                        for (var i = 0; i < GridRows.length; ++i) {
+                            if (SelectedRows.indexOf(Number(GridRows[i].Id)) != -1) {
+                        $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                            }
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < GridRows.length; ++i) {
+                        $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                        }
+                    }
+                   // alert($('#jqxPopupgrid').jqxGrid('getrows')); ????
+                    if ($('#jqxPopupgrid').jqxGrid('getrows').length != $('#jqxPopupgrid').jqxGrid('getselectedrowindexes').length) {
+                        $("#FilterImage").show();
+                    }
+        });
+        BindPortfolioFilters();
+
+    });
+
+    window.onbeforeunload = function () {
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        if (typeof (Storage) !== "undefined") {
+            // Code for localStorage/sessionStorage.
+            var CurrentGrid = GridArray[selectedItem];
+            sessionStorage.CurrentGrid = CurrentGrid;
+            sessionStorage.CurrentTab = selectedItem;
+            sessionStorage.Workflow = '@HttpContext.Current.Session["Workflow"]'
+        } else {
+            // Sorry! No Web Storage support..
+        }
+    }
+
+                //This function will load data in the generic Grid grid
+                function FnGetGrid(GridId,LoadData,TabCount) {
+                    //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid
+                    //Apply filter of relevant TabName (Removing Grid from GridId gives tabname)
+                    var JsonArray = @Html.Raw(Json.Encode(GenericGridGridColumnDetailsList));
+                    @*var DataArray= @Html.Raw(Json.Encode(ViewBag.GridData));*@
+                    var ConfigIdArray= @Html.Raw(Json.Encode(ConfigIdList));
+                    var WorkflowName='@HttpContext.Current.Session["Workflow"]'
+                    var TabName = GridId.replace('Grid', '');
+
+        var datafields = new Array();
+        var columns = new Array();
+         WfConfigId=0;
+        for(var j=0;j<ConfigIdArray.length;++j)//look for config Id based on tab Name and assign it to WfConfigId variable
+        {
+            if (ConfigIdArray[j].Name.replace(/\s/g, "")==TabName)
+            {
+                WfConfigId=ConfigIdArray[j].Id;
+            }
+        }
+
+                    //The below function will add action links in action column of the grid
+                    var cellsrenderer = function (row, columnfield, value, defaulthtml, rowdata, displayfield, columnproperties) {
+
+                        //Get Grid data So that parmaeters can be passed with actions
+                        var GridData = displayfield;//$("#" + GridId).jqxGrid('getrowdata', row);
+
+                        var LoggedInUserId='@HttpContext.Current.Session["UserId"]'
+                        //  if (GridData) {
+                        var TransactionId = displayfield.Id;//GridData.Id;
+
+                        //the below string will frame the buttons in the bttom of grid
+                        var BottomButtons = '';
+                        //Add buttons to the Actions column as per tabs
+                        if (TabName != "Finished"&& TabName != "Active") {
+                            if (value) {
+                                var Url = value.split('##');//splitting  different actionItems
+                                var UrlString = '';
+                                for (var i = 0; i < Url.length; ++i) {
+                                    if (Url[i]) {
+                                        var xx = Url[i].split('--');//splitting url string and label of url
+                                        //RK R2.3 Revert the change of opening review screen in new tab
+                                        //Reason .Whenever we take any action like: in the review screen if we click on approve, it doesn't refresh the counts on the parent tab
+                                        //Also we noted that when we opened payee in a seperate tab and uploaded payee document, then in the LDocumentSet table, it saved WFType as LPayee which is incorrect.
+
+                                        //if (xx[3] == 'Review') {
+                                        //    UrlString = UrlString + '&ensp;<a href="#" onclick="openInNewTab(\''+xx[0]+'\');" >' + GetGlymph(xx[3]) + '</a>&ensp;';
+                                        //}
+                                        //else {
+                                        UrlString = UrlString + '&ensp;<a href="' + xx[0] + '">' + GetGlymph(xx[3]) + '</a>&ensp;';
+                                        //}
+                                        if (xx[2] == 'True')//check for LwfaiIsButtonOnWfGrid
+                                        {
+                                       // BottomButtons += '&ensp;<button class="btn btn-red btn-cons" href="#" onclick="FnClickBottomButtons(\'' + xx[3] + '\',\'' + TabName + '\' , "sdfsdfd")">' + xx[1] + '&ensp;' + GetWhiteGlymph(xx[3]) + '</button>&ensp;'
+                                          BottomButtons += '&ensp;<button class="btn btn-red btn-cons" href="#" onclick="FnClickBottomButtons(\'' + xx[3] + '\',\'' + TabName + '\')">' + xx[1] + '&ensp;' + GetWhiteGlymph(xx[3]) + '</button>&ensp;'
+                                        }
+                                    }
+                                }
+                                //document.getElementById('Button' + TabName).innerHTML = BottomButtons;//bottom buttons html string
+                                return UrlString;
+                            }
+                            else {
+                                //if not link is specified add hidden link otherwise data will be displayed
+                                return '<a href="#" style="display:none;">Link</a>';
+                            }
+                        }
+
+                        else if (TabName == "Active") {
+                            var WFName = '@HttpContext.Current.Session["Workflow"]';
+                            var UserRole='@HttpContext.Current.Session["UserRole"]';
+
+                            if (WFName != 'UsersCR' && WFName != 'PayeesCR') {
+                                //if (GridData.WFRequesterIdXX != LoggedInUserId
+                                //    && GridData.WFCurrentOwnerIdXX != LoggedInUserId
+                                //    && GridData["ARXX.Name"] == UserRole)
+                                if (GridData.WFRequesterIdXX != LoggedInUserId //requestor cannot self assign to stop fraudulent approval as manager if we have both roles
+                                    && (GridData.WFCurrentOwnerIdXX == null || GridData.WFCurrentOwnerIdXX == '' //show self assign when CurrentOwner is NULL (not assigned to anyone)
+                                        || GridData.WFCurrentOwnerIdXX != LoggedInUserId) // WFCurrentOwnerIdXX is populated means, portfolios matches then only txn is visible to that user
+                                    && GridData["ARXX.Name"] == UserRole) //allow selfassign within same role
+                                {//self asign action is there
+                                    return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">'
+                                        + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId='
+                                        + TransactionId + '&Workflow=' + WfConfigId + '">' + GetGlymph("Download") +
+                                        '</a>&ensp;<a href="/GenericGrid/UpdateBaseTableWfStatus?ActionName=SelfAssign&TransactionId=' + TransactionId + '">' + GetGlymph("SelfAssign") + '</a>';
+                                }
+                                else//without self assign(just review and download)
+                                {
+                                return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WfConfigId + '">' + GetGlymph("Download") + '</a>';
+                                }
+                            }
+                             //condition added by RS on 25th Jan 2019 to add a review link for UsersCR and PayeeCR workflow
+                            else if (WFName == 'UsersCR' || WFName == 'PayeesCR')
+                            {
+                                if (GridData.WFRequesterIdXX != LoggedInUserId && GridData.WFCurrentOwnerIdXX != LoggedInUserId && GridData["ARXX.Name"] == UserRole) {
+                                    return '<a href="#" onclick="ReviewForCR(' + TransactionId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/UpdateBaseTableWfStatus?ActionName=SelfAssign&TransactionId=' + TransactionId + '">' + GetGlymph("SelfAssign") + '</a>';
+                                }
+                                else {
+                                    return '<a href="#" onclick="ReviewForCR(' + TransactionId + ' )">' + GetGlymph("Review") + '</a> ';
+                                }
+                            }
+
+                            else if (GridData.WFRequesterIdXX != LoggedInUserId &&GridData.WFCurrentOwnerIdXX!=LoggedInUserId&&GridData["ARXX.Name"]==UserRole)
+                            {
+                                return '&ensp;<a href="/GenericGrid/UpdateBaseTableWfStatus?ActionName=SelfAssign&TransactionId=' + TransactionId+'">' + GetGlymph("SelfAssign") + '</a>';
+                            }
+                            else
+                            {
+                                return '&ensp;<a href="#" style="display:none;"></a>';
+                            }
+                        }
+                        else if(TabName == "Finished")
+                        {
+                            //add Hardcoded links for the finished tab in this switch statement for different workflows
+                            switch (WorkflowName) {
+                            case "ManualAdjustments":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download")+'</a>';
+                            break;
+                            case "Users":
+                            @if (GenericGridGridColumnDetailsList.Where(p => p.UserRole.Equals(HttpContext.Current.Session["UserRole"])).FirstOrDefault().LwfcCanCreate)
+                            {
+                                @:if (GridData.WFStatusXX == 'Completed')
+                                @:{
+                                @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="#" onclick="FnEdit(' + TransactionId + ',\'' + WorkflowName + '\',' + WfConfigId + ')">' + GetGlymph("Edit") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;<a href="/GenericGrid/UpdateBaseTableWfStatus?ActionName=Suspend&TransactionId=' + TransactionId + '">' + GetGlymph("Suspend") + '</a>';
+                                @:}
+                                @:else if (GridData.WFStatusXX == 'Suspended')
+                                @:{
+                                @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;<a href="/GenericGrid/UpdateBaseTableWfStatus?ActionName=UnSuspend&TransactionId=' + TransactionId + '">' + GetGlymph("UnSuspend") + '</a>';
+                                @: }
+                                @:else
+                                @:{
+                                @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                                @: }
+                             }
+                            else
+                            {
+                                @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>';
+                            }
+                            break;
+                        case "Payees":
+                           @if (GenericGridGridColumnDetailsList.Where(p => p.UserRole.Equals(HttpContext.Current.Session["UserRole"])).FirstOrDefault().LwfcCanCreate)
+                           {
+                               @:if (GridData.WFStatusXX == 'Completed')
+                                       @:{
+                                       @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="#" onclick="FnEdit(' + TransactionId + ',\'' + WorkflowName + '\',' + WfConfigId + ')">' + GetGlymph("Edit") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>';
+                                       @:}
+                                   @:else
+                                   @:{
+                                       @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>';
+                                       @: }
+                                }
+                   else
+                   {
+
+                       @: return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>';
+                   }
+                            break;
+                        case "Calc":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="#" onclick="FnDashboard(' + TransactionId + ')">' + GetGlymph("Dashboard") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WfConfigId + '">' + GetGlymph("Download") + '</a>';
+                            break;
+
+                        case "RawData":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="#" onclick="FnDashboard(' + TransactionId + ')">' + GetGlymph("Dashboard") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WfConfigId + '">' + GetGlymph("Download") + '</a>';
+                            break;
+                        case "Claims":
+                            if (GridData.WFStatusXX == 'Rejected' && GridData.WFRequesterIdXX == LoggedInUserId) {
+                                return '<a href="/GenericGrid/UpdateBaseTableWfStatus?TransactionId=' + TransactionId + '&ActionName=ReClaim">' + GetGlymph("ReClaim") + '</a>&ensp;<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            }
+                            else {
+                                return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            }
+                            break;
+                        case "RefFiles":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            break;
+                        case "Schemes":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            break;
+                        case "Accruals":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            break;
+                        case "DocumentSets":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WorkflowName + '">' + GetGlymph("Download") + '</a>&ensp;';
+                            break;
+                        case "Pay":
+                            return '<a href="#" onclick="FnReview(' + TransactionId + ',' + WfConfigId + ')">' + GetGlymph("Review") + '</a>&ensp;<a href="#" onclick="FnDashboard(' + TransactionId + ')">' + GetGlymph("Dashboard") + '</a>&ensp;<a href="/GenericGrid/DownloadFile?TransactionId=' + TransactionId + '&Workflow=' + WfConfigId + '">' + GetGlymph("Download") + '</a>';
+                            break;
+                        case "PayeesCR":
+                                    return '<a href="#" onclick="ReviewForCR(' + TransactionId +' )">' + GetGlymph("Review") + '</a>';
+                            break;
+                        case "UsersCR":
+                                    return '<a href="#" onclick="ReviewForCR(' + TransactionId + ' )">' + GetGlymph("Review") + '</a>';
+                            break;
+
+                    }
+
+                }
+
+        };
+
+
+        //make an ajax call to get counts
+        /* NOTE : - After deployement in Prod . We will add code to load Grid in a partial view and call it seperately
+        Also Review count of Finished Tab*/
+        var PortfolioList = String('@ViewBag.PortfolioList')
+        //$.ajax({
+        //    data: { WFConfigId: WfConfigId, TabName: TabName, PortfolioList: PortfolioList},
+        //    url: "/GenericGrid/GetGenericGridCounts",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (counts)
+        //    {
+
+        if (document.getElementById('Tab' + TabName) && TabCount != 0)
+            document.getElementById('Tab' + TabName).innerHTML = TabCount;//datainformations.rowscount;
+                //if (TabName != "Finished") {//display WF Comments Column not in Finished Tab
+                //    datafields.push({ name: 'WFComments', type: 'string' });
+                //    columns.push({ text: 'Comments', datafield: 'WFComments', editable: false, width: '15%' });
+                //}
+                if (LoadData == true) {
+                    var columnCheckBox = null;
+                    var updatingCheckState = false;
+                    //The Below code is used to load first column if Grid which is used to select Transactions using checkeckbox
+                    datafields.push({ name: 'IsRowSelected', type: 'bool' });
+                    columns.push({
+                        renderer: function () {
+                            return '<div style="padding-bottom: 8px;padding-left:8px;"></div>';
+                        },
+                        rendered: function (element) {
+                            $(element).jqxCheckBox({ width: 40, height: 40, animationShowDelay: 0, animationHideDelay: 0 });
+                            //New code
+                            columnCheckBox = $(element);
+
+                            $(element).on('change', function (event) {
+                                var checked = event.args.checked;
+                                var pageinfo = $("#" + GridId).jqxGrid('getpaginginformation');
+                                var pagenum = pageinfo.pagenum;
+                                var pagesize = pageinfo.pagesize;
+                                if (checked == null || updatingCheckState) return;
+                                $(("#" + GridId)).jqxGrid('beginupdate');
+
+                                // select all rows when the column's checkbox is checked.
+                                if (checked) {
+                                    $("#" + GridId).jqxGrid('selectallrows');
+                                }
+                                // unselect all rows when the column's checkbox is checked.
+                                else if (checked == false) {
+                                    $("#" + GridId).jqxGrid('clearselection');
+                                }
+
+                                // update cells values.
+                                var startrow = pagenum * pagesize;
+                                for (var i = startrow; i < startrow + pagesize; i++) {
+                                    // The code below gets the bound index of the displayed row and updates the value of the row's available column.
+                                    var boundindex = $("#" + GridId).jqxGrid('getrowboundindex', i);
+                                    $("#" + GridId).jqxGrid('setcellvalue', boundindex, 'IsRowSelected', event.args.checked);
+                                }
+
+                                $("#" + GridId).jqxGrid('endupdate');
+                            });
+
+                            return true;
+                        },
+                        text: '', datafield: 'IsRowSelected', editable: true, columntype: 'checkbox', width: '4%', sortable: false, filterable: false, menu: false, pinned: true
+                    });
+                    //Add Hardcoded column now
+                    datafields.push({ name: 'Actions', type: 'string' });//to display Actions column in grid
+                    datafields.push({ name: 'RecordCounts', type: 'string' });//to display tab counts
+                    //added by Rakhi Singh on 23rd Jan 2019:  to make the column freezed used pinned property, and to make it non sortable and non filterable used the property sortable and menu to be false.
+                    columns.push({ text: 'Actions', datafield: 'Id', displayfield: 'Actions', editable: false, cellsrenderer: cellsrenderer, width: '20%', pinned: true, menu: false, sortable: false });//, pinned: true
+                    //Get Column details by iterating through list of columns
+                    if (TabName == "Active") {
+                        columns.push({ text: 'Owner Role', datafield: 'ARXX.Name', editable: false });
+
+
+                    }
+                    for (var i = 0; i < JsonArray.length; i++) {
+                       // alert(JsonArray[i].DataType)
+
+                        if (JsonArray[i].DataType.indexOf('date') != -1) {
+                            datafields.push({ name: JsonArray[i].LwfgcColumnName, type: 'date' });//JsonArray[i].DataType
+                            columns.push({ text: JsonArray[i].LwfgcUILabel, datafield: JsonArray[i].LwfgcColumnName, editable: false, width: '15%', cellsformat: "dd/MM/yyyy" });
+                        }
+                        else if (JsonArray[i].DataType.indexOf('bit') != -1) {
+                            datafields.push({ name: JsonArray[i].LwfgcColumnName, type: 'bool' });//JsonArray[i].DataType
+                            columns.push({ text: JsonArray[i].LwfgcUILabel, datafield: JsonArray[i].LwfgcColumnName, columntype: 'checkbox', editable: false, width: '10%' });
+                        }
+                        else if (JsonArray[i].DataType.indexOf('decimal') != -1) {
+                            datafields.push({ name: JsonArray[i].LwfgcColumnName, type: 'float' });//JsonArray[i].DataType
+                            columns.push({ text: JsonArray[i].LwfgcUILabel, datafield: JsonArray[i].LwfgcColumnName,  editable: false, width: '10%' });
+                        }
+                        else {
+                            datafields.push({ name: JsonArray[i].LwfgcColumnName, type: 'string' });//JsonArray[i].DataType//
+                            columns.push({ text: JsonArray[i].LwfgcUILabel, datafield: JsonArray[i].LwfgcColumnName, editable: false, width: '15%' });
+                        }
+                    }
+                    //Add some hard code columns which are common in all workflows
+                    datafields.push({ name: 'Id', type: 'string' });
+                    //XX suffix are added to columns which are used internally in our code and avoid conflict if user configurs them
+                    datafields.push({ name: 'WFStatusXX', type: 'string' });//to display workflow status
+
+                    //SS commented the below section as wfstatus column will only be added from db configuration. Fixed this to handle wfstatus column filter issue
+                    //if (TabName == "Finished" && datafields.indexOf('WFStatus') == -1) {//display WF Status Column only in Finished Tab
+                    //    columns.push({ text: 'Status', datafield: 'WFStatusXX', editable: false, width: '10%' });
+                    //}
+                    if (TabName == "Active") {
+                        datafields.push({ name: 'ARXX.Name', type: 'string' });//to display workflow sitting with Role
+                        datafields.push({ name: 'WFCurrentOwnerIdXX', type: 'string' });
+                       // columns.push({ text: 'Owner Role', datafield: 'ARXX.Name', editable: false });
+                    }
+
+                    if (datafields.indexOf('WFRequesterIdXX') == -1) {
+                        datafields.push({ name: 'WFRequesterIdXX', type: 'string' });
+                    }
+
+                    /* var CheckBoxColumn=' { ';
+                       CheckBoxColumn+=' text: \'\', menu: false, sortable: false, ';
+                      CheckBoxColumn+=' datafield: \'available\', columntype: \'checkbox\', width: 40, ';
+                       CheckBoxColumn+='renderer: function () { ';
+                           CheckBoxColumn+='return \'<div style="margin-left: 10px; margin-top: 5px;"></div>\' }, ';
+                       CheckBoxColumn+='rendered: function (element) { ';
+                           CheckBoxColumn+='$(element).jqxCheckBox({ theme: theme, width: 16, height: 16, animationShowDelay: 0, animationHideDelay: 0 }); ';
+                          CheckBoxColumn+='var columnCheckBox = $(element); ';
+                           CheckBoxColumn+='$(element).on(\'change\', function (event) { ';
+                              CheckBoxColumn+=' var checked = event.args.checked; ';
+                               CheckBoxColumn+='var pageinfo = $("#jqxgrid").jqxGrid(\'getpaginginformation\'); ';
+                               CheckBoxColumn+='var pagenum = pageinfo.pagenum; ';
+                               CheckBoxColumn+='var pagesize = pageinfo.pagesize; '
+                             //  CheckBoxColumn+='if (checked == null || updatingCheckState) return; ';
+                               CheckBoxColumn+='$("#'+GridId+'").jqxGrid(\'beginupdate\'); ';
+                               // select all rows when the column's checkbox is checked.
+                              CheckBoxColumn+=' if (checked) { $("#'+GridId+'").jqxGrid(\'selectallrows\');} ';
+                               // unselect all rows when the column's checkbox is checked.
+                              CheckBoxColumn+=' else if (checked == false) { $("#'+GridId+'").jqxGrid(\'clearselection\');} ';
+                               // update cells values.
+                              CheckBoxColumn+=' var startrow = pagenum * pagesize; ';
+                               CheckBoxColumn+=' for (var i = startrow; i < startrow + pagesize; i++) { ';
+                                   // The bound index represents the row's unique index.
+                                   // Ex: If you have rows A, B and C with bound indexes 0, 1 and 2, afer sorting, the Grid will display C, B, A i.e the C's bound index will be 2, but its visible index will be 0.
+                                   // The code below gets the bound index of the displayed row and updates the value of the row's available column.
+                                    CheckBoxColumn+='var boundindex = $("#'+GridId+'").jqxGrid(\'getrowboundindex\', i); ';
+                                    CheckBoxColumn+=' $("#'+GridId+'").jqxGrid(\'setcellvalue\', boundindex, \'available\',event.args.checked); }  ';
+                                     CheckBoxColumn+=' $("#'+GridId+'").jqxGrid(\'endupdate\'); }); return true;}}';
+     datafields.push({ name: 'available', type: 'bool' });
+       columns.push(CheckBoxColumn);*/
+
+
+                    var source = {
+                        dataType: "json",
+                        dataFields: datafields,
+                        data: { WFConfigId: WfConfigId, IsGridReloading: IsGridReloading, TabName: TabName, PortfolioList: PortfolioList },
+                        url: "/GenericGrid/GetGridData",
+                        // update the grid and send a request to the api
+                        filter: function () {
+
+                            var filter = $("#" + GridId).jqxGrid('getfilterinformation');
+                            if (filter[0] != undefined) {
+                                $("#FilterImage").show();
+                            } else {
+                                $("#FilterImage").hide();
+                            }
+
+                           // alert($("#" + GridId).jqxGrid('filterToolbar'));
+                            $("#" + GridId).jqxGrid('updatebounddata', 'filter');
+
+                           // $("#" + GridId).jqxGrid('clearselection');
+                            //$("#" + GridId).jqxGrid('savestate');
+                            //if (sessionStorage !== 'undefined') {
+                            //    var CurrentFilterState = $("#" + GridId).jqxGrid('getstate')
+                            //    sessionStorage.GridState = JSON.stringify(CurrentFilterState);
+                            //    }
+                        },
+                        // update the grid and send a request to the api
+                        sort: function () {
+                            // $("#" + GridId).jqxGrid('clear');
+                            $("#" + GridId).jqxGrid('updatebounddata', 'sort');
+                            $("#" + GridId).jqxGrid('clearselection');
+                            //$("#" + GridId).jqxGrid('savestate');
+                            //if (sessionStorage !== 'undefined') {
+                            //    var CurrentSortState = $("#" + GridId).jqxGrid('getstate')
+                            //    sessionStorage.GridState = JSON.stringify(CurrentSortState);
+                            //}
+                        },
+                        root: 'Rows',
+                        beforeprocessing: function (data) {
+                            source.totalrecords = TabCount;
+                        }
+                    };
+                    var dataAdapter = new $.jqx.dataAdapter(source, {
+
+                        downloadComplete: function (data) {
+
+                        },
+                    });
+                    //, { autoBind: true, async: false } , { autoBind: true, async: true }
+                    /*var columnCheckBox = null;
+                    var updatingCheckState = false;*/
+                    //code to display row counts in tab headings
+                    //var datainformations = $('#'+GridId).jqxGrid('getdatainformation');
+                    //if (datainformations)
+                    //{
+
+                    // }
+                    //Check whether the grid is already defined or not and ready for use.
+                    var ready = $("#" + GridId).jqxGrid('ready');
+                    //if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                    var pagedata = 200;
+                    GridSetting = [];
+                    var DataOperation;
+
+                    $("#FilterImage").hide();
+
+
+                    BindPortfolioFilters();
+                    $.ajax({
+                        url: "/GenericGrid/GetUserPreference",
+                        dataType: "json",
+                        type: "POST",
+                        data: { WFConfigId: WfConfigId, TabName: TabName },
+                        async: false,
+                        success: function (data) {
+                            DataOperation = data;
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].ConfigType == "PageSize") {
+                                    pagedata = data[i].Config;
+                                }
+                                if (data[i].ConfigType == "Filters") {
+                                    $("#FilterImage").show();
+                                }
+                                if (data[i].ConfigType == "GridSettings") {
+                                    GridSetting = JSON.parse(data[i].Config);
+                                        for (var kk = 0; kk < GridSetting.length; kk++) {
+                                            var FilterData = JSON.parse(GridSetting[kk]);
+                                            for (var k = 0; k < columns.length; k++) {
+                                            if (columns[k].text == FilterData.Column) {
+                                                columns[k].width = FilterData.NewWidth ;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    if (typeof ready != 'undefined') {
+
+                        $("#" + GridId).jqxGrid('updatebounddata');
+                    } else {
+                        var addfilter = function () {
+                        //    var filtergroup = new $.jqx.filter();
+                        //    var filter_or_operator = 1;
+                        //    var filtervalue = 'aa';
+                        //    var filtercondition = 'contains';
+                        //    var filter1 = filtergroup.createfilter('stringfilter', filtervalue, filtercondition);
+                        //    filtervalue = 'b';
+                        //    filtercondition = 'starts_with';
+                        //    var filter2 = filtergroup.createfilter('stringfilter', filtervalue, filtercondition);
+
+                        //    filtergroup.addfilter(filter_or_operator, filter1);
+                        //    filtergroup.addfilter(filter_or_operator, filter2);
+                        //    // add the filters.
+                        //    $("#" + GridId).jqxGrid('addfilter', 'LpFirstName', filtergroup);
+                        //    // apply the filters.
+                        //    $("#" + GridId).jqxGrid('applyfilters');
+                        //}
+
+                          //$.ajax({
+                          //      url: "/GenericGrid/GetUserPreference",
+                          //      dataType: "json",
+                          //      type: "POST",
+                          //      data: { WFConfigId: WfConfigId },
+                          //      async: false,fff
+                          //      success: function (data)
+                                    var data = DataOperation;
+                                    var filter_or_operator = 1;
+                                    var filter1;
+                                    var filtervalue;
+                                    var filtercondition;
+                                    var filterdatafield;
+                                    for (var i = 0; i < data.length; i++) {
+                                        if (data[i].ConfigType == "Filters") {
+
+                                            $("#FilterImage").show();
+                                            var FilterData = JSON.parse(data[i].Config);
+                                            for (var j = 0; j < FilterData.length; j++) {
+                                                var filtergroup = new $.jqx.filter();
+                                                if (FilterData[j].IsUsed == "false") {
+                                                    filtervalue = FilterData[j].filtervalue;
+                                                    filtercondition = FilterData[j].filtercondition;
+                                                    filterdatafield = FilterData[j].filterdatafield;
+
+                                                    filter1 = filtergroup.createfilter('stringfilter', filtervalue, filtercondition);
+                                                    filtergroup.addfilter(filter_or_operator, filter1);
+                                                    FilterData[j].IsUsed = "true";
+                                                    for (var jj = j; jj < FilterData.length; jj++) {
+                                                        if (FilterData[jj].IsUsed == "false" && FilterData[jj].filterdatafield == filterdatafield) {
+                                                            filtervalue = FilterData[jj].filtervalue;
+                                                            filtercondition = FilterData[jj].filtercondition;
+                                                            filterdatafield = FilterData[jj].filterdatafield;
+
+                                                            filter1 = filtergroup.createfilter('stringfilter', filtervalue, filtercondition);
+                                                            filtergroup.addfilter(filter_or_operator, filter1);
+                                                            FilterData[jj].IsUsed = "true";
+                                                        }
+                                                    }
+                                                $("#" + GridId).jqxGrid('addfilter', filterdatafield, filtergroup);
+                                            }
+
+
+                                            }
+                                            $("#" + GridId).jqxGrid('applyfilters');
+
+                                        }
+
+                                        //if (data[i].ConfigType == "PageSize") {
+                                        //    pagedata = data[i].Config;
+                                        //    $("#" + GridId).jqxGrid('updatebounddata');
+
+                                        //}
+
+                                        //if (data[i].ConfigType == "GridSettings") {
+                                        //    GridSetting = JSON.parse(data[i].Config);
+                                        //    for (var k= 0; k < columns.length; k++){
+                                        //        for (var kk = 0; kk < GridSetting.length; kk++) {
+                                        //            var FilterData = JSON.parse(GridSetting[i]);
+                                        //            if (columns[k].text == FilterData.Column) {
+                                        //               columns[k].width = FilterData.NewWidth + '%';
+                                        //            }
+                                        //        }
+                                        //    }
+                                          //  $("#" + GridId).jqxGrid('updatebounddata');
+
+                                        //}
+                                    }
+
+                            //    },
+                            //    error: function (reponse) {
+                            //        //  alert("error : " + reponse);
+                            //    }
+                            //});
+
+                        //  $("#" + GridId).jqxGrid('updatebounddata');
+                        }
+                        $("#" + GridId).jqxGrid(
+                            {
+                                source: dataAdapter,
+                                width: "100%",
+                                columnsresize: true,
+                                pageable: true,
+                                pagesize: pagedata,
+                                editable: true,
+                                filterable: true,
+                                autoshowcolumnsmenubutton: false,
+                                sortable: true,
+                                enablebrowserselection: true,
+                                pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+                                virtualmode: true,
+                                // selectionmode: 'checkbox',
+                                autoloadstate: false,
+                                autosavestate: false,
+                                rendergridrows: function () {
+                                    return dataAdapter.records;
+                                },
+                                columns: columns,
+                                ready: function () {
+                                    addfilter();
+                                    $("#" + GridId).jqxGrid('updatebounddata');
+                                },
+                                //loadComplete: function () {
+                                //    var $this = $(this);
+                                //    var postfilt = $this.jqxGrid('getGridParam', 'postData').filters;
+                                //    // postsord = $this.jqxGrid('getGridParam', 'postData').sord;
+                                //    //var postsort = $this.jqxGrid('getGridParam', 'postData').sidx;
+                                //    //var postpage = $this.jqxGrid('getGridParam', 'postData').page;
+                                //    console.log(postfilt);
+                                //    //if ($this.jqGrid("getGridParam", "datatype") === "json") {
+                                //    //    setTimeout(function () {
+                                //    //        $this.jqGrid("setGridParam", {
+                                //    //            datatype: "local",
+                                //    //            postData: { filters: postfilt, sord: postsord, sidx: postsort },
+                                //    //            search: true
+                                //    //        });
+                                //    //        $this.trigger("reloadGrid", [{ page: postpage }]);
+                                //    //    }, 25);
+                                //    //}
+                                //}
+                            });
+                        $("#" + GridId).on('columnresized', function (event) {
+                             var ConfigIdArray12= @Html.Raw(Json.Encode(ConfigIdList));
+                            for(var j=0;j<ConfigIdArray12.length;++j)//look for config Id based on tab Name and assign it to WfConfigId variable
+                                 {
+                                        if (ConfigIdArray12[j].Name.replace(/\s/g, "")==TabName)
+                                        {
+                                          WfConfigId=ConfigIdArray12[j].Id;
+                                         }
+                                }
+                            var column = event.args.columntext;
+                            var newwidth = event.args.newwidth
+                            var oldwidth = event.args.oldwidth;
+                            //$("#eventlog").text("Column: " + column + ", " + "New Width: " + newwidth + ", Old Width: " + oldwidth);
+                            //var GridSettingData = { Column: column, NewWidth: newwidth, OldWidth: oldwidth };
+                            var GridSettingData = JSON.stringify({ Column: column, NewWidth: newwidth, OldWidth: oldwidth });
+                            for (var k = 0; k <GridSetting.length; k++) {
+                                var dataGS = JSON.parse(GridSetting[k]);
+                                if (dataGS.Column == column) {
+                                    // delete GridSetting[k];
+
+                                    GridSetting.pop(k);
+                                }
+                            }
+                            GridSetting.push(GridSettingData);
+                            $.ajax({
+                                url: "/GenericGrid/SaveUserPreferenceData",
+                                dataType: "json",
+                                type: "POST",
+                                data: { WFConfigId: WfConfigId, Config: GridSetting, TabName: TabName},
+                                success: function (data) {
+
+                                },
+                                error: function (reponse) {
+                                    //  alert("error : " + reponse);
+                                }
+                            });
+                        });
+                    }
+
+
+                    // $("#" + GridId).jqxGrid('loadstate')
+                    //console.log($("#" + GridId).jqxGrid('GetGridData', 'postData').filter);
+                    console.log($("#" + GridId).jqxGrid('getfilterinformation'));
+                }
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+
+        GridArray.push("#" + GridId);
+       // $('#jqxLoader').jqxLoader('close');
+        //console.log(GridArray)
+   /* //section to add check box
+    var updatePageState = function (pagenum) {
+                var datainfo = $("#" + GridId).jqxGrid('getdatainformation');
+                var pagenum = datainfo.paginginformation.pagenum;
+                var pagesize = datainfo.paginginformation.pagesize;
+                var startrow = pagenum * pagesize;
+                // select the rows on the page.
+                $("#" + GridId).jqxGrid('beginupdate');
+                var checkedItemsCount = 0;
+                for (var i = startrow; i < startrow + pagesize; i++) {
+                    var boundindex = $("#" + GridId).jqxGrid('getrowboundindex', i);
+                    var value = $("#" + GridId).jqxGrid('getcellvalue', boundindex, 'available');
+                    if (value) checkedItemsCount++;
+                    if (value) {
+                        $("#" + GridId).jqxGrid('selectrow', boundindex);
+                    }
+                    else {
+                        $("#" + GridId).jqxGrid('unselectrow', boundindex);
+                    }
+                }
+
+                $("#" + GridId).jqxGrid('endupdate');
+                if (checkedItemsCount == pagesize) {
+                    columnCheckBox.jqxCheckBox({ checked: true });
+                }
+                else if (checkedItemsCount == 0) {
+                    columnCheckBox.jqxCheckBox({ checked: false });
+                }
+                else {
+                    columnCheckBox.jqxCheckBox({ checked: null });
+                }
+            }
+
+            // update the selection after sort.
+            $("#" + GridId).on('sort', function (event) {
+                updatePageState();
+            });
+
+             // update the selection after page change.
+            $("#" + GridId).on('pagechanged', function (event) {
+                 updatePageState();
+             });
+
+             // select or unselect rows when a checkbox is checked or unchecked.
+             $("#" + GridId).on('cellvaluechanged', function (event) {
+                 if (event.args.value) {
+                     $("#" + GridId).jqxGrid('selectrow', event.args.rowindex);
+                 }
+                 else {
+                     $("#" + GridId).jqxGrid('unselectrow', event.args.rowindex);
+                 }
+
+                 // update the state of the column's checkbox. When all checkboxes on the displayed page are checked, we need to check column's checkbox. We uncheck it,
+                 // when there are no checked checkboxes on the page and set it to intederminate state when there is at least one checkbox checked on the page.
+                 if (columnCheckBox) {
+                     var datainfo = $("#" + GridId).jqxGrid('getdatainformation');
+                     var pagesize = datainfo.paginginformation.pagesize;
+                     var pagenum = datainfo.paginginformation.pagenum;
+                     var selectedRows = $("#" + GridId).jqxGrid('getselectedrowindexes');
+                     var state = false;
+                     var count = 0;
+                     $.each(selectedRows, function () {
+                         if (pagenum * pagesize <= this && this < pagenum * pagesize + pagesize) {
+                             count++;
+                         }
+                     });
+
+                     if (count != 0) state = null;
+                     if (count == pagesize) state = true;
+                     if (count == 0) state = false;
+
+                     updatingCheckState = true;
+                     $(columnCheckBox).jqxCheckBox({ checked: state });
+
+                     updatingCheckState = false;
+                 }
+             });*/
+
+    }
+
+    //This function is called when User clicks on edit link in Non WFGrid
+    function FnEdit(TransactionId,WorkflowName,WFConfigId)
+    {
+        //Redirect to different urls based on different workflow names passed
+        switch(WorkflowName)
+        {
+            case"Users":
+                window.location.href = '/LUsers/Edit?FormType=ChangeRequest&TransactionId=' + TransactionId + '&WFConfigId=' + WFConfigId
+                break;
+            case"Payees":
+                window.location.href = '/LPayees/Create?FormType=Edit&TransactionId=' + TransactionId + '&WFConfigId=' + WFConfigId
+                break;
+        }
+    }
+
+    //This function is called when User clicks on review link in Non WFGrid
+    function FnReview(TransactionId,WFConfigId)
+    {
+        //Redirect to different urls based on different workflow names passed
+        window.location.href='/GenericGrid/Review?TransactionId='+TransactionId+'&WFConfigId='+WFConfigId;
+
+    }
+
+    //added by RS function for review for ChangeRequest(PayeeCR and UserCR)
+    function ReviewForCR(TransactionId) {
+     //   //Redirect to different urls based on different workflow names passed
+        window.location.href = '/GenericGrid/ReviewForCR?TransactionId=' + TransactionId;
+    }
+
+    //This function is called when User clicks on Dashboard link in Non WFGrid
+    function FnDashboard(TransactionId)
+    {
+        window.location.href = '/GenericGrid/DownloadDashboardFile?TransactionId='+TransactionId;
+    }
+
+    function GetGlymph(ActionName)
+    {
+        switch (ActionName) {
+            case "Approve":
+                return ('<i class="fa fa-check" aria-hidden="true" style="color:#e60000;font-size:20px !important;font-size:20px !important;" title="Approve"></i>');
+            case "SendToAnalyst":
+                return ("<i class=\"fa fa-angle-left\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Send To Analyst\"></i>");
+            case "Dashboard":
+                return ("<i class=\"fa fa-tachometer\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Dashboard\"></i>");
+            case "Review":
+                return ("<i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Review\"></i>");
+            case "Withdraw":
+                return ('<i class="fa fa-reply" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Withdraw"></i>');
+            case "Prelim":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Prelim\"></i>");
+            case "VerifyPayee":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Verify Payee\"></i>");
+            case "AttachTestResults":
+                return ("<i class=\"fa fa-folder\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Attach Test Results\"></i>");
+            case "Edit":
+                return ("<i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i>");
+            case "WashClaim":
+                return ("<i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Edit\"></i>");
+            case "Reject":
+                return ("<i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Reject\"></i>");
+            case "Download":
+                return ("<i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Download\"></i>");
+            case "SelfAssign":
+                return ("<i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Self Assign\"></i>");
+            case "SendToRequester":
+                return ("<i class=\"fa fa-angle-double-left\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Send To Requester\"></i>");
+            case "AssignTo":
+                return ("<i class=\"fa fa-users\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Assign To\"></i>");
+            case "ReClaim":
+                return ("<i class=\"fa fa-recycle\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"ReClaim\"></i>");
+            case "Suspend":
+                return ("<i class=\"fa fa-ban\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Suspend\"></i>");
+            case "UnSuspend":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Active\"></i>");
+            case "UnPrelim":
+                return ("<i class=\"fa fa-thumbs-down\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"UnPrelim\"></i>");
+        }
+
+    }
+
+    function GetWhiteGlymph(ActionName) {
+        switch (ActionName) {
+            case "Approve":
+                return ('<i class="fa fa-check" aria-hidden="true" style="color:white;font-size:20px !important;font-size:20px !important;" title="Approve"></i>');
+            case "SendToAnalyst":
+                return ("<i class=\"fa fa-angle-left\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Send To Analyst\"></i>");
+            case "Dashboard":
+                return ("<i class=\"fa fa-tachometer\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Dashboard\"></i>");
+            case "Review":
+                return ("<i class=\"fa fa-th\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Review\"></i>");
+            case "Withdraw":
+                return ('<i class="fa fa-reply" aria-hidden="true" style="color:white;font-size:20px !important;" title="Withdraw"></i>');
+            case "Prelim":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Prelim\"></i>");
+            case "VerifyPayee":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Verify Payee\"></i>");
+            case "AttachTestResults":
+                return ("<i class=\"fa fa-folder\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Attach Test Results\"></i>");
+            case "Edit":
+                return ("<i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Edit\"></i>");
+            case "WashClaim":
+                return ("<i class=\"fa fa-pencil-square-o\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Edit\"></i>");
+            case "Reject":
+                return ("<i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Reject\"></i>");
+            case "Download":
+                return ("<i class=\"fa fa-download\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Download\"></i>");
+            case "SelfAssign":
+                return ("<i class=\"fa fa-user\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Self Assign\"></i>");
+            case "SendToRequester":
+                return ("<i class=\"fa fa-angle-double-left\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Send To Requester\"></i>");
+            case "AssignTo":
+                return ("<i class=\"fa fa-users\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Assign To\"></i>");
+            case "ReClaim":
+                return ("<i class=\"fa fa-recycle\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"ReClaim\"></i>");
+            case "Suspend":
+                return ("<i class=\"fa fa-ban\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Suspend\"></i>");
+            case "UnSuspend":
+                return ("<i class=\"fa fa-thumbs-up\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"Active\"></i>");
+            case "UnPrelim":
+                return ("<i class=\"fa fa-thumbs-down\" aria-hidden=\"true\" style=\"color:white;font-size:20px !important;\" title=\"UnPrelim\"></i>");
+        }
+
+    }
+
+    //This function is called when any mass action gets hit
+    function FnClickBottomButtons(ActionName,TabName)
+    {
+
+        var TransactionId = [];
+        var GridId = "#Grid" + TabName;
+        //var rowindexes = $(GridId).jqxGrid('getselectedrowindexes');
+        var rows = $(GridId).jqxGrid('getrows');
+    //console.log(rows)
+        for (var i = 0; i < rows.length; ++i) {
+            //  var data = $(GridId).jqxGrid('getrowdata', rowindexes[i]);
+            if (rows[i].IsRowSelected == true && rows[i].Id) {
+                TransactionId.push(rows[i].Id)
+            }
+        }
+
+        switch (ActionName) {
+            case "Approve":
+
+                //var jsonInput = { ActionName: 'Approve', Comments: GlobalComment, TransactionIdData:TransactionId};
+                //$.ajax({
+                //    url: "/GenericGrid/UpdateBaseTableWfStatusMass",
+                //    dataType: "json",
+                //    type: "POST",
+                //    data: jsonInput,
+                //    success: function (reponse) {
+                //        window.location.href = '../GenericGrid/Index?WorkFlow=' + reponse;
+                //    },
+                //    error: function (reponse) {
+                //        window.location.href = '../GenericGrid/Index?WorkFlow=' + reponse;
+                //    }
+                //});
+
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Approve&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "SendToAnalyst":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=SendToAnalyst&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "Dashboard":
+                window.location.href = '/GenericGrid/DownloadDashboardFile?TransactionId=' + TransactionId;
+                break;
+            case "Download":
+                window.location.href = '/GenericGrid/DownloadFile?TransactionId=' + TransactionId;
+                break;
+            case "Withdraw":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Withdraw&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                //window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Withdraw&TransactionId=GetItFromSession&Comments=' + GlobalComment
+                break;
+            case "Prelim":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Prelim&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "UnPrelim":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=UnPrelim&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "Reject":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Reject&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "SelfAssign":
+                //var jsonInput = { ActionName: 'SelfAssign', Comments: GlobalComment, TransactionIdData: TransactionId };
+                //$.ajax({
+                //    url: "/GenericGrid/UpdateBaseTableWfStatusMass",
+                //    dataType: "json",
+                //    type: "POST",
+                //    data: jsonInput,
+                //    success: function (data) {
+                //        window.location.href = '../GenericGrid/Index?WorkFlow=' + workflow;
+                //    },
+                //    error: function (reponse) {
+                //        window.location.href = '../GenericGrid/Index?WorkFlow=' + workflow;
+                //        //  alert("error : " + reponse);
+                //    }
+                //});
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=SelfAssign&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "SendToRequester":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=SendToRequester&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "ReClaim":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=ReClaim&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "VerifyPayee":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=VerifyPayee&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "Suspend":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=Suspend&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "UnSuspend":
+                window.location.href = '/GenericGrid/UpdateBaseTableWfStatus?ActionName=UnSuspend&TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+            case "AssignTo":
+                window.location.href = '/GenericGrid/AssignTo?TransactionId=' + TransactionId + '&Comments=' + GlobalComment
+                break;
+
+
+        }
+
+    }
+
+    //This function is used to store comments typed on any of the text area in every WF tab
+    var GlobalComment = '';
+    function FnAttachComment(Comment)
+    {
+        GlobalComment = Comment;
+
+    }
+    //function GetPayeeTemplate()
+    //{
+    //    var strPath = System.Web.Configuration.WebConfigurationManager.AppSettings["UploadTemplatePath"] + "\\Payee Upload\\" + HttpContext.Current.Session["CompanyCode"] + "_PayeesUpload.xls";
+    //    window.location.href = strPath;
+    //}
+
+    //method to display portfolio grid in a popup
+    function BindPortfolioFilters() {
+
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+
+        $('#jqxPopupgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 300,
+            // autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            autoshowcolumnsmenubutton: false,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+
+            ]
+        });
+
+    }
+    //method to display portfolio grid in a popup
+        function PopulatePortfolioPopup() {
+
+            //The below code will load a grid of portfolios on this page
+            var Portfoliosource = {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Id', type: 'string' },
+                    { name: 'RcPrimaryChannel', type: 'string' },
+                    { name: 'LpBusinessUnit', type: 'string' },
+                    { name: 'RcName', type: 'string' }
+
+                ],
+                id: "Id",
+                url: "/Home/GetPortfolioGrid"
+            };
+
+            var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+
+            $('#jqxPopupgrid').jqxGrid({
+                source: PortfoliodataAdapter,
+                width: '100%',
+                height: 300,
+                // autoheight: true,
+                theme: 'bootstrap',
+                sortable: true,
+                columnsresize: true,
+                columnsreorder: true,
+                altrows: true,
+                pageable: false,
+                filterable: true,
+                autoshowcolumnsmenubutton: false,
+                showstatusbar: false,
+                selectionmode: 'checkbox',
+                enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                ready: function () {
+
+                },
+
+                columns: [
+                    { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                    { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                    { text: 'Channel', datafield: 'RcName' }
+
+                ]
+            });
+
+                $("#myModal1").modal();
+
+    }
+
+        function ReloadPageForfully() {
+            $("#PortfolioList").val(''); //????
+            var xx = $('#jqxTabs').jqxTabs('selectedItem');
+          //  $('#loadertext').modal();
+            var TabName = TabArray[xx].TabName;;
+            $.ajax({
+                url: "/GenericGrid/DeleteUserPreferenceData",
+                dataType: "json",
+                type: "POST",
+                data: { WFConfigId: WfConfigId ,TabName: TabName },
+                success: function (data) {
+                    //location.reload();
+                     window.location.href = '/GenericGrid/Index?WorkFlow=' + '@HttpContext.Current.Session["Workflow"]'
+                },
+                error: function (reponse) {
+                     window.location.href = '/GenericGrid/Index?WorkFlow=' + '@HttpContext.Current.Session["Workflow"]'
+                }
+            });
+
+        }
+
+    //To Select rows as per primary channel and BU selected above
+        function FnSelectPopupRows() {
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                $('#jqxPopupgrid').jqxGrid('unselectrow', i);
+                var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+                var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+                if (PrimaryChannel == "indirect" && document.getElementById("PopupInDirect").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                else if (PrimaryChannel == "direct" && document.getElementById("PopupDirect").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                //Check for business unit
+                if (BusinessUnit == "cbu" && document.getElementById("PopupCBU").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+                else if (BusinessUnit == "ebu" && document.getElementById("PopupEBU").checked) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                }
+            }
+        }
+
+    //Save selected portfolio and redirect
+        function FnSavePortfolio() {
+
+
+            //$("#FilterImage").hide();
+            //if ($('#jqxPopupgrid').jqxGrid('getrows').length != $('#jqxPopupgrid').jqxGrid('getselectedrowindexes').length))
+            //{
+            //    $("#FilterImage").show();
+            //}
+            var xx = $('#jqxPopupgrid').jqxGrid('getselectedrowindexes');
+            var PortfolioArray = [];
+            for (var i = 0; i <= xx.length; i++) {
+                var rowdata = $('#jqxPopupgrid').jqxGrid('getrowdata', xx[i]);//as i is starting from 1 and not zero
+                //console.log(rowdata)
+                PortfolioArray[i] = rowdata.Id;
+            }
+            //SS check if select All is checked. Reset the array as we will use 1=1 in query
+            if (PortfolioArray.length == xx.length) {
+                PortfolioArray = [];
+            }
+
+            if (PortfolioArray.length > 0) {
+                $("#PortfolioList").val(PortfolioArray.join(','));
+                $("#WorkFlow").val('@HttpContext.Current.Session["Workflow"]');
+                $("#FilterFormSubmit")[0].submit();
+               // window.location.href = '/GenericGrid/Index?PortfolioList=' + PortfolioArray.join(',') + '&WorkFlow=' + '@HttpContext.Current.Session["Workflow"]';
+
+
+            }
+        }
+
+        //to clear popup grid selection from page
+        //to clear popup grid selection from page
+        function FnClearPopupGrid() {
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+            for (var k = 0; k < GridRows.length; ++k) {
+                $('#jqxPopupgrid').jqxGrid('unselectrow', k);
+            }
+        }
+        //function to get tab counts from array and populate the required grid
+    //SS R2.2
+        function FnGetTabCount(TabName,TabCount) {
+            var counts = 0;
+            for (var i = 0; i < TabArray.length; i++) {
+                if (TabArray[i].TabName.indexOf(TabName) != -1) {
+                    //counts = TabArray[i].TabCount;
+                    FnGetGrid('Grid' + TabName, true, TabCount);
+                    break;
+                }
+            }
+            return counts;
+        }
+    //Function to Load review action in new tab
+        function openInNewTab(url) {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+        function FnDeleteUserPreference() {
+            $.ajax({
+                url: "/GenericGrid/DeleteUserPreferenceData",
+                dataType: "json",
+                type: "POST",
+                data: { WFConfigId: WfConfigId },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (reponse) {
+                    //  alert("error : " + reponse);
+                }
+            });
+        }
+
+</script>
+
+
+@*/*SS:-Below style has been added on page to remove the up arrow disappearing issue in JqxGrid */*@
+<style>
+    .jqx-icon-arrow-up {
+        width: 15px !important;
+        height: 15px !important;
+        color: black !important;
+        padding-left: 0px !important;
+    }
+</style>
+<div id="jqxLoader">
+</div>
+
+<div>
+    <form url="@Url.Action("Index","GenericGrid")" id="FilterFormSubmit" method="post">
+        <input type="hidden" name="PortfolioList" id="PortfolioList" />
+        <input type="hidden" name="WorkFlow" id="WorkFlow" />
+
+    </form>
+
+</div>
+

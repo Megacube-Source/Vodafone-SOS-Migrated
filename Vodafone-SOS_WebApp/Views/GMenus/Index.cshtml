@@ -1,0 +1,229 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+@*@Html.ActionLink("Create New Menu", "Create", "GMenus")*@
+<br>
+
+@*<div id="jqxgrid">
+
+</div>*@
+<div id='jqxWidget'>
+</div>
+<div id='jqxMenu1'>
+
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        //var source = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Id', type: 'string' },
+        //        { name: 'GmMenuName', type: 'string' },
+
+        //    ],
+        //    id: "Id",
+        //    url: "/GMenus/GetMenuList"
+        //};
+
+
+        //var dataAdapter = new $.jqx.dataAdapter(source)
+
+        //var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+        //    return '<button onclick="return CGdelete()" class="GridButton">Delete</button>&emsp;<button onclick="return CGedit()" class="GridButton">Edit</button>';
+        //};
+
+        //$('#jqxgrid').jqxGrid({
+        //    source: dataAdapter,
+        //    width: '100%',
+        //    autoheight: true,
+        //    theme: 'bootstrap',
+        //    sortable: true,
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    showstatusbar: true,
+        //    ready: function () {
+
+        //    },
+
+        //    columns: [
+        //        { text: 'Menu Name', datafield: 'GmMenuName' },
+        //       { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer,width:'20%' }
+        //    ]
+        //});
+
+        $.ajax({
+            url: "/GMenus/GetMenuList",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var source1 =
+                       {
+                           datatype: "json",
+                           datafields: [
+                               { name: 'id' },
+                               { name: 'parentid' },
+                               { name: 'text' },
+                               { name: 'value' }
+                           ],
+                           id: 'id',
+                           localdata: data
+                       };
+
+                var dataAdapter = new $.jqx.dataAdapter(source1);
+
+                dataAdapter.dataBind();
+                var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                $('#jqxWidget').jqxTree({ source: records, keyboardNavigation: true });
+                $('#jqxWidget').jqxTree('expandAll')
+
+                $('#jqxWidget').on('checkChange', function (event) {
+                    var args = event.args;
+                    var item = $('#jqxWidget').jqxTree('getItem', args.element);
+                    var value = item.value;
+                    var checkedItem = $('#jqxWidget').jqxTree('getCheckedItems');
+                    var checkedItems = "";
+                    $.each(checkedItem, function (index) {
+                        if (index < checkedItem.length - 1) {
+                            checkedItems += this.value + ", ";
+                        }
+                        else checkedItems += this.value;
+                    });
+                    //alert(checkedItems)
+                    document.getElementById('MenuList').value = checkedItems;
+
+                })
+
+                var contextMenu=null ;
+                var clickedItem = null;
+
+                var attachContextMenu = function () {
+                    // open the contextmenu on right click
+                    $("#jqxWidget li").on('mousedown', function (event) {
+                        var target = $(event.target).parents('li:first')[0];
+                        var rightClick = isRightClick(event);
+                        if (rightClick && target != null) {
+                            $("#jqxWidget").jqxTree('selectItem', target);
+                            var scrollTop = $(window).scrollTop();
+                            var scrollLeft = $(window).scrollLeft();
+
+                            var item = $('#jqxWidget').jqxTree('getSelectedItem');
+                            var value = item.value;
+                            $.ajax({
+                                url: "/GMenus/GetMenuItems",
+                                data:{id:value},
+                                dataType:"json",
+                                type: "POST",
+                                success: function (data11) {
+                                    var Msource = {
+                                        dataType: "json",
+                                        dataFields: [
+                                             { name: 'id', type: 'string' },
+                                            { name: 'parentid', type: 'string' },
+                                             { name: 'text', type: 'string' },
+                                              { name: 'subMenuWidth', type: 'string' }
+                                        ],
+                                        id: "id",
+                                        localdata:data11
+                                        //url: "/MAgmUserTypesAppObjects/GetMapAgmUserType"
+                                    };
+                                    var MdataAdapter = new $.jqx.dataAdapter(Msource)
+                                    MdataAdapter.dataBind();
+                                    var Mrecords = MdataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }])
+                                    contextMenu = $("#jqxMenu1").jqxMenu({ source: Mrecords, width: '200px', autoOpenPopup: false, mode: 'popup' });
+                                    contextMenu.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                                },
+                                error: function (reponse) {
+                                    //  alert("error : " + reponse);
+                                }
+                            });
+
+                            return false;
+                        }
+                    });
+                }
+                attachContextMenu();
+
+                $("#jqxMenu1").on('itemclick', function (event) {
+                    var item = $.trim($(event.args).text());
+                    switch (item) {
+                        case "Add Item":
+                            var selectedItem = $('#jqxWidget').jqxTree('selectedItem');
+                            if (selectedItem != null) {
+
+                                attachContextMenu();
+                            }
+                            break;
+                        case "Remove Item":
+                            var selectedItem = $('#jqxWidget').jqxTree('selectedItem');
+                            if (selectedItem != null) {
+
+                                attachContextMenu();
+                            }
+                            break;
+                    }
+                });
+                // disable the default browser's context menu.
+                $(document).on('contextmenu', function (e) {
+                    if ($(e.target).parents('.jqx-tree').length > 0) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                function isRightClick(event) {
+                    var rightclick;
+                    if (!event) var event = window.event;
+                    if (event.which) rightclick = (event.which == 3);
+                    else if (event.button) rightclick = (event.button == 2);
+                    return rightclick;
+                }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+    });
+
+    function CGedit()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Edit", "GMenus", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+    function CGdelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowid", selectedrowindex);
+        if (xx) {
+            var url = '@Url.Action("Delete", "GMenus", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }
+</script>

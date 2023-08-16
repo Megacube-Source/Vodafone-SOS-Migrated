@@ -1,0 +1,34 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.RStatusViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>RStatusViewModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.RsStatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RsStatus)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RsStatusDescription)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RsStatusDescription)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

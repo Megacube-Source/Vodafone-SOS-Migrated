@@ -1,0 +1,2056 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+
+@{
+    ViewBag.Title = "Create";
+    var ParentDetails = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel>)ViewBag.ParentDetails;
+    var SupportingDocument = (IEnumerable<Vodafone_SOS_WebApp.ViewModels.LSupportingDocumentViewModel>)ViewBag.SupportingDocuments;
+    var CompanySpecificData = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)@ViewBag.CompanySpecificColumn;
+    var IsWIAMEnabled = ViewBag.IsWIAMEnabled;
+}
+<style>
+    .setheight {
+        min-height: 80px;
+    }
+
+    /*.fa-info-circle::before {
+
+        display:inline;
+
+    }*/
+
+
+</style>
+
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+@*<script src="~/Scripts/ProjectScripts/ProjectScript.js" type="text/javascript"></script>*@
+<script type="text/javascript">
+    //This variable is defined to store value if form has any changes
+    //var isChanged= false;
+
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+          if ('@ViewBag.BannerValue' != "") {
+            //dvbanner
+            $("#dvbanner").show();
+             $("#spnBanner").html('@ViewBag.BannerValue');
+        }
+        else {
+            $("#dvbanner").hide();
+        }
+        var TransactionId=Number('@Model.Id')
+        var CompanySpecificArray =@Html.Raw(Json.Encode(CompanySpecificData.OrderBy(p => p.LcscOrdinalPosition)));
+        GenerateCompanySpecifiCForm(CompanySpecificArray, 'Payees', TransactionId);//call this method placed in ProjectScript file to repaint the form with new labels order and validations
+
+        //NOTE: In all jqxdatetime controls one is added in month while converting from jqxdatetime to razor and vise versa because months are counted from 0 in JS date
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+       //The below code checks for changes in form
+        $('input,select,textarea').change(function(){
+            isChanged=true;
+        })
+        $('#Comments').blur(function () {
+            var value = $(this).val();
+            FnAttachComments(value);
+
+        });
+        $('.fa-window-close').click(function () {
+            //$("#ParentName").val('');
+            document.getElementById('LppParentPayeeId').value = '';
+            document.getElementById('ParentName').value = '';
+            document.getElementById('LpPrimaryChannel').value = '';
+            document.getElementById('LpPrimaryChannel').style.pointerEvents = 'all';
+            document.getElementById('LpPrimaryChannel').style.backgroundColor = 'white'
+        })
+        //To display List of FinOps Role
+     var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'Id' },
+                    { name: 'Name' },
+  { name: 'Select' }
+                ],
+                id: 'Id',
+                url: "/LPayees/GetFinOpsRolesList"
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+      // Create a jqxListBox
+        $("#jqxListBox").jqxListBox({ width: '100%', source: dataAdapter, displayMember: "Name",valueMember: "Id", checkboxes: true,autoHeight:true });
+        $("#jqxListBox").on('checkChange', function (event) {
+           var args = event.args;
+        //    // get new check state.
+            var checked = args.checked;
+        //    // get the item and it's label and value fields.
+            var item = args.item;
+            var label = item.label;
+           var CheckedItems = $("#jqxListBox").jqxListBox('getCheckedItems');
+           var CheckedList = "";
+         var labelStr="";
+                $.each(CheckedItems, function (index) {
+                   if (index < CheckedItems.length - 1) {
+                      CheckedList += this.value + ",";
+     labelStr += this.label + ",";
+                   }
+                   else {
+                        CheckedList += this.value;
+    labelStr += this.label;
+                    }
+
+                });
+                document.getElementById('FinOpsRoleString').value = labelStr;
+               // alert(labelStr)
+                document.getElementById('LpFinOpsRoles').value = CheckedList;
+               // alert(CheckedList)
+        });
+        //To check the ListBox if Finops role is notnull
+     $("#jqxListBox").on('bindingComplete', function (event) {
+    var FinOps='@Model.LpFinOpsRoles';
+            if (FinOps) {
+                   $("#jqxListBox").jqxListBox('checkIndex',0);
+            }
+        });
+
+
+
+        var PayeeId='@Model.Id'
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+            ],
+            id: "Id",
+            data: { PayeeId: PayeeId },
+            url: "/LPayees/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: 200,
+            height: '50%',
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+            ]
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+        //Popup Grid is used to load parent payee
+        @*$("#jqxPopupgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxPopupgrid').jqxGrid('getrows')
+            var ParentPayee = '@Model.LppParentPayeeId';
+           // alert(ParentPayee)
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Id == Number(ParentPayee)) {
+                    // Number. The row's bound index.
+                    $('#jqxPopupgrid').jqxGrid('selectrow', i);
+                    document.getElementById('ParentName').value = GridRows[i].LpFirstName + ' ' + ((String(GridRows[i].LpLastName) == null) ? '' : String(GridRows[i].LpLastName)) + ' (' + String(GridRows[i].LpPayeeCode) + ') ' + ",";
+                }
+            }
+        });*@
+
+
+       // $('#uploadedDocs').load(document.URL + ' #uploadedDocs');
+        //$('#jqxFileUpload').jqxFileUpload({ fileInputName: 'File1', multipleFilesUpload: true, autoUpload: false });
+        //This code loads jqxdatetime widget to get change effective date from user
+        $("#Changedate").jqxDateTimeInput({ width: '49%', height: '22px', placeHolder: "DD/MM/YYYY"});
+    //(make sure user cannot chose ‘Effective Date’ for Prent CR to be less than the Effective start date of the Payee. That means, a payee cannot have a parent even before the payee was effective himself.)
+    @{
+            @: var CRDate = new Date('@Model.LpEffectiveStartDate.Year', '@Model.LpEffectiveStartDate.Month'-1, '@Model.LpEffectiveStartDate.Day')
+            @: $('#Changedate').jqxDateTimeInput('setMinDate', CRDate);
+        }
+       //$('#Changedate ').jqxDateTimeInput('setMinDate', new Date(2008, 0, 1));
+        $('#Changedate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LcrEffectiveStartDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+        });
+
+        $('#Changedate').jqxDateTimeInput('setDate', new Date());
+
+        //This code loads jqxdatetime input to get effective start date of payee
+        var StartDateCount=0;
+        $("#Startdate").jqxDateTimeInput({ width: '79%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Startdate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LpEffectiveStartDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+            if(StartDateCount>0)
+            {
+                isChanged = true;
+            }
+            StartDateCount = StartDateCount + 1;
+        });
+
+        //This code loads jqxdatetime input to get effective end date of payee
+        var EndDateCount = 0;
+        $("#Enddate").jqxDateTimeInput({ width: '79%', height: '22px', placeHolder: "DD/MM/YYYY", value: null });
+        $('#Enddate').on('change', function (event) {
+            var jsDate = event.args.date;
+            var day = jsDate.getDate();        // yields date
+            var month = parseInt(jsDate.getMonth()) + 1;    // yields month
+            var year = jsDate.getFullYear()
+            var date = year + "/" + month + "/" + day
+            //alert(jsDate)
+            document.getElementById('LpEffectiveEndDate').value = date//$('#ShiftStartDateTime').jqxDateTimeInput('getText');;
+            if(EndDateCount>0)
+            {
+                isChanged = true;
+            }
+            EndDateCount = EndDateCount + 1;
+        });
+
+        @if (Model.LpEffectiveEndDate.HasValue) {
+            @: var End = new Date('@Model.LpEffectiveEndDate.Value.Year', '@Model.LpEffectiveEndDate.Value.Month'-1, '@Model.LpEffectiveEndDate.Value.Day')
+            @: $('#Enddate').jqxDateTimeInput('setDate', End);
+        }
+
+        //These lines add the value to start date and end date if present in model
+        @{
+            @: var Start = new Date('@Model.LpEffectiveStartDate.Year','@Model.LpEffectiveStartDate.Month'-1, '@Model.LpEffectiveStartDate.Day')
+            @: $('#Startdate').jqxDateTimeInput('setDate', Start);
+        }
+
+         var FormType = '@ViewBag.FormType'
+        //If parent exist make its values default only in case of create page
+    var ParentPayeeHasValue = '@Model.LppParentPayeeId.HasValue'
+    @if (Model.LppParentPayeeId.HasValue&& ViewBag.FormType == "Create")
+    {
+        @:SetDefaultParentValues("@Model.LppParentPayeeId");
+        }
+    else if(Model.LppParentPayeeId.HasValue)
+    {
+        @:document.getElementById('LpPrimaryChannel').style.pointerEvents = 'none';
+    }
+    //This method is called to check that address is required or not
+    // FnValidateAddress();
+
+    //This variable is defined to store the status of page opened whether it is /create/edit/review/delete
+    //Code to manage review page but now we have a sepeate page for review so it is not used
+    if (FormType == "Review") {
+            $('*', 'form').attr('disabled', 'disabled');
+            $(':button').removeAttr('disabled')
+            document.getElementById('Id').disabled = false;
+        document.getElementById('StatusName').disabled = false;
+        document.getElementById('FormType').disabled = false;
+        document.getElementById('Comments').disabled = false;
+        document.getElementById('CommentsDiv').disabled = false;
+        document.getElementById('FrmHorizontal').disabled = false;
+
+            $("#Startdate").jqxDateTimeInput({ disabled: true })
+            $("#Enddate").jqxDateTimeInput({ disabled: true })
+
+        }
+    //Special Provision for Disabling Email and Payee Code in Edit Mode
+    if (TransactionId != 0) {
+        document.getElementById('LpEmail').style.pointerEvents = 'none';
+       // document.getElementById('LpPayeeCode').style.pointerEvents = 'none';
+        document.getElementById('LpEmail').style.backgroundColor = 'lightgray';
+        //document.getElementById('LpPayeeCode').style.backgroundColor = 'lightgray';
+        //$("#LpEmail").prop("disabled", true);
+        //$("#LpPayeeCode").prop("disabled", true);
+    }
+    //this method displays message from controller as popup
+    if ('@TempData["Message"]') {
+        alert('@TempData["Message"]')
+
+    }
+
+        if ('@TempData["Error"]') {
+        alert('@TempData["Error"]')
+
+    }
+        //Load parent payee grid
+        // Sachin FnLoadParentGrid();
+        var Source = '@ViewBag.Source';
+     if (Source == 'Lobby') {
+         document.getElementById("LpEmail").style.pointerEvents = 'none';
+         document.getElementById("LpEmail").style.backgroundColor = 'lightgray';
+         if ('@Model.LpPayeeCode' == '' || '@Model.LpPayeeCode' == null) {
+             //Payeecode is editable now
+
+         }
+         else {
+             document.getElementById("LpPayeeCode").style.pointerEvents = 'none';
+             document.getElementById("LpPayeeCode").style.backgroundColor = 'lightgray';
+         }
+     }
+    });
+
+
+    var SubChannelId = 0, ChannelId = 0;
+    //This function will default the parent details when a Parent is selected in dropdown
+    @*var DataArray = @Html.Raw(Json.Encode(ParentDetails));
+    //console.log(DataArray)
+    function SetDefaultParentValues(ParentId)
+    {
+        //alert(ParentId)
+        document.getElementById('LpPrimaryChannel').value = null;
+        document.getElementById('LpPrimaryChannel').style.pointerEvents = 'all';
+        document.getElementById('LpPrimaryChannel').style.backgroundColor='white'
+        //document.getElementById('LpBusinessUnit').value = null;
+        ////document.getElementById('LpBusinessUnit').style.pointerEvents = 'all';
+        //document.getElementById('LpChannelId').value = null;
+        //document.getElementById('LpSubChannelId').value = null;
+        if (ParentId) {
+            for (var i = 0; i < DataArray.length; ++i) {
+                if (DataArray[i].Id == ParentId) {
+                    if (DataArray[i].LpPrimaryChannel) {
+                        document.getElementById('LpPrimaryChannel').value = DataArray[i].LpPrimaryChannel;
+                        document.getElementById('LpPrimaryChannel').style.pointerEvents = 'none';
+                        document.getElementById('LpPrimaryChannel').style.backgroundColor = 'lightgray'
+                    }
+                    //if (DataArray[i].LpBusinessUnit) {
+
+                    //    document.getElementById('LpBusinessUnit').value = DataArray[i].LpBusinessUnit;
+                    //   // document.getElementById('LpBusinessUnit').style.pointerEvents = 'none';
+                    //}
+                    //if (DataArray[i].LpChannelId) {
+                    //    ChannelId = DataArray[i].LpChannelId;
+                    //    document.getElementById('LpChannelId').value = DataArray[i].LpChannelId;
+                    //    FnGetSubChannel(DataArray[i].LpChannelId)
+                    //}
+                    //if (DataArray[i].LpSubChannelId) {
+                    //    SubChannelId = DataArray[i].LpSubChannelId;
+                    //    document.getElementById('LpSubChannelId').value = DataArray[i].LpSubChannelId;
+                    //}
+                   // if (DataArray[i].LpAddress)
+                    //{
+                      //      document.getElementById('LpAddress').value = DataArray[i].LpAddress;
+                    //}
+                }
+            }
+        }
+        FnValidateAddress();
+    }*@
+
+    //function Alerts() {
+    //    alert('Functionality not implemented yet')
+    //}
+
+
+    //function RemoveDoc(Name,Path)
+    //{
+    //   // alert(Name)
+    //    $.ajax({
+    //        url: "/Vodafone/RemoveDocs",
+    //        data:{Name:Name,Path:Path},
+    //        dataType:"json",
+    //        type: "POST",
+    //        success: function (data) {
+    //            alert("Document removed sucessfully")
+    //            $('#uploadedDocs').load(document.URL + ' #uploadedDocs');
+    //            //document.getElementById('#uploadedDocs').classList.a("col-md-3");
+    //           // location.reload();
+    //        },
+    //        error: function (reponse) {
+    //            //  alert("error : " + reponse);
+    //        }
+    //    });
+    //}
+
+    @*function FnGetChannel(PrimaryChannel) {
+        $("#LpChannelId").empty()
+        if (PrimaryChannel) {
+            var procemessage = "<option value=null> Please wait...</option>";
+            $("#LpChannelId").html(procemessage).show();
+            var url = "/LPayees/GetChannelByPrimaryChannel/";
+
+            $.ajax({
+                url: url,
+                data: { PrimaryChannel: PrimaryChannel },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    if (data.length != 0) {
+                        var markup = "<option value=null>-- Select Here --</option>";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                        }
+                        $("#LpChannelId").html(markup).show();
+                        var FormType = '@ViewBag.FormType'
+                        if (FormType.indexOf('Create') != -1)
+                        {
+                            document.getElementById('LpChannelId').value = ChannelId;
+                        }
+                        else {
+                            var ModelChannelId = '@Model.LpChannelId'
+                            document.getElementById('LpChannelId').value = ModelChannelId
+                        }
+
+                    } else {
+                        var procemessage = "<option value=null> No Records Found..</option>";
+                        $("#LpChannelId").html(procemessage).show();
+                    }
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+        }
+    }
+
+    //This method loads data in the sub channel dropdown as per channelId passed as parameter
+    function FnGetSubChannel(ChannelId) {
+
+        $("#LpSubChannelId").empty()
+        if (ChannelId!='') {
+            var procemessage = "<option value=null> Please wait...</option>";
+            $("#LpSubChannelId").html(procemessage).show();
+            var url = "/LPayees/GetSubChannelByChannelId/";
+
+            $.ajax({
+                url: url,
+                data: {ChannelId:ChannelId },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    if (data.length != 0) {
+                        var markup = "<option value=0>-- Select Here --</option>";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                        }
+                        $("#LpSubChannelId").html(markup).show();
+                         var FormType = '@ViewBag.FormType'
+                         if (FormType.indexOf('Create') != -1) {
+                             document.getElementById('LpSubChannelId').value = SubChannelId;
+                         }
+                         else {
+                             var ModelSubChannelId = '@Model.LpSubChannelId'
+                             document.getElementById('LpSubChannelId').value = ModelSubChannelId
+                         }
+                    } else {
+                        var procemessage = "<option value=0> No Records Found..</option>";
+                        $("#LpSubChannelId").html(procemessage).show();
+                    }
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+        }
+    }*@
+
+    //This function is defined to check whether address fiels will be required in this form or not
+    function FnValidateAddress()
+    {
+    //NOTE:JS16Feb2018 Please remove address validation on Payee form and release 1.7 to test.
+       /* if(document.getElementById('LppParentPayeeId').value)
+        {
+            $("#LpAddress").attr('placeholder', '');
+            $("#LpAddress").prop('required', false);
+        }
+        else {
+            $("#LpAddress").attr('placeholder', 'Required for Top Level Payee');
+            $("#LpAddress").prop('required', true);
+        }*/
+    }
+
+    //This method is called when system analyst/ Manger clicks on submit for approval/Approve button
+    //function FnApprovePayee(UserRole) {
+    //    if (UserRole == "System Analyst") {//1 is for analyst login
+    //        document.getElementById('StatusName').value = 'PendingApproval'
+    //    }
+    //    if (UserRole=="Manager")//2 is for manager
+    //    {
+    //        document.getElementById('StatusName').value = 'Approved'
+    //    }
+    //    document.getElementById('frm').submit()
+    //}
+
+    ////This method is called when manager/system analyst clicks on reject button
+    //function FnRejectPayee() {
+    //    document.getElementById('StatusName').value = 'Rejected'
+    //    document.getElementById('frm').submit()
+    //}
+
+    ////This method is called when system analyst clicks on reexamine button
+    //function FnReExaminePayee() {
+    //    document.getElementById('StatusName').value = 'ReExamine'
+    //    document.getElementById('frm').submit()
+    //}
+
+    ////this method is called when manager clicks on reinvestigate button
+    //function FnReInvestigatePayee() {
+    //    document.getElementById('StatusName').value = 'Reinvestigate'
+    //    document.getElementById('frm').submit()
+    //}
+
+    //This method is called to enable/disable approve button as per LpAuthorisedpayeeverification value
+    //function FnEnableApprove() {
+
+    //    if (document.getElementById('LpAuthorisedPayeeVerification').checked) {
+    //        document.getElementById('ApproveButton').disabled = false
+    //    }
+    //    else {
+    //        document.getElementById('ApproveButton').disabled = true
+    //    }
+    //}
+
+    //This method is used to submit form in Edit page to create CR
+    var PortfolioArray = [];
+    function FnSubmitForm()
+    {
+        //debugger;
+        PortfolioArray = [];
+        //these lines are added to check if current parent payee is same as previous parent payee
+        //If current parent payee is not same as previous parent payee open a popup asking for change effective start dat date from user
+        FnValidateAddress()
+        var CurrentPayee = document.getElementById('LppParentPayeeId').value;
+        var PreviousPayee = document.getElementById('ParentPayeeId').value;
+        $('#LpPrimaryChannel').prop('required', false);//Removing Client side validation from Primary Channel as it is just used to display purpose user cannot enter its value
+
+        var sucess = $("#frm").validate({
+            message: {
+                LpAddress: "Address is required for top level Parent Payee"
+            }
+        })
+       //Commented by SG- R2.3// if ($('#frm').valid()) {
+            if (CurrentPayee == PreviousPayee) {
+                //Add Portfolios
+                var DirectPortfoliosCount = 0;
+                var InDirectPortfoliosCount = 0;
+                var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+                for (var i = 0; i < rowindexes.length; ++i) {
+                    var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                    PortfolioArray[i] = data.Id;
+                    if (data.RcPrimaryChannel == 'InDirect') {
+                        DirectPortfoliosCount += 1;
+                    }
+                    else if (data.RcPrimaryChannel == 'Direct') {
+                        InDirectPortfoliosCount += 1;
+                    }
+                }
+
+                if (PortfolioArray.length > 0) {//submit form only if user has selected atleast one portfolio--condition dictated by JS
+                    if (PortfolioArray.length == DirectPortfoliosCount || PortfolioArray.length == InDirectPortfoliosCount)
+                    {
+                        isChanged = false;
+                        document.getElementById('PortfolioList').value = PortfolioArray;
+                        document.getElementById('frm').submit()
+                    }
+                    else {
+                        alert('Payee can not be created accross multiple Primary Channels. Please choose portfolios belonging to single Primary Channel')
+                    }
+                }
+                else {
+                    alert('Please select Portfolio')
+                }
+            }
+            else {
+                //if parent payee has been changed
+                $("#myModal1").modal();
+            }
+      //Commented by SG- R2.3  }
+
+    }
+
+    //This method is called when user clicks on delete button
+    function FnDeletePayee() {
+        document.getElementById('FormType').value = 'Delete'
+        $("#myModal1").modal();
+
+    }
+
+    //This method is called when user clicks onsave button after selecting change effective date from popup(showing effective date)
+    function FnFinalSubmit()
+    {
+        //debugger;
+        PortfolioArray = [];
+        FnValidateAddress();
+        $('#LpPrimaryChannel').prop('required', false);//Removing Client side validation from Primary Channel as it is just used to display purpose user cannot enter its value
+
+        var sucess = $("#frm").validate({
+            message:{
+                LpAddress:
+                    { required:"Address is required for top level Parent Payee"
+                    }
+            }
+        })
+
+        if ($('#frm').valid()) {
+            //Add Portfolios
+            var DirectPortfoliosCount = 0;
+            var InDirectPortfoliosCount = 0;
+            var SelectedPrimaryChannel = '';
+            var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            for (var i = 0; i < rowindexes.length; ++i) {
+                var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                PortfolioArray[i] = data.Id;
+                if (data.RcPrimaryChannel=='InDirect') {
+                    DirectPortfoliosCount += 1;
+                }
+                else if (data.RcPrimaryChannel=='Direct') {
+                    InDirectPortfoliosCount += 1;
+                }
+                SelectedPrimaryChannel = data.RcPrimaryChannel.toLowerCase();
+            }
+
+            if (PortfolioArray.length > 0) {//submit form only if user has selected atleast one portfolio--condition dictated by JS
+                //   Validation 2: Check all PC are same in selected portfolios. If not, error message "Payee can not be created accross multiple Primary Channels. Please chosse portfolios belonging to single Primary Channel"
+                if (PortfolioArray.length == DirectPortfoliosCount || PortfolioArray.length == InDirectPortfoliosCount) {
+                    var ParentPrimaryChannel = document.getElementById('LpPrimaryChannel').value;
+                    var Parent = document.getElementById('LppParentPayeeId').value;
+                    //   Validation 1: Check PC for all selected portfolios should be same as PC of Parent Payee. If not, error message "Selected portfolios Primary Channel should be same as Parent Payee's Primary Channel"
+                    if (SelectedPrimaryChannel == ParentPrimaryChannel && Parent != null) {
+                        isChanged = false;
+                        document.getElementById('PortfolioList').value = PortfolioArray;
+                        // $('#jqxLoader').jqxLoader('open');
+                        document.getElementById('frm').submit()
+                    }
+                    else if (!Parent) {
+                        //if he/she is a top level payee
+                        document.getElementById('LpPrimaryChannel').value = SelectedPrimaryChannel;
+                        isChanged = false;
+                        document.getElementById('PortfolioList').value = PortfolioArray;
+                        document.getElementById('frm').submit()
+                    }
+                    else {
+                        alert('Selected portfolios Primary Channel should be same as Parent Payees Primary Channel')
+                    }
+                }
+                else {
+                    alert('Payee can not be created accross multiple Primary Channels. Please choose portfolios belonging to single Primary Channel')
+                    return;
+                }
+            }
+            else {
+                alert('Please select Portfolio')
+            }
+        }
+    }
+
+
+    function SubmitAndSave() {
+        PortfolioArray = [];
+        FnValidateAddress();
+        $('#LpPrimaryChannel').prop('required', false);//Removing Client side validation from Primary Channel as it is just used to display purpose user cannot enter its value
+        document.getElementById('SubmitClicked').value = "True";
+        var sucess = $("#frm").validate({
+            message: {
+                LpAddress:
+                {
+                    required: "Address is required for top level Parent Payee"
+                }
+            }
+        })
+
+        if ($('#frm').valid()) {
+            //Add Portfolios
+            var DirectPortfoliosCount = 0;
+            var InDirectPortfoliosCount = 0;
+            var SelectedPrimaryChannel = '';
+            var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+            for (var i = 0; i < rowindexes.length; ++i) {
+                var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+                PortfolioArray[i] = data.Id;
+                if (data.RcPrimaryChannel == 'InDirect') {
+                    DirectPortfoliosCount += 1;
+                }
+                else if (data.RcPrimaryChannel == 'Direct') {
+                    InDirectPortfoliosCount += 1;
+                }
+                SelectedPrimaryChannel = data.RcPrimaryChannel.toLowerCase();
+            }
+
+            if (PortfolioArray.length > 0) {//submit form only if user has selected atleast one portfolio--condition dictated by JS
+                //   Validation 2: Check all PC are same in selected portfolios. If not, error message "Payee can not be created accross multiple Primary Channels. Please chosse portfolios belonging to single Primary Channel"
+                if (PortfolioArray.length == DirectPortfoliosCount || PortfolioArray.length == InDirectPortfoliosCount) {
+                    var ParentPrimaryChannel = document.getElementById('LpPrimaryChannel').value;
+                    var Parent = document.getElementById('LppParentPayeeId').value;
+                    //   Validation 1: Check PC for all selected portfolios should be same as PC of Parent Payee. If not, error message "Selected portfolios Primary Channel should be same as Parent Payee's Primary Channel"
+                    if (SelectedPrimaryChannel == ParentPrimaryChannel && Parent != null) {
+                        isChanged = false;
+                        document.getElementById('PortfolioList').value = PortfolioArray;
+                        // $('#jqxLoader').jqxLoader('open');
+                        document.getElementById('frm').submit()
+                    }
+                    else if (!Parent) {
+                        //if he/she is a top level payee
+                        document.getElementById('LpPrimaryChannel').value = SelectedPrimaryChannel;
+                        isChanged = false;
+                        document.getElementById('PortfolioList').value = PortfolioArray;
+                        document.getElementById('frm').submit()
+                    }
+                    else {
+                        alert('Selected portfolios Primary Channel should be same as Parent Payees Primary Channel')
+                    }
+                }
+                else {
+                    alert('Payee can not be created accross multiple Primary Channels. Please choose portfolios belonging to single Primary Channel')
+                    return;
+                }
+            }
+            else {
+                alert('Please select Portfolio')
+            }
+        }
+    }
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload=function(){
+    if (isChanged) {
+                return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+    $('#jqxLoader').jqxLoader('open');
+    }
+
+
+    //This function will select rows as per check box selection in portfolio grid
+    function FnSelectRows() {
+        var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+        for (var i = 0; i < GridRows.length; ++i) {
+            $('#jqxgrid').jqxGrid('unselectrow', i);
+            var PrimaryChannel = GridRows[i].RcPrimaryChannel.toLowerCase();
+            var BusinessUnit = GridRows[i].LpBusinessUnit.toLowerCase();
+            if (PrimaryChannel == "indirect" && document.getElementById("InDirect").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (PrimaryChannel == "direct" && document.getElementById("Direct").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            //Check for business unit
+            if (BusinessUnit == "cbu" && document.getElementById("CBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+            else if (BusinessUnit == "ebu" && document.getElementById("EBU").checked) {
+                // Number. The row's bound index.
+                $('#jqxgrid').jqxGrid('selectrow', i);
+            }
+        }
+    }
+
+    //Load Parent Grid in a Popup
+    function FnLoadParentGrid() {
+        //Get ParentId if present
+         var ParentPayee = '@Model.LppParentPayeeId';
+        $.ajax({
+            url: "/LPayees/GetParentPayeeGridCounts",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+                //alert(counts)
+                //The below code will load a grid of portfolios on this page
+                var Parentsource = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'FullName', type: 'string' },
+                        { name: 'LpPrimaryChannel', type: 'string' },
+                        { name: 'LpFirstName', type: 'string' },
+                        { name: 'LpLastName', type: 'string' },
+                        { name: 'LpTradingName', type: 'string' },
+                        { name: 'LpPayeeCode', type: 'string' },
+                        { name: 'LpEffectiveEndDate', type: 'date' }
+
+                    ],
+                    data: { ParentPayeeId: ParentPayee },
+                    id: "Id",
+                    url: "/LPayees/GetParentPayeeGrid",
+                    // update the grid and send a request to the api
+                    filter: function () {
+
+                        $('#jqxPopupgrid').jqxGrid('updatebounddata', 'filter');
+                        $('#jqxPopupgrid').jqxGrid('clearselection');
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                        // $("#" + GridId).jqxGrid('clear');
+                        $('#jqxPopupgrid').jqxGrid('updatebounddata', 'sort');
+                        $('#jqxPopupgrid').jqxGrid('clearselection');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        Parentsource.totalrecords = counts;
+                    }
+                };
+
+                var ParentdataAdapter = new $.jqx.dataAdapter(Parentsource)
+
+
+                $('#jqxPopupgrid').jqxGrid({
+                    source: ParentdataAdapter,
+                    width: '100%',
+                    height: '50%',
+                    // autoheight: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    altrows: true,
+                    pageable: true,
+                    filterable: true,
+                    showfilterrow: true,
+                    showstatusbar: false,
+                    virtualmode: true,
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    //ready: function () {
+
+                    //},
+                    rendergridrows: function () {
+                        return ParentdataAdapter.records;
+                    },
+                    columns: [
+                        { text: 'Payee Code', datafield: 'LpPayeeCode' },
+                        { text: 'First Name', datafield: 'LpFirstName' },
+                        { text: 'Last Name', datafield: 'LpLastName' },
+                        { text: 'Trading Name', datafield: 'LpTradingName' },
+                        { text: 'Primary Channel', datafield: 'LpPrimaryChannel' },
+                        { text: 'End Date', datafield: 'LpEffectiveEndDate' ,cellsformat: 'dd/MM/yyyy' }
+
+                    ]
+                });
+
+
+            }
+        });
+    }
+
+    function FnLoadParentPayeePopup() {
+        $("#ParentPayeeModal").modal();
+    }
+
+
+    //save Selected Parent from Grid
+    function FnSaveParentPayee() {
+        var rowindex = $('#jqxPopupgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            var data = $('#jqxPopupgrid').jqxGrid('getrowdata', rowindex);
+            document.getElementById('LppParentPayeeId').value = data.Id;
+            document.getElementById('ParentName').value = data.LpFirstName + ' ' + ((data.LpLastName) ? String(data.LpLastName) :'' ) + ' (' + String(data.LpPayeeCode) + ') '; //data.LpFirstName + ' ' + data.LpLastName;
+            document.getElementById('LpPrimaryChannel').value = data.LpPrimaryChannel.toLowerCase();
+            document.getElementById('LpPrimaryChannel').style.pointerEvents = 'none';
+            document.getElementById('LpPrimaryChannel').style.backgroundColor = 'lightgray'
+        }
+        else {
+            document.getElementById('LppParentPayeeId').value = '';
+            document.getElementById('ParentName').value ='';
+            document.getElementById('LpPrimaryChannel').value = '';
+            document.getElementById('LpPrimaryChannel').style.pointerEvents = 'all';
+            document.getElementById('LpPrimaryChannel').style.backgroundColor = 'white'
+        }
+    }
+
+</script>
+
+<div id="jqxLoader">
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    //Above token was commented, uncommented by RK during code review
+    <h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>
+    @Html.Hidden("IsWIAMEnabled")
+    @Html.Hidden("Source")
+    @Html.Hidden("UserLobbyId")
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LpCreatedById)
+    @Html.HiddenFor(m => m.LpCreatedDateTime)
+    @Html.HiddenFor(m => m.LpCompanyId)
+    @Html.HiddenFor(m => m.LpFinOpsRoles)
+    @Html.HiddenFor(m => m.LpFileNames)
+    @Html.HiddenFor(m => m.LcrEffectiveStartDate)
+    @Html.HiddenFor(m => m.LpEffectiveStartDate)
+    @Html.Hidden("StatusName")
+    @Html.HiddenFor(m => m.LpUserId)
+    @Html.HiddenFor(m => m.WFAnalystId)
+    @Html.HiddenFor(m => m.WFCurrentOwnerId)
+    @Html.HiddenFor(m => m.WFManagerId)
+    @Html.HiddenFor(m => m.WFOrdinal)
+    @Html.HiddenFor(m => m.WFRequesterId)
+    @Html.HiddenFor(m => m.WFRequesterRoleId)
+    @Html.HiddenFor(m => m.WFStatus)
+    @Html.HiddenFor(m => m.WFType)
+    @Html.HiddenFor(m => m.WFComments)
+    @Html.HiddenFor(m => m.WFCompanyId)
+    @Html.Hidden("ParentPayeeId", @Model.LppParentPayeeId)
+    @Html.Hidden("PortfolioList")
+    @Html.HiddenFor(p => p.FinOpsRoleString)
+    @Html.Hidden("LppParentPayeeId")
+    @Html.HiddenFor(p => p.SubmitClicked)
+    if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == false).Count() > 0)
+    {
+        <div id="Enddate" style="display:none;"></div>
+    }
+    @Html.Hidden("PayeeId")
+    @Html.Hidden("PayeeName")
+
+    <div class="form-horizontal" id="FrmHorizontal">
+
+        <div class="col-md-4" style="min-height:80px">
+            @Html.LabelFor(model => model.LppParentPayeeId, htmlAttributes: new { @class = "col-md-4" })&ensp;
+            <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select parent payee" style="color:#e60000;"></i></a>
+            <div class="col-md-11">
+                <div class="col-md-10">
+                    @*@Html.EditorFor(model => model.ParentName, new { htmlAttributes = new { @class = "form-control ", style = "pointer-Events:none;background:lightgray;" } })*@
+                    @Html.EditorFor(model => model.ParentName, new { htmlAttributes = new { @class = "form-control ", style = "pointer-Events:none;background:lightgray;" } })
+                </div>
+                <div class="col-md-1">
+                    <i class="fa fa-window-close"></i>
+                </div>
+                @*@Html.DropDownListFor(model => model.LppParentPayeeId, null, "-- Top Parent Payee --", new { @class = "form-control ", onchange = "SetDefaultParentValues(this.value)" })*@
+                @Html.ValidationMessageFor(model => model.LppParentPayeeId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+        <div class="col-md-4" style="min-height:80px">
+            @Html.LabelFor(model => model.LpPrimaryChannel, htmlAttributes: new { @class = "col-md-12 required", id = "LblPrimaryChannel" })
+            <div class="col-md-11">
+                @*@Html.EditorFor(model => model.LpPrimaryChannel, new { htmlAttributes = new { @class = "form-control", style = "pointer-Events:none;background:lightgray;" } })*@
+                @Html.DropDownListFor(model => model.LpPrimaryChannel, null, "-- Select Here --", new { @class = "form-control " })
+                @Html.ValidationMessageFor(model => model.LpPrimaryChannel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div id="UnOrderedForm">
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVFirstName">
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-12", id = "LblFirstName" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-11", id = "LblFirstName", @style = "padding-left:0px" })
+                    }
+
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpFirstName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpFirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenFirstName">@Html.HiddenFor(p => p.LpFirstName)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVLastName">
+
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-12", id = "LblLastName" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "LastName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-11", id = "LblLastName", @style = "padding-left:0px" })
+                    }
+
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpLastName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpLastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenLastName">@Html.HiddenFor(p => p.LpLastName)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVTradingName">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = " col-md-12", id = "LblTradingName" })
+
+                    }
+                    else
+                    {
+
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = "col-md-11", id = "LblTradingName", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpTradingName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpTradingName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenTradingName">@Html.HiddenFor(p => p.LpTradingName)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVChannelManager">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-12", id = "LblChannelManager" })
+
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-11", id = "LblChannelManager", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.DropDownListFor(model => model.LpChannelManager, null, "-- Select Here --", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.LpChannelManager, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenChannelManager">@Html.HiddenFor(p => p.LpChannelManager)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVTIN">
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-12", id = "LblTIN" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "TIN").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-11", id = "LblTIN", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpTIN, new { htmlAttributes = new { @class = "form-control col-md-4" } })
+                        @Html.ValidationMessageFor(model => model.LpTIN, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenTIN">@Html.HiddenFor(p => p.LpTIN)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPayeeCode">
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-12", id = "LblPayeeCode" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-11", id = "LblPayeeCode", @style = "padding-left:0px" })
+                    }
+
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPayeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPayeeCode, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenPayeeCode">@Html.HiddenFor(p => p.LpPayeeCode)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPhone">
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = " col-md-12", id = "LblPhone" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Phone").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = "col-md-11", id = "LblPhone", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPhone, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPhone, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenPhone">@Html.HiddenFor(p => p.LpPhone)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVEmail">
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-12 ", id = "LblEmail" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Email").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-11", id = "LblEmail", @style = "padding-left:0px" })
+                    }
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpEmail, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpEmail, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenEmail">@Html.HiddenFor(p => p.LpEmail)</div>
+            }
+
+
+
+            <div class="col-md-4" style="min-height:80px" id="DIVEffectiveStartDate">
+
+
+                @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveStartDate").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                {
+                    @Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = " col-md-12 ", id = "LblEffectiveStartDate" })
+                }
+                else
+                {
+
+                    var title = CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveStartDate").FirstOrDefault().LcscTooltip;
+
+                    <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                    @Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = "col-md-11", id = "LblEffectiveStartDate", @style = "padding-left:0px" })
+                }
+
+
+                <div class="col-md-11">
+                    <div id="Startdate"></div>
+                    @Html.ValidationMessageFor(model => model.LpEffectiveStartDate, "", new { @class = "text-danger" })
+
+                </div>
+            </div>
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVEffectiveEndDate">
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = " col-md-12", id = "LblEffectiveEndDate" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = "col-md-11", id = "LblEffectiveEndDate", @style = "padding-left:0px" })
+                    }
+                    <div class="col-md-11">
+                        <div id="Enddate"></div>
+                        @Html.Hidden("LpEffectiveEndDate")
+                        @Html.ValidationMessageFor(model => model.LpEffectiveEndDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVDistributionChannel">
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = " col-md-12", id = "LblDistributionChannel" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = "col-md-11", id = "LblDistributionChannel", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpDistributionChannel, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpDistributionChannel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenDistributionChannel">@Html.HiddenFor(p => p.LpDistributionChannel)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPosition">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = " col-md-12", id = "LblPosition" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Position").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = "col-md-11", id = "LblPosition", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpPosition, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPosition, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenPosition">@Html.HiddenFor(p => p.LpPosition)</div>
+            }
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA01">
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A01, htmlAttributes: new { @class = "col-md-12", id = "LblA01" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A01").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A01, htmlAttributes: new { @class = "col-md-11", id = "LblA01", @style = "padding-left:0px" })
+                    }
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A01, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A01, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A01, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A01, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA01">@Html.HiddenFor(p => p.A01)</div>
+            }
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA02">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A02, htmlAttributes: new { @class = "col-md-12", id = "LblA02" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A02").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A02, htmlAttributes: new { @class = "col-md-11", id = "LblA02", @style = "padding-left:0px" })
+                    }
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A02, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A02, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A02, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A02, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA02">@Html.HiddenFor(p => p.A02)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA03">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A03, htmlAttributes: new { @class = "col-md-12", id = "LblA03" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A03").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A03, htmlAttributes: new { @class = "col-md-11", id = "LblA03", @style = "padding-left:0px" })
+                    }
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A03, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A03, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A03, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A03, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA03">@Html.HiddenFor(p => p.A03)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA04">
+
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A04, htmlAttributes: new { @class = "col-md-12 ", id = "LblA04" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A04").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A04, htmlAttributes: new { @class = "col-md-11 ", id = "LblA04", @style = "padding-left:0px" })
+                    }
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A04, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A04, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A04, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A04, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA04">@Html.HiddenFor(p => p.A04)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA05">
+
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A05, htmlAttributes: new { @class = "col-md-12", id = "LblA05" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A05").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A05, htmlAttributes: new { @class = "col-md-11", id = "LblA05", @style = "padding-left:0px" })
+                    }
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A05, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A05, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A05, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A05, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA05">@Html.HiddenFor(p => p.A05)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA06">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A06, htmlAttributes: new { @class = "col-md-12", id = "LblA06" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A06").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A06, htmlAttributes: new { @class = "col-md-11", id = "LblA06", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A06, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A06, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A06, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A06, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA06">@Html.HiddenFor(p => p.A06)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA07">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A07, htmlAttributes: new { @class = "col-md-12 ", id = "LblA07" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A07").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A07, htmlAttributes: new { @class = "col-md-11", id = "LblA07", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A07, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A07, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A07, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A07, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA07">@Html.HiddenFor(p => p.A07)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA08">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A08, htmlAttributes: new { @class = "col-md-12 ", id = "LblA08" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A08").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A08, htmlAttributes: new { @class = "col-md-11", id = "LblA08", @style = "padding-left:0px" })
+                    }
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A08, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A08, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A08, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A08, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA08">@Html.HiddenFor(p => p.A08)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA09">
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.A09, htmlAttributes: new { @class = "col-md-12", id = "LblA09" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A09").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A09, htmlAttributes: new { @class = "col-md-11", id = "LblA09", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A09, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A09, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A09, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A09, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA09">@Html.HiddenFor(p => p.A09)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA10">
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.A10, htmlAttributes: new { @class = "col-md-12", id = "LblA10" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A10").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A10, htmlAttributes: new { @class = "col-md-11", id = "LblA10", @style = "padding-left:0px" })
+                    }
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A10, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A10, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A10, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A10, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div id="HiddenA10">@Html.HiddenFor(p => p.A10)</div>
+            }
+
+            @*@if (ViewBag.FormType == "Create")
+                {
+                <div class="col-md-4" style="min-height:80px">
+                    @Html.Label("Attach Documents", htmlAttributes: new { @class = " col-md-8" })
+                    <div class="col-md-11">
+                    <input type="file" class="form-control" id="File1" name="File1" multiple="multiple">
+                    </div>
+                </div>
+                }*@
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVAddress">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-12", id = "LblAddress" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Address").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-11", id = "LblAddress", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.TextAreaFor(m => m.LpAddress, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.LpAddress, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="HiddenAddress">@Html.HiddenFor(p => p.LpAddress)</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVCanRaiseClaims">
+
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = "col-md-6", id = "LblCanRaiseClaims" })
+
+                        @*<a data-toggle="tooltip" data-placement="top" data-original-title="Welcome to the wonderful World of Grammar!" href="#">World of Grammar</a>*@
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = "col-md-5", id = "LblCanRaiseClaims", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-6">
+                        @{ Html.EnableClientValidation(false); }
+                        @Html.CheckBoxFor(model => model.LpCanRaiseClaims)
+                        @{ Html.EnableClientValidation(true); }
+                    </div>
+                    @*<div class="col-md-12">
+                            @Html.ValidationMessageFor(model => model.LpCanRaiseClaims, "", new { @class = "text-danger" })
+                        </div>*@
+                </div>
+            }
+            else
+            {
+                <div id="HiddenCanRaiseClaims">@Html.HiddenFor(p => p.LpCanRaiseClaims, new { id = "LblCanRaiseClaims" })</div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVCreateLogin">
+                    @*Added y Shivani for WIAM integration *@
+                    @if (IsWIAMEnabled == "yes")
+                    {<div id="HiddenCreateLogin">@Html.HiddenFor(p => p.LpCreateLogin)</div>
+                    }
+                    else
+                    {
+
+                        if (CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                        {
+
+                            @Html.LabelFor(model => model.LpCreateLogin, htmlAttributes: new { @class = " col-md-6", id = "LblCreateLogin" })
+                        }
+                        else
+                        {
+
+                            var title = CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").FirstOrDefault().LcscTooltip;
+
+                            <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left tooltiptext"> </span>
+                            @Html.LabelFor(model => model.LpCreateLogin, htmlAttributes: new { @class = "col-md-5", id = "LblCreateLogin", @style = "padding-left:0px" })
+
+                        }
+                        <div class="col-md-6">
+                            @{ Html.EnableClientValidation(false); }
+                            @Html.CheckBoxFor(model => model.LpCreateLogin, new { })
+                            @{ Html.EnableClientValidation(true); }
+                        </div>
+
+
+                    }
+                    @*Commented by sachin*@
+                    @*<div class="col-md-12">
+                            @Html.ValidationMessageFor(model => model.LpCreateLogin, "", new { @class = "text-danger" })
+                        </div>*@
+                </div>
+            }
+            else
+            {
+                <div id="HiddenCreateLogin">@Html.HiddenFor(p => p.LpCreateLogin)</div>
+            }
+        </div>
+        <div id="OrderedForm"></div>
+    </div>
+    <div class="col-md-12">
+        <br>
+        @Html.Label("FinOps Roles", htmlAttributes: new { @class = " col-md-10" })
+        <div id="jqxListBox"></div>
+    </div>
+    <div class="col-md-12">
+        <br>
+        @Html.Label("Portfolios", htmlAttributes: new { @class = " col-md-10 required" })
+        <br>
+        <div class="col-md-8">
+            @Html.Label("Direct", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("Direct", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("InDirect", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("InDirect", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("EBU", htmlAttributes: new { @class = " col-md-1 col-lg-1 " })
+            @Html.CheckBox("EBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+            @Html.Label("CBU", htmlAttributes: new { @class = " col-md-1 col-lg-1" })
+            @Html.CheckBox("CBU", new { @class = " col-md-1 col-lg-1", onchange = "FnSelectRows()" })&ensp;
+        </div>
+        <br>
+
+        <div id="jqxgrid"></div>
+    </div>
+
+    <div class="col-md-12 col-lg-12" style="min-height:80px" id="CommentsDiv">
+        @Html.LabelFor(m => m.Comments, htmlAttributes: new { @class = " col-md-12 col-lg-12" })
+        @Html.TextAreaFor(m => m.Comments, htmlAttributes: new { @class = "col-md-12 col-lg-12 textarea1 setheight" })
+        @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+
+        @*@Html.Label("Comments", htmlAttributes: new { @class = " col-md-8" })
+            <textarea id="Comments" name="Comments" style="min-height:80px" class="col-md-12 col-lg-12 textarea1" onchange="FnAttachComments(this.value)"></textarea>*@
+        @*@Html.TextAreaFor(m => m.Comments, new { @class = "form-control col-md-4" })*@
+    </div>
+
+
+
+    @*This code display existing comments in disabled mode*@
+    <div class="col-md-10">
+        <br>
+        @Html.LabelFor(model => model.WFComments, htmlAttributes: new { })
+    </div>
+    <div>
+        <textarea id="WFComments" class="textarea1" style="height:200px" disabled="disabled">@Model.WFComments</textarea><br>
+
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-md-8">
+            <br>
+            @if (ViewBag.FormType == "Review")
+            {
+                if (HttpContext.Current.Session["UserRole"].ToString() == "Manager")
+                {
+
+
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button class="btn btn-red btn-cons" onclick="FnApprovePayee('Manager')">Approve&nbsp;</button>
+                    <button class="btn btn-red btn-cons" onclick="FnRejectPayee()">Reject&nbsp;</button>
+                    <button class="btn btn-red btn-cons" onclick="FnReInvestigatePayee()">ReInvestigate&nbsp;</button>
+                    <br />
+                    <div id="dvbanner"><span id="spnBanner"></span></div>
+                }
+                if (HttpContext.Current.Session["UserRole"].ToString() == "System Analyst")
+                {
+
+
+
+                    @*@Html.CheckBoxFor(m => m.LpAuthorisedPayeeVerification, new { onclick = "FnEnableApprove()" })@Html.LabelFor(m => m.LpAuthorisedPayeeVerification)*@
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button id="ApproveButton" disabled="disabled" class="btn btn-red btn-cons" onclick="FnApprovePayee('System Analyst')">Submit For Approval&nbsp;</button>
+                    <button class="btn btn-red btn-cons" onclick="FnRejectPayee()">Reject&nbsp;</button>
+                    <button class="btn btn-red btn-cons" onclick="FnReExaminePayee()">ReExamine&nbsp;</button>
+                    <div id="dvbanner"> <span id="spnBanner"></span></div>
+                }
+
+            }
+
+            else if (ViewBag.FormType == "Edit")
+            {
+
+                <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                <button type="button" onclick="FnSubmitForm()" class="btn btn-red btn-cons">Save &nbsp;</button>
+                @*<button type="button" onclick="FnDeletePayee()" class="btn btn-red btn-cons">Terminate &nbsp;</button>*@
+                <label for="File1" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                <input id="File1" name="File1" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">
+                <div id="dvbanner"><span id="spnBanner"></span></div>
+            }
+            else
+            {
+                if (ViewBag.FormType == "EditDetails")
+                {
+
+
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button class="btn btn-red btn-cons" type="button" onclick="FnFinalSubmit()" value="Submit" id="btnsave">Save &nbsp;</button>
+
+                    if (ViewBag.GetSudmitableorNot == "True")
+                    {
+                        <button class="btn btn-red btn-cons" id="SubmitButton" type="button" onclick="SubmitAndSave()">Submit&nbsp;</button>
+
+                    }
+                    <label for="File1" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                    @*<input id="File1" name="File1" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">*@
+                    <input id="File1" name="File1" type="file" multiple="multiple" onchange="FnGetUploadedCommon(this,'@Model.Id','LPayees','@Model.LpPayeeCode')">
+                    <br />
+                    <div id="dvbanner"><span id="spnBanner"></span></div>
+                }
+                else
+                {
+
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button class="btn btn-red btn-cons" type="button" onclick="FnFinalSubmit()" value="Submit" id="btnsave">Submit &nbsp;</button>
+                    <label for="File1" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                    <input id="File1" name="File1" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">
+                    <br /> <div id="dvbanner"><span id="spnBanner"></span></div>
+                }
+
+            }
+        </div>
+    </div>
+}
+@*This div will display uploaded file*@
+
+<br>
+@*Existing attachments will be shown only when editpage /change request page is opened *@
+@if (ViewBag.FormType == "Edit" || ViewBag.FormType == "EditDetails")
+{
+    <div class="col-md-12">
+
+        <table class="col-md-12 col-lg-12">
+            <tr><td>Existing Attachments</td></tr>
+            @if (SupportingDocument != null)
+            {
+                foreach (var Files in SupportingDocument)
+                {
+                    <tr><td><b>@Files.LsdFileName</b>&emsp; &emsp;<a href="/GenericGrid/DeleteSupportingDocument?id=@Files.Id&EntityId=@Model.Id&EntityType=LPayees&FormType=@ViewBag.FormType"><i class="glyphicon glyphicon-remove" style="color:red;"></i></a></td></tr>
+                }
+            }
+        </table>
+    </div>
+    <div class="col-md-12">
+        <span>Attached Attachments</span>
+
+    </div>
+}
+
+
+<div class="col-md-12" id="AttachedFiles"></div>
+<!-- This code displays a popup to get change effective date-->
+<div class="modal fade" id="myModal1" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Please provide Effective Date for this change</h4>
+            </div>
+            <div class="modal-body">
+
+                <div id="Changedate"></div>&ensp;<br><button type="button" class="btn btn-success btn-cons" onclick="FnFinalSubmit()">Save&nbsp; <i class="fa fa-share-paper-plane" aria-hidden="true"></i></button>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>*@
+        </div>
+
+    </div>
+</div>
+<br />
+<br />&ensp;
+
+<!-- This code displays a popup to get Selected Payees-->
+@*<div class="modal fade" id="ParentPayeeModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="PopupHeader">Parent Payee</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="jqxPopupgrid"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-red pull-left" onclick="FnSaveParentPayee()" data-dismiss="modal">Ok</button>&ensp;
+                    <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>*@
+
+@Html.Partial("_GlobalPayeeGrid")
+
+<style>
+    input[type="file"] {
+        display: none;
+    }
+</style>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+

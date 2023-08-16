@@ -1,0 +1,36 @@
+﻿
+
+@using (Html.BeginForm("UpdateChangeRequest", "LPayees", FormMethod.Post, new {id="frm1",name="frm1" }))
+{
+    @*@Html.AntiForgeryToken()*@
+    @Html.Hidden("StatusName")
+    
+    <div class=" form-horizontal">
+
+        <div class="form-group">
+            @Html.Label("Comments", htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-12">
+               @Html.TextArea("Comments", new { rows = "5", cols = "15",style="width:100%" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-8">
+               @if (HttpContext.Current.Session["UserRole"] as string == "Manager")
+               {
+                <input type="button" value="Approve" class="btn btn-red btn-cons" onclick="document.getElementById('StatusName').value = 'Approved'; document.getElementById('frm1').submit()" />
+                <input type="button" value="Reject" class="btn btn-red btn-cons" onclick="document.getElementById('StatusName').value = 'Rejected'; document.getElementById('frm1').submit()" />
+
+               }
+               else
+               {
+                <input type="button" value="Withdraw" class="btn btn-red btn-cons" onclick="document.getElementById('StatusName').value = 'Withdrawn'; document.getElementById('frm1').submit()" />
+               if (HttpContext.Current.Session["UserRole"] as string == "System Analyst")
+                    {
+                    <input type="button" value="Send For Manager Approval" class="btn btn-red btn-cons" onclick="document.getElementById('StatusName').value = 'PendingApproval'; document.getElementById('frm1').submit()" />
+               }
+            }
+
+            </div>
+        </div>
+        </div>
+}

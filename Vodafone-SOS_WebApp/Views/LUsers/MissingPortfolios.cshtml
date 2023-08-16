@@ -1,0 +1,517 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LUserViewModel
+
+@{
+    ViewBag.Title = "MissingPortfolios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<h2>Add Missing Portfolios</h2>*@
+<h5 class="text-danger text-capitalize">
+    Add Missing Portfolios
+</h5>
+<div class="row">
+    <div class="container col-md-12">
+        <div class="col-sm-2 col-md-2 col-lg-2" style="float:left;">
+            <input type="radio" name="UserType" value="FinopsUser" checked="checked"> Finops User
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2" style="float:left;">
+            <input type="radio" name="UserType" value="Payee"> Payee
+            </div>
+
+        </div>
+    <br />
+    <br />
+        <div class="container col-md-12">
+            <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px">
+                @Html.Label("Select EmailId", new { @class = "required" })
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3">
+                @Html.TextBox("LuEmail", null, new { @class = "form-control", @style = "text-align: left" })
+                @*@Html.DropDownList("LuEmail", null, "-- Select Here --", new { @class = "form-control", @style = "text-align: left", onchange = "GetSelecterType(this.value)" })*@
+                @Html.ValidationMessageFor(model => model.LuEmail, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2" style="float:left;">
+                <input type="button" class="btn btn-red btn-cons" value="Go" onclick="GetVerifiedEmailID()">
+            </div>
+
+            <div class="col-sm-4 col-md-4 col-lg-4" id="dvShowAllButtons" style="display:none;">
+                <input type="button" class="btn btn-red btn-cons" value="Add all Portfolios to all roles" onclick="FnSavePortfolioedForAllRolesByUserEmailID()">
+                @*<button id="btnsave" type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio()" data-dismiss="modal">Add all Portfolios to all roles</button>*@
+            </div>
+            <div id="dvshowparts" style="display:none;">
+                <div class="col-sm-2 col-md-2 col-lg-2" style="padding-left:0px;margin-top:10px">
+                    @Html.Label("Select Role", new { @class = "required" })
+                </div>
+                <div class="col-sm-10 col-md-10 col-lg-10" style="margin-top:10px">
+                    @Html.DropDownList("SelectorType", new List<SelectListItem> { new SelectListItem { Text = "-- Select Here --", Value = null } }, new { @class = "form-control col-md-8", onchange = "fngetgrids(this.value)" })
+                    @Html.ValidationMessageFor(model => model.Roles, "", new { @class = "text-danger" })
+                </div>
+                &nbsp;
+                @*<p id="txtnote" style="color:red; font-size:small;font-style:normal">  Note: Missing Portfolios can be Assigned using drag and drop functionality</p>*@
+                <div class="container col-md-12 col-lg-12" style="padding-left:0px;">
+                    <div id="dvlabel" style="font-size:small; ">
+                        @*<div style="padding-left:0px" class="col-sm-2 col-md-2 col-lg-5 ">Assigned Portfolios:</div>*@
+                        <div class="col-sm-2 col-md-2 col-lg-5">Missing Portfolios:</div>
+                    </div>
+
+                    <table class="col-sm-2 col-md-2 col-lg-5" style="margin-right:10px;margin-top:0px;display:none;">
+
+                        <tbody>
+                            <tr>
+
+                                <td id="listAssigned"></td>
+                                @*<td style="display:none" id="dropPanel"></td>*@
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    @*<p>Missing Portfolios</p>*@
+                    <table id="draggable" class="col-sm-2 col-md-2 col-lg-5" style="margin-left:5px;margin-top:0px">
+                        <tbody>
+                            <tr>
+                                <td id="listUnAssigned"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="container col-md-12 col-lg-12" style="margin-top:10px">
+                    <div class="col-sm-2 col-md-2 col-lg-5" style="margin-right:5px">
+
+                        <button id="btnsave" type="button" class="btn btn-red pull-left" onclick="FnSavePortfolio()" data-dismiss="modal">Add Selected Portfolios</button>&ensp;
+
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-5" style="padding:0px">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="LuEmailID" value="0" />
+    </div>
+
+    <script type="text/javascript">
+        var userId;
+        var assigneddata;
+        var unassigneddata;
+        var selectedrole;
+        $(document).ready(function () {
+            // $("#txtnote").hide();
+            $("#dvlabel").hide();
+            $("#btnsave").hide();
+        });
+        //function to populate Assigned grid
+        function Assignedgrid() {
+            var source =
+                {
+                    localdata: assigneddata,
+                    datatype: "array"
+                };
+            var dataAdapter = new $.jqx.dataAdapter(source, {
+                downloadComplete: function (data, status, xhr) { },
+                loadComplete: function (data) { },
+                loadError: function (xhr, status, error) { }
+            });
+
+            $("#listAssigned").jqxGrid(
+                {
+                    width: '50%',
+                    //  altrows: true,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    altrows: true,
+                    pageable: false,
+                    filterable: true,
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    autoshowcolumnsmenubutton: false,
+                    showstatusbar: false,
+                    source: dataAdapter,
+                    columns: [
+                        { text: 'Primary Channel', datafield: 'RcPrimaryChannel', width: '33%' },
+                        { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '33%' },
+                        { text: 'Channel', datafield: 'RcName', width: '34%' }
+                    ]
+                });
+            $("#listAssigned").jqxGrid({ height: 300 });//--RS to provide customized height to jqxgrid
+
+        }
+        //function to populate UnAssigned grid
+        function UnAssignedgrid() {
+            var source =
+                {
+                    localdata: unassigneddata,
+                    datatype: "array"
+                };
+            var dataAdapter = new $.jqx.dataAdapter(source, {
+                downloadComplete: function (data, status, xhr) { },
+                loadComplete: function (data) { },
+                loadError: function (xhr, status, error) { }
+            });
+
+            $("#listUnAssigned").jqxGrid(
+                {
+                    width: '50%',
+                    altrows: true,
+                    source: dataAdapter,
+                    theme: 'bootstrap',
+                    sortable: true,
+                    columnsresize: true,
+                    columnsreorder: true,
+                    altrows: true,
+                    pageable: false,
+                    filterable: true,
+                    autoshowcolumnsmenubutton: false,
+                    showstatusbar: false,
+                    selectionmode: 'checkbox',
+                    enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+                    //rendered: function (type) {
+                    //    var feedback;
+                    //    var table;
+                    //    // select all grid rows.
+                    //    var gridCells = $('#listUnAssigned').find('div[role="row"]');
+                    //    // initialize the jqxDragDrop plug-in. Set its drop target to the second Grid.
+                    //    gridCells.jqxDragDrop({
+                    //        appendTo: 'body',
+                    //        dragZIndex: 99999,
+                    //        dropAction: 'none',
+                    //        initFeedback: function (feedback) {
+                    //            feedback.height(25);
+                    //        },
+                    //        dropTarget: $('#listAssigned'), revert: true
+                    //    });
+
+                    //    // initialize the dragged object.
+                    //    gridCells.off('dragStart');
+                    //    gridCells.bind('dragStart', function (event) {
+                    //        // var value = $(this).text();
+
+                    //        var cell = $("#listUnAssigned").jqxGrid('getcellatposition', event.args.pageX, event.args.pageY);
+                    //        var rowsindexes = $("#listUnAssigned").jqxGrid('getselectedrowindexes');
+                    //        var rows = [];
+                    //        var clickedrow = cell.row;
+                    //        var isselected = false;
+                    //        for (var i = 0; i < rowsindexes.length; i++) {
+                    //            if (rowsindexes[i] == clickedrow) {
+                    //                isselected = true;
+                    //            }
+                    //            rows[rows.length] = $("#listUnAssigned").jqxGrid('getrowdata', rowsindexes[i]);
+                    //        }
+                    //        if (!isselected) {
+                    //            $("#listUnAssigned").jqxGrid('selectrow', cell.row);
+                    //            rows[rows.length] = $("#listUnAssigned").jqxGrid('getrowdata', cell.row);
+                    //        }
+                    //        if (rows.length > 0) {
+                    //            // update feedback's display value.
+                    //            feedback = $(this).jqxDragDrop('feedback');
+                    //            if (feedback) {
+                    //                feedback.height(rows.length * 25 + 25);
+                    //                table = '<table>';
+                    //                table += '<tr>';
+                    //                $.each(columns, function (index) {
+                    //                    table += '<td style="width:' + this.width + ';">';
+                    //                    table += this.text;
+                    //                    table += '</td>';
+                    //                });
+                    //                table += '</tr>';
+                    //                $.each(rows, function () {
+                    //                    table += '<tr>';
+                    //                    table += '<td>';
+                    //                    table += this.RcPrimaryChannel;
+                    //                    table += '</td>';
+                    //                    table += '<td>';
+                    //                    table += this.LpBusinessUnit;
+                    //                    table += '</td>';
+                    //                    table += '<td>';
+                    //                    table += this.RcName;
+                    //                    table += '</td>';
+                    //                    table += '</tr>';
+                    //                });
+                    //                table += '</table>';
+
+                    //                feedback.html(table);
+                    //            }
+
+                    //           //  feedback.html('');
+                    //            $(this).jqxDragDrop({ data: rows })
+                    //            gridCells.jqxDragDrop({ revert: false });
+                    //        }
+                    //    });
+                    //    gridCells.off('dragEnd');
+                    //    gridCells.off('dropTargetEnter');
+                    //    gridCells.off('dropTargetLeave');
+
+                    //    // disable revert when the dragged cell is over the second Grid.(add data when it is near the grid or on the grid)
+                    //    gridCells.on('dropTargetEnter', function () {
+                    //        var dataEnter = $(this).jqxDragDrop('data');
+                    //        dataEnter["isEnter"] = true;
+                    //        $(this).jqxDragDrop('data', dataEnter);
+                    //        gridCells.jqxDragDrop({ revert: false });
+                    //    });
+                    //    // enable revert when the dragged cell is outside the second Grid.(no add the data when it is not in the grid 2)
+                    //    gridCells.on('dropTargetLeave', function (e) {
+                    //        gridCells.jqxDragDrop({ revert: true });
+                    //    });
+
+                    //    // initialize the dragged object.
+                    //    //gridCells.on('dragStart', function (event) {
+                    //    //    //var xx = $('#listUnAssigned').jqxGrid('getselectedrowindexes');
+                    //    //    //var value = xx;
+                    //    //    var value = $(this).text();
+                    //    //    //alert(value);
+                    //    //    var position = $.jqx.position(event.args);
+                    //    //    console.log(position);
+                    //    //    var cell = $("#listUnAssigned").jqxGrid('getcellatposition', position.left, position.top);
+                    //    //    var rowData = $("#listUnAssigned").jqxGrid('getrowdata', cell.row);
+                    //    //    rowData["isEnter"] = false;
+                    //    //    $(this).jqxDragDrop('data', rowData);
+                    //    //});
+
+                    //    var hasEmpty = true;
+                    //    gridCells.on('dragEnd', function (event) {
+
+                    //        //feedback.html('');
+                    //        //table= '';
+
+                    //        //  var xx = $('#listUnAssigned').jqxGrid('getselectedrowindexes');
+                    //        ////  alert(xx);
+                    //        //  var value = xx;
+                    //        // // var value = $(this).text();
+                    //        //  var position = $.jqx.position(event.args);
+                    //        //  var cell = $("#listAssigned").jqxGrid('getcellatposition', position.left, position.top);
+                    //        //  var dataTransfer = $(this).jqxDragDrop('data');
+                    //        //  alert(dataTransfer.isEnter);
+                    //        //  var isTargetEnter = dataTransfer.isEnter;
+                    //        //  if (cell != null && !!isTargetEnter) {
+
+                    //        //      gridCells.jqxDragDrop({ revert: false });
+                    //        //      var commit = $("#listAssigned").jqxGrid("addrow", cell.row, dataTransfer, "first");
+                    //        //      //alert(commit);
+                    //        //      if (hasEmpty)
+                    //        //          $('#listAssigned').jqxGrid('deleterow', 0);
+                    //        //      hasEmpty = false;
+                    //        //  }
+
+
+
+
+                    //        //var value = $(this).jqxDragDrop('data');
+                    //        //var position = $.jqx.position(event.args);
+                    //        //var pageX = position.left;
+                    //        //var pageY = position.top;
+                    //        //var $destination = $("#listAssigned");
+                    //        //var targetX = $destination.offset().left;
+                    //        //var targetY = $destination.offset().top;
+                    //        //var width = $destination.width();
+                    //        //var height = $destination.height();
+                    //        //if (pageX >= targetX && pageX <= targetX + width) {
+                    //        //    if (pageY >= targetY && pageY <= targetY + height) {
+                    //        //        $destination.jqxGrid('addrow', null, value);
+                    //        //    }
+                    //        //}
+
+
+
+                    //        var xx = $('#listUnAssigned').jqxGrid('getselectedrowindexes');
+                    //        PortfolioArray = [];
+                    //        PortfolioNames = [];
+                    //        for (var i = 1; i <= xx.length; i++) {
+                    //            var rowdata = $('#listUnAssigned').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+                    //            PortfolioArray[i] = rowdata.Id;
+                    //            PortfolioNames[i] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
+                    //        }
+                    //        var CommaSeperatedString = PortfolioArray.join(',');
+                    //        $.ajax({
+                    //            type: "POST",
+                    //            cache: false,
+                    //            url: "/LUsers/AssignPortfolios",
+                    //            data: { CommaSeperatedString: CommaSeperatedString, UserId: userId, rolename: selectedrole },
+                    //            success: function (response) {
+                    //                $("#listUnAssigned").jqxGrid('clearselection');//to clear the checkboxes after selecting and clicking on save button
+                    //                fngetgrids(selectedrole);
+                    //                alert("Assigned Successfully");
+                    //            },
+                    //            error: function (reponse) {
+                    //            }
+                    //        });
+                    //        gridCells.jqxDragDrop({ revert: false });
+                    //    });
+                    //},
+                    columns: [
+                        { text: 'Primary Channel', datafield: 'RcPrimaryChannel', width: '33%' },
+                        { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '33%' },
+                        { text: 'Channel', datafield: 'RcName', width: '29%' }
+                    ],
+
+                });
+            $("#listUnAssigned").jqxGrid({ height: 300 });
+        }
+        //function to save the selected portfolio and save in Assigned grid
+        function FnSavePortfolio() {
+            var xx = $('#listUnAssigned').jqxGrid('getselectedrowindexes');
+            // alert(xx);
+            PortfolioArray = [];
+            PortfolioNames = [];
+            var radioValue = $("input[name='UserType']:checked").val();
+            if (xx.length == 0) {
+                alert("Kindly Select at least one portfolio.");
+                return false;
+            }
+            for (var i = 1; i <= xx.length; i++) {
+                var rowdata = $('#listUnAssigned').jqxGrid('getrowdata', xx[i - 1]);//as i is starting from 1 and not zero
+                PortfolioArray[i] = rowdata.Id;
+                PortfolioNames[i] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
+            }
+            var CommaSeperatedString = PortfolioArray.join(',');
+            $.ajax({
+                type: "POST",
+                cache: false,
+                url: "/LUsers/AssignMissingPortfolios",
+                data: { CommaSeperatedString: CommaSeperatedString, UserId: userId, rolename: selectedrole, radioValue: radioValue },
+                success: function (response) {
+                    $("#listUnAssigned").jqxGrid('clearselection');//to clear the checkboxes after selecting and clicking on save button
+                    fngetgrids(selectedrole);
+                    alert("Assigned Successfully");
+                },
+                error: function (reponse) {
+
+                }
+            });
+
+        }
+        //method to get the Assigned and UnAssigned grid on the basis of selected parameters from the dropdown
+        function fngetgrids(rolename) {
+            selectedrole = rolename
+            var radioValue = $("input[name='UserType']:checked").val();
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "/LUsers/GetPortfoliobyUserId",
+                data: { UserId: userId, rolename: rolename, radioValue: radioValue },
+                success: function (response) {
+                    assigneddata = response.argAssigned;
+                    unassigneddata = response.argUnAssigned;
+                    if (response.argUnAssigned == "") {
+
+
+                        //$("#txtnote").hide();
+                        //$("#dvlabel").hide();
+                        $("#btnsave").hide();
+                    }
+                    else {
+                        $("#btnsave").show();
+                        //$("#txtnote").show();
+                        //$("#dvlabel").show();
+                    }
+                    Assignedgrid();
+                    UnAssignedgrid();
+                },
+                error: function (reponse) {
+
+                }
+            });
+        }
+        //method to get all the roles assgned to a particular user(selected in Email dropdown)
+        function GetSelecterType(selectedid, radioValue) {
+            userId = selectedid;
+            $("#SelectorType").empty()
+            if (selectedid != '') {
+                var procemessage = "<option value=null> Please wait...</option>";
+                $("#SelectorType").html(procemessage).show();
+                var url = "/LUsers/GetUserRoleByIdForMissingPortfolio/";
+                $.ajax({
+                    url: url,
+                    data: { UserId: selectedid, radioValue: radioValue},
+                    cache: false,
+                    type: "POST",
+                    success: function (data) {
+                        if (data.length != 0) {
+                            var markup = "<option value=null>-- Select Here --</option>";
+                            for (var x = 0; x < data.length; x++) {
+                                console.log(data[x].Name);
+                                markup += "<option value=\"" + data[x].Name + "\">" + data[x].Name + "</option>";
+                            }
+                            $("#SelectorType").html(markup).show();
+
+                        } else {
+                            var procemessage = "<option value=0> No Records Found..</option>";
+                            $("#SelectorType").html(procemessage).show();
+                        }
+                    },
+                    error: function (reponse) {
+                        alert("error : " + reponse);
+                    }
+                });
+            }
+        }
+        //Added by Sachin New code
+        function GetVerifiedEmailID() {
+            $("#listUnAssigned").jqxGrid('clear');
+            var userId = $("#LuEmail").val();
+            var radioValue = $("input[name='UserType']:checked").val();
+            if (userId == "") {
+                alert("Kindly enter the valid EmailID");
+                return false;
+            }
+            if (userId != '') {
+
+                var url = "/LUsers/GetEmailVerified/";
+                $.ajax({
+                    url: url,
+                    data: { UserEmail: userId, radioValue: radioValue },
+                    cache: false,
+                    type: "POST",
+                    success: function (data) {
+                        if (data != "User/Payee not found in opco." && data != "User/Payee is not Active") {
+                            document.getElementById("LuEmailID").val = data
+                            $("#dvshowparts").show();
+                            $("#dvShowAllButtons").show();
+
+                            GetSelecterType(data, radioValue);
+                        }
+                        else if (data == "User/Payee not found in opco.") {
+                            alert("User/Payee doesnot belong to that opco.");
+                            $("#dvshowparts").hide();
+                            $("#dvShowAllButtons").hide();
+                            //return false;
+                        }
+                        else if (data == "User/Payee is not Active") {
+                            alert("User/Payee is not Active.");
+                            //return false;
+                            $("#dvshowparts").hide();
+                            $("#dvShowAllButtons").hide();
+                        }
+                    },
+                    error: function (reponse) {
+                        alert("error : " + reponse);
+                    }
+                });
+            } else {
+                alert("Please provide valid Email.");
+                $("#dvshowparts").hide();
+                $("#dvShowAllButtons").hide();
+            }
+        }
+
+        function FnSavePortfolioedForAllRolesByUserEmailID() {
+            var userId = $("#LuEmail").val();
+            var radioValue = $("input[name='UserType']:checked").val();
+            $.ajax({
+                url: '/LUsers/SavePortfolioedForAllRolesByUserEmailID/',
+                data: { UserEmail: userId, radioValue: radioValue },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+
+                    if (selectedrole != undefined) {
+                        fngetgrids(selectedrole);
+                    }
+                    alert("Portfolio added to respective roles.");
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+        }
+    </script>
+
+

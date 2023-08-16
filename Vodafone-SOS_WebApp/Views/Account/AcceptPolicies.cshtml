@@ -1,0 +1,26 @@
+﻿@model Vodafone_SOS_WebApp.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "AcceptPolicies";
+}
+<script>
+    function AcceptPolicy() {
+        var Email = '@Model.Email'
+        var Password = '@Model.Password'
+        var UserId = '@Model.Id'
+        var ClientIPAddress='@Model.ClientIPAddress'
+        window.location.href = '/Account/UpdateAcceptPolicies?Email=' + Email + '&UserId=' + UserId + '&ClientIPAddress=' + ClientIPAddress;
+    }
+</script>
+
+<h2>Accept Policies</h2>
+<div class="form-horizontal">
+    <div class="col-md-12">
+        @Html.Raw(ViewBag.PolicyText)
+    </div>
+    <div class="col-md-12">
+        <button class="btn btn-red" onclick="AcceptPolicy()">Accept</button>&ensp;
+        <button onclick="window.location.href='/Home/Index'" class="btn btn-borderRed">Cancel</button>
+    </div>
+</div>
+

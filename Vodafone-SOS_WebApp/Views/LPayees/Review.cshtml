@@ -1,0 +1,651 @@
+﻿
+@{
+    ViewBag.Title = "Review";
+}
+
+@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+@{
+    ViewBag.Title = "EditDetails";
+    var CompanySpecificData = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)@ViewBag.CompanySpecificColumn;
+}
+
+
+<script src="~/Scripts/jqxfileupload.js"></script>
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@TempData["FileMessage"]')
+        {
+            alert('@TempData["FileMessage"]')
+            //setTimeout(function () {
+            //    //window.location.href = window.location.href;
+
+            //},1000)
+        }
+       // $('#uploadedDocs').load(document.URL + ' #uploadedDocs');
+        //$('#jqxFileUpload').jqxFileUpload({ fileInputName: 'File1', multipleFilesUpload: true, autoUpload: false });
+
+        EnableApprove();
+
+       
+        });
+
+    function Alerts() {
+        alert('Functionality not implemented yet')
+    }
+
+
+
+    function GetSubChannel(ChannelId) {
+        $("#LpSubChannelId").empty()
+        if (ChannelId) {
+            var procemessage = "<option value=null> Please wait...</option>";
+            $("#LpSubChannelId").html(procemessage).show();
+            var url = "/LPayees/GetSubChannelByChannelId/";
+
+            $.ajax({
+                url: url,
+                data: { ChannelId: ChannelId },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    if (data.length != 0) {
+                        var markup = "<option value='0'>-- Select Here --</option>";
+                        for (var x = 0; x < data.length; x++) {
+                            markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                        }
+                        $("#LpSubChannelId").html(markup).show();
+                    } else {
+                        var procemessage = "<option value=null> No Records Found..</option>";
+                        $("#LpSubChannelId").html(procemessage).show();
+                    }
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+        }
+    }
+
+    function ApprovePayee(dat)
+    {
+        if (dat == 1) {//1 is for analyst login
+            document.getElementById('StatusName').value = 'PendingApproval'
+        }
+        if (dat == 2)//2 is for manager
+        {
+            document.getElementById('StatusName').value = 'Approved'
+        }
+        document.getElementById('frm').submit()
+    }
+
+    function RejectPayee()
+    {
+        document.getElementById('StatusName').value = 'Rejected'
+        document.getElementById('frm').submit()
+    }
+
+    function ReExaminePayee()
+    {
+        document.getElementById('StatusName').value = 'ReExamine'
+        document.getElementById('frm').submit()
+    }
+    function ReInvestigatePayee()
+    {
+        document.getElementById('StatusName').value = 'Reinvestigate'
+        document.getElementById('frm').submit()
+    }
+
+    function EnableApprove()
+    {
+        
+        if(document.getElementById('LpAuthorisedPayeeVerification').checked)
+        {
+            document.getElementById('Auth').disabled=false
+        }
+        else{
+            document.getElementById('Auth').disabled=true
+        }
+    }
+
+</script>
+
+
+
+@using (Html.BeginForm(null,null,FormMethod.Post,new{id="frm",name="frm"}))
+{
+    @Html.AntiForgeryToken()
+    <h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>
+    <div class=" form-horizontal">
+
+        @*@Html.ValidationSummary(false, "", new { @class = "text-danger" })*@
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.LpStatusId)
+        @Html.HiddenFor(m => m.LpCreatedById)
+        @Html.HiddenFor(m => m.LpCreatedDateTime)
+        @Html.HiddenFor(m => m.LpComments)
+        @Html.HiddenFor(m => m.LpCompanyId)
+       
+        @Html.HiddenFor(m => m.LpFileNames)
+       
+        @Html.HiddenFor(m => m.LpUserId)
+        @Html.HiddenFor(p => p.LpUserId)
+        @Html.Hidden("StatusName")
+       
+       
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LppParentPayeeId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.LppParentPayeeId, null, "-- Select Here --", new { @class = "form-control ", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LppParentPayeeId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+      
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelId").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+        if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelId").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "ChannelId").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.LpChannelId, null, "-- Select Here --", new { @class = "form-control ", onchange = "return GetSubChannel(this.value)", disabled = "disabled" })
+                @*@Html.EditorFor(m => m.Channel, new { htmlAttributes = new { @class = "form-control input-sm col-md-4", style = "height:25px" } })*@
+                @Html.ValidationMessageFor(model => model.LpChannelId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpChannelId, htmlAttributes: new { @class = " col-md-8 required" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.LpChannelId, null, "-- Select Here --", new { @class = "form-control ", onchange = "return GetSubChannel(this.value)", disabled = "disabled" })
+                @*@Html.EditorFor(m => m.Channel, new { htmlAttributes = new { @class = "form-control input-sm col-md-4", style = "height:25px" } })*@
+                @Html.ValidationMessageFor(model => model.LpChannelId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        }
+        }
+
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "SubChannelId").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+        if (CompanySpecificData.Where(p => p.LcscColumnName == "SubChannelId").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "SubChannelId").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                <select class="form-control" id="LpSubChannelId" name="LpSubChannelId"  disabled="disabled"></select>
+                @*@Html.DropDownListFor(model => model.LpSubChannelId, null,"-- Select Here --", new { @class = "form-control"})*@
+
+                @Html.ValidationMessageFor(model => model.LpSubChannelId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpSubChannelId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                <select class="form-control" id="LpSubChannelId" name="LpSubChannelId"  disabled="disabled"></select>
+                @*@Html.DropDownListFor(model => model.LpSubChannelId, null,"-- Select Here --", new { @class = "form-control"})*@
+
+                @Html.ValidationMessageFor(model => model.LpSubChannelId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+        }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "PrimaryChannel").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+        if (CompanySpecificData.Where(p => p.LcscColumnName == "PrimaryChannel").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "PrimaryChannel").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                @Html.HiddenFor(m => m.LpPrimaryChannel)
+                @Html.DropDownListFor(model => model.LpPrimaryChannel, new List<SelectListItem> { new SelectListItem { Text = "Direct", Value = "Direct" }, new SelectListItem { Text = "InDirect", Value = "InDirect" } }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LpPrimaryChannel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpPrimaryChannel, htmlAttributes: new { @class = "col-md-5 required" })
+            <div class="col-md-11">
+                @Html.HiddenFor(m => m.LpPrimaryChannel)
+                @Html.DropDownListFor(model => model.LpPrimaryChannel, new List<SelectListItem> { new SelectListItem { Text = "Direct", Value = "Direct" }, new SelectListItem { Text = "InDirect", Value = "InDirect" } }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LpPrimaryChannel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+        if (CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.LpBusinessUnit, new List<SelectListItem> { new SelectListItem { Text = "CBU-Consumer", Value = "CBU-Consumer" }, new SelectListItem { Text = "EBU-Enterprise", Value = "EBU-Enterprise" }, new SelectListItem { Text = "Both", Value = "Both" } }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LpBusinessUnit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpBusinessUnit, htmlAttributes: new { @class = " col-md-5 required" })
+            <div class="col-md-11">
+                @Html.DropDownListFor(model => model.LpBusinessUnit, new List<SelectListItem> { new SelectListItem { Text = "CBU-Consumer", Value = "CBU-Consumer" }, new SelectListItem { Text = "EBU-Enterprise", Value = "EBU-Enterprise" }, new SelectListItem { Text = "Both", Value = "Both" } }, new { @class = "form-control", disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.LpBusinessUnit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        }
+        }
+
+
+
+       
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpFirstName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpFirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-5 required" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpFirstName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpFirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpLastName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpLastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-5" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpLastName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpLastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpTradingName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpTradingName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = " col-md-5" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpTradingName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpTradingName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.DropDownListFor(model => model.LpChannelManager, null, "-- Select Here --", new { @class = "form-control ", disabled = "disabled" })
+                        @Html.ValidationMessageFor(model => model.LpChannelManager, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.DropDownListFor(model => model.LpChannelManager, null, "-- Select Here --", new { @class = "form-control ", disabled = "disabled" })
+                        @Html.ValidationMessageFor(model => model.LpChannelManager, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpTIN, new { htmlAttributes = new { @class = "form-control col-md-4", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpTIN, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpTIN, new { htmlAttributes = new { @class = "form-control col-md-4", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpTIN, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPayeeCode, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPayeeCode, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-5 required" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPayeeCode, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPayeeCode, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPhone, new { htmlAttributes = new { @class = "form-control ", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPhone, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = " col-md-5 required" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPhone, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPhone, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpEmail, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-5 required" })
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpEmail, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpEmail, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+        }
+
+
+
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = " col-md-5 required" })
+            <div class="col-md-11">
+                @Html.EditorFor(m => m.LpEffectiveStartDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LpEffectiveStartDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = " col-md-5" })
+            <div class="col-md-11">
+                @Html.EditorFor(m => m.LpEffectiveEndDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                @Html.ValidationMessageFor(model => model.LpEffectiveEndDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpDistributionChannel, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpDistributionChannel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = " col-md-12" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpDistributionChannel, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpDistributionChannel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpPosition, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPosition, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = " col-md-5" })
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpPosition, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.ValidationMessageFor(model => model.LpPosition, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+        }
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-5" })
+                    <div class="col-md-7">
+
+                        @Html.CheckBoxFor(model => model.LpCanRaiseClaims, new { disabled="disabled"})
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4" style="height:80px">
+                    @Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = " col-md-5" })
+                    <div class="col-md-7">
+
+                        @Html.CheckBoxFor(model => model.LpCanRaiseClaims, new {disabled="disabled" })
+
+                    </div>
+                </div>
+            }
+        }
+
+
+        <div class="col-md-4" style="height:80px">
+            @Html.Label("Comments", htmlAttributes: new { @class = " col-md-8" })
+            <div class="col-md-11">
+
+                @Html.TextAreaFor(m => m.LpComments, new { @class = "form-control col-md-4" })
+                @Html.ValidationMessageFor(model => model.LpComments, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForms == true).Count() > 0)
+        {
+            if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+            {
+               
+                    <div class="col-md-4" style="height:80px">
+                        @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForms == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8" })
+                        <div class="col-md-11">
+
+                            @Html.TextAreaFor(m => m.LpAddress, new { @class = "form-control col-md-4", disabled = "disabled" })
+                            @Html.ValidationMessageFor(model => model.LpAddress, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+              
+            }
+            else
+            {
+                
+                    <div class="col-md-4" style="height:80px">
+                        @Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-8" })
+                        <div class="col-md-11">
+
+                            @Html.TextAreaFor(m => m.LpAddress, new { @class = "form-control col-md-4",disabled="disabled" })
+                            @Html.ValidationMessageFor(model => model.LpAddress, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+               
+            }
+        }
+
+
+    </div>
+
+   
+
+
+    <div class="form-group">
+        <div class="col-md-10"><br>
+            @if (HttpContext.Current.Session["UserRole"].ToString() == "Manager")
+            {
+                <br>  <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-info" />
+                <input type="button" value="Approve" class="btn btn-success" onclick="ApprovePayee(2)" />
+                <input type="button" value="Reject" class="btn btn-danger" onclick="RejectPayee()" />
+                 <input type="button" value="ReInvestigate" class="btn btn-warning" onclick="ReInvestigatePayee()" /><br /><br /><br>
+            }
+            else
+            {
+                @Html.CheckBoxFor(m => m.LpAuthorisedPayeeVerification, new { onclick = "EnableApprove()" })@Html.LabelFor(m => m.LpAuthorisedPayeeVerification)
+            <br>  <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-info" />
+            <input type="button" value="Submit For Approval" id="Auth" disabled="disabled" class="btn btn-success" onclick="ApprovePayee(1)" />
+            <input type="button" value="Reject" class="btn btn-danger" onclick="RejectPayee()" />
+    <input type="button" value="ReExamine" class="btn btn-warning" onclick="ReExaminePayee()" /><br /><br /><br>
+            }
+
+        </div>
+    </div>
+
+
+}
+
+<div class="col-md-10">
+    @Html.LabelFor(model => model.LpComments, htmlAttributes: new { })
+</div>
+<div>
+    <textarea id="LbComment" class="textarea1" style="height:200px" disabled="disabled">@Model.LpComments</textarea><br>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+

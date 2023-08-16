@@ -1,0 +1,714 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+    //save the current page url in a session variable which will be the url for the Back button in subsequent pages
+    $.ajax({
+        data: { path: window.location.pathname },
+        url: "/Home/SaveReturnPath",
+        dataType: "json",
+        type: "POST",
+        success: function (data) {
+        },
+        error: function (reponse) {
+            //  alert("error : " + reponse);
+        }
+    });
+
+    //These lines of code are added to display message from controller as popup
+    if ('@TempData["Message"]')
+    {
+        alert('@TempData["Message"]')
+    }
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        //This command loads tab in the view
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: true });
+        //This line adds the tabs in Change request grid panel
+        $('#ChangejqxTabs').jqxTabs({ keyboardNavigation: true });
+        //The below function loads the data in grids in the ChangeRequest grid panel
+        FnGetChangeRequestGrid("Open")
+        FnGetChangeRequestGrid("PendingApproval")
+        FnGetChangeRequestGrid("Withdrawn")
+        FnGetChangeRequestGrid("Rejected")
+        FnGetChangeRequestGrid("Approved")
+        //The function GetGrid loads the grid in tabs by passing tab name as parameter.
+            FnGetGrid("Open")
+            FnGetGrid("PendingApproval")
+            FnGetGrid("InActive")
+            FnGetGrid("Rejected")
+
+            FnGetGrid("Approved")
+
+        //This method is called when data binding is complete in a grid
+        $("#jqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bOpen').innerHTML = datainformations.rowscount;
+
+        });
+        $("#jqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridPendingApproval').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bPendingApproval').innerHTML = datainformations.rowscount
+
+            //This method loads the  buttons in Action column of the grid
+            var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+                var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+                var xx = $('#jqxgridPendingApproval').jqxGrid("getrowdata", row);
+                var CreatedById = xx.LuCreatedById;
+                var Comments = xx.Comments;
+                var Id = xx.Id;
+                
+                    if (Userrole == "Manager") {
+                        return '<button onclick="return FnApprove(' + xx.Id + ',\'' + Comments + '\')" class="GridButton">Approve</button>&emsp;<button onclick="return FnReject(' + xx.Id + ',\'' + Comments + '\')" class="GridButton">Reject</button>&emsp;';
+                    }
+              
+            };
+
+            $('#jqxgridPendingApproval').jqxGrid({
+                editable:true,
+                columns: [
+                    { text: 'Comments', datafield: 'Comments',width:'10%',editable:true },
+                    { text: 'Name', datafield: 'FullName', editable: false },
+                  //  { text: 'User Friendly File Name', datafield: 'LrfUserFriendlyFileName', editable: false },
+                    { text: 'Created By', datafield: 'CreatedBy', editable: false, width: '20%' },
+                      { text: 'Updated By', datafield: 'UpdatedBy', editable: false, width: '15%' },
+                    { text: 'Reports To', datafield: 'ReportsTo', editable: false, width: '15%' },
+                   { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '20%', editable: false }
+                ]
+            });
+        });
+
+        $("#jqxgridInActive").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridInActive').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bInActive').innerHTML = datainformations.rowscount
+        });
+
+        $("#jqxgridRejected").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridRejected').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bRejected').innerHTML = datainformations.rowscount
+        });
+
+        $("#jqxgridApproved").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridApproved').jqxGrid('getdatainformation');
+            // alert(data22.Count)
+            if (datainformations)
+                document.getElementById('bApproved').innerHTML = datainformations.rowscount
+        });
+
+        //This method will be called after data is binded in change request grid
+        //Change request grids method
+        $("#CjqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#CjqxgridOpen').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('Cb1').innerHTML = datainformations.rowscount;
+        });
+
+        $("#CjqxgridPendingApproval").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#CjqxgridPendingApproval').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('Cb2').innerHTML = datainformations.rowscount;
+
+        });
+
+        $("#CjqxgridWithdrawn").on("bindingcomplete", function (event) {
+            $('#CjqxgridWithdrawn').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#CjqxgridRejected").on("bindingcomplete", function (event) {
+            $('#CjqxgridRejected').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        $("#CjqxgridApproved").on("bindingcomplete", function (event) {
+            $('#CjqxgridApproved').jqxGrid('selectionmode', 'singlerow')
+        });
+
+        var Role = '@HttpContext.Current.Session["UserRole"]'
+        if(Role=="Manager")
+        {
+//this code will hide open and Withdrawn tabs for users page
+            $("#jqxTabs").jqxTabs('removeAt', 0)
+            $("#jqxTabs").jqxTabs('removeAt', 2)
+            $('#ChangejqxTabs').jqxTabs('removeAt', 0)
+            $('#ChangejqxTabs').jqxTabs('removeAt', 2)
+        }
+
+    })
+
+   // This method loads grid in view
+    function FnGetGrid(TabName) {
+
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'FullName', type: 'string' },
+                { name: 'LuCreatedById', type: 'string' },
+                 { name: 'LuCreatedDateTime', type: 'date' },
+                  { name: 'LuUpdatedDateTime', type: 'date' },
+                { name: 'LuFirstName', type: 'string' },
+                { name: 'LuLastName', type: 'string' },
+                { name: 'LuEmail', type: 'string' },
+                { name: 'LuIsManager', type: 'bool' },
+                  { name: 'CreatedBy', type: 'string' },
+                   { name: 'UpdatedBy', type: 'string' },
+                    { name: 'ReportsTo', type: 'string' },
+             { name: 'Roles' },
+             { name: 'Comments' }
+            ],
+            id: "Id",
+            data:{TabName:TabName},
+                url: "/LUsers/GetUsers"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        //This method loads the  buttons in Action column of the grid
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+            var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var CreatedById = xx.LuCreatedById;
+            var Comments=xx.Comments;
+            var Id = xx.Id;
+            if (TabName == "Open") {
+
+                if (Userrole == "System Analyst") {
+                    if (CreatedById==UserId) {
+                        
+                            return '<button onclick="return FnEdit(' + Id + ')" class="GridButton">Edit</button>&emsp;<button onclick="return FnReview(' + xx.Id + ',' + Comments + ')" class="GridButton">Review</button>&emsp;';
+                       
+                    } else {
+                        return '<button onclick="return FnReview(' + xx.Id + ')" class="GridButton">Review</button>';
+                    }
+                }
+                else {
+
+                    return '<button onclick="return FnEdit(' + xx.Id + ')" class="GridButton">Edit</button>&emsp;';
+                }
+            }
+
+            if (TabName == "PendingApproval") {
+                if (Userrole == "System Analyst") {
+                    if (CreatedById == UserId) {
+                        return '<button onclick="return FnEdit(' + Id + ')" class="GridButton">Edit</button>&emsp;';
+                    }
+                }
+                if (Userrole == "Sales Operations") {
+                    return '<button onclick="return FnEdit(' + Id + ')" class="GridButton">Edit</button>&emsp;';
+                }
+                if (Userrole == "Manager") {
+                    return '<button onclick="return FnApprove(' + xx.Id + ',\''+Comments+'\')" class="GridButton">Approve</button>&emsp;<button onclick="return FnReject(' + xx.Id+ ',\''+Comments+'\')" class="GridButton">Reject</button>&emsp;';
+                }
+            }
+
+            if (TabName == "InActive") {
+                return '<button onclick="return FnRehire(' + Id + ')" class="GridButton">Rehire</button>&emsp;';
+            }
+            if (TabName == "Approved") {
+                return '<button onclick="return FnApprovedUserEdit(' + Id + ')" class="GridButton">Edit</button>&emsp;';
+            }
+            return '<button style="display:none;" onclick="" class="GridButton"></button>&emsp;<button style="display:none;" onclick="" class="GridButton"></button>&emsp;';
+        };
+
+
+        //This method loads the expander in the grid
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LrfComments == null) {
+                    datarecord.LrfComments = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+                if (datarecord.LrfUpdatedDateTime == null) {
+                    datarecord.LrfUpdatedDateTime = ""
+                }
+
+                if (datarecord.Roles == null) {
+                    datarecord.Roles =""
+                }
+
+                var WhoWhen = "<br><div style = 'margin: 10px;'><div class='col-md-12'><b>Created Date Time: </b> " + datarecord.LuCreatedDateTime.getDate() + "/" + (datarecord.LuCreatedDateTime.getMonth() + 1) + "/" + datarecord.LuCreatedDateTime.getFullYear() + " " + datarecord.LuCreatedDateTime.getHours() + ":" + datarecord.LuCreatedDateTime.getMinutes() + "<br> </div><br><div class='col-md-12'> <b>Updated Date Time: </b>" + datarecord.LuUpdatedDateTime.getDate() + "/" + (datarecord.LuUpdatedDateTime.getMonth() + 1) + "/" + datarecord.LuUpdatedDateTime.getFullYear() + " " + datarecord.LuUpdatedDateTime.getHours() + ":" + datarecord.LuUpdatedDateTime.getMinutes() + "<br></div></div>";
+                var Roles = "<br/><div style = 'margin: 10px;'><div class='col-md-12'><b>Roles</b> :" + datarecord.Roles + "</div></div>";
+
+                $(leftcolumn).append(Roles);
+                $(leftcolumn).append(WhoWhen);
+
+                $(tabsdiv).jqxPanel({ width: '97%', height: 150 });
+
+            }
+
+        }
+
+
+       //This method loads the grid in the view
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            rendertoolbar: function (toolbar) {
+                var container = $('<div style="margin: 5px;"></div>');
+                toolbar.append(container);
+                var Names = $("<div style='margin: 10px;'><b>Users</b></div>");
+                container.append(Names);
+            },
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <div class='information'></div></div>", rowdetailsheight: 150 },
+            initrowdetails: initrowdetails,
+            editable: true,
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: '', datafield: 'select',width:'3%',columntype:'checkbox' },
+                { text: 'Name', datafield: 'FullName', editable: false},
+              //  { text: 'User Friendly File Name', datafield: 'LrfUserFriendlyFileName', editable: false },
+                { text: 'Created By', datafield: 'CreatedBy', editable: false, width: '20%' },
+                  { text: 'Updated By', datafield: 'UpdatedBy', editable: false, width: '20%' },
+                { text: 'Reports To', datafield: 'ReportsTo', editable: false, width: '20%' },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '20%', editable: false }
+            ]
+        });
+
+    }
+
+    //This method loads the data in change request grid 
+    function FnGetChangeRequestGrid(TabName) {
+        var sourcea = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcrEntityName', type: 'string' },
+                { name: 'LcrColumnName', type: 'string' },
+                { name: 'LcrColumnLabel', type: 'string' },
+                { name: 'LcrOldValue', type: 'string' },
+                { name: 'LcrNewValue', type: 'string' },
+                { name: 'LcrComments', type: 'string' },
+                { name: 'LcrCreatedById', type: 'string' },
+                { name: 'LcrCreatedDateTime', type: 'date' },
+                 { name: 'LcrUpdatedDateTime', type: 'date' },
+                 { name: 'LcrAction', type: 'string' },
+               { name: 'LcrApprovalRejectionDateTime', type: 'string' },
+             { name: 'FullName', type: 'string' },
+              { name: 'CreatedBy', type: 'string' },
+               { name: 'UpdatedBy', type: 'string' },
+                { name: 'LcrEffectiveStartDate', type: 'date' }
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LUsers/GetUserChangeRequestGrid"
+        };
+        var dataAdaptera = new $.jqx.dataAdapter(sourcea)
+
+        //This method loads the expander in change request grid
+        var initrowdetails = function (index, parentElement, gridElement, datarecord) {
+            // alert("ok")
+            var tabsdiv = null;
+            var information = null;
+            var notes = null;
+            tabsdiv = $($(parentElement).children()[0]);
+            if (tabsdiv != null) {
+                information = tabsdiv.find('.information');
+
+                var container = $('<div style="margin: 5px;"></div>')
+                container.appendTo($(information));
+
+                var leftcolumn = $('<div ></div><br/>');
+
+                container.append(leftcolumn);
+
+                if (datarecord.LcrComments == null) {
+                    datarecord.LcrComments = ""
+                }
+                if (datarecord.LcrUpdatedDateTime == null) {
+                    datarecord.LcrUpdatedDateTime = ""
+                }
+                if (datarecord.UpdatedBy == null) {
+                    datarecord.UpdatedBy = ""
+                }
+
+
+
+                var WhoWhenColumns = "<div style = 'margin: 10px;'><div class='col-md-4'><b>Created Date Time: </b> " + datarecord.LcrCreatedDateTime + " </div><div class='col-md-4'> <b>Created By: </b>" + datarecord.CreatedBy + "</div><div class='col-md-4'> <b>Updated Date Time: </b>" + datarecord.LcrUpdatedDateTime + "</div><div class='col-md-4'> <b>Updated By: </b>" + datarecord.UpdatedBy + "</div></div>";
+                var Comments = "<br/><div style = 'margin: 10px;'><div class='col-md-8'><b> Comments:&emsp;&emsp;</b><br/><textarea rows='5' style='width:100%' placeHolder='" + datarecord.LcrComments + "' disabled='disabled'></textarea></div>";
+
+                $(leftcolumn).append(Comments);
+                $(leftcolumn).append(WhoWhenColumns);
+
+                $(tabsdiv).jqxPanel({ width: '97%', height: 200 });
+
+            }
+
+        }
+
+        ////This method is defined to add buttons in action column of change request grid
+        var cellsrenderer1 = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var rowdata = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var UserId = '@HttpContext.Current.Session["UserId"].ToString()'
+            var Userrole = '@HttpContext.Current.Session["UserRole"].ToString()'
+            var CreatedById = rowdata.LcrCreatedById;
+            if (TabName == "Open" || TabName == "PendingApproval") {
+                if (Userrole == "Sales Operations" || Userrole == "System Analyst") {
+                    if (UserId = CreatedById) {
+                        if (TabName == "Open")
+                        {
+                            return '<button onclick="return  FnChangeRequestWithdraw(1,'+row+')" class="GridButton">Withdraw</button>';
+                        }
+                        if (TabName == "PendingApproval") {
+                            return '<button onclick="return  FnChangeRequestWithdraw(2,'+row+')" class="GridButton">Withdraw</button>';
+                        }
+                    }
+                }
+             }
+           
+                 return '<button onclick="" class="btn-info" style="display:none">Withdraw</button>'
+         };
+
+        $('#Cjqxgrid' + TabName).jqxGrid({
+            source: dataAdaptera,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            //pagesize: 20,
+            //pagesizeoptions: [5, 10, 20, 50, 100, 200, 500],
+            rowdetails: true,
+            rowdetailstemplate: { rowdetails: "<div style = 'margin: 10px;'> <div class='information'></div></div>", rowdetailsheight: 150 },
+            initrowdetails: initrowdetails,
+            editable: true,
+            selectionMode: 'checkbox',
+            pageable: false,
+            rendertoolbar: function (toolbar) {
+                var container = $('<div style="margin: 5px;"></div>');
+                toolbar.append(container);
+                var Names = $("<div style='margin: 10px;'><b>Change Requests</b></div>");
+                container.append(Names);
+            },
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            ready: function () {
+            },
+
+
+            columns: [
+                { text: 'Comments', datafield: 'LcrComments', width: '20%' },
+               { text: 'Change', datafield: 'LcrAction', editable: false },
+                 { text: 'User', datafield: 'FullName', editable: false },
+                { text: 'Field', datafield: 'LcrColumnLabel', editable: false },
+                { text: 'Old Value', datafield: 'LcrOldValue', editable: false },
+                { text: 'New Value', datafield: 'LcrNewValue', editable: false },
+               // { text: 'Change Effective Start Date', datafield: 'LcrEffectiveStartDate', editable: false, cellsformat: "dd/MM/yyyy" },
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer1, width: '12%', editable: false }
+            ]
+        });
+
+    }
+
+    //This function is called when user clicks on edit button against any user
+    function FnEdit(Id)
+    {
+        if(Id)
+        {
+            window.location.href = '/LUsers/Edit?FormType=Edit&Id=' + Id
+        }
+    }
+    //this method will be called when user clicks on rehire button
+    function  FnRehire(Id)
+    {
+        if(Id)
+        {
+            window.location.href = '/LUsers/Edit?FormType=Rehire&Id=' + Id
+        }
+    }
+    //This function is called when user clicks on review button against any user
+    function FnReview(Id) {
+        if (Id) {
+            window.location.href = '/LUsers/Edit?FormType=Review&Id=' + Id
+        }
+    }
+
+    //This function is called when Manager clicks on Reject button against any User
+    function FnReject(Id, Comments) {
+       // alert(Comments)
+        if (Id) {
+            window.location.href = '/LUsers/UpdateUserStatus?Status=Rejected&Id=' + Id+'&Comments='+Comments;
+        }
+    }
+
+    //This method is called when a manager clicks the approve button against any user
+    function  FnApprove(Id,Comments)
+    {
+        //alert(Comments)
+        if (Id) {
+            window.location.href = '/LUsers/UpdateUserStatus?Status=Active&Id=' + Id+'&Comments='+Comments 
+        }
+    }
+
+    //this method will be called when we click on edit button in Approved User Tab
+    function FnApprovedUserEdit(Id)
+    {
+        if (Id) {
+            window.location.href = '/LUsers/Edit?FormType=ChangeRequest&Id=' + Id
+        }
+    }
+
+    //This method will be called when user clicks on withdraw button in change request
+    function FnChangeRequestWithdraw(TabIndex,row)
+    {
+        var TabName = "";
+        if (TabIndex = 1)
+        {
+            TabName = "Open";
+        }
+        if (TabIndex = 2) {
+            TabName = "PendingApproval";
+        }
+       // var rowindex = $('#Cjqxgrid' + TabName).jqxGrid('getselectedrowindex');
+        var rowdata = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", row);
+       // alert(rowdata.Id)
+        ChangeRequestArray[0] = [];
+        ChangeRequestArray[0][0] = rowdata.Id;
+        ChangeRequestArray[0][1] = rowdata.LcrComments;
+        if (ChangeRequestArray.length>0) {
+            document.getElementById('GridData').value = ChangeRequestArray;
+            document.getElementById('Status').value = 'Withdrawn';
+           document.getElementById('frm').submit()
+        }
+    }
+    //This method will be called when user clicks on Approve button in change request
+    var ChangeRequestArray = [];
+    function FnChangeRequestApprove(TabName) {
+        var rows = $('#Cjqxgrid' + TabName).jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < rows.length; i++) {
+            var rowdata = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", rows[i]);
+            ChangeRequestArray[i] = [];
+            ChangeRequestArray[i][0] = rowdata.Id;
+            ChangeRequestArray[i][1] = rowdata.LcrComments;
+        }
+        if (ChangeRequestArray.length>0) {
+            document.getElementById('GridData').value = ChangeRequestArray;
+            document.getElementById('Status').value = 'Approved';
+            document.getElementById('frm').submit()
+        }
+        else {
+            alert("Please select Change Request")
+        }
+    }
+    //This method will be called when user clicks on submit for approval button in change request
+    function FnChangeRequestSubmitForApproval(TabName) {
+        var rows = $('#Cjqxgrid' + TabName).jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < rows.length; i++) {
+            var rowdata = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", rows[i]);
+            ChangeRequestArray[i] = [];
+            ChangeRequestArray[i][0] = rowdata.Id;
+            ChangeRequestArray[i][1] = rowdata.LcrComments;
+        }
+        if (ChangeRequestArray.length > 0) {
+            document.getElementById('GridData').value = ChangeRequestArray;
+            document.getElementById('Status').value = 'PendingApproval';
+            document.getElementById('frm').submit()
+        }
+        else {
+            alert("Please select Change Request")
+        }
+    }
+    //This method will be called when user clicks on Reject button in change request
+    function FnChangeRequestReject(TabName) {
+        var rows = $('#Cjqxgrid' + TabName).jqxGrid('getselectedrowindexes');
+        for (var i = 0; i < rows.length; i++) {
+            var rowdata = $('#Cjqxgrid' + TabName).jqxGrid("getrowdata", rows[i]);
+            ChangeRequestArray[i] = [];
+            ChangeRequestArray[i][0] = rowdata.Id;
+            ChangeRequestArray[i][1] = rowdata.LcrComments;
+        }
+        if (ChangeRequestArray.length > 0) {
+            document.getElementById('GridData').value = ChangeRequestArray;
+            document.getElementById('Status').value = 'Rejected';
+            document.getElementById('frm').submit()
+        }
+        else {
+            alert("Please select Change Request")
+        }
+    }
+
+</script>
+
+<div style="padding:5px;">
+  
+@if (HttpContext.Current.Session["UserRole"] as string != "Manager")
+{   <a href="/LUsers/Create"><u>Create User</u></a><br>
+    }
+<h3 class="vodafone_txt">USER</h3>
+    <div id='jqxTabs' class="inner-tabs">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Open <span class="badge" id="bOpen">0</span></li>
+            <li>Pending Approval <span class="badge" id="bPendingApproval">0</span></li>
+            <li>InActive <span class="badge" id="bInActive">0</span></li>
+            <li>Rejected <span class="badge" id="bRejected">0</span></li>
+            <li>Approved <span class="badge" id="bApproved">0</span></li>
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+
+            <div id="jqxgridOpen">
+
+            </div>
+
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridPendingApproval">
+
+            </div>
+
+        </div>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridInActive">
+
+            </div>
+
+        </div>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridRejected">
+
+            </div>
+
+        </div>
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridApproved">
+
+            </div>
+
+        </div>
+
+
+    </div>
+    <h3 class="vodafone_txt">CHANGE REQUEST</h3>
+        <div id='ChangejqxTabs' class="inner-tabs ">
+
+            @*tabs tabs-container-border class is VodafoneThemes class*@
+            <ul class="nav nav-tabs tabs tabs-container-border ">
+                <li style="margin-left: 30px;">Open <span class="badge" id="Cb1">0</span></li>
+                <li>Pending Approval <span class="badge" id="Cb2">0</span></li>
+                <li>Withdrawn </li>
+                <li>Rejected </li>
+                <li>Approved </li>
+            </ul>
+
+            @*tab-content class is VodafoneThemes class*@
+            <div class="tab-content" style="padding:10px;">
+
+                <div id="CjqxgridOpen">
+
+                </div>
+
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        @if (HttpContext.Current.Session["UserRole"] as string == "System Analyst")
+                        {
+                           <br> <button class="btn btn-red btn-cons" onclick="FnChangeRequestSubmitForApproval('Open')">Send Manager For Approval &nbsp;</button>
+                        }
+
+                    </div>
+                </div>
+
+
+            </div>
+            @*tab-content class is VodafoneThemes class*@
+            <div class="tab-content" style="padding:10px;">
+
+                <div id="CjqxgridPendingApproval">
+
+                </div>
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        @if (HttpContext.Current.Session["UserRole"] as string == "Manager")
+                        {
+                          <span><br>  <button class="btn btn-red btn-cons" onclick="FnChangeRequestApprove('PendingApproval')">Approve &nbsp;</button>
+                            &ensp;<button class="btn btn-red btn-cons" onclick="FnChangeRequestReject('PendingApproval')">Reject &nbsp;</button></span>
+                        }
+
+                    </div>
+                </div>
+
+               
+            </div>
+            @*tab-content class is VodafoneThemes class*@
+            <div class="tab-content" style="padding:10px;">
+                <div id="CjqxgridWithdrawn">
+
+                </div>
+
+            </div>
+            @*tab-content class is VodafoneThemes class*@
+            <div class="tab-content" style="padding:10px;">
+                <div id="CjqxgridRejected">
+
+                </div>
+
+            </div>
+            @*tab-content class is VodafoneThemes class*@
+            <div class="tab-content" style="padding:10px;">
+                <div id="CjqxgridApproved">
+
+                </div>
+
+            </div>
+        </div>
+
+ 
+
+
+</div>
+
+@*This form is defined to send selected Changerequest Grids data to controller*@
+@using(Html.BeginForm("UpDateChangeRequest","LUsers",FormMethod.Post,new {id="frm",name="frm" }))
+{
+@Html.AntiForgeryToken()
+    @Html.Hidden("GridData")
+    @Html.Hidden("Status")
+}
+

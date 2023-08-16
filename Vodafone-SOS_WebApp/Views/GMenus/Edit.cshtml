@@ -1,0 +1,131 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.GMenuViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        var RId = '@Model.Id'
+        $.ajax({
+            data: {MenuId: RId },
+            url: "/AspnetRoles/GetSelectedRoles",
+            cache: false,
+            type: "POST",
+            success: function (data) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+               { name: 'Id', type: 'string' },
+               { name: 'Name', type: 'string' },
+                 { name: 'select', type: 'string' }
+            ],
+            localdata:data
+           
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        // Create a jqxListBox
+        $("#listbox").jqxListBox({ selectedIndex: 0, width: '50%', autoHeight: true, source: dataAdapter, displayMember: "select", valueMember: "Id", itemHeight: 30, 
+            renderer: function (index, label, value) {
+
+                var datarecord = data[index];
+                return datarecord.Name;
+            },
+            checkboxes: true });
+        var AllItems2 = $("#listbox").jqxListBox('getItems');
+                // alert(AllItems[0].index)
+        for (var i = 0; i < AllItems2.length; i++) {
+            if (AllItems2[i].label == 1) {
+                $("#listbox").jqxListBox('checkIndex', AllItems2[i].index);
+            }
+
+        }
+            },
+            error: function (reponse) {
+                //alert("error : " + reponse);
+            }
+        });
+
+
+        $("#listbox").on('checkChange', function (event) {
+            var args = event.args;
+            if (args.checked) {
+                $("#Events").text("Checked: " + args.label);
+            }
+            else {
+                $("#Events").text("Unchecked: " + args.label);
+            }
+            var items = $("#listbox").jqxListBox('getCheckedItems');
+            var checkedItems = "";
+            $.each(items, function (index) {
+                if (index < items.length - 1) {
+                    checkedItems += this.value + ", ";
+                }
+                else checkedItems += this.value;
+            });
+            //alert(checkedItems);
+            document.getElementById('RoleList').value = checkedItems;
+
+        });
+
+    })
+</script>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+       
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(m=>m.GmParentId)
+        @*<div class="form-group">
+            @Html.LabelFor(model => model.GmParentId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.GmParentId, null, "-- Select Here --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.GmParentId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.GmMenuName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.GmMenuName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.GmMenuName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.GmMenuUrl, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.GmMenuUrl, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.GmMenuUrl, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.GmOrdinalPosition, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.GmOrdinalPosition, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.GmOrdinalPosition, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.RoleList, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.HiddenFor(m => m.RoleList)
+                <div id="listbox"></div>
+                @Html.ValidationMessageFor(model => model.RoleList, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <div class=" col-md-10">
+                <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-borderRed btn-cons" />
+                <input type="submit" value="Save" class="btn btn-red btn-cons" />
+                
+            </div>
+        </div>
+    </div>
+}

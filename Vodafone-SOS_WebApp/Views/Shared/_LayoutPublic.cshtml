@@ -1,0 +1,97 @@
+﻿@using Vodafone_SOS_WebApp.Models
+@model LoginViewModel
+
+
+
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LITE</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+</head>
+<body style="padding-top:0px;background-color:white">
+
+    @*<div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+
+
+            </div>
+
+            <div class="navbar-collapse collapse">
+
+
+                                </div>
+
+                            </div>
+                        </div>*@
+
+
+
+    <div>
+
+        <div class="col-md-9" style="text-align:center;margin:auto;display:block;">
+            
+            @RenderBody()
+        </div>
+        <div class="col-md-3" style="min-height:96vh;padding-left:2vh;background-image:url('../Content/Images/SideBarBg.jpg')">
+            <br>  <h3 class="text-center">Login &emsp;</h3>
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-horizontal">
+                    @Html.Hidden("UTCOffset")
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Email, new { @class = "col-md-3 control-label", style = "font-size:12px;text-align:left;color:#666;" })
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control col-md-12 input-sm" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "col-md-4 control-label", style = "font-size:12px;text-align:left;color:#666;" })
+                        <div class="col-md-12">
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control col-md-12 input-sm" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <input type="submit" value="Log in" class="btnVF" /><br /><br>
+                    <a href="#" onclick="alert('Funtionality not developed yet')" class="col-md-8"><u>Forgot password</u></a>
+                </div><br><br>
+            }
+            <hr class="hrVF">
+            @using (Html.BeginForm("Enquiry", "Home", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "frm2" }))
+            {
+                <h3 class="text-center">About LITE</h3>
+                <h5>It is a complete commissions portal that hosts -</h5>
+                <ul>
+                    <li>Commission calculations and Payment approvals</li>
+                    <li>Claims management</li>
+                    <li>Master Data Mangement - Payees, Schemes, Tariffs</li>
+                    <li>Enforce controls</li>
+                    <li>Audit trails</li>
+                </ul>
+            }
+        </div>
+
+        <hr />
+        <footer class="bottom pull-left">
+            <br><br>
+
+        </footer>
+    </div>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+

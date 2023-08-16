@@ -1,0 +1,288 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.ManualAdjustmentViewModel
+@{
+    ViewBag.Title = "Upload";
+    var FilePath = System.Configuration.ConfigurationManager.AppSettings["PayeeDocumentPath"].ToString();
+
+}
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script>
+    //This variable is defined to store value if form has any changes since it has loaded
+   // var isChanged = false;
+    $(document).ready(function () {
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+        //display error Grid if got error from controller
+       @if (ViewData["ErrorMessage"]!=null)
+       {
+           @:FnDisplayErrorGrid()
+       }
+           //The below code will load a grid of portfolios on this page
+           var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height:'40%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode:'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel',width:'30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+    });
+
+    //This method checks the type of file which is being uploaded while submitting form
+    var PortfolioArray=[];
+    function Fnchecksubmit() {
+        var CommPeriod = document.getElementById('CommissionPeriod').value
+        //get selected rows in portfolios
+        var rowindexes = $('#jqxgrid').jqxGrid('getselectedrowindexes');
+        for(var i=0;i<rowindexes.length;++i)
+        {
+            var data = $('#jqxgrid').jqxGrid('getrowdata', rowindexes[i]);
+            PortfolioArray[i]=data.Id;
+        }
+        document.getElementById("PortfolioList").value=PortfolioArray;
+
+        var Form1 = $('#frm');//
+        var xx = document.getElementById('File1').value
+
+        if (xx) {
+            $("#frm").validate();
+        if ($("#frm").valid()) {
+                if (xx.split(".")[1].toLowerCase() == 'xls' || xx.split(".")[1].toLowerCase() == 'xlsx') {
+                    if (PortfolioArray.length > 0) {
+                        document.getElementById('UploadButton').disabled = true;
+                        document.getElementById('Message').style.display = 'block'
+                        isChanged = false;
+                        document.getElementById('frm').submit()
+                    }
+                    else {
+                        alert('Please choose portfolio')
+                    }
+                } else {
+                    alert("File Format is not supported")
+                }
+            }
+
+        }
+        else {
+            alert("Please choose file")
+        }
+    }
+
+    function FnDisplayErrorGrid()
+    {
+        document.getElementById('ErrMsg').style.display='block'
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                //{ name: 'Id', type: 'string' },
+               // { name: 'LcAdjustmenCode', type: 'string' },
+                //{ name: 'LcPrimaryChannel', type: 'string' },
+                { name: 'XPayee', type: 'string' },
+                 // { name: 'LcOrderDate', type: 'string' },
+               // { name: 'LcIMEI', type: 'string' },
+                // { name: 'LcSubscriberNumber', type: 'string' },
+                //{ name: 'XCommAmtIncTax', type: 'string' },
+                { name: 'XCommAmtExTax', type: 'string' },
+                { name: 'ErrorMessage', type: 'string' }
+
+            ],
+            id: "Id",
+            url: "/ManualAdjustments/GetManualAdjustmentErrorGrid"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+        document.getElementById('err').style.display = 'block'
+        $('#ErrorGrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '40%',
+            //autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: 'Primary Channel', datafield: 'LcPrimaryChannel', width: '10%' },
+               // { text: 'Adjustment Code', datafield: 'LcAdjustmenCode', width: '10%' },
+                { text: 'Payee', datafield: 'XPayee', width: '10%' },
+                // { text: 'Primary Channel', datafield: 'LcSubscriberNumber', width: '10%' },
+                //{ text: 'Subscriber Number', datafield: 'LcIMEI', width: '10%' },
+               // { text: 'CommAmtIncTax', datafield: 'XCommAmtIncTax', width: '10%' },
+                { text: 'CommAmtExTax', datafield: 'XCommAmtExTax', width: '10%' },
+                { text: 'Error Message', datafield: 'ErrorMessage'}
+
+            ]
+        });
+    }
+
+    function FnexportErrorGrid()
+    {
+    
+        window.location.href = '/ManualAdjustments/ExportUploadMannualAdjusmentErrorGrid';
+        setTimeout(function () {
+            $('#jqxLoader').jqxLoader('close');
+        }, 5000);
+      
+            @*$.ajax({
+                //url: "/ManualAdjustments/ExportUploadMannualAdjusmentErrorGrid",
+                url:'@Url.Action("ExportUploadMannualAdjusmentErrorGrid", "ManualAdjustments" )',
+                contentType: 'application/json; charset=utf-8',
+                datatype: 'json',
+                type: "GET",
+                async: false,
+                success: function (data) {
+                   // alert("in");
+                    //window.location.href = 'S:/Temp/ExportMannualAdjusmentErrorList.csv';
+                    window.location = '@Url.Action("ExportUploadMannualAdjusmentErrorGrid", "ManualAdjustments")';
+                },
+                error: function (reponse) {
+                    console.log(reponse);
+                    alert("error");
+                    //  alert("error : " + reponse);
+                }
+            });*@
+    }
+
+
+    //This method is called when we leave this page to check if there are any changes in form
+    window.onbeforeunload = function () {
+        if (isChanged) {
+            return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+        $('#jqxLoader').jqxLoader('open');
+    }
+
+</script>
+
+
+<div id="jqxLoader">
+</div>
+
+<div style="padding:10px;">
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+    @Html.Hidden("PortfolioList")
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CommissionPeriod, htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10 col-lg-10">
+                    @Html.DropDownListFor(model => model.CommissionPeriod, null, "-- Select Here --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.CommissionPeriod, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.BatchName, htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10 col-lg-10">
+                   @Html.EditorFor(model => model.BatchName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.BatchName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-2 required" })
+                
+                <div class="col-md-10">
+                <div id="jqxgrid"></div>
+                    </div>
+            </div>
+            <div class="form-group">
+                @Html.Label("Select File", htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10">
+                    <input type="file" name="File1" id="File1" accept=".xls,.xlsx" class="form-control">
+                </div>
+                </div>
+           
+            <div class="form-group">
+                <div class="col-md-5">
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    <button type="button" class="btn btn-red btn-cons" id="UploadButton" title="click here to add  Calculation record using excel sheet" onclick="Javascript: if (document.getElementById('File1').value) { return Fnchecksubmit() } else { alert('Please choose a file') }">Upload File&nbsp;</button>
+                    <label for="FileUpload" class="CustomFileUpload"> Attach &nbsp;<i class="fa fa-folder"></i></label>
+                    <input id="FileUpload" name="FileUpload" type="file" multiple="multiple" onchange="FnGetUploadedFileName(this)">
+                </div>
+                <div id="Message" style="display:none;"><b>Please Wait</b> ! while record is being uploaded</div><br>
+            </div>
+            <br>
+            @*This div will display uploaded file*@
+            <div class="col-md-12" id="AttachedFiles"></div>
+            <br>
+            <div class="col-md-12" id="err" style="display:none;">
+                <h5 class="text-danger" id="ErrMsg" style="display:none;">Some Manual Adjustments records seem to have errors. Please see comments for each error and fix it in the original file and reload</h5>
+                <button type="button" class="btn btn-success btn-cons" onclick="FnexportErrorGrid()">Download&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i> </button><br>
+                @*<button class="btn btn-success btn-cons" onclick="@("window.location.href='ExportUploadMannualAdjusmentErrorGrid'");">Download&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i> </button><br>*@
+
+                @*<button class="btn btn-success btn-cons" onclick="location.href='@Url.Action("ExportUploadMannualAdjusmentErrorGrid", "ManualAdjustments" )'">Download&nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i> </button><br>*@
+                @*<input type="button" class="btn btn-success btn-cons" value="Download" onclick="location.href='@Url.Action("ExportUploadMannualAdjusmentErrorGrid", "ManualAdjustments" )'" />*@
+                <div id="ErrorGrid"></div>
+            </div>
+
+        </div>
+
+    }
+   
+</div>
+
+<style>
+    #FileUpload {
+        display: none;
+    }
+</style>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+

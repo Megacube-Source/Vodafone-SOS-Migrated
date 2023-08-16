@@ -1,0 +1,554 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Vodafone_SOS_WebApp.ViewModels.LDashboardConfigViewModel
+
+<script type="text/javascript" src="~/Scripts/jqxdraw.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxchart.core.js"></script>
+
+@*Tab Sections*@
+
+<div class="col-md-12 col-lg-12" style="border-radius: 5px; border: 1px solid lightgrey;width:100%;margin-top:10px;">
+    <div id='jqxTabs' class="inner-tabs tabbable boxed parentTabs" style="margin-top:0px;">
+        <ul class="nav nav-tabs">
+            <li id="tbGraphView" class="active"><a data-toggle="tab" href="#graphview" style="font-size: small;"><span id="graphtext"></span></a></li>
+            <li id="tbGraphData"><a data-toggle="tab" href="#graphdata" style="font-size: small;"><span id="graphtextData"></span></a></li>
+
+        </ul>
+        <div class="tab-content">
+         
+            <div class="tab-pane fade active in" id="graphview">
+
+                <div id="ChartAreaPie" style="height:400px; width:100%"></div>
+
+                <div id="ChartAreaDonut" style="height:400px; width:100%"></div>
+
+                <div id="ChartAreaGraphType" style="height:400px; width:100%"></div>
+            </div>
+            <div class="tab-pane fade" id="graphdata">
+                <div id="ModelData">
+                </div>
+                <button id="btnDownload " type="button" class="btn btn-red pull-right" onclick="DownloadGridData()">Download</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<div id="loadertext" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:20%;">
+        <div class="modal-content">
+            <div class="modal-body">
+                Processing....It may take some time to download requested file. Once downloaded, click anyware on the screen to continue.
+                @*<input type="button" class="btn btn-red" value="OK" data-dismiss="modal" />*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+    var GraphType;
+    var GraphId;
+    $(document).ready(function () {
+        $('#loadertext').hide();
+        //var urlParams = new URLSearchParams(window.location.search);
+
+       // URLSearchParams
+      //  var urlParams = new encodeURIComponent(URLSearchParams(window.location.search));
+
+
+
+        $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            if (results == null) {
+                return null;
+            }
+            else {
+                return decodeURI(results[1]) || 0;
+            }
+        }
+      //  example.com ? param1 = name & param2=&id=6
+
+        //$.urlParam('param1'); // name
+        //$.urlParam('id');        // 6
+        //$.urlParam('param2');   // null
+
+
+        GraphType = $.urlParam('GraphType');
+       // alert(GraphType);
+        GraphId = $.urlParam('GraphId');
+      //  alert(GraphId);
+
+
+       // GraphType = urlParams.get('GraphType');
+     //   alert(GraphType);
+      //  GraphId = urlParams.get('GraphId');
+        showDetail(GraphId, GraphType); //this method is called to get graph data
+        GetGraphDetails();//this method is used to render the clicked graph
+    });
+
+
+    function showDetail(GraphId, GraphType) {
+        if (GraphId == '') return;
+
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: '@ViewBag.strPeriods', BatchStatus: '@ViewBag.BatchStatus' },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        PieChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Donut Chart") {
+                        DonutChartgrid('#ModelData', data);
+                    }
+                    if (GraphType == "Column Series") {
+                        ColumnChartDataforgrid('#ModelData', data);
+                    }
+                }
+            }
+
+        });
+    }
+
+    function GetGraphDetails() {
+         $.ajax({
+             url: "/LDashboardConfig/GetGraphDetails",
+            type: "GET",
+            dataType: "JSON",
+            data: { Id: GraphId},
+            success: function (data) {
+                Rendergraph(data.Id, data.TileLabel, data.GraphType);
+            }
+        });
+    }
+
+    function Rendergraph(GraphId, GraphLabel, GraphType) {
+        $.ajax({
+            url: "/LDashboardConfig/GetGraphData",
+            type: "GET",
+            dataType: "JSON",
+            data: { GraphId: GraphId, strPeriods: '@ViewBag.strPeriods', BatchStatus: '@ViewBag.BatchStatus' },
+            success: function (data) {
+                if (data.length != 0) {
+                    if (GraphType == "Pie Chart") {
+                        $("#ChartAreaGraphType").hide();
+                        $("#ChartAreaDonut").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+
+                        PieChart('#ChartAreaPie', data, 'pie', GraphLabel);
+
+                      //  $('#ChartAreaPie').jqxChart({ backgroundColor: 'Gray' });
+                    }
+                    if (GraphType == "Donut Chart") {
+                        $("#dvwaittext").show();
+                        $("#ChartAreaPie").hide();
+                        $("#ChartAreaGraphType").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+                        DonutChart('#ChartAreaDonut', data, 'donut', GraphLabel);
+
+                    }
+                    if (GraphType == "Column Series") {
+                        $("#ChartAreaPie").hide();
+                        $("#ChartAreaDonut").hide();
+                        $("#graphtext").text(GraphLabel);
+                        $("#graphtextData").text(GraphLabel + " Data");
+                        ColumnChart('#ChartAreaGraphType', data, 'pie', GraphLabel);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    function PieChartgrid(DataArea, ChartData) {
+        var source2 =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source2);
+        $(DataArea).jqxGrid('clear');
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+
+    function ColumnChartDataforgrid(DataArea, ChartData) {
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        //Setup data
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+
+            ]
+        });
+    }
+
+    function DonutChartgrid(DataArea, ChartData) {
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $(DataArea).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height: 300,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            //selectionmode: 'checkbox',
+            ready: function () {
+            },
+            columns: [
+                { text: 'Kpi', datafield: 'KpiName' },
+                { text: 'Group Item', datafield: 'XGraphItem' },
+                { text: 'Group Value', datafield: 'XGraphValue' }
+            ]
+        });
+    }
+
+    //function DonutChart(ChartArea, DataArea, ChartData, ChartType) {
+    //    var source2 =
+    //        {
+    //            datatype: "array",
+    //            datafields: [
+    //                { name: 'KpiName' },
+    //                { name: 'XGraphItem' },
+    //                { name: 'XGraphValue' }
+    //            ],
+    //            localdata: ChartData
+    //        };
+    //    var InnerRadius = 0;
+    //    if (ChartType == 'donut') { InnerRadius = 50; };
+
+    //    var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+    //    // prepare jqxChart settings
+    //    var settings2 = {
+    //        title: LabelText,
+    //        description: "",
+    //        enableAnimations: true,
+    //        showLegend: false,
+    //        showBorderLine: true,
+    //        //  legendPosition: { left: 120, top: 140, width: 100, height: 100 },
+    //        //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+    //        //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+    //        source: dataAdapter2,
+    //        colorScheme: 'scheme02',
+    //        seriesGroups:
+    //        [
+    //            {
+    //                type: ChartType,
+    //                showLabels: true,
+    //                series:
+    //                [
+    //                    {
+    //                        dataField: 'XGraphValue',
+    //                        displayText: 'XGraphItem',
+    //                        labelRadius: 100,
+    //                        initialAngle: 15,
+    //                        radius: 130,
+    //                        innerRadius: InnerRadius,
+    //                        centerOffset: 0,
+    //                        formatSettings: { decimalPlaces: 2 }//sufix: '%',
+
+    //                    }
+    //                ]
+    //            }
+    //        ]
+    //    };
+    //    // setup the chart
+    //    $(ChartArea).jqxChart(settings2);
+    //}
+
+    function DonutChart(ChartArea, ChartData, ChartType, LabelText) {
+       
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        if (ChartType == 'donut') { InnerRadius = 50; };
+
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        var settings2 = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: true,
+            legendLayout: { left: 50, top: 50, width: 200, height: 700, flow: 'vertical' },
+            showBorderLine: true,
+            //  legendPosition: { left: 120, top: 140, width: 100, height: 100 },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+            colorScheme: 'scheme02',
+            seriesGroups:
+            [
+                {
+                    type: ChartType,
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            innerRadius: InnerRadius,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 }//sufix: '%',
+
+                        }
+                    ]
+                }
+            ]
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings2);
+
+        $("#dvwaittext").hide();
+    }
+
+    function PieChart(ChartArea, ChartData, ChartType, LabelText) {
+        //var source2 =
+        //    {
+        //        datatype: "json",
+        //        datafields: [
+        //            { name: 'KpiName' },
+        //            { name: 'XGraphItem' },
+        //            { name: 'XGraphValue' }
+        //        ],
+        //        localdata: ChartData
+        //    };
+        //var dataAdapter = new $.jqx.dataAdapter(source2);
+        var source =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter2 = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        //$.jqx._jqxChart.prototype.colorSchemes.push({ name: 'myScheme', colors: ['#ffff00', '#ff0000', '#ccff00', '#00ffff', '#aaaaaa'] });
+    //       $('#jqxChart').jqxChart({colorScheme: 'scheme06'});
+    //$('#jqxChart').jqxChart('refresh');
+        // prepare jqxChart settings
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: true,
+            showBorderLine: true,
+           // legendLayout: { left: 700, top: 160, width: 300, height: 200, flow: 'vertical' },
+            legendLayout: { left: 50, top: 50, width: 200, height: 700, flow: 'vertical' },
+            //padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            //titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter2,
+           // colorScheme: 'myScheme',
+            colorScheme: 'scheme03',
+            seriesGroups:
+            [
+                {
+                    type: 'pie',
+                    showLabels: true,
+                    series:
+                    [
+                        {
+                            dataField: 'XGraphValue',
+                           
+                            displayText: 'XGraphItem',
+                            labelRadius: 100,
+                            initialAngle: 15,
+                            radius: 130,
+                            centerOffset: 0,
+                            formatSettings: { decimalPlaces: 2 },
+                            formatFunction: function (value) {
+                                if (isNaN(value))
+                                    return value;
+                                return parseFloat(value);
+                            },
+                        }
+                    ]
+                }
+            ]
+
+        };
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+
+    }
+
+    function ColumnChart(ChartArea, ChartData, ChartType, LabelText) {
+        var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        var source2 =
+            {
+                datatype: "array",
+                datafields: [
+                    { name: 'KpiName' },
+                    { name: 'XGraphItem' },
+                    { name: 'XGraphValue' }
+
+                ],
+                localdata: ChartData
+            };
+        var InnerRadius = 0;
+        var dataAdapter2 = new $.jqx.dataAdapter(source2, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        var settings = {
+            title: LabelText,
+            description: "",
+            enableAnimations: true,
+            showLegend: false,
+            source: dataAdapter2,
+            xAxis:
+            {
+                dataField: 'XGraphItem',
+                tickMarks: {
+                    visible: true,
+                    color: '#BCBCBC'
+                },
+                gridLines: {
+                    visible: true,
+                    color: '#BCBCBC'
+                }
+            },
+            valueAxis:
+            {
+                labels: { horizontalAlignment: 'right' },
+                tickMarks: { color: '#BCBCBC' }
+            },
+            colorScheme: 'scheme06',
+            seriesGroups:
+            [
+                {
+                    type: 'stackedcolumn',
+                    columnsGapPercent: 50,
+                    seriesGapPercent: 0,
+                    series: [
+                        { dataField: 'KpiName', displayText: 'Kpi' },
+                        { dataField: 'XGraphValue', displayText: 'Graph Value' },
+                        { dataField: 'XGraphItem', displayText: 'Graph Item' },
+                        { dataField: 'XCommissionPeriod', displayText: 'Period' }
+
+                    ]
+                }
+            ]
+        };
+
+        // setup the chart
+        $(ChartArea).jqxChart(settings);
+    }
+
+
+    function DownloadGridData() {
+        $('#loadertext').modal();
+        window.location.href = '/LDashboardConfig/DownloadGraphData?GraphId=' + GraphId + "&strPeriods=" + '@ViewBag.strPeriods' + "&BatchStatus=" + '@ViewBag.BatchStatus';
+    }
+</script>
+
+
+
+
+
+

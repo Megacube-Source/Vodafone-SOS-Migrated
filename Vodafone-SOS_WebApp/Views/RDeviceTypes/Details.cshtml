@@ -1,0 +1,50 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.RDeviceTypeViewModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>RDeviceTypeViewModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.RdtDeviceTypeName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RdtDeviceTypeName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RdtDeviceTypeDescription)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RdtDeviceTypeDescription)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RdtCompanyId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RdtCompanyId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.GcCompanyName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.GcCompanyName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

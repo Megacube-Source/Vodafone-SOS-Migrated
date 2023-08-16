@@ -1,0 +1,215 @@
+﻿
+@{
+    ViewBag.Title = "Message Board";
+}
+
+<h2>Message Board</h2>
+
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxswitchbutton.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxcheckbox.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxdata.export.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>
+
+
+
+@*<div class="boxes">*@
+@if (ViewBag.ComposeAllowed =="True")
+    {
+<a class="top_links" href="/LMessages/Create">Compose New Message</a>
+    }
+
+<br>
+<div id='jqxTabs'>
+    <ul class="nav nav-tabs tabs tabs-container-border ">
+        <li style="margin-left: 30px;">My Messages <span class="badge" id="bMy">0</span></li>
+        @*<li style="margin-left: 30px;">Sent Messages <span class="badge" id="bSent">0</span></li>*@
+    </ul>
+    <div class="tab-content" style="padding:10px;">
+        <div id="MyMessagesGrid">
+        </div>
+    </div>
+    @*<div class="tab-content" style="padding:10px;">
+            <div id="SentMessagesGrid">
+            </div>
+        </div>*@
+</div>
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+        function FnViewMessage() {
+            var selectedrowindex = $('#MyMessagesGrid').jqxGrid('selectedrowindex');
+            var xx = $('#MyMessagesGrid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                var url = '@Url.Action("ViewMessage", "LMessages", new {Id = "__Id__" })';
+                window.location.href = url.replace("__Id__", xx);
+            }
+    }
+    function FnDeleteMessage() {
+        if (confirm("Are you sure you want to delete selected Message?")) {
+            var selectedrowindex = $('#MyMessagesGrid').jqxGrid('selectedrowindex');
+            var xx = $('#MyMessagesGrid').jqxGrid("getrowid", selectedrowindex);
+                if (xx) {
+                    var url = '@Url.Action("Delete", "LMessages", new {ID = "__Id__" })';
+                    window.location.href = url.replace("__Id__", xx);
+                }
+        }
+    }
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+        $('#jqxTabs').jqxTabs({ keyboardNavigation: false, height: '80vh' });
+        $("#MyMessagesGrid").on("bindingcomplete", function (event) {
+            var datainformations = $('#MyMessagesGrid').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bMy').innerHTML = datainformations.rowscount;
+        });
+        $("#SentMessagesGrid").on("bindingcomplete", function (event) {
+            var datainformations = $('#SentMessagesGrid').jqxGrid('getdatainformation');
+            if (datainformations)
+                document.getElementById('bSent').innerHTML = datainformations.rowscount;
+        });
+
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'MessageID', type: 'int' },
+                { name: 'CreatedDateTime', type: 'date' },
+                { name: 'ReadRecieptDateTime', type: 'date' },
+                { name: 'CreatedByEmailId', type: 'string' },
+                { name: 'Message', type: 'string' },
+                { name: 'IsImportant', type: 'bool' }
+            ],
+            id: "Id",
+            url: "/LMessages/GetMyMessages",
+
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+            return '&ensp; <button onclick="return FnViewMessage()" class="GridButton"><i class=\"fa fa-eye\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"View\"></i></button>&ensp;  <button onclick="return FnDeleteMessage()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></button>';
+        };
+        $('#MyMessagesGrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            height:'100%',
+            theme: 'bootstrap',
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            sortable: true,
+            autoheight: false,
+            pageable: true,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            //virtualmode: true,
+            //rendergridrows: function (obj) {
+            //    return obj.data;
+            //},
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Action', datafield: 'Id', cellsrenderer: cellsrenderer, width: '5%' },
+                { text: 'Message Date', datafield: 'CreatedDateTime', width: '180px' },
+                { text: 'From', datafield: 'CreatedByEmailId', width: '250px' },
+                { text: 'Message', datafield: 'Message', width: '500px' },
+                { text: 'Read Date Time', datafield: 'ReadRecieptDateTime', width: '150px' },
+                { text: 'Important?', datafield: 'IsImportant', columntype: 'checkbox', width: '100px' }
+
+            ]
+        });
+
+        //var source2 = {
+        //    dataType: "json",
+        //    dataFields: [
+        //        { name: 'Id', type: 'int' },
+        //        { name: 'MessageID', type: 'int' },
+        //        { name: 'CreatedDateTime', type: 'date' },
+        //        { name: 'CreatedByEmailId', type: 'string' },
+        //        { name: 'Message', type: 'string' },
+        //        { name: 'IsImportant', type: 'bool' }
+        //    ],
+        //    id: "Id",
+        //    url: "/LMessages/GetMySentMessages",
+
+        //};
+        //var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        //var cellsrenderer2 = function (row, columnfield, value, defaulthtml, columnproperties) {
+
+        //    return '&ensp; <button onclick="return FnNewReview()" class="GridButton"><i class=\"fa fa-eye\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"View\"></i></button>&ensp;  <button onclick="return FnNewCancel()" class="GridButton"><i class=\"fa fa-times\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Delete\"></i></button>';
+        //};
+        //$('#SentMessagesGrid').jqxGrid({
+        //    source: dataAdapter2,
+        //    width: '100%',
+        //    autoheight: false,
+        //    theme: 'bootstrap',
+        //    columnsresize: true,
+        //    columnsreorder: true,
+        //    altrows: true,
+        //    sortable: true,
+        //    pageable: true,
+        //    filterable: true,
+        //    showstatusbar: false,
+        //    //virtualmode: true,
+        //    //rendergridrows: function (obj) {
+        //    //    return obj.data;
+        //    //},
+        //    ready: function () {
+
+        //    },
+
+        //    columns: [
+        //        { text: 'Action', datafield: 'Id', cellsrenderer: cellsrenderer, width: '5%' },
+        //        { text: 'Sent Date', datafield: 'CreatedDateTime', width: '250px' },
+        //        { text: 'Sent To Role', datafield: 'SentToRoleName', width: '250px' },
+        //        { text: 'Message', datafield: 'Message', width: '500px' },
+        //        { text: 'Important?', datafield: 'IsImportant', columntype: 'checkbox', width: '120px' }
+
+        //    ]
+        //});
+
+
+    });
+
+
+
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="col-md-4">
+        <button type="button" class="btn btn-borderRed btn-cons" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+    </div>
+
+    <div id="jqxLoader">
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

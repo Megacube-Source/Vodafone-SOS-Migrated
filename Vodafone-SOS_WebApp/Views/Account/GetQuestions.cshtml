@@ -1,0 +1,102 @@
+﻿@model Vodafone_SOS_WebApp.Models.ChangePasswordBindingModel
+@{
+    ViewBag.Title = "SetPassword";
+}
+
+<h2>SetPassword</h2>
+<script>
+    //Variable to Store currentQuationId
+    var SelectedQuestionId = 0;
+    var QuestionCounter = 0;
+    $(document).ready(function () {
+        //SS added the below code to display the first value of selectlist as Html text
+        var QuestionList = @Html.Raw(Json.Encode(ViewBag.Question1));
+        SelectedQuestionId = QuestionList[0].Value;
+        document.getElementById('RandomQuestion').innerHTML = QuestionList[0].Text ;
+        document.getElementById('Question1').value = SelectedQuestionId;
+    })
+
+    function FnRetry() {
+        var Email = document.getElementById("Email").value;
+        var UserId = document.getElementById("UserId").value;
+          var QuestionList = @Html.Raw(Json.Encode(ViewBag.Question1));
+        //SS  changed the below code to change question at client side instead  of redirecting page which is creating confusion in counter
+        //Expected behavious is you can choose 'New Question' any number of times. The 5 time limitation is only if he gives WRONG answer
+           @*// window.location.href = '@Url.Action("GetQuestions", "Account")?Email=' + Email + '&UserId=' + UserId + '&Retry=true';*@
+          QuestionCounter += 1;
+          if (QuestionCounter >= QuestionList.length) {
+              QuestionCounter = 0;//reset the counter
+          }
+          SelectedQuestionId = QuestionList[QuestionCounter].Value;
+          document.getElementById('RandomQuestion').innerHTML = QuestionList[QuestionCounter].Text ;
+          document.getElementById('Question1').value = SelectedQuestionId;
+          document.getElementById('Answer').value = '';
+    }
+
+    function FnError() {
+        alert("Can not change the field value");
+        return;
+    }
+</script>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <h4>Reset your password.</h4>
+    <hr />
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+    @Html.Hidden("UserId")
+    @Html.Hidden("Email")
+    @Html.Hidden("MAuqsqUserId")
+    @Html.Hidden("Question1")
+    <div class="form-group">
+        Answer the following to verify that the account is yours<br />
+    </div>
+    <br/>
+    
+    <h4 class="text-danger">@TempData["ErrorMessage"]</h4>
+    <div class="form-group">
+        @Html.Label("Question", htmlAttributes: new { @class = "control-label required col-md-2" })
+        <div class="col-md-10">
+            <h4 id="RandomQuestion"></h4>
+           @*@Html.DropDownList("Question1", null, "-- Select Here --", new { @class = "form-control", @onfocus = "FnError()", @readonly = "readonly" })*@
+           @Html.ValidationMessageFor(model => model.Question1, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+         <div class="form-group">
+             @Html.Label("Answer", htmlAttributes: new { @class = "control-label required col-md-2" })
+             <div class="col-md-10">
+                 @*@Html.TextBox("Answers11", null, htmlAttributes: new { @class = "form-control" })*@
+                 @Html.EditorFor(x => x.Answer1, new { @class = "col-md-2 control-label" })
+                 @Html.ValidationMessageFor(model => model.Question1, "", new { @class = "text-danger" })
+             </div>
+        </div>
+
+        @*<div class="form-group">
+            @Html.LabelFor(model => model.Question2, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Question2", null, "-- Select Here --", new { @class = "form-control", @readonly = "readonly" })
+                @Html.ValidationMessageFor(model => model.Question1, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Answer2, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(x => x.Answer2, new { @class = "col-md-2 control-label" })
+                @Html.ValidationMessageFor(model => model.Question1, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" class="btn btn-red btn-cons" value="Generate OTP"  />
+                <input type="button" class="btn btn-red btn-cons" value="New Question" onclick="return FnRetry()">
+            </div>
+        </div>
+        }
+
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+        }

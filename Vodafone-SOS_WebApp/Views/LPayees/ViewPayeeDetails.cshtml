@@ -1,0 +1,1032 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayeeViewModel
+
+@{
+    ViewBag.Title = "View Payee Details";
+    var CompanySpecificData = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)@ViewBag.CompanySpecificColumn;
+    var IsWIAMEnabled = ViewBag.IsWIAMEnabled;
+}
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script>
+
+    $(document).ready(function () {
+        $("#txtchrinfo").show();
+         if ('@ViewBag.BannerValue' != "") {
+
+            $("#dvbanner").show();
+             $("#spnBanner").html('@ViewBag.BannerValue');
+        }
+        else {
+            $("#dvbanner").hide();
+        }
+
+
+
+         var TransactionId='@Model.Id'
+         var CompanySpecificArray =@Html.Raw(Json.Encode(CompanySpecificData.OrderBy(p => p.LcscOrdinalPosition)));
+         GenerateCompanySpecifiCForm(CompanySpecificArray, 'Payees', TransactionId);//call this method placed in ProjectScript file to repaint the form with new labels order and validations
+
+      var source =
+            {
+                datatype: "json",
+                datafields: [
+                    { name: 'Id' },
+                    { name: 'Name' },
+  { name: 'Select' }
+                ],
+                id: 'Id',
+                url: "/LPayees/GetFinOpsRolesList"
+            };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+      // Create a jqxListBox
+        $("#jqxListBox").jqxListBox({ width: '100%', source: dataAdapter, displayMember: "Name",valueMember: "Id", checkboxes: true,autoHeight:true });
+        $("#jqxListBox").on('checkChange', function (event) {
+           var args = event.args;
+        //    // get new check state.
+            var checked = args.checked;
+        //    // get the item and it's label and value fields.
+            var item = args.item;
+            var label = item.label;
+           var CheckedItems = $("#jqxListBox").jqxListBox('getCheckedItems');
+           var CheckedList = "";
+                $.each(CheckedItems, function (index) {
+                   if (index < CheckedItems.length - 1) {
+                      CheckedList += this.value + ",";
+                   }
+                   else {
+                        CheckedList += this.value;
+                    }
+
+                });
+          // document.getElementById('LpFinOpsRoles').value = CheckedList;
+        });
+
+     $("#jqxListBox").on('bindingComplete', function (event) {
+    var FinOps='@Model.LpFinOpsRoles';
+            if (FinOps) {
+                   $("#jqxListBox").jqxListBox('checkIndex',0);
+            }
+        });
+
+        var PayeeId='@Model.Id'
+        //The below code will load a grid of portfolios on this page
+        var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'RscName', type: 'string' },
+                { name: 'Select', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TransactionId: PayeeId, EntityType: 'LPayees' },
+            url: "/Home/GetPortfolioGridForEdit"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height: '40%',
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit' },
+                { text: 'Channel', datafield: 'RcName' }
+            ]
+        });
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+
+        $('*', 'form').attr('disabled', 'disabled');
+        $(':button').removeAttr('disabled')
+        document.getElementById('CommentsDiv').disabled = true;
+        document.getElementById('Comments').disabled = true;
+      document.getElementById('finopsdiv').style.pointerEvents = 'none';
+      document.getElementById('PortfolioDiv').style.pointerEvents = 'none';
+
+          @if (Model.LpEffectiveEndDate.HasValue) {
+            @: var End = '@Model.LpEffectiveEndDate.Value.Day' + '/' + Number('@Model.LpEffectiveEndDate.Value.Month') + '/' + '@Model.LpEffectiveEndDate.Value.Year';
+            @: if (document.getElementById('LpEffectiveEndDate'))
+            @: document.getElementById('LpEffectiveEndDate').value = End;
+        }
+
+        //These lines add the value to start date and end date if present in model
+        @{
+            @: var Start = '@Model.LpEffectiveStartDate.Day' + '/' + Number('@Model.LpEffectiveStartDate.Month') + '/' + '@Model.LpEffectiveStartDate.Year';
+            @: if (document.getElementById('LpEffectiveStartDate'))
+           @: document.getElementById('LpEffectiveStartDate').value = Start;
+        }
+    })
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @*@Html.AntiForgeryToken()*@
+    <h5 style="color:maroon">  @ViewData["ErrorMessage"]</h5>
+    @Html.Hidden("FormType")
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.LpCreatedById)
+    @Html.HiddenFor(m => m.LpCreatedDateTime)
+    @Html.HiddenFor(m => m.LpCompanyId)
+    @Html.HiddenFor(m => m.WFComments)
+    @Html.HiddenFor(m => m.LpFileNames)
+    @Html.HiddenFor(m => m.LcrEffectiveStartDate)
+    @*@Html.HiddenFor(m => m.LpEffectiveStartDate)*@
+    @Html.Hidden("StatusName")
+    @Html.HiddenFor(m => m.LpUserId)
+    @Html.Hidden("ParentPayeeId", @Model.LppParentPayeeId)
+
+    <div class="form-horizontal" id="FrmHorizontal">
+
+        @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == false).Count() > 0)
+        {
+            <div id="Enddate" style="display:none;"></div>
+        }
+
+        <div class="col-md-4" style="height:80px">
+            @Html.LabelFor(model => model.LppParentPayeeId, htmlAttributes: new { @class = "col-md-8" })
+            <div class="col-md-11">
+                @Html.EditorFor(model => model.ParentName, new { htmlAttributes = new { @class = "form-control", style = "pointer-Events:none;background:lightgray;" } })
+                @Html.ValidationMessageFor(model => model.LppParentPayeeId, "", new { @class = "text-danger" })
+
+            </div>
+        </div>
+
+
+        <div class="col-md-4" style="min-height:80px">
+
+            @Html.LabelFor(model => model.LpPrimaryChannel, htmlAttributes: new { @class = "col-md-12 ", id = "LblPrimaryChannel" })
+
+            <div class="col-md-11">
+                @Html.EditorFor(model => model.LpPrimaryChannel, new { htmlAttributes = new { @class = "form-control", style = "pointer-Events:none;background:lightgray;" } })@*,onchange= "FnGetChannel(this.value)"*@
+                @Html.ValidationMessageFor(model => model.LpPrimaryChannel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div id="UnOrderedForm">
+
+
+
+
+            @*@if (CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+                {
+                   <div class="col-md-4" style="min-height:80px">
+                       @if (CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForm == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).Count() > 0)
+                       {
+                           @Html.Label(CompanySpecificData.Where(p => p.LcscColumnName == "BusinessUnit").Where(p => p.LcscDisplayOnForm == true).Where(p => string.IsNullOrEmpty(p.LcscLabel) == false).FirstOrDefault().LcscLabel, htmlAttributes: new { @class = "col-md-8 required" })
+                       }
+                       else
+                       {
+                               @Html.LabelFor(model => model.LpBusinessUnit, htmlAttributes: new { @class = " col-md-5 required" })
+                       }
+                       <div class="col-md-11">
+                           @Html.DropDownListFor(model => model.LpBusinessUnit,null,"-- Select Here --", new { @class = "form-control" })
+                           @Html.ValidationMessageFor(model => model.LpBusinessUnit, "", new { @class = "text-danger" })
+                       </div>
+                   </div>
+                }*@
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVFirstName">
+
+                    @*@Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-12", id = "LblFirstName" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-12", id = "LblFirstName" })
+                    }
+                    else
+                    {
+
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "FirstName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpFirstName, htmlAttributes: new { @class = "col-md-11", id = "LblFirstName", @style = "padding-left:0px" })
+                    }
+
+
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpFirstName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpFirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVLastName">
+
+                    @*@Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-12", id = "LblLastName" })*@
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "LastName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-12", id = "LblLastName" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "LastName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpLastName, htmlAttributes: new { @class = "col-md-11", id = "LblLastName", @style = "padding-left:0px" })
+                    }
+
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpLastName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpLastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVTradingName">
+
+                    @*@Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = " col-md-12", id = "LblTradingName" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = " col-md-12", id = "LblTradingName" })
+
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "TradingName").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpTradingName, htmlAttributes: new { @class = "col-md-11", id = "LblTradingName", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpTradingName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpTradingName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVChannelManager">
+
+                    @*@Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-12", id = "LblChannelManager" })*@
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-12", id = "LblChannelManager" })
+
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "ChannelManager").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpChannelManager, htmlAttributes: new { @class = "col-md-11", id = "LblChannelManager", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.DropDownListFor(model => model.LpChannelManager, null, "-- Select Here --", new { @class = "form-control " })
+                        @Html.ValidationMessageFor(model => model.LpChannelManager, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVTIN">
+
+                    @*@Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-12", id = "LblTIN" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "TIN").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-12", id = "LblTIN" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "TIN").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpTIN, htmlAttributes: new { @class = "col-md-11", id = "LblTIN", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpTIN, new { htmlAttributes = new { @class = "form-control col-md-4" } })
+                        @Html.ValidationMessageFor(model => model.LpTIN, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPayeeCode">
+
+                    @*@Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-12", id = "LblPayeeCode" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-12", id = "LblPayeeCode" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "PayeeCode").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPayeeCode, htmlAttributes: new { @class = "col-md-11", id = "LblPayeeCode", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPayeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPayeeCode, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPhone">
+
+                    @*@Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = " col-md-12", id = "LblPhone" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Phone").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = " col-md-12", id = "LblPhone" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Phone").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPhone, htmlAttributes: new { @class = "col-md-11", id = "LblPhone", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpPhone, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPhone, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVEmail">
+
+                    @*@Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-12 ", id = "LblEmail" })*@
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Email").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-12 ", id = "LblEmail" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Email").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpEmail, htmlAttributes: new { @class = "col-md-11", id = "LblEmail", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.EditorFor(m => m.LpEmail, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpEmail, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+
+
+                <div class="col-md-4" style="min-height:80px" id="DIVEffectiveStartDate">
+                    @*@Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = " col-md-12 ", id = "LblEffectiveStartDate" })*@
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveStartDate").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+    {
+                @Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = " col-md-12 ", id = "LblEffectiveStartDate" })
+}
+else
+{
+
+var title = CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveStartDate").FirstOrDefault().LcscTooltip;
+
+                <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                @Html.LabelFor(model => model.LpEffectiveStartDate, htmlAttributes: new { @class = "col-md-11", id = "LblEffectiveStartDate", @style = "padding-left:0px" })
+}
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpEffectiveStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpEffectiveStartDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVEffectiveEndDate">
+                    @*@Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = " col-md-12", id = "LblEffectiveEndDate" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = " col-md-12", id = "LblEffectiveEndDate" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "EffectiveEndDate").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpEffectiveEndDate, htmlAttributes: new { @class = "col-md-11", id = "LblEffectiveEndDate", @style = "padding-left:0px" })
+                    }
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpEffectiveEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpEffectiveEndDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVDistributionChannel">
+
+                    @*@Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = " col-md-12", id = "LblDistributionChannel" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = " col-md-12", id = "LblDistributionChannel" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "DistributionChannel").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpDistributionChannel, htmlAttributes: new { @class = "col-md-11", id = "LblDistributionChannel", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpDistributionChannel, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpDistributionChannel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVPosition">
+
+                    @*@Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = " col-md-12", id = "LblPosition" })*@
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Position").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = " col-md-12", id = "LblPosition" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Position").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpPosition, htmlAttributes: new { @class = "col-md-11", id = "LblPosition", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+                        @Html.EditorFor(m => m.LpPosition, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LpPosition, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            }
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA01">
+                    @*@Html.LabelFor(model => model.A01, htmlAttributes: new { @class = "col-md-12", id = "LblA01" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A01, htmlAttributes: new { @class = "col-md-12", id = "LblA01" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A01").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A01, htmlAttributes: new { @class = "col-md-11", id = "LblA01", @style = "padding-left:0px" })
+                    }
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A01").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A01, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A01, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A01, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A01, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA02">
+
+                    @*@Html.LabelFor(model => model.A02, htmlAttributes: new { @class = "col-md-12", id = "LblA02" })*@
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A02, htmlAttributes: new { @class = "col-md-12", id = "LblA02" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A02").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A02, htmlAttributes: new { @class = "col-md-11", id = "LblA02", @style = "padding-left:0px" })
+                    }
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A02").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A02, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A02, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A02, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A02, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA03">
+
+                    @*@Html.LabelFor(model => model.A03, htmlAttributes: new { @class = "col-md-12", id = "LblA03" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A03, htmlAttributes: new { @class = "col-md-12", id = "LblA03" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A03").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A03, htmlAttributes: new { @class = "col-md-11", id = "LblA03", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A03").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A03, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A03, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A03, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A03, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA04">
+
+                    @*@Html.LabelFor(model => model.A04, htmlAttributes: new { @class = "col-md-12 ", id = "LblA04" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A04, htmlAttributes: new { @class = "col-md-12 ", id = "LblA04" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A04").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A04, htmlAttributes: new { @class = "col-md-11 ", id = "LblA04", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A04").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A04, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A04, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A04, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A04, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA05">
+
+                    @*@Html.LabelFor(model => model.A05, htmlAttributes: new { @class = "col-md-12", id = "LblA05" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A05, htmlAttributes: new { @class = "col-md-12", id = "LblA05" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A05").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A05, htmlAttributes: new { @class = "col-md-11", id = "LblA05", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A05").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A05, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A05, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A05, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A05, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA06">
+
+                    @*@Html.LabelFor(model => model.A06, htmlAttributes: new { @class = "col-md-12", id = "LblA06" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A06, htmlAttributes: new { @class = "col-md-12", id = "LblA06" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A06").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A06, htmlAttributes: new { @class = "col-md-11", id = "LblA06", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A06").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A06, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A06, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A06, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A06, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA07">
+
+                    @*@Html.LabelFor(model => model.A07, htmlAttributes: new { @class = "col-md-12 ", id = "LblA07" })*@
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A07, htmlAttributes: new { @class = "col-md-12 ", id = "LblA07" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A07").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A07, htmlAttributes: new { @class = "col-md-11", id = "LblA07", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A07").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A07, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A07, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A07, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A07, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA08">
+
+                    @*@Html.LabelFor(model => model.A08, htmlAttributes: new { @class = "col-md-12 ", id = "LblA08" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+                        @Html.LabelFor(model => model.A08, htmlAttributes: new { @class = "col-md-12 ", id = "LblA08" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A08").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A08, htmlAttributes: new { @class = "col-md-11", id = "LblA08", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A08").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A08, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A08, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A08, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A08, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA09">
+
+                    @*@Html.LabelFor(model => model.A09, htmlAttributes: new { @class = "col-md-12", id = "LblA09" })*@
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.A09, htmlAttributes: new { @class = "col-md-12", id = "LblA09" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A09").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A09, htmlAttributes: new { @class = "col-md-11", id = "LblA09", @style = "padding-left:0px" })
+                    }
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A09").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A09, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A09, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+
+                            @Html.EditorFor(m => m.A09, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A09, "", new { @class = "text-danger" })
+
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVA10">
+
+                    @*@Html.LabelFor(model => model.A10, htmlAttributes: new { @class = "col-md-12 ", id = "LblA10" })*@
+
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.A10, htmlAttributes: new { @class = "col-md-12", id = "LblA10" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "A10").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.A10, htmlAttributes: new { @class = "col-md-11", id = "LblA10", @style = "padding-left:0px" })
+                    }
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "A10").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscDropDownId.HasValue)
+                    {
+                        <div class="col-md-11">
+                            @Html.DropDownListFor(model => model.A10, null, "-- Select Here --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.A10, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-11">
+                            @Html.EditorFor(m => m.A10, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.A10, "", new { @class = "text-danger" })
+                        </div>
+                    }
+                </div>
+            }
+            @*@if (ViewBag.FormType == "Create")
+                {
+                <div class="col-md-4" style="min-height:80px">
+                    @Html.Label("Attach Documents", htmlAttributes: new { @class = " col-md-8" })
+                    <div class="col-md-11">
+                    <input type="file" class="form-control" id="File1" name="File1" multiple="multiple">
+                    </div>
+                </div>
+                }*@
+
+
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVAddress">
+
+                    @*@Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-12", id = "LblAddress" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "Address").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-12", id = "LblAddress" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "Address").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpAddress, htmlAttributes: new { @class = "col-md-11", id = "LblAddress", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-11">
+
+                        @Html.TextAreaFor(m => m.LpAddress, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.LpAddress, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            }
+
+            @if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVCanRaiseClaims">
+
+                    @*@Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = " col-md-6", id = "LblCanRaiseClaims" })*@
+
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                        @Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = "col-md-6", id = "LblCanRaiseClaims" })
+
+                        @*<a data-toggle="tooltip" data-placement="top" data-original-title="Welcome to the wonderful World of Grammar!" href="#">World of Grammar</a>*@
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "CanRaiseClaims").FirstOrDefault().LcscTooltip;
+
+                        <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left"> </span>
+                        @Html.LabelFor(model => model.LpCanRaiseClaims, htmlAttributes: new { @class = "col-md-5", id = "LblCanRaiseClaims", @style = "padding-left:0px" })
+                    }
+
+                    <div class="col-md-6">
+                        @Html.CheckBoxFor(model => model.LpCanRaiseClaims, new { })
+                    </div>
+                </div>
+            }
+
+            @if (IsWIAMEnabled == "yes") { }
+            else
+            {
+             if (CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").Where(p => p.LcscDisplayOnForm == true).Count() > 0)
+            {
+                <div class="col-md-4" style="min-height:80px" id="DIVCreateLogin">
+                    @*@Html.LabelFor(model => model.LpCreateLogin, htmlAttributes: new { @class = " col-md-6", id = "LblCreateLogin" })*@
+                 
+                    @if (CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").Where(p => p.LcscDisplayOnForm == true).FirstOrDefault().LcscTooltip.IsEmpty())
+                    {
+
+                    @Html.LabelFor(model => model.LpCreateLogin, htmlAttributes: new { @class = " col-md-6", id = "LblCreateLogin" })
+                    }
+                    else
+                    {
+                        var title = CompanySpecificData.Where(p => p.LcscColumnName == "CreateLogin").FirstOrDefault().LcscTooltip;
+
+                    <span title="@title" data-toggle="tooltip" data-placement="bottom" data-container="body" class="fa fa-info-circle pull-left tooltiptext"> </span>
+                    @Html.LabelFor(model => model.LpCreateLogin, htmlAttributes: new { @class = "col-md-5", id = "LblCreateLogin", @style = "padding-left:0px" })
+
+                    }
+                    <div class="col-md-6">
+                        @Html.CheckBoxFor(model => model.LpCreateLogin, new { })
+                    </div>
+                </div>
+            }
+            }
+        </div>
+        <div id="OrderedForm"></div>
+
+        <div class="col-md-12" id="finopsdiv">
+            <br>
+            @Html.Label("FinOps Roles", htmlAttributes: new { @class = " col-md-10 " })
+            <div id="jqxListBox"></div>
+            <br>
+        </div>
+
+        <div class="col-md-12 col-lg-12" id="PortfolioDiv">
+            @Html.Label("Portfolio", htmlAttributes: new { @class = " col-md-8" })
+            <div id="jqxgrid"></div>
+
+        </div>
+
+        <div class="col-md-12 col-lg-12" style="height:80px" id="CommentsDiv">
+            @Html.Label("Comments", htmlAttributes: new { @class = " col-md-8" })
+            <textarea id="Comments" name="Comments" style="height:80px" class="col-md-12 col-lg-12 textarea1" onchange="FnAttachComments(this.value)"></textarea>
+        </div>
+
+
+    </div>
+}
+
+<div class="form-group">
+    <div class="col-md-8">
+
+        <br>&emsp;<br>
+
+
+
+        <button class="btn btn-borderRed btn-cons" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp; <i class="fa fa-share-square-o" aria-hidden="true"></i></button>
+
+
+        @if (ViewBag.ActionItems != null)
+    {
+        @Html.Raw(ViewBag.ActionItems)
+}
+        <br />
+        <div id="dvbanner"> <span id="spnBanner"></span></div>
+    </div>
+</div>
+@*This code display existing comments in disabled mode*@
+<div class="col-md-10">
+    @Html.LabelFor(model => model.WFComments, htmlAttributes: new { })
+</div>
+<div>
+    <textarea id="WFComments" class="textarea1" style="height:200px" disabled="disabled">@Model.WFComments</textarea><br>
+
+</div>

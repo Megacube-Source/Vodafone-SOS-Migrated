@@ -1,0 +1,158 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.ManualAdjustmentViewModel
+@{
+    ViewBag.Title = "Upload";
+
+
+}
+
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+<script>
+    //This variable is defined to store value if form has any changes since it has loaded
+    //var isChanged = false;
+    $(document).ready(function () {
+        //The below code checks for changes in form controls
+        $('input,select,textarea').change(function () {
+            isChanged = true;
+        })
+
+       
+        //display error Grid if got error from controller
+       @if(ViewData["ErrorMessage"]!=null)
+       {
+           @:FnDisplayErrorGrid()
+       }
+       var TransactionId='@ViewBag.TransactionId'
+           //The below code will load a grid of portfolios on this page
+           var Portfoliosource = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'RcPrimaryChannel', type: 'string' },
+                { name: 'LpBusinessUnit', type: 'string' },
+                { name: 'RcName', type: 'string' },
+                { name: 'Select', type: 'bool' },
+
+            ],
+            id: "Id",
+            data: { TransactionId: TransactionId, EntityType:'LBatches' },
+            url: "/Home/GetPortfolioGridForEdit"
+        };
+
+        var PortfoliodataAdapter = new $.jqx.dataAdapter(Portfoliosource)
+
+        $('#jqxgrid').jqxGrid({
+            source: PortfoliodataAdapter,
+            width: '100%',
+            height:200,
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            pageable: false,
+            filterable: true,
+            showstatusbar: false,
+            selectionmode: 'checkbox',
+            enablebrowserselection: true,//--RS on 26th feb 2019, to make field copied
+            ready: function () {
+
+            },
+
+            columns: [
+                { text: 'Primary Channel', datafield: 'RcPrimaryChannel',width:'30%' },
+                { text: 'Business Unit', datafield: 'LpBusinessUnit', width: '30%' },
+                { text: 'Channel', datafield: 'RcName', width: '40%' },
+
+            ]
+        });
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            var GridRows = $('#jqxgrid').jqxGrid('getrows')
+
+            for (var i = 0; i < GridRows.length; ++i) {
+                if (GridRows[i].Select == true) {
+                    // Number. The row's bound index.
+                    $('#jqxgrid').jqxGrid('selectrow', i);
+                }
+            }
+        });
+
+        $('*', 'form').attr('disabled', 'disabled');
+        $(':button').removeAttr('disabled')
+        document.getElementById('PortfolioDiv').style.pointerEvents = 'none';
+       
+    });
+
+    
+
+  
+
+   
+
+</script>
+
+
+
+<div style="padding:10px;">
+    <h4 class="text-danger">@TempData["Message"]</h4>
+    <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+    @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm", @encType = "multipart/form-data" }))
+    {
+        @Html.Hidden("PortfolioList")
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CommissionPeriod, htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10 col-lg-10">
+                    @Html.DropDownListFor(model => model.CommissionPeriod, null, "-- Select Here --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.CommissionPeriod, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.BatchName, htmlAttributes: new { @class = " col-md-2 required" })
+                <div class="col-md-10 col-lg-10">
+                    @Html.EditorFor(model => model.BatchName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.BatchName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group" id="PortfolioDiv">
+                @Html.Label("Select Portfolios", htmlAttributes: new { @class = " col-md-2 required" })
+
+                <div class="col-md-10">
+                    <div id="jqxgrid"></div>
+                </div>
+            </div>
+         
+
+            <div class="form-group">
+                <div class="col-md-5">
+                    <br><button type="button" class="btn btn-borderRed btn-cons" value="Back" id="bck" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back &nbsp;</button>
+                    @if (ViewBag.ActionItems != null)
+                    {
+                    @Html.Raw(ViewBag.ActionItems)
+                    }
+                </div>
+                <div id="Message" style="display:none;"><b>Please Wait</b> ! while record is being uploaded</div><br>
+            </div>
+            <br>
+            @*This div will display uploaded file*@
+            <div class="col-md-12" id="AttachedFiles"></div>
+            <br>
+           
+
+        </div>
+
+    }
+
+</div>
+
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+

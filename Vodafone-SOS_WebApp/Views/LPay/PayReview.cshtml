@@ -1,0 +1,888 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LPayViewModel
+
+@{
+    ViewBag.Title = "Pay Review";
+    var CompanySpecificColumns = (List<Vodafone_SOS_WebApp.ViewModels.LCompanySpecificColumnViewModel>)ViewBag.CompSpecificColumn;
+}
+
+<script src="~/Scripts/jqxdatetimeinput.js"></script>
+<script src="~/Scripts/jqxloader.js"></script>
+<script src="~/Scripts/globalization/globalize.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxswitchbutton.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxcheckbox.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxgrid.export.js"></script>
+<script type="text/javascript" src="~/Scripts/jqxdata.export.js"></script>
+<script src="~/Scripts/ProjectScripts/ProjectScript.js"></script>@*//this script will contain methods common in different views*@
+
+<script>
+
+    //GlobalVariables
+    var datafields = new Array();
+    var columns = new Array();
+    var PortfolioCheckedIndexes = '';
+    var PayeeCheckedIndexes = '';
+    var PeriodCheckedIndexes = '';
+    var IsSelectAllChecked=false;
+    var IsPortfolioSelectAllChecked=false;
+    var cellsrenderer = undefined;
+    var ChannelChanged = false;
+    function FnDownload() {
+        //$("#jqxgridPayPublished").jqxGrid('exportdata', 'xls', 'PayReview');
+
+
+
+
+        //if (CompanySpecificColumns == null) {
+        //    alert("It seems columns for payment review grid are not configured. Please contact System Analyst to configure Payment Review grid in menu Config -> Form Labels -> Pay ");
+        //}
+        var FieldSetUp = false;
+
+        @foreach (var d in CompanySpecificColumns)
+        {
+
+            if (d.LcscDisplayOnForm == true&&d.ColumnName!= "PayeeAttachmentId")
+            {
+            @: FieldSetUp = true;
+             }
+         }
+        if (FieldSetUp == false) {
+            alert("It seems columns for payment review grid are not configured. Please contact System Analyst to configure Payment Review grid in menu Config -> Form Labels -> Pay ");
+            return;
+        }
+
+        var CommissionPeriodId = document.getElementById('CommissionPeriodId').value;
+        var PayeeId = document.getElementById('PayeeId').value;
+        var PortfolioList = document.getElementById('PortfolioList').value;
+        if (!CommissionPeriodId) {
+            alert("Please select data");
+            return;
+        }
+
+        var datainformations = $('#jqxgridPayPublished').jqxGrid('getdatainformation');
+        if (datainformations == undefined) {
+            alert("There is no data in the Grid")
+            return
+        } else {
+            var rowscounts = datainformations.rowscount;
+
+            if (rowscounts == 1 || rowscounts == 0) {
+                alert("There is no data in the Grid")
+                return
+            }
+        }
+        var xx = $('#jqxTabs').jqxTabs('selectedItem');
+        /*Section to store the currect payee and commission period in session storage*/
+        if (typeof (Storage) !== "undefined") {
+            //store Payeelist and Commission period in Session storage before leaving the page.
+            sessionStorage.SelectedPayeeDropdownListInPayReview = PayeeId;
+            sessionStorage.SelectedCommissionPeriodInPayReview = CommissionPeriodId;
+            sessionStorage.SelectedPortfolioInPayReview = PortfolioList;
+            sessionStorage.SelectedPayeeIndexesInPayReview = PayeeCheckedIndexes;
+            sessionStorage.SelectedCommissionPeriodIndexesInPayReview = PeriodCheckedIndexes;
+            sessionStorage.SelectedPortfolioIndexesInPayReview = PortfolioCheckedIndexes;
+            //sessionStorage.PayeeAllInPayReview = document.getElementById('PayeeAll').checked;
+            //sessionStorage.PortfolioAllInPayReview = document.getElementById('PortfolioAll').checked;
+            window.location.href = '/LPay/DownloadPayeePayFile?PayeeId=' + PayeeId + '&CommissionPeriodId=' + CommissionPeriodId + '&TabIndex=' + xx + '&PortfolioList=' + PortfolioList;
+        }
+        ///*section ends here*/
+
+    }
+
+    //NOTE: In all jqxdatetime controls one is added in month while converting from jqxdatetime to razor and vise versa because months are counted from 0 in JS date
+    $(document).ready(function () {
+        //Set Parent text box to default
+        document.getElementById('PayeeName').value = ' --All-- ';
+        //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+       //this method displays message from controller as popup
+    if ('@TempData["Message"]') {
+        alert('@TempData["Message"]')
+
+        }
+         @*if ('@TempData["Error"]') {
+        alert('@TempData["Error"]')
+
+        }*@
+        if ('@TempData["Error"]' == "No File/Data found") {
+            window.location.reload(); {
+                window.alert("No File/Data found");
+    };
+@TempData.Remove("Error");
+
+    }
+
+      /*Section to get payee and commission period from session state and populate grids*/
+                        if (sessionStorage.SelectedCommissionPeriodInPayReview) {
+                            // $('#jqxLoader').jqxLoader('open');
+                            var PayeeString = sessionStorage.SelectedPayeeDropdownListInPayReview;
+                            var CommissionPeriodString = sessionStorage.SelectedCommissionPeriodInPayReview;
+                            PayeeCheckedIndexes= sessionStorage.SelectedPayeeIndexesInPayReview;
+                            PeriodCheckedIndexes=sessionStorage.SelectedCommissionPeriodIndexesInPayReview;
+                            PortfolioCheckedIndexes = sessionStorage.SelectedPortfolioIndexesInPayReview;
+                            //IsSelectAllChecked = sessionStorage.PayeeAllInPayReview;
+                           // document.getElementById('PayeeAll').checked = IsSelectAllChecked;
+                            IsPortfolioSelectAllChecked=sessionStorage.PortfolioAllInPayReview;
+                             //document.getElementById('PortfolioAll').checked=IsPortfolioSelectAllChecked;
+                            var PortfolioList = sessionStorage.SelectedPortfolioInPayReview;
+                            document.getElementById('PortfolioList').value = PortfolioList;
+                            document.getElementById('PayeeId').value = PayeeString;
+                            document.getElementById('CommissionPeriodId').value = CommissionPeriodString;
+                            FnGetGrid('PayPublished');//call the get grid to load grids as per selected records
+                            //FnGetGrid('Approved');
+
+                            //Loop through payee Array to make checkbox as checked
+                            //NOTE: checkbox is not displayed as checked to User .Will Remove this comment once issue is resolved
+
+                            //now clear session state to avoid conflicts when we reload the page or again return to this page
+                            sessionStorage.removeItem('SelectedPayeeDropdownListInPayReview');
+                            sessionStorage.removeItem('SelectedCommissionPeriodInPayReview');
+                            sessionStorage.removeItem('SelectedPortfolioIndexesInPayReview');
+                            sessionStorage.removeItem('SelectedCommissionPeriodIndexesInPayReview');
+                            sessionStorage.removeItem('SelectedPayeeIndexesInPayReview');
+                            sessionStorage.removeItem('SelectedPortfolioInPayReview');
+                            //sessionStorage.removeItem('PayeeAllInPayReview');
+    //sessionStorage.removeItem('PortfolioAllInPayReview');
+                            }
+        /*section ends here*/
+
+
+        //This call is made to save url of current page which would be the url of back button in subsequent pages
+         $.ajax({
+             data: { path: window.location.href },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+    });
+
+         cellsrenderer = function (row, columnfield, value, defaulthtml, rowdata, displayfield, columnproperties) {
+             var GridData = displayfield;
+
+         var CalcComment = ' Reference : Claim against Calc Batch:' + displayfield.XBatchName + ' Batch Number :' + displayfield.XBatchNumber + ' Alteryx TransactionNumber: ' + displayfield.XAlteryxTransactionNumber;
+         var CalcPayeeCode = displayfield.XPayeeCode;
+         if ($('#jqxTabs').jqxTabs('selectedItem') == 0) {
+             if (value  == 'True') {
+                 var CPId = document.getElementById('CommissionPeriodId').value;
+                 return ' &emsp;<button onclick="FnReviewHistory(\'' + CalcPayeeCode + '\', \'' + CalcComment + '\')" class="GridButton">Create Claim</button>';
+             }
+             else {
+                 return '<button style="display:none;"></button>'
+             }
+         } //else {
+
+             //if (value) {
+             //    var CPId = document.getElementById('CommissionPeriodId').value;
+             //    return '&emsp;<button onclick="window.location.href=\'/LPay/DownloadAttachment?AttachmentId=' + value + '&CommissionPeriodIdList=' + CPId + '\'" class="GridButton">Download</button>';
+             //} else {
+             //    return '<button style="display:none;"></button>'
+             //}
+         //}
+
+                    //if (value) {
+                    //    var CPId = document.getElementById('CommissionPeriodId').value;
+                    //    return '&emsp;<button onclick="window.location.href=\'/LPay/DownloadAttachment?AttachmentId=' + value + '&CommissionPeriodIdList=' + CPId + '\'" class="GridButton">Download</button>';
+                    //}
+                    //else {
+                    //   return '<button style="display:none;"></button>'
+                    //}
+                };
+
+    //Loop though list of columns passed in viewbag and  populate arrays of datafiels and columns of grid//
+         columns.push({ text: 'Actions', datafield: 'ClaimPermission', width: '10%', cellsrenderer: cellsrenderer });
+        @foreach (var d in CompanySpecificColumns)
+        {
+            @: datafields.push({ name: "@d.ColumnName", type: "@d.DataType" });
+            if (d.LcscDisplayOnForm == true&&d.ColumnName!= "PayeeAttachmentId")
+            {
+            @: if("@d.DataType"=='bool')
+            @:{
+           @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%',columntype:'checkbox'});
+        @:}
+        @:else
+        @:{
+        @: columns.push({ text: "@d.LcscLabel", datafield: "@d.ColumnName" ,editable:false,width:'10%'});
+    @:}
+    }
+                    }
+
+                    if(datafields.indexOf('XAlteryxTransactionNumber')==-1)
+                    {
+                        datafields.push({ name: "XAlteryxTransactionNumber", type: "string" });
+    }
+                    datafields.push({ name: "ClaimPermission", type: "string" });
+                    //Add Comments Column which is editable
+                    /* datafields.push({ name: "XComments", type: "string" });
+                    columns.push({ text: "Comments", datafield: "XComments" ,editable:true,width:'10%'});*/
+
+                   // GetPayeeListBox();
+                    var sourcePortfolio = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Portfolio', type: 'string' }
+            ],
+            id: "Id",
+            url: "/Home/GetPortfolioForDropDown"
+         };
+                var dataAdapterPortfolio = new $.jqx.dataAdapter(sourcePortfolio)//, { async: true, autoBind: true })
+        // Create a jqxListBox
+        $("#listboxPortfolio").jqxDropDownList({ checkboxes: true, source: dataAdapterPortfolio, displayMember: "Portfolio", valueMember: "Id", dropDownWidth: 350, placeHolder: "All",width:'170px' });
+        $("#listboxPortfolio").on('checkChange', function (event) {
+                    //var args = event.args;
+                    //if (args.checked) {
+                    //    $("#Events").text("Checked: " + args.label);
+                    //}
+                    //else {
+                    //    $("#Events").text("Unchecked: " + args.label);
+                    //}
+                    // console.log(dataAdapterPortfolio.records[0])
+                    var items = $("#listboxPortfolio").jqxDropDownList('getCheckedItems');// $("#listboxPortfolio").jqxDropDownList('getSelectedItem'); /
+                                                                                          //var checkedItems = items.value;
+                                                                                          //PortfolioCheckedIndexes = items.index;
+                    var checkedItems = '';
+                    PortfolioCheckedIndexes = '';
+            $.each(items, function (index) {
+                        if (index < items.length - 1) {
+                            checkedItems += this.value + ",";
+                            PortfolioCheckedIndexes += this.index + ",";
+                        }
+                        else {
+                            checkedItems += this.value;
+                            PortfolioCheckedIndexes += this.index;
+                        }
+
+                    });
+            //document.getElementById('PayeeAll').checked=false;
+            ChannelChanged = true;
+            PayeeCheckedIndexes = '';
+            document.getElementById('PortfolioList').value = checkedItems;
+                });
+
+
+
+                var source2 = {
+                    dataType: "json",
+            dataFields: [
+                        { name: 'Id', type: 'string' },
+                { name: 'LcpStatus', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LPay/GetCommissionPeriod"
+                };
+                var dataAdapter2 = new $.jqx.dataAdapter(source2)
+        // Create a jqxListBox for Commissionperiod multi selection
+        $("#listboxCommPeriod").jqxDropDownList({ checkboxes: false, source: dataAdapter2, displayMember: "LcpStatus", valueMember: "Id", dropDownWidth: 350, placeHolder: "-- Select Here --", width: '170px' });
+        $("#listboxCommPeriod").on('select', function (event) {
+                    var args = event.args;
+            if (args.checked) {
+                $("#Events").text("Checked: " + args.label);
+            }
+            else {
+                $("#Events").text("Unchecked: " + args.label);
+        }
+        var items = $("#listboxCommPeriod").jqxDropDownList('getSelectedItem');//$("#listboxPortfolio").jqxDropDownList('getCheckedItems');
+        var checkedItems = items.value;
+        PeriodCheckedIndexes = items.index;
+            //var items = $("#listboxCommPeriod").jqxDropDownList('getCheckedItems');
+            //var checkedItems = '';
+            //PeriodCheckedIndexes = '';
+            //$.each(items, function (index) {
+            //    if (index < items.length - 1) {
+            //        checkedItems += this.value + ",";
+            //        PeriodCheckedIndexes += this.index + ",";
+            //    }
+            //    else {
+            //        checkedItems += this.value;
+            //        PeriodCheckedIndexes += this.index;
+            //    }
+
+            //});
+            document.getElementById('CommissionPeriodId').value = checkedItems;
+        });
+
+
+
+        $('#jqxPayeeSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: true });
+       // $('#jqxCommissionPeriodSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: false }); SS commented this because CommissionPeriod grouping will be added in future release.
+        $('#jqxBatchNoSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: false });
+       // $('#jqxSourceSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: false });
+        $('#jqxPrimaryChannelSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: false });
+        $('#jqxCommyTypeSwitchButton').jqxSwitchButton({ height: 27, width: 81, checked: false });
+
+
+        // Method to load jqxtabs in view.
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        //This method is called when data binding is complete in a grid
+        $("#jqxgridPayPublished").on("bindingcomplete", function (event) {
+            //display counts
+            $('#jqxLoader').jqxLoader('close');
+                            //var datainformations = $('#jqxgridPayPublished').jqxGrid('getdatainformation');
+                           // if (datainformations)
+                             //   document.getElementById('bPayPublished').innerHTML = datainformations.rowscount;
+
+                        });
+
+        $("#jqxgridSummary").on("bindingcomplete", function (event) {
+                            //display counts
+                            var datainformations = $('#jqxgridSummary').jqxGrid('getdatainformation');
+            $('#jqxLoader').jqxLoader('close');
+                            //if (datainformations)
+                            //    document.getElementById('bSummary').innerHTML = datainformations.rowscount
+                        });
+
+
+
+        $("#listboxCommPeriod").on('bindingComplete', function (event) {
+                                if (PeriodCheckedIndexes) {
+                                    var PeriodArray = String(PeriodCheckedIndexes).split(',');
+                                    for (var i = 0; i < PeriodArray.length; ++i) {
+                   // $("#listboxCommPeriod").jqxDropDownList('checkIndex', Number(PeriodArray[i]));
+                    $("#listboxCommPeriod").jqxDropDownList('selectIndex', Number(PeriodArray[i]));
+                                    }
+            }
+
+
+                                $.ajax({
+                                    url: "/LPay/GetSelectedPortfolioFromUserPreference",
+                                    dataType: "json",
+                                    type: "POST",
+                                    async: false,
+                                    success: function (data) {
+                                        if (data[0].EntityName == "PayReview") {
+                                            $("#listboxCommPeriod").jqxDropDownList('selectItem', data[0].Config)
+                                        }
+
+                                    }
+                                });
+                            });
+
+    //    $("#listboxPayee").on('bindingComplete', function (event) {
+    //                            if (PayeeCheckedIndexes) {
+    ////                                if(document.getElementById('PayeeAll').checked==true)
+    ////                                {
+    ////$("#listboxPayee").jqxDropDownList('checkAll');
+    ////                                }
+    ////                                else
+    ////                                {
+    // $("#listboxPayee").jqxDropDownList('uncheckAll');
+    //                                    var PayeeArray = String(PayeeCheckedIndexes).split(',');
+    //                                    for (var i = 0; i < PayeeArray.length; ++i) {
+    //                $("#listboxPayee").jqxDropDownList('checkIndex', Number(PayeeArray[i]));
+    //                                    }
+    //                               // }
+    //                            }
+    //                        });
+
+        $("#listboxPortfolio").on('close', function (event) {
+            if (ChannelChanged == true) {
+                ChannelChanged = false;
+                FnGo(false);//Called in a function from to update Payee list as JQXGrid is not updating records
+            }
+        });
+
+        $("#listboxPortfolio").on('bindingComplete', function (event) {
+                                if (PortfolioCheckedIndexes) {
+    //if(document.getElementById('PortfolioAll').checked==true)
+    //{
+    //  $("#listboxPortfolio").jqxDropDownList('checkAll');
+    //}
+    //else
+    //{
+      $("#listboxPortfolio").jqxDropDownList('uncheckAll');
+                                    var PortfolioArray = String(PortfolioCheckedIndexes).split(',');
+                                    for (var i = 0; i < PortfolioArray.length; ++i) {
+                    $("#listboxPortfolio").jqxDropDownList('checkIndex', Number(PortfolioArray[i]));
+                                        //$("#listboxPortfolio").jqxDropDownList('selectIndex', Number(PortfolioArray[i]));
+                                    }
+                               // }
+    }
+                            });
+
+      //  $("#PayeeAll").click(function () {
+      //                          if ($(this).is(':checked')) {
+      //          $("#listboxPayee").jqxDropDownList('checkAll');
+      //                          }
+      //      else {
+      //          $("#listboxPayee").jqxDropDownList('uncheckAll');
+      //                          }
+      //                      });
+      //$("#PortfolioAll").click(function () {
+      //                          if ($(this).is(':checked')) {
+      //          $("#listboxPortfolio").jqxDropDownList('checkAll');
+      //                          }
+      //      else {
+      //          $("#listboxPortfolio").jqxDropDownList('uncheckAll');
+      //                          }
+      //                      });
+
+                       });
+
+    //function GetPayeeListBox()
+    //{
+    //    var Portfolio=document.getElementById('PortfolioList').value
+    //    var source1 = {
+    //        dataType: "json",
+    //        dataFields: [
+    //            { name: 'Id', type: 'string' },
+    //            { name: 'FullName', type: 'string' }
+    //        ],
+    //        data: { PortfolioList: Portfolio},
+    //        id: "Id",
+    //        url: "/LPay/GetPayeeList"
+    //    };
+    //    var dataAdapter1 = new $.jqx.dataAdapter(source1)
+    //    // Create a jqxListBox
+    //    $("#listboxPayee").jqxDropDownList({ checkboxes: true, source: dataAdapter1, displayMember: "FullName", valueMember: "Id", dropDownWidth: 350, placeHolder: "All" });
+    //    $("#listboxPayee").on('checkChange', function (event) {
+    //        var args = event.args;
+    //        if (args.checked) {
+    //            $("#Events").text("Checked: " + args.label);
+    //        }
+    //        else {
+    //            $("#Events").text("Unchecked: " + args.label);
+    //        }
+    //        var items = $("#listboxPayee").jqxDropDownList('getCheckedItems');
+    //        var checkedItems = "";
+    //        PayeeCheckedIndexes = '';
+    //        $.each(items, function (index) {
+    //            if (index < items.length - 1) {
+    //                checkedItems += this.value + ",";
+    //                PayeeCheckedIndexes += this.index + ",";
+    //            }
+    //            else {
+    //                checkedItems += this.value;
+    //                PayeeCheckedIndexes += this.index;
+    //            }
+
+    //        });
+    //        document.getElementById('PayeeId').value = checkedItems;
+    //    });
+    //}
+
+
+    //this function will load grid in view
+    function FnGetGrid(TabName) {
+        var CommissionPeriodId = document.getElementById('CommissionPeriodId').value;
+        var PayeeId = document.getElementById('PayeeId').value;
+        var PortfolioList = document.getElementById('PortfolioList').value;
+      
+        if (CommissionPeriodId == null || CommissionPeriodId == '' || CommissionPeriodId == undefined) {
+            alert("Please select data");
+            return;
+        }
+
+        $.ajax({
+            data: { PayeeId: PayeeId, CommissionPeriodId: CommissionPeriodId, TabName: TabName, PortfolioList: PortfolioList },
+            url: "/LPay/GetPayeePayCounts",
+            dataType: "json",
+            type: "POST",
+            success: function (counts) {
+
+                var sourcea = {
+                    dataType: "json",
+                    dataFields:datafields,
+                    data: { PayeeId: PayeeId, CommissionPeriodId: CommissionPeriodId, TabName: TabName, PortfolioList: PortfolioList },
+                    url: "/LPay/GetPayeePayReports",
+
+                      filter: function () {
+                          $("#jqxgrid" + TabName).jqxGrid('updatebounddata', 'filter');
+                    },
+                    // update the grid and send a request to the api
+                    sort: function () {
+                        $("#jqxgrid" + TabName).jqxGrid('updatebounddata', 'sort');
+                    },
+                    root: 'Rows',
+                    beforeprocessing: function (data) {
+                        sourcea.totalrecords = counts;
+                    }
+                };
+                var dataAdapter = new $.jqx.dataAdapter(sourcea, {
+                    downloadComplete: function (data) {
+                    },
+                })
+
+     document.getElementById('b'+TabName).innerHTML = counts;
+
+                $('#jqxgrid' + TabName).jqxGrid({
+                    source: dataAdapter,
+                    width: "100%",
+                    columnsresize: true,
+                    pageable: true,
+                    pagesize: 200,
+                    editable: false,
+                    filterable: true,
+                    sortable: true,
+
+                    autoshowcolumnsmenubutton: false,
+                    pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+                    virtualmode: true,
+                    selectionmode: 'checkbox',
+                    autoloadstate: false,
+                    autosavestate: false,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    rendergridrows: function () {
+                        return dataAdapter.records;
+                    },
+                    ready: function () {
+                    },
+                    columns:columns
+                });
+                document.getElementById('jqxTabs').style.display = 'block';
+                if (TabName == 'PayPublished')
+                {
+                    //SG Commented next two lines
+                    // BatchNumber = document.getElementById('BatchNos').value
+                   // FnGetComments(BatchNumber)
+                }
+            },
+            error: function (reponse) {
+            }
+
+                });
+
+    }
+
+    function GetGlymph() {
+        return ("<i class=\"fa fa-tachometer\" aria-hidden=\"true\" style=\"color:#e60000;font-size:20px !important;\" title=\"Dashboard\"></i>");
+    }
+
+    function FnComments()
+    {
+        var rows = $('#jqxgridPayPublished').jqxGrid('getselectedrowindexes');
+        var CPId = document.getElementById('CommissionPeriodId').value;
+        var PId = document.getElementById('PayeeId').value;
+        document.getElementById('CPId').value = CPId;
+        document.getElementById('PId').value = PId;
+        var counts = 0;
+        var selectcount = 0;
+        for (var i = 0; i < rows.length; i++) {
+            var rowData = $('#jqxgridPayPublished').jqxGrid('getrowdata', rows[i]);
+            arr[counts] = [];
+            arr[counts][0] = rowData.XAlteryxTransactionNumber;
+    arr[counts][1] = rowData.XBatchNumber;
+            counts = counts + 1;
+
+        }
+        //This line adds data of array to  variable of form
+        document.getElementById('SelectedData').value = arr;
+        var SelectedData = arr.join();
+
+        if (arr.length == 0) {
+            alert("Please select Data")
+        } else {
+            var comments = document.getElementById('comments1').value;
+             /*Section to store the currect payee and commission period in session storage*/
+            if (typeof (Storage) !== "undefined") {
+                //store Payeelist and Commission period in Session storage before leaving the page.
+                var PortfolioList = document.getElementById('PortfolioList').value;
+                sessionStorage.SelectedPayeeDropdownListInPayReview = PId;
+                sessionStorage.SelectedCommissionPeriodInPayReview = CPId;
+                sessionStorage.SelectedPortfolioInPayReview = PortfolioList;
+                sessionStorage.SelectedPayeeIndexesInPayReview = PayeeCheckedIndexes;
+                sessionStorage.SelectedCommissionPeriodIndexesInPayReview = PeriodCheckedIndexes;
+                sessionStorage.SelectedPortfolioIndexesInPayReview = PortfolioCheckedIndexes;
+      //          sessionStorage.PayeeAllInPayReview = document.getElementById('PayeeAll').checked;
+      //sessionStorage.PortfolioAllInPayReview = document.getElementById('PortfolioAll').checked;
+                window.location.href = '/LPay/UpdateComments?CPId=' + CPId + '&SelectedData=' + SelectedData + '&PId=' + PId + '&Comments=' + comments;
+            }
+            /*sesion ends here*/
+
+        }
+
+    }
+
+
+
+    //This function will be called on clicking Go button and will load the grid as per the current selection
+    function FnGo(LoadCalcGrid)
+    {
+
+        /*Section to store the currect payee and commission period in session storage*/
+        if (typeof (Storage) !== "undefined") {
+            //store Payeelist and Commission period in Session storage before leaving the page.
+            var CPId = document.getElementById('CommissionPeriodId').value;
+            var PId = document.getElementById('PayeeId').value;
+            var PortfolioList = document.getElementById('PortfolioList').value;
+            sessionStorage.SelectedPayeeDropdownListInPayReview = PId == undefined ? '' : PId;
+            sessionStorage.SelectedCommissionPeriodInPayReview = CPId;
+            sessionStorage.SelectedPortfolioInPayReview = PortfolioList;
+            sessionStorage.SelectedPayeeIndexesInPayReview = PayeeCheckedIndexes;
+            sessionStorage.SelectedCommissionPeriodIndexesInPayReview = PeriodCheckedIndexes;
+            sessionStorage.SelectedPortfolioIndexesInPayReview = PortfolioCheckedIndexes;
+            //      var SelectPayeeAll=document.getElementById('PayeeAll').checked;
+            //      sessionStorage.PayeeAllInPayReview =SelectPayeeAll ;
+            //     var SelectPortfolioAll=document.getElementById('PortfolioAll').checked;
+            //sessionStorage.PortfolioAllInPayReview =SelectPortfolioAll ;
+            if (CPId == "" || CPId == null || CPId == undefined) {
+                alert("Please select Commission Period");
+                return ;
+            } else {
+
+                if (CPId || LoadCalcGrid == false) {
+                    window.location.href = '/LPay/PayReview?CommissionPeriod=' + CPId + '&PortfolioList=' + PortfolioList + '&LoadCalcGrid=' + LoadCalcGrid;
+                }
+                else {
+                    alert('Please choose period')
+                }
+            }
+        }
+
+            /*section ends here*/
+    }
+
+    function FnGetSummary(TabName) {
+
+        var CommissionPeriodId = document.getElementById('CommissionPeriodId').value;
+        var PayeeId = document.getElementById('PayeeId').value;
+        if (CommissionPeriodId == null || PayeeId == null) {
+            alert("Please select data");
+            return;
+        }
+        $('#jqxLoader').jqxLoader('open');
+        var Summarycolumns = new Array();
+
+
+
+        var BatchNochecked = $('#jqxBatchNoSwitchButton').jqxSwitchButton('checked');
+       // var Sourcechecked = $('#jqxSourceSwitchButton').jqxSwitchButton('checked');
+        var PrimaryChannelchecked = $('#jqxPrimaryChannelSwitchButton').jqxSwitchButton('checked');
+        var CommyTypechecked = $('#jqxCommyTypeSwitchButton').jqxSwitchButton('checked');
+        var CommPeriodchecked = false;//SS defaulted this value to false as This switch button will be added in future release//$('#jqxCommissionPeriodSwitchButton').jqxSwitchButton('checked');
+        var Payeechecked = $('#jqxPayeeSwitchButton').jqxSwitchButton('checked');
+        var Status = document.getElementById('Status').value;
+        if (Payeechecked) {
+            Summarycolumns.push({ text: 'Payee', datafield: 'XPayeeCode', editable: false });
+        }
+        if (CommPeriodchecked) {
+            Summarycolumns.push({ text: 'Commission Period', datafield: 'XCommissionPeriod', editable: false });
+        }
+        if (BatchNochecked) {
+            Summarycolumns.push({ text: 'Batch Number', datafield: 'XBatchNumber', editable: false });
+        }
+        //if (Sourcechecked) {
+        //    Summarycolumns.push({ text: 'Source', datafield: 'XSource', editable: false });
+        //}
+        if (PrimaryChannelchecked) {
+            Summarycolumns.push({ text: 'Primary Channel', datafield: 'XPrimaryChannel', editable: false });
+        }
+        if (CommyTypechecked) {
+            Summarycolumns.push({ text: 'Commy Type', datafield: 'XCommType', editable: false });
+        }
+
+        Summarycolumns.push({ text: 'Amount', datafield: 'XPayAmtExTax', editable: false });
+        $.ajax({
+            data: { PayeeId: PayeeId, CommissionPeriodId: CommissionPeriodId, BatchNochecked: BatchNochecked, PrimaryChannelchecked: PrimaryChannelchecked, CommPeriodchecked: CommPeriodchecked, Payeechecked: Payeechecked, Status: Status, CommyTypechecked: CommyTypechecked },
+            url: "/LPay/GetGridSummary",
+            // dataFilter: "json",
+            type: "POST",
+            success: function (result) {
+                var sourcea = {
+                    dataType: "json",
+                    dataFields: [
+                        { name: 'Id', type: 'string' },
+                        { name: 'XPayeeCode', type: 'string' },
+                        { name: 'XPayAmtExTax', type: 'decimal' },
+                        { name: 'XBatchNumber', type: 'int' },
+                        { name: 'XPrimaryChannel', type: 'string' },
+                        { name: 'XCommissionPeriod', type: 'string' },
+                        { name: 'XCommType', type: 'string' },
+                    ],
+                    localdata: result
+                };
+                var dataAdapter = new $.jqx.dataAdapter(sourcea)
+                $('#jqxgrid' + TabName).jqxGrid({
+                    source: dataAdapter,
+                    width: "100%",
+                    columnsresize: true,
+                    editable: false,
+                    autoshowfiltericon: true,
+                    enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+                    ready: function () {
+                    },
+                    columns: Summarycolumns
+                });
+
+            },
+
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+
+        })
+
+    }
+    function FnReviewHistory(CalcPayeeCode, CalcComment) {
+          //  var url = '@Url.Action("Create", "LClaims", new { CalcPayeeCode = "__CalcPayeeCode__" , CalcComment  = "__CalcComment__"})';
+
+            var url = '/LClaims/Create?CalcPayeeCode=__CalcPayeeCode__&CalcComment=__CalcComment__';
+
+            //window.location.href = url.replace("__id__", xx);
+
+            //MS R2.2.1 Change for open Review in Popup Window
+            var path = url.replace("__CalcPayeeCode__", CalcPayeeCode);
+            path = path.replace("__CalcComment__", CalcComment);
+            path = window.location.protocol + "//" + window.location.host + "/" + path;
+            var popup = window.open(path);
+
+        }
+</script>
+
+<div id="jqxLoader">
+</div>
+<div>
+    <h5 class="text-danger text-capitalize">Payment Review</h5>
+</div>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm" }))
+{
+
+    <div class="row date">
+        @Html.Hidden("PayeeId")
+        @Html.Hidden("CommissionPeriodId")
+        @Html.Hidden("PortfolioList")
+
+        <div class="col-md-3">
+            @Html.Label("Period", htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-7">
+                @* @Html.DropDownList("CommissionPeriodId", null, "-- Select Here --", new { @class = "form-control" })*@
+                <div id="listboxCommPeriod">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="col-md-6">
+                @Html.Label("Channel", htmlAttributes: new { @class = "control-label col-md-12" })
+                @*@Html.Label("Select All", htmlAttributes: new { @class = " col-md-10 " })
+                    @Html.CheckBox("PortfolioAll", false, new { @class = "col-md-2" })*@
+
+            </div>
+            <div class="col-md-6">
+                <div id="listboxPortfolio">
+                </div>
+                @* @Html.DropDownList("PayeeId", null, "-- Select Here --", new { @class = "form-control" })*@
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="col-md-4">
+                @Html.Label("Payee", htmlAttributes: new { @class = "control-label col-md-7" })
+                <a href="#" onclick="FnLoadPopup()"><i class="fa fa-search" aria-hidden="true" title="zoom to select payee" style="color:#e60000;"></i></a>
+                @*@Html.Label("Select All", htmlAttributes: new { @class = " col-md-9 " })
+                    @Html.CheckBox("PayeeAll",false,new { @class = "col-md-2" })*@
+            </div>
+            <div class="col-md-8">
+                @Html.Editor("PayeeName", new { htmlAttributes = new { @class = "", style = "pointer-Events:none;background:lightgray;", value = " --All-- " } })
+                @*<div id="listboxPayee">
+                    </div>*@
+                @* @Html.DropDownList("PayeeId", null, "-- Select Here --", new { @class = "form-control" })*@
+            </div>
+        </div>
+
+        <div class="col-md-2">
+
+            @*<button type="button" class="btn btn-red btn-cons" onclick="FnGo();">Go</button>    &nbsp;*@
+            <a href="#" onclick="FnGo(true)"> <i class="fa fa-paper-plane" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Go"></i> </a>&ensp;
+            <a href="#" onclick="FnDownload()"> <i class="fa fa-download" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Download"></i> </a>
+        </div>
+    </div>
+}
+
+<div id='jqxTabs' class="inner-tabs" style="display:none;">
+    <ul class="nav nav-tabs tabs tabs-container-border ">
+        <li style="margin-left: 30px;">Pay Published <span class="badge" id="bPayPublished">0</span></li>
+        <li>Summary </li>
+    </ul>
+
+    <div class="tab-content" style="padding:10px;">
+        <div id="jqxgridPayPublished">
+        </div>
+
+
+    </div>
+
+
+    <div class="tab-content" style="padding:10px;">
+
+        <div class="col-md-2 col-lg-2 col-xs-6">
+            @Html.Label("Status", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-8">
+                @Html.DropDownList("Status", null, null, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="col-md-1 col-lg-1 col-xs-6">
+            @Html.Label("Batch No", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-8">
+                <div id="jqxBatchNoSwitchButton"></div>
+            </div>
+        </div>
+        @*<div class="col-md-2 col-lg-2 col-xs-6">
+            @Html.Label("Source", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-8">
+                <div id="jqxSourceSwitchButton"></div>
+            </div>
+        </div>*@
+        <div class="col-md-1 col-lg-1 col-xs-6">
+            @Html.Label("Primary Channel", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-8">
+                <div id="jqxPrimaryChannelSwitchButton"></div>
+            </div>
+        </div>
+        <div class="col-md-1 col-lg-1 col-xs-6">
+            @Html.Label("CommType", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-8">
+                <div id="jqxCommyTypeSwitchButton"></div>
+            </div>
+        </div>
+        <div class="col-md-1 col-lg-1 col-xs-6">
+            @Html.Label("Payee", htmlAttributes: new { @class = "control-label col-md-12 " })
+            <div class="col-md-5">
+                <div id="jqxPayeeSwitchButton"></div>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <br>
+            <button type="button" id="GoSummary" name="GoSummary" class="btn btn-borderRed btn-cons" onclick="FnGetSummary('Summary')">View&nbsp;</button>
+            <br />&ensp;<br>
+        </div>
+
+        @*<div class="col-md-2 col-lg-2 col-xs-6">
+            @Html.Label("Commission Period", htmlAttributes: new { @class = " col-md-12" })
+            <div class="col-md-8">
+                <div id="jqxCommissionPeriodSwitchButton"></div>
+
+            </div>
+
+        </div>*@
+
+        <br />&ensp;<br>
+        <div id="jqxgridSummary">
+        </div>
+        <br />
+    </div>
+</div>
+
+
+
+<br>
+
+@*This div will display uploaded file*@
+<div class="col-md-12" id="AttachedFiles"></div>
+<br>
+@Html.Partial("_GlobalPayeeGrid")
+<style>
+
+    input[type="file"] {
+        display: none;
+    }
+</style>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

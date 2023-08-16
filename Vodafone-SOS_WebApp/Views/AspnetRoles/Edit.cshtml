@@ -1,0 +1,184 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.AspnetRoleViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<script>
+    $(document).ready(function () {
+        var RId = '@Model.Id'
+        //$.ajax({
+        //    data: {RoleId: RId },
+        //    url: "/GMenus/GetSelectedMenuList",
+        //    cache: false,
+        //    type: "POST",
+        //    success: function (data) {
+        //var source = {
+        //    dataType: "json",
+        //    dataFields: [
+        //       { name: 'Id', type: 'string' },
+        //        { name: 'GmMenuName', type: 'string' },
+        //         { name: 'select', type: 'string' }
+        //    ],
+        //  localdata:data
+            
+        //};
+        //var dataAdapter = new $.jqx.dataAdapter(source)
+        //// Create a jqxListBox
+        //$("#listbox").jqxListBox({
+        //    selectedIndex: 0, width: '50%', autoHeight: true, source: dataAdapter, displayMember: "select", valueMember: "Id", itemHeight: 30,
+        //    renderer: function (index, label, value) {
+
+        //        var datarecord = data[index];
+        //        return datarecord.GmMenuName;
+        //    },
+        //    checkboxes: true
+        //});
+
+        //var AllItems2 = $("#listbox").jqxListBox('getItems');
+        //// alert(AllItems[0].index)
+        //for (var i = 0; i < AllItems2.length; i++) {
+        //    if (AllItems2[i].label == 1) {
+        //        $("#listbox").jqxListBox('checkIndex', AllItems2[i].index);
+        //    }
+
+        //}
+        //    },
+        //    error: function (reponse) {
+        //        //alert("error : " + reponse);
+        //    }
+        //});
+
+
+        //$("#listbox").on('checkChange', function (event) {
+        //    var args = event.args;
+        //    if (args.checked) {
+        //        $("#Events").text("Checked: " + args.label);
+        //    }
+        //    else {
+        //        $("#Events").text("Unchecked: " + args.label);
+        //    }
+        //    var items = $("#listbox").jqxListBox('getCheckedItems');
+        //    var checkedItems = "";
+        //    $.each(items, function (index) {
+        //        if (index < items.length - 1) {
+        //            checkedItems += this.value + ", ";
+        //        }
+        //        else checkedItems += this.value;
+        //    });
+        //    //alert(checkedItems);
+        //    document.getElementById('MenuList').value = checkedItems;
+
+        //});
+
+
+
+        $.ajax({
+            data: { RoleId: RId },
+               url: "/GMenus/GetSelectedMenuList",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+                var source1 =
+                       {
+                           datatype: "json",
+                           datafields: [
+                               { name: 'id' },
+                               { name: 'parentid' },
+                               { name: 'text' },
+                               { name: 'value' },
+                               { name: 'select' }
+                           ],
+                           id: 'id',
+                           localdata: data
+                       };
+
+                var dataAdapter = new $.jqx.dataAdapter(source1);
+
+                dataAdapter.dataBind();
+                var records = dataAdapter.getRecordsHierarchy('id', 'parentid', 'items', [{ name: 'text', map: 'label' }]);
+                $('#jqxWidget').jqxTree({
+                    source: records, checkboxes: true, keyboardNavigation: true
+                });
+                $('#jqxWidget').jqxTree('expandAll')
+
+
+                $('#jqxWidget').on('checkChange', function (event) {
+                    var args = event.args;
+                    var item = $('#jqxWidget').jqxTree('getItem', args.element);
+                    var value = item.value;
+                    var checkedItem = $('#jqxWidget').jqxTree('getCheckedItems');
+                    var checkedItems = "";
+                    $.each(checkedItem, function (index) {
+                        if (index < checkedItem.length - 1) {
+                            checkedItems += this.value + ", ";
+                        }
+                        else checkedItems += this.value;
+                    });
+                    //alert(checkedItems)
+                    document.getElementById('MenuList').value = checkedItems;
+
+                })
+
+                $(document).on('contextmenu', function (e) {
+                    if ($(e.target).parents('.jqx-tree').length > 0) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                function isRightClick(event) {
+                    var rightclick;
+                    if (!event) var event = window.event;
+                    if (event.which) rightclick = (event.which == 3);
+                    else if (event.button) rightclick = (event.button == 2);
+                    return rightclick;
+                }
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+    })
+</script>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2 required" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.MenuList, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.HiddenFor(m => m.MenuList)
+                @*<div id="listbox"></div>*@
+                <div id='jqxWidget'>
+                </div>
+                @Html.ValidationMessageFor(model => model.MenuList, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-red btn-cons" />
+                <input type="button" value="Back" onclick="window.location.href = '@HttpContext.Current.Session["from"]'" class="btn btn-borderRed btn-cons" />
+            </div>
+        </div>
+    </div><br>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

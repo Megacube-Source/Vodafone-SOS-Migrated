@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "CommissionPeriodsIndex";
+}
+
+<script>
+    $(document).ready(function () {
+
+        if ('@TempData["Message"]') {
+            alert('@TempData["Message"]')
+        }
+
+        // Create jqxTabs.
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        GetGrid('Open')
+        GetGrid('Locked')
+        GetGrid('Unlocked')
+        GetGrid('Closed')
+
+        $("#jqxgridOpen").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridOpen').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+        });
+        $("#jqxgridLocked").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridLocked').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+            }
+        });
+        $("#jqxgridUnlocked").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridUnlocked').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b3').innerHTML = datainformations.rowscount;
+            }
+        });
+        $("#jqxgridClosed").on("bindingcomplete", function (event) {
+            //display counts
+            var datainformations = $('#jqxgridClosed').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b4').innerHTML = datainformations.rowscount;
+            }
+        });
+    });
+    function GetGrid(dat1) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcpPeriodName', type: 'string' },
+                { name: 'LcpCreatedDateTime', type: 'date' },
+            ],
+            id: "Id",
+            data: { TabName: dat1 },
+            url: "/LCommissionPeriods/GetPeriodGrid"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + dat1).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + dat1).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + dat1).jqxGrid("getrowdata", row);
+            //var BtNumber = yy.LbBatchNumber
+            //var BatchType=yy.LbBatchType
+
+            //Add action links depending upon the status (Open, Locked, Unlocked, Closed)
+            if (dat1 == "Open" || dat1 == "Unlocked") {
+                return '<button onclick="Lock(' + xx + ')" class="GridButton">Lock</button>&ensp;';
+            }
+            else if (dat1 == "Locked") {
+                return '<button onclick="Unlock(' + xx + ')" class="GridButton">Unlock</button>&ensp;<button onclick="Close(' + xx + ')" class="GridButton">Close</button>';
+            }
+            else return ''
+        };
+
+        $('#jqxgrid' + dat1).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            enablebrowserselection: true,//--RS on 11th march 2019, to make field copied
+            ready: function () {
+            },
+
+            columns: [
+                { text: 'Period', datafield: 'LcpPeriodName' },
+                { text: 'Created Date', datafield: 'LcpCreatedDateTime', cellsformat: "dd/MM/yyyy hh:mm:ss" },
+                { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: ' 20%' }
+            ]
+        });
+    }
+
+    @*function Mdelete(xx) {
+        if (xx) {
+            var url = '@Url.Action("Index", "LCommissionPeriods", new {Id = "__id__" })';
+            window.location.href = url.replace("__id__", xx);
+        }
+    }*@
+
+    function Lock(PeriodId) {
+        window.location.href = '/LCommissionPeriods/UpdateStatus/' + PeriodId + '?Status=Locked';
+    }
+    function Unlock(PeriodId) {
+        window.location.href = '/LCommissionPeriods/UpdateStatus/' + PeriodId + '?Status=Unlocked';
+    }
+    function Close(PeriodId) {
+        window.location.href = '/LCommissionPeriods/UpdateStatus/' + PeriodId + '?Status=Closed';
+    }
+</script>
+
+<div style="padding:10px;">
+    <div id='jqxTabs'>
+        <ul>
+            <li style="margin-left: 30px;">Open <span class="badge" id="b1">0</span></li>
+            <li>Locked <span class="badge" id="b2">0</span></li>
+            <li>Unlocked <span class="badge" id="b3">0</span></li>
+            <li>Closed <span class="badge" id="b4">0</span></li>
+        </ul>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridOpen">
+            </div>
+        </div>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridLocked">
+            </div>
+        </div>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridUnlocked">
+            </div>
+        </div>
+        <div class="section" style="padding:10px;">
+            <div id="jqxgridClosed">
+            </div>
+        </div>
+    </div>
+</div>

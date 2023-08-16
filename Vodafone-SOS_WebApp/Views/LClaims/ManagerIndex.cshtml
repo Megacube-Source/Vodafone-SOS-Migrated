@@ -1,0 +1,724 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.Sp_UpdateStatusViewModel
+@{
+    ViewBag.Title = "ManagerIndex";
+}
+
+<script>
+    $(document).ready(function () {
+
+        //This ajax call saves the url of current page which will be url of back button in subsequent pages
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        //The below lines are used to display message from controller as popup
+        if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+
+        // Loads tabs in view.
+        $('#jqxTabs').jqxTabs({ position: 'top' });
+        $('#settings div').css('margin-top', '10px');
+
+        //The below functions load the grid in view as per status passed as parameter
+        FnGetGrid1("Allocate")//allocate
+        FnGetGrid2("Approve")//approve
+        FnGetGrid2("Allocated")//allocated
+        FnGetGrid4("Approved")//approved
+        FnGetGrid5("Paid")//paid
+
+        //This method is called when row is double clicked
+        $('#jqxgridAllocate').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridAllocate').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridAllocate').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridApprove').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridApprove').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridApprove').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridAllocated').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridAllocated').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridAllocated').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridApproved').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridApproved').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridApproved').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+        $('#jqxgridPaid').on('rowdoubleclick', function (event) {
+            var selectedrowindex = $('#jqxgridPaid').jqxGrid('selectedrowindex');
+            var xx = $('#jqxgridPaid').jqxGrid("getrowid", selectedrowindex);
+            if (xx) {
+                window.location.href = "/LClaims/Edit/" + xx + "?FormType=disabled";
+            }
+        });
+
+        //This method is called when binding is complete in grid
+        $("#jqxgridAllocate").on("bindingcomplete", function (event) {
+
+            var datainformations = $('#jqxgridAllocate').jqxGrid('getdatainformation');
+            if (datainformations) {
+            //display counts
+                document.getElementById('b1').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        $("#jqxgridApprove").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxgridApprove').jqxGrid('getdatainformation');
+            if (datainformations) {
+            //display counts
+
+                document.getElementById('b2').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        $("#jqxgridAllocated").on("bindingcomplete", function (event) {
+            var datainformations = $('#jqxgridAllocated').jqxGrid('getdatainformation');
+            if (datainformations) {
+                document.getElementById('b3').innerHTML = datainformations.rowscount;
+            }
+
+        });
+
+        //$("#jqxgridApproved").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxgridApproved').jqxGrid('getdatainformation');
+        //    if (datainformations) {
+        //        document.getElementById('b4').innerHTML = datainformations.rowscount;
+        //    }
+
+        //});
+
+        //$("#jqxgridPaid").on("bindingcomplete", function (event) {
+        //    var datainformations = $('#jqxgridPaid').jqxGrid('getrowdata', 0);
+        //    if (datainformations) {
+
+        //        document.getElementById('b5').innerHTML = datainformations.rowscount;
+        //    }
+
+        //});
+
+
+
+
+    });
+
+    //Defined method to load grid as per tab name which is passed as parameter
+    //Have used different methods to load different grids as different columns were to be displayed in different tabs
+    function FnGetGrid1(TabName)
+    {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                { name: 'LcPaymentBatchId', type: 'string' },
+                { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcAllocatedToId', type: 'string' },
+                { name: 'LcApprovedById', type: 'string' },
+                { name: 'LcSentForApprovalById', type: 'string' },
+                { name: 'LcAllocatedById', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+              //    { name: 'LcClawbackAmount', type: 'string' },
+               // { name: 'LcApprovalDate', type: 'string' },
+               // { name: 'LcPaymentAmount', type: 'string' },
+              //  { name: 'LcAllocationDate', type: 'string' },
+               //   { name: 'LcPaymentDate', type: 'string' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName:TabName},
+            url: "/LClaims/GetClaimsForManager"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        //This method adds class to a column
+        var cellclassname = function (row, column, value, data) {
+          //alert(data)
+                return 'HeatMap1';
+        }
+
+        //This method adds buttons to the action column of the grid
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid'+TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Id = yy.Id
+
+            if (TabName == "Allocate" || TabName== "Approve") {
+                return '<button onclick="FnAllocate(' + xx + ')" class="GridButton">Review</button>&ensp;<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+            else {
+                return '<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+            };
+
+
+
+        $('#jqxgrid'+TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+            //selectionmode: 'none',
+            ready: function () {
+
+                },
+
+            columns: [
+                 { text: '', datafield: 'selects',columntype:'checkbox',width:'3%' },
+               // { text: 'Claim Id', datafield:'LcClaimId', editable: false },
+               //   { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false },
+              //  { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+                //{ text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                //{ text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode' ,editable:false},
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+                 { text: 'Payement Batch', datafield: 'LcPaymentBatchId', editable: false },
+                //  { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                //   { text: 'Sent For Approval By', datafield: 'LcSentForApprovalBy', editable: false },
+                  // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                  // { text: 'Allocated By', datafield: 'LcAllocatedById', editable: false },
+                  //  { text: 'Allocated To', datafield: 'LcAllocatedToId', editable: false },
+              // { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width:' 20%'  }
+            ]
+        });
+
+
+    }
+
+    function FnGetGrid2(TabName) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                { name: 'LcPaymentBatchId', type: 'string' },
+                { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcAllocatedToId', type: 'string' },
+                { name: 'LcApprovedById', type: 'string' },
+                { name: 'LcSentForApprovalById', type: 'string' },
+                { name: 'LcAllocatedById', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+                  { name: 'LcClawbackAmount', type: 'string' },
+                { name: 'LcApprovalDate', type: 'date' },
+                { name: 'LcPaymentAmount', type: 'string' },
+                { name: 'LcAllocationDate', type: 'date' },
+                  { name: 'LcPaymentDate', type: 'date' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LClaims/GetClaimsForManager"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellclassname = function (row, column, value, data) {
+            //alert(data)
+            return 'HeatMap1';
+
+        }
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Id = yy.Id
+
+            if (TabName == 1 || TabName == 2) {
+                return '<button onclick="FnAllocate(' + xx + ')" class="GridButton">Review</button>&ensp;<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+            else {
+                return '<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+        };
+
+
+
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+            //selectionmode: 'none',
+            ready: function () {
+
+            },
+
+            columns: [
+                 { text: '', datafield: 'selects', columntype: 'checkbox', width: '3%' },
+               // { text: 'Claim Id', datafield: 'LcClaimId', editable: false },
+                //  { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false },
+              //  { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+               // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                //{ text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode', editable: false },
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                  { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false, cellsformat: "dd/MM/yyyy " },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+                 { text: 'Payement Batch', datafield: 'LcPaymentBatchId', editable: false },
+                 // { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                 //  { text: 'Sent For Approval By', datafield: 'LcSentForApprovalBy', editable: false },
+                  // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                   { text: 'Allocated By', datafield: 'LcAllocatedById', editable: false },
+                    { text: 'Allocate To', datafield: 'LcAllocatedToId', editable: false },
+              // { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width:' 20%'  }
+            ]
+        });
+
+
+    }
+
+    function FnGetGrid4(TabName) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                { name: 'LcPaymentBatchId', type: 'string' },
+                { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcAllocatedToId', type: 'string' },
+                { name: 'LcApprovedById', type: 'string' },
+                { name: 'LcSentForApprovalById', type: 'string' },
+                { name: 'LcAllocatedById', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+                  { name: 'LcClawbackAmount', type: 'string' },
+                { name: 'LcApprovalDate', type: 'date' },
+                { name: 'LcPaymentAmount', type: 'string' },
+                { name: 'LcAllocationDate', type: 'date' },
+                  { name: 'LcPaymentDate', type: 'date' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LClaims/GetClaimsForManager"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellclassname = function (row, column, value, data) {
+            //alert(data)
+            return 'HeatMap1';
+
+        }
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Id = yy.Id
+
+            if (TabName == 1 || TabName == 2) {
+                return '<button onclick="FnAllocate(' + xx + ')" class="GridButton">Review</button>&ensp;<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+            else {
+                return '<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+        };
+
+
+
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+           // selectionmode: 'none',
+            ready: function () {
+
+            },
+
+            columns: [
+                // { text: '', datafield: 'selects', columntype: 'checkbox', width: '3%' },
+               // { text: 'Claim Id', datafield: 'LcClaimId', editable: false },
+                 // { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false },
+               // { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+               // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                //{ text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode', editable: false },
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+                //  { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+                 { text: 'Payement Batch', datafield: 'LcPaymentBatchId', editable: false },
+                  { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                   { text: 'Sent For Approval By', datafield: 'LcSentForApprovalBy', editable: false },
+                  // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                  // { text: 'Allocated By', datafield: 'LcAllocatedById', editable: false },
+                  //  { text: 'Allocated To', datafield: 'LcAllocatedToId', editable: false },
+              // { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width:' 20%'  }
+            ]
+        });
+
+
+    }
+
+    function FnGetGrid5(TabName) {
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'string' },
+                { name: 'LcClaimId', type: 'string' },
+                { name: 'LcOrderNumber', type: 'string' },
+                { name: 'LcCustomerName', type: 'string' },
+                { name: 'count', type: 'string' },
+                { name: 'RsStatus', type: 'string' },
+                { name: 'LcMSISDN', type: 'string' },
+                { name: 'LcConnectionDate', type: 'date' },
+                { name: 'LcOrderDate', type: 'date' },
+                { name: 'LcBAN', type: 'string' },
+                { name: 'LcPaymentBatchId', type: 'string' },
+                { name: 'LcPayeeCode', type: 'string' },
+                { name: 'LcAllocatedToId', type: 'string' },
+                { name: 'LcApprovedById', type: 'string' },
+                { name: 'LcSentForApprovalById', type: 'string' },
+                { name: 'LcAllocatedById', type: 'string' },
+                { name: 'LcExpectedCommissionAmount', type: 'string' },
+                  { name: 'LcClawbackAmount', type: 'string' },
+                { name: 'LcApprovalDate', type: 'date' },
+                { name: 'LcPaymentAmount', type: 'string' },
+                { name: 'LcAllocationDate', type: 'date' },
+                  { name: 'LcPaymentDate', type: 'date' },
+                { name: 'LcIsReclaim', type: 'bool' },
+            { name: 'selects', type: 'bool' }
+            ],
+            id: "Id",
+            data: { TabName: TabName },
+            url: "/LClaims/GetClaimsForManager"
+        };
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+
+        var cellclassname = function (row, column, value, data) {
+            //alert(data)
+            return 'HeatMap1';
+
+        }
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+            var xx = $('#jqxgrid' + TabName).jqxGrid("getrowid", row);
+            var yy = $('#jqxgrid' + TabName).jqxGrid("getrowdata", row);
+            var Id = yy.Id
+
+            if (TabName == 1 || TabName == 2) {
+                return '<button onclick="FnAllocate(' + xx + ')" class="GridButton">Review</button>&ensp;<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+            else {
+                return '<button onclick="return FnDownLoadBatch(' + Id + ')" class="GridButton">Download</button>&ensp;<button onclick="return FnDownLoadPDF(' + Id + ')" class="GridButton">Dashboard</button>';
+            }
+        };
+
+
+
+        $('#jqxgrid' + TabName).jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            pageable: false,
+            filterable: true,
+            autorowheight: true,
+            columnsresize: true,
+            altrows: true,
+            showstatusbar: true,
+            columnsresize: true,
+            columnsreorder: true,
+            editable: true,
+            enablehover: false,
+            enablebrowserselection: false,
+           // selectionmode: 'none',
+            ready: function () {
+
+            },
+
+            columns: [
+                // { text: '', datafield: 'selects', columntype: 'checkbox', width: '3%' },
+                { text: 'Claim Id', datafield: 'LcClaimId', editable: false },
+                  { text: 'Payement Date', datafield: 'LcPaymentDate', editable: false, cellsformat: "dd/MM/yyyy " },
+                { text: 'Payement Amount', datafield: 'LcPaymentAmount', editable: false },
+                { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                //{ text: 'File Name', datafield: 'LbFileName' },
+                { text: 'Payee Code', datafield: 'LcPayeeCode', editable: false },
+                { text: 'Order Date', datafield: 'LcOrderDate', editable: false, cellsformat: "dd/MM/yyyy " },
+                { text: 'Connection Date', datafield: 'LcConnectionDate', editable: false, cellsformat: "dd/MM/yyyy" },
+               //   { text: 'Allocation Date', datafield: 'LcAllocationDate', editable: false },
+                { text: 'Expected Commision Amount', datafield: 'LcExpectedCommissionAmount', editable: false },
+                 { text: 'Payement Batch', datafield: 'LcPaymentBatchId', editable: false },
+                  { text: 'Approved By', datafield: 'LcApprovedById', editable: false },
+                   { text: 'Sent For Approval By', datafield: 'LcSentForApprovalBy', editable: false },
+                  // { text: 'Clawback Amount', datafield: 'LcClawbackAmount', editable: false },
+                  // { text: 'Allocated By', datafield: 'LcAllocatedById', editable: false },
+                  //  { text: 'Allocated To', datafield: 'LcAllocatedToId', editable: false },
+              // { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width:' 20%'  }
+            ]
+        });
+
+
+    }
+
+    //This variable is used to store list of claims
+    var arr = [];
+
+    function FnAllocate(TabName) {
+        //document.getElementById('Allocate' + dat).style.display = 'block'
+        var AllocatedToId = document.getElementById('AllocateTo'+TabName).value
+        var selectedrowindex = $('#jqxgrid'+TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++)
+        {
+            if(xx[i].selects)
+            {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            if (AllocatedToId)
+                {
+                window.location.href = '/LClaims/AllocateClaim?ClaimId=' + arr + '&AllocateToId=' + AllocatedToId
+                }
+            else{
+                alert("Please select Allocate To User")
+            }
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    function FnApproveClaim(TabName) {
+        var selectedrowindex = $('#jqxgrid' + TabName).jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid' + TabName).jqxGrid("getrows");
+        var count = 0;
+        for (var i = 0; i < xx.length; i++) {
+            if (xx[i].selects) {
+                arr[count] = xx[i].Id;
+                count = count + 1;
+            }
+        }
+        //alert(arr.length)
+        if (arr.length != 0) {
+            window.location.href ='/LClaims/ApproveClaim?ClaimId='+arr
+        }
+        else {
+            alert("Please select Claims")
+        }
+    }
+
+    ////This method called when user click on download button in actions of grid
+    //function FnDownLoadBatch(Id)
+    //{
+    //    window.location.href = '/Content/RawFiles/' + Id + '/InputData.csv'
+    //}
+
+    ////This method is called when user clicks on dashboard link in actions method to download pdf files
+    //function FnDownLoadPDF(dat) {
+    //    setTimeout(function () {
+    //        var Win1 = window.open("/Content/RawFiles/" + dat + "/Validation_Report.pdf", "_blank")
+    //        // Win1.saveAs();
+    //        //  Win1.close();
+    //    }, 1000);
+
+
+    //}
+
+     //This method is called when we click on glymph to download the grid data
+    function FnDownloadGrid()
+    {
+        var TabName = "";
+        var selectedItem = $('#jqxTabs').jqxTabs('selectedItem');
+        switch(selectedItem)
+        {
+            case 0: TabName = "Allocate"; break;
+            case 1: TabName = "Approve"; break;
+            case 2: TabName = "Allocated"; break;
+            case 3: TabName = "Approved"; break;
+            case 4: TabName = "Approved"; break;
+            case 5: TabName = "Paid"; break;
+        }
+        window.location.href = '/LClaims/DownloadClaimsGridByTabName?TabName=' + TabName;
+        //$.ajax({
+        //    data: {TabName:TabName },
+        //    url: "/LClaims/DownloadClaimsGridByTabName",
+        //    dataType: "json",
+        //    type: "POST",
+        //    success: function (data) {
+
+        //        window.open(data)
+        //    },
+        //    error: function (reponse) {
+        //        //  alert("error : " + reponse);
+        //    }
+        //});
+    }
+
+</script>
+
+<div style="padding:10px;" class="boxes">
+    <h4 class="vodafone_txt">CLAIMS GRID <i class="fa fa-download" aria-hidden="true" onclick="FnDownloadGrid()" style="cursor:pointer;"></i></h4>
+    <div id='jqxTabs' class="inner-tabs ">
+        <ul class="nav nav-tabs tabs tabs-container-border ">
+            <li style="margin-left: 30px;">Allocate <span class="badge" id="b1">0</span></li>
+            <li>Approve <span class="badge" id="b2">0</span></li>
+            <li>Allocated <span class="badge" id="b3">0</span></li>
+            <li>Approved </li>
+            <li>Paid </li>
+
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+          
+            <div id="jqxgridAllocate">
+
+            </div>
+            <br>
+
+            <div class="row date">
+                <font class="col-md-2" style="text-align:right">Allocate To</font>
+                @Html.DropDownList("AllocateToAllocate", null, "-- Selet Here --", new { @class = "form-control" })
+
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        <button class="btn btn-gray btn-cons" onclick="return FnAllocate('Allocate')">Allocate&ensp;<i class="fa fa-undo" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridApprove">
+
+                    </div>
+
+            <div class="row no_margin">
+                <div class="col-xs-12 buttons">
+                    <button type="button" class="btn btn-borderGreen btn-cons" onclick="alert('Need sampling logic from business'); document.getElementById('A1').disabled = false; document.getElementById('A2').disabled = false;">Sample&nbsp; <i class="fa fa-fax" aria-hidden="true"></i></button>&nbsp;<button type="button" class="btn btn-success btn-cons" id="A1" disabled="disabled" onclick="FnApproveClaim('Approve')">Approve&nbsp; <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                </div>
+            </div>
+                </div>
+
+        <div class="tab-content" style="padding:10px;">
+                    <div id="jqxgridAllocated">
+
+                    </div>
+            <div class="row date">
+                <font class="col-md-2" style="text-align:right">Allocate To</font>
+                @Html.DropDownList("AllocateToAllocated", null, "-- Selet Here --", new { @class = "form-control" })
+
+                <div class="row no_margin">
+                    <div class="col-xs-12 buttons">
+                        <button type="button" class="btn btn-orange btn-cons" onclick="return FnAllocate('Allocated')">ReAllocate&nbsp; <i class="fa fa-reply" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+                </div>
+
+        <div class="tab-content" style="padding:10px;">
+
+            <div id="jqxgridApproved">
+
+            </div>
+
+        </div>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="jqxgridPaid">
+
+            </div>
+
+        </div>
+
+            </div>
+        </div>
+
+

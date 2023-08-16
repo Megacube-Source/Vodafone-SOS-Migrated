@@ -1,0 +1,323 @@
+﻿
+@{
+    ViewBag.Title = "AllocateCommissionBatch";
+}
+
+
+
+
+<div class="boxes">
+    <br>
+    <div id="jqxgrid">
+
+    </div><br>
+    @using (Html.BeginForm("SaveCommissionAllocationRule", "LCommissionBatchAllocationRules", FormMethod.Post, new { id = "frm", name = "frm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("model")
+        <input type="button" value="Submit" onclick="SaveForm()" class="btn btn-red btn-cons">
+    }
+</div>
+
+
+
+@Scripts.Render("~/bundles/jqxgridbundle")
+
+<script type="text/javascript">
+    //Dropdownvalues of keys
+    var PChannelSource = [
+  "Direct",
+  "Indirect",
+    ];
+
+    var BUsource = [
+        "EBU",
+         "CBU",
+         "EBU And CBU Both"
+    ];
+   
+
+    var dropdownList = [];
+    var dropdownlistAdapter;
+    $(document).ready(function () {
+        //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+
+        if ('@TempData["Message"]')
+        {
+            alert('@TempData["Message"]')
+        }
+        if ('@TempData["Error"]')
+        {
+            alert('@TempData["Error"]')
+        }
+
+        $("#jqxgrid").on("bindingcomplete", function (event) {
+            FnAddRowsToArray();
+        });
+        var source = {
+            dataType: "json",
+            dataFields: [
+                { name: 'Id', type: 'int' },
+                { name: 'LrdbarPrimaryChannel', type: 'string' },
+                { name: 'LrdbarBusinessUnit', type: 'string' },
+                { name: 'LrdbarChannel', type: 'string' },
+                { name: 'LrdbarAllocateToId', type: 'string' },
+                { name: 'UserName', type: 'string' }, 
+                { name: 'LrdbarIsDefault', type: 'boolean' }
+            ],
+            // id: "Id",
+            url: "/LCommissionBatchAllocationRules/GetCommissionAllocationrules"
+        };
+
+
+        var dataAdapter = new $.jqx.dataAdapter(source)
+        var dropdownSource = {
+            dataType: "json",
+            dataFields: [
+                    { name: 'Id', type: 'string' },
+                     { name: 'UserName', type: 'string' }
+            ],
+            id: "Id",
+            url: "/LCommissionBatchAllocationRules/GetReportingAnalystList/"
+        };
+         dropdownlistAdapter = new $.jqx.dataAdapter(dropdownSource, { autoBind: true, async: false });
+        for (var i = 0; i < dropdownlistAdapter.records.length; i++) {
+            dropdownList[i] = dropdownlistAdapter.records[i]['UserName'];
+        }
+
+
+        var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var rowdata = $('#jqxgrid').jqxGrid('getrowdata',row)
+            if (rowdata.Id == 0) {
+                return '<button onclick="return Fndelete()" style="display:none" class="GridButton">Delete</button>';
+            } else {
+                return '<button onclick="return Fndelete()" class="GridButton">Delete</button>';
+            }
+        };
+
+       
+
+        $('#jqxgrid').jqxGrid({
+            source: dataAdapter,
+            width: '100%',
+            autoheight: true,
+            theme: 'bootstrap',
+            sortable: true,
+            columnsresize: true,
+            columnsreorder: true,
+            altrows: true,
+            editable: true,
+            enableHover:false,
+            showstatusbar: true,
+            ready: function () {
+
+            },
+
+            columns: [
+               // { text: 'Company', datafield: 'GcCompanyName' },
+               // { text: 'Order', datafield: 'LarOrdinalPosition' },
+                {
+                    text: 'Primary Channel', columntype: 'dropdownlist', datafield: 'LrdbarPrimaryChannel', width: '20%',
+                    initeditor: function (row, cellvalue, editor) {
+
+                        editor.jqxDropDownList({ source: PChannelSource, dropDownWidth: 320, dropDownHeight: 250 });
+
+                        editor.on('select', function (event) {
+                            var args = event.args;
+                            var item = args.item;
+                            FnAddPrimaryChannelDetail(item.label);
+
+                        });
+
+                    }
+                },
+                
+                {
+                    text: 'Business Unit', columntype: 'dropdownlist', datafield: 'LrdbarBusinessUnit', width: '20%',
+                    initeditor: function (row, cellvalue, editor) {
+
+                        editor.jqxDropDownList({ source: BUsource, dropDownWidth: 320, dropDownHeight: 250 });
+
+                        editor.on('select', function (event) {
+                            var args = event.args;
+                            var item = args.item;
+                            FnAddBUDetail(item.label);
+
+                        });
+
+                    }
+                },
+
+                {
+                    text: 'Channel', datafield: 'LrdbarChannel',width: '20%'
+
+                },
+               
+                {
+                     text: 'Allocate To', columntype: 'dropdownlist', datafield: 'UserName', width: '20%',
+                     initeditor: function (row, cellvalue, editor) {
+
+                         editor.jqxDropDownList({ source: dropdownList, displayMember: "UserName", valueMember: "Id", dropDownWidth: 320, dropDownHeight: 250 });
+
+                         editor.on('select', function (event) {
+                             var args = event.args;
+                             var item = args.item;
+                             FnAddAllocatedToDetail(item.label);
+
+                         });
+
+                     }
+                 },
+             
+               { text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '10%', editable: false},
+               {
+                   text: 'IsDefault', columntype: 'checkbox', datafield: 'LrdbarIsDefault'
+               }
+            ]
+        });
+
+    });
+
+
+    //This method adds  items in array  same as grid rows when grid data binding is complete
+    function FnAddRowsToArray() {
+        var rows = $('#jqxgrid').jqxGrid('getrows');
+        for (var i = 0; i < rows.length; i++) {
+            GridArray[i] = [];
+            if (rows[i].LrdbarPrimaryChannel) {
+                GridArray[i][0] = rows[i].LrdbarPrimaryChannel;
+            }
+            if (rows[i].LrdbarBusinessUnit) {
+                GridArray[i][1] = rows[i].LrdbarBusinessUnit;
+            }
+            if (rows[i].LrdbarChannel) {
+                GridArray[i][2] = rows[i].LrdbarChannel;
+            }
+            
+            if (rows[i].LrdbarAllocateToId) {
+                 GridArray[i][3] = rows[i].LrdbarAllocateToId;
+                //GridArray[i][3] = rows[i].UserName;
+            }
+            if (rows[i].LrdbarIsDefault) {
+                trueCount++;
+            }
+                GridArray[i][5] = rows[i].LrdbarIsDefault;
+           
+        }
+    }
+
+    //This array is defined to save the selections of grid in an array
+    var GridArray = [];
+    function FnAddPrimaryChannelDetail(pc) {
+
+        var rowindex = $('#jqxgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            GridArray[rowindex][0] = pc
+        }
+    }
+
+    //This method saves the Business Unit dropdown in array
+    function FnAddBUDetail(BU) {
+
+        var rowindex = $('#jqxgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            GridArray[rowindex][1] = BU //changes by sg
+        }
+    }
+
+   
+    
+   
+    //This method saves the allocated to dropdown in array
+    function FnAddAllocatedToDetail(AllocatedTo) {
+        var IdList = [];
+        var userList = []; 
+        var AllocatedToId = AllocatedTo;
+        for (var i = 0; i < dropdownlistAdapter.records.length; i++) {
+            IdList[i] = dropdownlistAdapter.records[i]['Id'];
+            userList[i] = dropdownlistAdapter.records[i]['UserName'];
+            if (AllocatedTo == userList[i] ) {
+                AllocatedToId = IdList[i];
+                break;
+            }
+        }
+        
+        //for (var i = 0; userList.length; i++ ){
+        //    userList.indexOf(AllocatedTo)
+        //}
+        var rowindex = $('#jqxgrid').jqxGrid('getselectedrowindex');
+        if (rowindex != -1) {
+            GridArray[rowindex][3] = AllocatedToId //changes by sg
+        }
+    }
+
+    function Fndelete()
+    {
+        var selectedrowindex = $('#jqxgrid').jqxGrid('selectedrowindex');
+        var xx = $('#jqxgrid').jqxGrid("getrowdata", selectedrowindex);
+        //alert(xx.Id)
+        if (xx.Id!=0) {
+            //$('#jqxgrid').jqxGrid('deleterow', selectedrowindex)
+            window.location.href = '/LCommissionBatchAllocationRules/DeleteCommissionAllocationRule/' + xx.Id;
+        }
+    }
+    var trueCount = 0;
+    function SaveForm()
+    {
+        var rows = $('#jqxgrid').jqxGrid('getrows');
+        
+        //if there is no data to display, then do not submit the form
+        
+            for (var i = 0; i < rows.length; i++) {
+                if (rows.length - 1 == i && (rows[i].LrdbarAllocateToId == "" ) && rows[i].LrdbarIsDefault) {
+                    alert("Please allocate the batch or uncheck the corresponding checkbox ");
+                        break;                
+                    }        
+                GridArray[i][2] = rows[i].LrdbarChannel;//0 and 1 positions are reserved for Primary channel and Business unit dropdown
+                // GridArray[i][3] = rows[i].LarValue;//3 is reserved for allocateTo
+                GridArray[i][4] = rows[i].Id;
+                GridArray[i][5] = rows[i].LrdbarIsDefault;
+                
+            }
+          
+            // var ArrayData = JSON.stringify(GridArray );
+             document.getElementById('model').value = GridArray;
+             if ( !checkIsDefault(GridArray)) {
+                 return;
+             }
+            
+            document.getElementById('frm').submit()
+        
+    }
+    //this method checks for the functioning of isDefault
+    function checkIsDefault(GridArray) {
+        var checkValueCount = 0;
+        var rows = $('#jqxgrid').jqxGrid('getrows');        
+        for (var i = 0; i < rows.length; i++) {
+            if ( GridArray[i][5]) {
+                checkValueCount = checkValueCount + 1;
+            }
+        }
+        if (checkValueCount != 1) {
+            alert("There must be only one row checked. Please check only one row.");
+            return false;
+        }
+        return true;
+    }
+   
+
+</script>
+
+
+

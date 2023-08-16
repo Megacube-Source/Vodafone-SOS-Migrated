@@ -1,0 +1,133 @@
+﻿
+<script>
+    //$(document).ready(function () {
+    //    var LProductId = '';
+    //    //Binding event
+    //    $("#jqxPopupgridForXPayeeUpload").on("bindingcomplete", function (event) {
+    //    });
+    //    //Section ends here
+    //});
+
+    //Load LProduct Grid in a Popup
+    function FnLoadPayeeGrid(Id) {
+        var l_Id = Id;
+        var datafields = [];
+        var columns = [];
+        $.ajax({
+            type: "GET",
+            data: { Selection: 'Payee' },
+            cache: false,
+            async : false,
+            //url: "/LCompanySpecificColumns/GetColumnsGrid",
+            url: "/LPayees/GetGridDataFields",
+            success: function (data) {
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; ++i) {
+                            datafields.push({ name: data[i].ColumnName, type: 'string' });
+                            columns.push({ text: data[i].ColumnLabel, datafield: data[i].ColumnName, editable: true, width: '15%'});
+                    }
+                    $.ajax({
+                        data: { Id: l_Id },
+                        cache: false,
+                        async: false,
+                        url: "/LPayees/GetXUploadPayeeCountByBatchNumber",
+                        dataType: "json",
+                        type: "GET",
+                        success: function (counts) {
+                            alert(l_Id);
+                            var today = new Date(); 
+                            //The below code will load a grid of portfolios on this page
+                            var Parentsource = {
+                                dataType: "json",
+                                dataFields: datafields,
+                                cache: false,
+                                data: { BatchNo: l_Id, today: today },
+                                url: "/LPayees/GetXUploadPayeeByBatchNumber",
+                                type: "POST",
+                                // update the grid and send a request to the api
+                                filter: function () {
+                                    $('#jqxPopupgridForXPayeeUpload').jqxGrid('updatebounddata', 'filter');
+                                    $('#jqxPopupgridForXPayeeUpload').jqxGrid('clearselection');
+                                },
+                                // update the grid and send a request to the api
+                                sort: function () {
+                                    $('#jqxPopupgridForXPayeeUpload').jqxGrid('updatebounddata', 'sort');
+                                    $('#jqxPopupgridForXPayeeUpload').jqxGrid('clearselection');
+                                },
+                                root: 'Rows',
+                                beforeprocessing: function (data) {
+                                    Parentsource.totalrecords = counts;
+                                },
+                            };
+
+                            var ParentdataAdapter = new $.jqx.dataAdapter(Parentsource)
+                            //Check whether the grid is already defined or not and ready for use.
+                            var ready = $("#jqxPopupgridForXPayeeUpload").jqxGrid('ready');
+                            //if grid is alreday defined and ready for use, just update the grid. Otherwise, define the grid.
+                            if (typeof ready != 'undefined') {
+                                $("#jqxPopupgridForXPayeeUpload").jqxGrid('updatebounddata');
+                            }
+                            else {
+                                $('#jqxPopupgridForXPayeeUpload').jqxGrid({
+                                    source: ParentdataAdapter,
+                                    width: '100%',
+                                    height: '50%',
+                                    theme: 'bootstrap',
+                                    sortable: true,
+                                    columnsresize: true,
+                                    columnsreorder: true,
+                                    altrows: true,
+                                    pageable: true,
+                                    pagesize: 200,
+                                    pagesizeoptions: ['50', '100', '200', '500', '1000'],
+                                    filterable: true,
+                                    autoshowcolumnsmenubutton: false,//down arrow always visible for filter and sorting
+                                    showstatusbar: false,
+                                    virtualmode: true,
+                                    rendergridrows: function () {
+                                        return ParentdataAdapter.records;
+                                    },
+                                    columns:columns
+                                });
+                            }
+                        },
+                        error: function (reponse) {
+                        }
+                    });
+                }
+            },
+            error: function (reponse) {
+                Console.log(reponse);
+                alert("error");
+            }
+        });
+       
+    }
+
+    function FnLoadPayeePopup(Id) {
+        FnLoadPayeeGrid(Id);
+        $('#XPayeeUploadModal').modal();
+    }
+
+</script>
+
+<!-- This code displays a popup to get Selected LProducts-->
+<div class="modal fade" id="XPayeeUploadModal" role="dialog" style="width:95%">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="jqxPopupgridForXPayeeUpload"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-red pull-left" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+

@@ -1,0 +1,117 @@
+﻿@model Vodafone_SOS_WebApp.ViewModels.LWorkflowGridColumnViewModel
+@{
+    ViewBag.Title = "Create WorkFlow Grid Column";
+}
+
+<script>
+
+    function FnError() {
+        alert("Can not change the field value");
+        return;
+    }
+</script>
+
+<div class="form-horizontal">
+    <div class="form-group">
+        @Html.Label("Company", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" id="cid" name="cid" style="width:20%">
+            @Html.DropDownList("CompanyId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+        </div>
+        @Html.Label("WorkFlow", htmlAttributes: new { @class = "control-label col-md-3 " })
+        <div class="col-md-9" style="width:20%">
+            @Html.DropDownList("WFId", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+
+        </div>
+    </div>
+</div>
+
+   
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frm", name = "frm", @encType = "multipart/form-data" }))
+{
+    @Html.Hidden("ConfigId")
+    @Html.Hidden("WFId")
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <h3>Create Workflow Grid Column</h3>
+        <h4 class="text-danger">@ViewData["ErrorMessage"]</h4>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcColumnName, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+               @* @Html.TextBoxFor(model => model.LwfgcColumnName, new { @class = "form-control required"})*@
+                @Html.DropDownListFor(model => model.LwfgcColumnName, null, "-- Select Here --", new { @class = "form-control required" })
+                @Html.ValidationMessageFor(model => model.LwfgcColumnName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+      
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcUILabel, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.LwfgcUILabel, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LwfgcUILabel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcShouldBeVisible, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.LwfgcShouldBeVisible)
+                @Html.ValidationMessageFor(model => model.LwfgcShouldBeVisible, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcOrderByOrdinal, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.LwfgcOrderByOrdinal, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LwfgcOrderByOrdinal, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcAscDesc, htmlAttributes: new { @class = "control-label  col-md-2" })
+            <div class="col-md-10">
+               @* @Html.TextBoxFor(model => model.LwfgcAscDesc, new { htmlAttributes = new { @class = "form-control" } })*@
+                @Html.DropDownListFor(model => model.LwfgcAscDesc, null, "-- Select Here --", new { @class = "form-control required" })
+                @Html.ValidationMessageFor(model => model.LwfgcAscDesc, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcWfConfigId, htmlAttributes: new { @class = "control-label required col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("RoleDropDown", null, "-- Select Here --", new { @class = "form-control col-md-8", @style = "width: 70%", @onfocus = "FnError()", @readonly = "readonly" })
+               @* @Html.DropDownListFor(model => model.LwfgcWfConfigId, null, "-- Select Here --", new { @class = "form-control required ", @onfocus = "FnError()", @readonly = "readonly" })*@
+              
+               
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcOrdinal, htmlAttributes: new { @class = "control-label  col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.LwfgcOrdinal, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LwfgcOrdinal, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.LwfgcFunctionName, htmlAttributes: new { @class = "control-label  col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.LwfgcFunctionName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LwfgcFunctionName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="button" class="btn btn-borderRed btn-cons" style="align-self:center" onclick="window.location.href = '@HttpContext.Current.Session["from"]'">Back&nbsp;</button>
+                <input type="submit" value="Save" class="btn btn-red btn-cons" />
+
+            </div>
+        </div>
+
+    </div>
+
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

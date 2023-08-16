@@ -1,0 +1,326 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<style type="text/css">
+    .ChangeFontColor {
+        color: darkblue !important;
+        /*font-style: italic;*/
+    }
+</style>
+
+<script src="~/Scripts/jqxloader.js"></script>
+<script>
+    var isChanged=false;
+     window.onbeforeunload = function () {
+
+        if (isChanged) {
+                return "Are you sure you want to leave this page ? There are unsaved changes that will be lost"; @*window.location.href = '@HttpContext.Current.Session["from"]';*@
+        }
+    }
+    //this function will load grid in view
+    // array which keeps the indexes of the edited rows.
+    var editedRows = new Array();
+
+    $(document).ready(function(){
+
+    //Add JqxLoader when form is submitted to disable further clicks
+        $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
+
+     if ('@TempData["Error"]') {
+            alert('@TempData["Error"]')
+        }
+     //save return url
+        $.ajax({
+            data: { path: window.location.pathname },
+            url: "/Home/SaveReturnPath",
+            dataType: "json",
+            type: "POST",
+            success: function (data) {
+            },
+            error: function (reponse) {
+                //  alert("error : " + reponse);
+            }
+        });
+                var source = {
+                    dataType: "json",
+                    type: "GET",
+                    dataFields: [
+                         { name: 'Id', type: 'int' },
+                { name: 'LdName', type: 'string' },
+                { name: 'LdDescription', type: 'string' },
+     { name: 'LdCompanyId', type: 'string' }
+                    ],
+                    id:"Id",
+                    url: '/LDropDowns/GetDropDowns'
+                    //updaterow: function (rowid, rowdata, position, commit) {
+                    //    alert('update')
+
+                    //},
+                    //addrow: function (rowid, rowdata, position, commit) {
+                    //    alert('add')
+                    //},
+                    //deleterow: function (rowid, rowdata, position, commit) {
+                    //    alert('delete')
+                    //}
+                };
+
+
+
+                var dataAdapter = new $.jqx.dataAdapter(source)
+
+                var cellsrenderer = function (row, columnfield, value, defaulthtml, columnproperties) {
+                    var rowdata = $('#DropDownGrid').jqxGrid('getrowdata', row);
+                    if (Number(rowdata.Id) != 0&&rowdata.LdCompanyId) {
+                        return '&emsp;<a href="#" onclick="FnDelete(' + rowdata.Id + ')"> <i class="fa fa-times" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Delete"></i> </a>&emsp;<button onclick="return FnValues(' + rowdata.Id + ',\'' + rowdata.LdName + '\')" class="GridButton">Values</button>';
+                    }
+                    else {
+     isChanged=true;
+                        return '&emsp;<a href="#" onclick="FnDeleteGridRow(' + rowdata.Id + ')"> <i class="fa fa-times" aria-hidden="true" style="color:#e60000;font-size:20px !important;" title="Delete"></i> </a>';
+                    }
+                };
+
+                // validation function
+                var validateFunc = function (datafield, value) {
+                    switch (datafield) {
+                        case "LdName":
+                            if (value.length == 0) {
+                                return { message: "Name is required", result: false };
+                            }
+                            return true;
+                        case "Id":
+                            if (value.length > 0) {
+                                return { message: "Cannot Enter value in this field", result: false };
+                            }
+                            return true;
+                    }
+                    return true;
+                }
+
+                var cellclass = function (row, datafield, value, rowdata) {
+                    for (var i = 0; i < editedRows.length; i++) {
+                        if (editedRows[i].index == row) {
+                            return "ChangeFontColor";
+                        }
+                    }
+                }
+
+
+
+                    $('#DropDownGrid').jqxGrid({
+
+                        source: dataAdapter,
+                        width: "100%",
+                        columnsresize: true,
+                        pageable: true,
+                        pagesize: 200,
+                        filterable: true,
+                        sortable: true,
+                        keyboardnavigation: false,
+                        enablebrowserselection: true,
+                        showeverpresentrow: true,
+                        everpresentrowposition: "top",
+                        editable: true,
+                        localization: {
+                            addrowstring: "Add",
+                            udpaterowstring: "Update",
+                            deleterowstring: "Delete",
+                            resetrowstring: "Clear",
+                            everpresentrowplaceholder: "Type: "
+                        },
+                        selectionmode: 'multiplecellsadvanced',
+                        pagesizeoptions: ['10', '50', '100', '200', '500', '1000'],
+
+                        columns: [
+                            {
+                                text: 'Name', datafield: 'LdName', validateEverPresentRowWidgetValue: validateFunc, cellclassname: cellclass
+
+                                //columntype: "dropdownlist",
+                                //createEverPresentRowWidget: function (datafield, htmlElement, popup, addCallback) {
+                                //    var inputTag = $("<div style='border: none;'></div>").appendTo(htmlElement);
+                                //    inputTag.jqxDropDownList({ source: dropdownList, valueMember: 'ID', displayMember: 'Name', placeHolder: "-- Select Here --"/*, autoBind: true*/ });
+
+                                //    $(document).on('keydown.LdName', function (event) {
+                                //        if (event.keyCode == 13) {
+                                //            if (event.target === inputTag[0]) {
+                                //                addCallback();
+                                //            }
+                                //            else if ($(event.target).ischildof(inputTag)) {
+                                //                addCallback();
+                                //            }
+                                //        }
+                                //    });
+                                //    return inputTag;
+                                //},
+                                //initEverPresentRowWidget: function (datafield, htmlElement) {
+                                //    $(htmlElement).on('cellendedit', function (event) {
+                                //        // event arguments.
+                                //        var args = event.args;
+                                //        alert(args);
+                                //    });
+                                //},
+                                //getEverPresentRowWidgetValue: function (datafield, htmlElement, validate) {
+                                //    var selectedItem = htmlElement.jqxDropDownList('getSelectedItem');
+                                //    if (!selectedItem)
+                                //        return "";
+                                //    var value = selectedItem.value
+                                //    return value;
+                                //},
+                                //resetEverPresentRowWidgetValue: function (datafield, htmlElement) {
+                                //    htmlElement.jqxDropDownList('clearSelection');
+                                //},
+                                //createeditor: function (row, value, editor) {
+                                //    editor.jqxDropDownList({ source: dropdownList, valueMember: 'ID', displayMember: 'Name'/*, autoBind: true*/ });
+                                //}
+                            },
+                            {
+                                text: 'Description', datafield: 'LdDescription', filtertype: 'input', cellclassname: cellclass
+                                //columntype: 'datetimeinput',
+                                //createEverPresentRowWidget: function (datafield, htmlElement, popup, addCallback) {
+                                //    var inputTag = $("<div style='border: none;'></div>").appendTo(htmlElement);
+                                //    inputTag.jqxDateTimeInput({ value: null, popupZIndex: 999, placeHolder: "Date", width: '100%', height: 30, culture: "ru-RU", formatString: 'dd/MM/yyyy' });
+                                //    $(document).on('keydown.LdDescription', function (event) {
+                                //        if (event.keyCode == 13) {
+                                //            if (event.target === inputTag[0]) {
+                                //                addCallback();
+                                //            }
+                                //            else if ($(event.target).ischildof(inputTag)) {
+                                //                addCallback();
+                                //            }
+                                //        }
+                                //    });
+                                //    return inputTag;
+                                //},
+                                //initEverPresentRowWidget: function (datafield, htmlElement) { },
+                                //getEverPresentRowWidgetValue: function (datafield, htmlElement, validate) {
+                                //    var value = htmlElement.val();
+                                //    return value;
+                                //},
+                                //resetEverPresentRowWidgetValue: function (datafield, htmlElement) {
+                                //    htmlElement.val(null);
+                                //}
+                            },
+                            {
+                                text: 'Actions', datafield: 'Id', cellsrenderer: cellsrenderer, width: '10%', editable: false,validateEverPresentRowWidgetValue: validateFunc,
+    initEverPresentRowWidget: function (datafield, htmlElement) {
+                          var input = htmlElement.find('input');
+                          input.attr('readonly', true);
+                          input.attr('disabled', true);
+                          htmlElement.addClass('jqx-fill-state-disabled');
+                      }
+    }
+                        ]
+                    });
+
+                    $("#DropDownGrid").on('cellvaluechanged', function (event) {
+                        var row = event.args.rowindex;
+                        var rowdata = $("#DropDownGrid").jqxGrid('getrowdata', row);
+                        editedRows.push({ index: row, data: rowdata });
+                        isChanged=true;
+                    })
+
+    })
+
+    ////function to delete unsaved grid row from grid
+    function FnDeleteGridRow(Id)
+    {
+    var commit = $("#DropDownGrid").jqxGrid('deleterow', Id);
+    }
+
+    //This method is called when User clicks on delete glymph in grid
+    function FnDelete(Id)
+    {
+        var commit = $("#DropDownGrid").jqxGrid('deleterow', Id);
+       $.ajax({
+            data: { Id: Id },
+                        url: "/LDropDowns/DeleteDropDowns",
+                        type: "POST",
+                        traditional: true,
+                        success: function (data) {
+                            if (data) {
+                                var ResponseObj = data;
+                                if (ResponseObj.ErrorMessage) {
+                                    document.getElementById('ErrorMessage').innerHTML = ResponseObj.ErrorMessage;
+                                }
+                                else if (ResponseObj.PopupMessage) {
+                                    alert(ResponseObj.PopupMessage)
+                                }
+                                if (ResponseObj.RedirectToUrl) {
+                                    window.location.href = ResponseObj.RedirectToUrl;
+                                }
+
+                            }
+                            else {
+                                //Any unhanded error has been caught
+                                window.location.href = "/Home/Error";
+                            }
+                        },
+                        error: function (reponse) {
+                            //  alert("error : " + reponse);
+                        }
+                    });
+                //document.getElementById('ErrorMessage').innerHTML = 'Please wait! while record is deleted ...';
+
+
+    }
+
+    //This function will be called when user clicks on the values link in the grid
+    function FnValues(Id,Name)
+    {
+        window.location.href = '/LDropDownValues/Index?Id=' + Id + '&DropDownName=' + Name;
+    }
+
+    function FnSaveDropdown()
+    {
+    $('#jqxLoader').jqxLoader('open');
+        var arr = [];
+        var rows = $('#DropDownGrid').jqxGrid('getrows');
+        for (var i = 0; i < rows.length; i++)
+        {
+            arr[i] = [];
+            arr[i][0] = rows[i].Id;
+            arr[i][1] = rows[i].LdName;
+            arr[i][2] = rows[i].LdDescription;
+        }
+        $.ajax({
+            data: { GridData: arr },
+                        url: "/LDropDowns/EditDropDowns",
+                        type: "POST",
+                        traditional: true,
+                        success: function (data) {
+    isChanged=false;
+                            $('#DropDownGrid').jqxGrid('updatebounddata');
+                            if (data) {
+                                var ResponseObj = data;
+                                if (ResponseObj.ErrorMessage) {
+                                    document.getElementById('ErrorMessage').innerHTML = ResponseObj.ErrorMessage;
+                                }
+                                else if (ResponseObj.PopupMessage) {
+                                    alert(ResponseObj.PopupMessage)
+                                }
+                                if (ResponseObj.RedirectToUrl) {
+                                    window.location.href = ResponseObj.RedirectToUrl;
+                                }
+
+                            }
+                            else {
+                                //Any unhanded error has been caught
+                                window.location.href = "/Home/Error";
+                            }
+                        },
+                        error: function (reponse) {
+                            //  alert("error : " + reponse);
+                        }
+                    });
+
+    }
+
+</script>
+
+<h3 style="color:red;" id="ErrorMessage">Create Dropdown</h3>
+<br>
+<div id="DropDownGrid"></div>
+<br>&ensp;<br>
+<input type="button" class="btn btn-red" value="Save" onclick="FnSaveDropdown()">
+<div id="jqxLoader">
+</div>
