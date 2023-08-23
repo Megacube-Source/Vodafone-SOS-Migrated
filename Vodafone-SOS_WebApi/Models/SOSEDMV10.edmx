@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SOSEDMV10Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
+    <Schema Namespace="SOSEDMV10Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -4594,95 +4594,95 @@
           <Parameter Name="UploadData" Type="bit" Mode="In" />
         </Function>
         <EntityContainer Name="SOSEDMV10ModelStoreContainer">
-          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogins" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="Debug" EntityType="Self.Debug" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GAuthorizableObjects" EntityType="Self.GAuthorizableObjects" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GCompanies" EntityType="Self.GCompanies" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GEmailConfigurations" EntityType="Self.GEmailConfigurations" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GErrorLogs" EntityType="Self.GErrorLogs" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GKeyValues" EntityType="Self.GKeyValues" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GMenus" EntityType="Self.GMenus" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GSecurityQuestions" EntityType="Self.GSecurityQuestions" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GUserActivityLog" EntityType="Self.GUserActivityLog" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LAccruals" EntityType="Self.LAccruals" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LAllocationRules" EntityType="Self.LAllocationRules" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LAttachments" EntityType="Self.LAttachments" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LAudit" EntityType="Self.LAudit" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LBatches" EntityType="Self.LBatches" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LBatchFiles" EntityType="Self.LBatchFiles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LChangeRequests" EntityType="Self.LChangeRequests" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LClaims" EntityType="Self.LClaims" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LCommissionBatchAllocationRules" EntityType="Self.LCommissionBatchAllocationRules" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LCommissionPeriods" EntityType="Self.LCommissionPeriods" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LCompanySpecificColumns" EntityType="Self.LCompanySpecificColumns" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LCompanySpecificForms" EntityType="Self.LCompanySpecificForms" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LCompanySpecificRawDataColumns" EntityType="Self.LCompanySpecificRawDataColumns" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDashboardConfig" EntityType="Self.LDashboardConfig" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDatabases" EntityType="Self.LDatabases" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDelegations" EntityType="Self.LDelegations" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDocumentSets" EntityType="Self.LDocumentSets" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDropDowns" EntityType="Self.LDropDowns" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LDropDownValues" EntityType="Self.LDropDownValues" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LEmailBucket" EntityType="Self.LEmailBucket" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LEmailTemplates" EntityType="Self.LEmailTemplates" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LMessageAllowedRoles" EntityType="Self.LMessageAllowedRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LMessageRecipients" EntityType="Self.LMessageRecipients" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LMessages" EntityType="Self.LMessages" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LNotifications" EntityType="Self.LNotifications" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPasswordHistory" EntityType="Self.LPasswordHistory" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPasswordPolicies" EntityType="Self.LPasswordPolicies" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPayeeParents" EntityType="Self.LPayeeParents" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPayees" EntityType="Self.LPayees" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPortfolios" EntityType="Self.LPortfolios" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LRawDataTables" EntityType="Self.LRawDataTables" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LReadyToPay" EntityType="Self.LReadyToPay" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LReadyToPayDetails" EntityType="Self.LReadyToPayDetails" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LReadyToPayPortfolios" EntityType="Self.LReadyToPayPortfolios" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LRefFiles" EntityType="Self.LRefFiles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LRefFileTypes" EntityType="Self.LRefFileTypes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSchemeOwner" EntityType="Self.LSchemeOwner" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSchemes" EntityType="Self.LSchemes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSMSBucket" EntityType="Self.LSMSBucket" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSupportingDocuments" EntityType="Self.LSupportingDocuments" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSupportResponses" EntityType="Self.LSupportResponses" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSupportTicketAssignments" EntityType="Self.LSupportTicketAssignments" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LSupportTickets" EntityType="Self.LSupportTickets" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LUserLobby" EntityType="Self.LUserLobby" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LUserPreferences" EntityType="Self.LUserPreferences" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LUsers" EntityType="Self.LUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LWorkFlowActionItems" EntityType="Self.LWorkFlowActionItems" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LWorkFlowActionParameters" EntityType="Self.LWorkFlowActionParameters" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LWorkFlowConfig" EntityType="Self.LWorkFlowConfig" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LWorkflowGridColumns" EntityType="Self.LWorkflowGridColumns" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MAspnetRolesGAuthorizableObjects" EntityType="Self.MAspnetRolesGAuthorizableObjects" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="Self.MAspnetUsersGSecurityQuestions" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MDocumentSetsPayees" EntityType="Self.MDocumentSetsPayees" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MEntityPortfolios" EntityType="Self.MEntityPortfolios" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MGMenusAspnetRoles" EntityType="Self.MGMenusAspnetRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MSupportTicketPortfolios" EntityType="Self.MSupportTicketPortfolios" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RActivityTypes" EntityType="Self.RActivityTypes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RBrands" EntityType="Self.RBrands" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RChannels" EntityType="Self.RChannels" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RCommissionTypes" EntityType="Self.RCommissionTypes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RDeviceTypes" EntityType="Self.RDeviceTypes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RPayPublishEmails" EntityType="Self.RPayPublishEmails" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RProductCodes" EntityType="Self.RProductCodes" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RRejectionReasons" EntityType="Self.RRejectionReasons" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RStatuses" EntityType="Self.RStatuses" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RStatusOwners" EntityType="Self.RStatusOwners" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RSubChannels" EntityType="Self.RSubChannels" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RSupportCategories" EntityType="Self.RSupportCategories" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RSupportQuickTickets" EntityType="Self.RSupportQuickTickets" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RsupportTeams" EntityType="Self.RsupportTeams" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RTicketStages" EntityType="Self.RTicketStages" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="RWorkFlows" EntityType="Self.RWorkFlows" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="XBatchChildren" EntityType="Self.XBatchChildren" Schema="XSchema" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="XBatches" EntityType="Self.XBatches" Schema="XSchema" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="XBatchPortfolios" EntityType="Self.XBatchPortfolios" Schema="XSchema" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogins" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Debug" EntityType="Self.Debug" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GAuthorizableObjects" EntityType="Self.GAuthorizableObjects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GCompanies" EntityType="Self.GCompanies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GEmailConfigurations" EntityType="Self.GEmailConfigurations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GErrorLogs" EntityType="Self.GErrorLogs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GKeyValues" EntityType="Self.GKeyValues" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GMenus" EntityType="Self.GMenus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GSecurityQuestions" EntityType="Self.GSecurityQuestions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GUserActivityLog" EntityType="Self.GUserActivityLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LAccruals" EntityType="Self.LAccruals" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LAllocationRules" EntityType="Self.LAllocationRules" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LAttachments" EntityType="Self.LAttachments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LAudit" EntityType="Self.LAudit" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LBatches" EntityType="Self.LBatches" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LBatchFiles" EntityType="Self.LBatchFiles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LChangeRequests" EntityType="Self.LChangeRequests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LClaims" EntityType="Self.LClaims" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LCommissionBatchAllocationRules" EntityType="Self.LCommissionBatchAllocationRules" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LCommissionPeriods" EntityType="Self.LCommissionPeriods" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LCompanySpecificColumns" EntityType="Self.LCompanySpecificColumns" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LCompanySpecificForms" EntityType="Self.LCompanySpecificForms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LCompanySpecificRawDataColumns" EntityType="Self.LCompanySpecificRawDataColumns" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDashboardConfig" EntityType="Self.LDashboardConfig" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDatabases" EntityType="Self.LDatabases" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDelegations" EntityType="Self.LDelegations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDocumentSets" EntityType="Self.LDocumentSets" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDropDowns" EntityType="Self.LDropDowns" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LDropDownValues" EntityType="Self.LDropDownValues" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LEmailBucket" EntityType="Self.LEmailBucket" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LEmailTemplates" EntityType="Self.LEmailTemplates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LMessageAllowedRoles" EntityType="Self.LMessageAllowedRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LMessageRecipients" EntityType="Self.LMessageRecipients" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LMessages" EntityType="Self.LMessages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LNotifications" EntityType="Self.LNotifications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPasswordHistory" EntityType="Self.LPasswordHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPasswordPolicies" EntityType="Self.LPasswordPolicies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPayeeParents" EntityType="Self.LPayeeParents" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPayees" EntityType="Self.LPayees" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPortfolios" EntityType="Self.LPortfolios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LRawDataTables" EntityType="Self.LRawDataTables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LReadyToPay" EntityType="Self.LReadyToPay" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LReadyToPayDetails" EntityType="Self.LReadyToPayDetails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LReadyToPayPortfolios" EntityType="Self.LReadyToPayPortfolios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LRefFiles" EntityType="Self.LRefFiles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LRefFileTypes" EntityType="Self.LRefFileTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSchemeOwner" EntityType="Self.LSchemeOwner" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSchemes" EntityType="Self.LSchemes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSMSBucket" EntityType="Self.LSMSBucket" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSupportingDocuments" EntityType="Self.LSupportingDocuments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSupportResponses" EntityType="Self.LSupportResponses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSupportTicketAssignments" EntityType="Self.LSupportTicketAssignments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LSupportTickets" EntityType="Self.LSupportTickets" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LUserLobby" EntityType="Self.LUserLobby" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LUserPreferences" EntityType="Self.LUserPreferences" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LUsers" EntityType="Self.LUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LWorkFlowActionItems" EntityType="Self.LWorkFlowActionItems" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LWorkFlowActionParameters" EntityType="Self.LWorkFlowActionParameters" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LWorkFlowConfig" EntityType="Self.LWorkFlowConfig" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LWorkflowGridColumns" EntityType="Self.LWorkflowGridColumns" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MAspnetRolesGAuthorizableObjects" EntityType="Self.MAspnetRolesGAuthorizableObjects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="Self.MAspnetUsersGSecurityQuestions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MDocumentSetsPayees" EntityType="Self.MDocumentSetsPayees" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MEntityPortfolios" EntityType="Self.MEntityPortfolios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MGMenusAspnetRoles" EntityType="Self.MGMenusAspnetRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MSupportTicketPortfolios" EntityType="Self.MSupportTicketPortfolios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RActivityTypes" EntityType="Self.RActivityTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RBrands" EntityType="Self.RBrands" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RChannels" EntityType="Self.RChannels" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RCommissionTypes" EntityType="Self.RCommissionTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RDeviceTypes" EntityType="Self.RDeviceTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RPayPublishEmails" EntityType="Self.RPayPublishEmails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RProductCodes" EntityType="Self.RProductCodes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RRejectionReasons" EntityType="Self.RRejectionReasons" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RStatuses" EntityType="Self.RStatuses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RStatusOwners" EntityType="Self.RStatusOwners" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RSubChannels" EntityType="Self.RSubChannels" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RSupportCategories" EntityType="Self.RSupportCategories" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RSupportQuickTickets" EntityType="Self.RSupportQuickTickets" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RsupportTeams" EntityType="Self.RsupportTeams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RTicketStages" EntityType="Self.RTicketStages" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RWorkFlows" EntityType="Self.RWorkFlows" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="XBatchChildren" EntityType="Self.XBatchChildren" Schema="XSchema" store:Type="Tables" />
+          <EntitySet Name="XBatches" EntityType="Self.XBatches" Schema="XSchema" store:Type="Tables" />
+          <EntitySet Name="XBatchPortfolios" EntityType="Self.XBatchPortfolios" Schema="XSchema" store:Type="Tables" />
           <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="Self.FK__AspNetUse__GcCom__3B75D760">
             <End Role="GCompanies" EntitySet="GCompanies" />
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -5535,7 +5535,7 @@
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="SOSEDMV10Model" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+      <Schema Namespace="SOSEDMV10Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <ComplexType Name="FNGetDBContext_Result">
           <Property Name="DatabaseName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="HostName" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
@@ -11635,7 +11635,7 @@
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
-      <Mapping Space="C-S" xmlns="urn:schemas-microsoft-com:windows:storage:mapping:CS">
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="SOSEDMV10ModelStoreContainer" CdmEntityContainer="SOSEDMV10Entities">
           <EntitySetMapping Name="AspNetRoles">
             <EntityTypeMapping TypeName="SOSEDMV10Model.AspNetRole">
@@ -13402,7 +13402,7 @@
     </edmx:Mappings>
   </edmx:Runtime>
   <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
-  <Designer xmlns="http://schemas.microsoft.com/ado/2007/06/edmx">
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <Connection>
       <DesignerInfoPropertySet>
         <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
@@ -13418,6 +13418,6 @@
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->
-    <Diagrams />
+    <Diagrams></Diagrams>
   </Designer>
 </edmx:Edmx>
