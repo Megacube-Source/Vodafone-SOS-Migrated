@@ -17,7 +17,6 @@ namespace UserAccessManagement.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public AspNetUser()
         {
-            this.AspNetUserRoles = new HashSet<AspNetUserRole>();
             this.LPayees = new HashSet<LPayee>();
             this.LPayees1 = new HashSet<LPayee>();
             this.LPayees2 = new HashSet<LPayee>();
@@ -53,8 +52,6 @@ namespace UserAccessManagement.Models
         public Nullable<System.DateTime> OTPValidUpto { get; set; }
         public bool PolicyAccepted { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AspNetUserRole> AspNetUserRoles { get; set; }
         public virtual GCompany GCompany { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LPayee> LPayees { get; set; }

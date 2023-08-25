@@ -4,46 +4,41 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="6aa7772c576f4f3d97d3fa825b86ce6a" Name="Diagram1">
-        <EntityTypeShape EntityType="SosDbModel.AspNetRole" Width="1.5" PointX="3" PointY="2.125" />
-        <EntityTypeShape EntityType="SosDbModel.AspNetUser" Width="1.5" PointX="3" PointY="5.125" />
-        <EntityTypeShape EntityType="SosDbModel.Debug" Width="1.5" PointX="7.75" PointY="0.75" />
-        <EntityTypeShape EntityType="SosDbModel.GCompany" Width="1.5" PointX="0.75" PointY="8.125" />
-        <EntityTypeShape EntityType="SosDbModel.GEmailConfiguration" Width="1.5" PointX="7.75" PointY="3.75" />
-        <EntityTypeShape EntityType="SosDbModel.GErrorLog" Width="1.5" PointX="7.75" PointY="7.75" />
-        <EntityTypeShape EntityType="SosDbModel.GKeyValue" Width="1.5" PointX="3" PointY="12" />
-        <EntityTypeShape EntityType="SosDbModel.LPayee" Width="1.5" PointX="5.25" PointY="1.625" />
-        <EntityTypeShape EntityType="SosDbModel.LUserLobby" Width="1.5" PointX="9.75" PointY="0.75" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetRoles_LPayees" />
-        <AssociationConnector Association="SosDbModel.FK__AspNetUse__GcCom__3B75D760" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_CreatedById" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_AspnetUsers" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_GKeyValues" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_LPayees" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_LPayees_WFCopanyId" />
-        <EntityTypeShape EntityType="SosDbModel.LUser" Width="1.5" PointX="10.25" PointY="6.75" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetRoles_LUsers" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_LuUserId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId" />
-        <AssociationConnector Association="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_LUsers" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_LUsers_WFCopanyId" />
-        <EntityTypeShape EntityType="SosDbModel.LEmailTemplate" Width="1.5" PointX="3" PointY="15.75" />
-        <EntityTypeShape EntityType="SosDbModel.LPasswordHistory" Width="1.5" PointX="12.375" PointY="0.75" />
-        <EntityTypeShape EntityType="SosDbModel.MAspnetUsersGSecurityQuestion" Width="1.5" PointX="12.375" PointY="3.75" />
-        <AssociationConnector Association="SosDbModel.FK_GCompanies_LEmailTemplates" />
-      </Diagram>
+      <Diagram DiagramId="5344c8f4d3b549a1a6d60df4faffadb0" Name="Diagram1">
+        <EntityTypeShape EntityType="UserAccessManagement.Models.AspNetRole" Width="1.5" PointX="4" PointY="0.5" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.AspNetUser" Width="1.5" PointX="7.5" PointY="4.125" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.GCompany" Width="1.5" PointX="2.5" PointY="3.25" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.GKeyValue" Width="1.5" PointX="5.625" PointY="4.125" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.LEmailTemplate" Width="1.5" PointX="6.5" PointY="0.625" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.LPayee" Width="1.5" PointX="9.5" PointY="0.625" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.LUserLobby" Width="1.5" PointX="0.5" PointY="0.5" />
+        <EntityTypeShape EntityType="UserAccessManagement.Models.LUser" Width="1.5" PointX="11.75" PointY="0.5" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetRoles_LPayees" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetRoles_LUsers" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK__AspNetUse__GcCom__3B75D760" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_CreatedById" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_LastUpdatedById" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFAnalystId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFCurrentOwnerId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFManagerId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFRequesterId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuCreatedById" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuReportsToId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUpdatedById" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUserId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFAnalystId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFCurrentOwnerId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFManagerId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFRequesterId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_AspnetUsers" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_GKeyValues" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_LEmailTemplates" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_LPayees" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_LPayees_WFCopanyId" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_LUsers" />
+        <AssociationConnector Association="UserAccessManagement.Models.FK_GCompanies_LUsers_WFCopanyId" />
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>

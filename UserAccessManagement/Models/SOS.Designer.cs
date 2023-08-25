@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'D:\Vodafone-Lite\Vodafone-SOS\UserAccessManagement\Models\SOS.edmx'. 
+﻿// T4 code generation is enabled for model 'D:\VS2022Workspaces-Flex\Vodafone LITE Migrated\SOS\Vodafone-SOS-Migrated\UserAccessManagement\Models\SOS.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

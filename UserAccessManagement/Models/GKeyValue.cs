@@ -12,14 +12,14 @@ namespace UserAccessManagement.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AspNetUserRole
+    public partial class GKeyValue
     {
-        public string UserId { get; set; }
-        public string RoleId { get; set; }
-        public bool IsReadOnly { get; set; }
-        public Nullable<bool> IsDefault { get; set; }
+        public int Id { get; set; }
+        public int GkvCompanyId { get; set; }
+        public string GkvKey { get; set; }
+        public string GkvValue { get; set; }
+        public string GkvDescription { get; set; }
     
-        public virtual AspNetRole AspNetRole { get; set; }
-        public virtual AspNetUser AspNetUser { get; set; }
+        public virtual GCompany GCompany { get; set; }
     }
 }

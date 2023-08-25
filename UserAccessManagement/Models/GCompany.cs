@@ -19,12 +19,12 @@ namespace UserAccessManagement.Models
         {
             this.AspNetUsers = new HashSet<AspNetUser>();
             this.AspNetUsers1 = new HashSet<AspNetUser>();
+            this.GKeyValues = new HashSet<GKeyValue>();
+            this.LEmailTemplates = new HashSet<LEmailTemplate>();
             this.LPayees = new HashSet<LPayee>();
             this.LPayees1 = new HashSet<LPayee>();
             this.LUsers = new HashSet<LUser>();
             this.LUsers1 = new HashSet<LUser>();
-            this.LEmailTemplates = new HashSet<LEmailTemplate>();
-            this.GKeyValues = new HashSet<GKeyValue>();
         }
     
         public int Id { get; set; }
@@ -38,6 +38,10 @@ namespace UserAccessManagement.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AspNetUser> AspNetUsers1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GKeyValue> GKeyValues { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<LEmailTemplate> LEmailTemplates { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LPayee> LPayees { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LPayee> LPayees1 { get; set; }
@@ -45,9 +49,5 @@ namespace UserAccessManagement.Models
         public virtual ICollection<LUser> LUsers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LUser> LUsers1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<LEmailTemplate> LEmailTemplates { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GKeyValue> GKeyValues { get; set; }
     }
 }

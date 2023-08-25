@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SosDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
+    <Schema Namespace="UserAccessManagement.Models.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -37,14 +37,6 @@
           <Property Name="OTPValidUpto" Type="datetime" />
           <Property Name="PolicyAccepted" Type="bit" Nullable="false" />
         </EntityType>
-        <EntityType Name="Debug">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="CreatedDateTime" Type="datetime" />
-          <Property Name="Msg" Type="nvarchar" MaxLength="4000" />
-        </EntityType>
         <EntityType Name="GCompanies">
           <Key>
             <PropertyRef Name="Id" />
@@ -54,41 +46,6 @@
           <Property Name="GcCode" Type="nvarchar" MaxLength="2" />
           <Property Name="GcISDCode" Type="nvarchar" MaxLength="5" />
           <Property Name="GcFirstNameFirst" Type="bit" Nullable="false" />
-        </EntityType>
-        <EntityType Name="GEmailConfigurations">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="GecAccountName" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="GecAccountDescription" Type="nvarchar" MaxLength="500" />
-          <Property Name="GecEmailId" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="GecDisplayName" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="GecReplyTo" Type="nvarchar" MaxLength="200" />
-          <Property Name="GelSmtpHost" Type="nvarchar" MaxLength="1000" Nullable="false" />
-          <Property Name="GecPortNumber" Type="int" Nullable="false" />
-          <Property Name="GecSmtpLoginId" Type="nvarchar" MaxLength="500" Nullable="false" />
-          <Property Name="GecSMTPPassword" Type="nvarchar" MaxLength="100" Nullable="false" />
-          <Property Name="GecRequiresSSL" Type="bit" Nullable="false" />
-        </EntityType>
-        <EntityType Name="GErrorLogs">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="GelErrorDateTime" Type="datetime" Nullable="false" />
-          <Property Name="GelSourceProject" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="GelController" Type="nvarchar" MaxLength="200" />
-          <Property Name="GelMethod" Type="nvarchar" MaxLength="200" />
-          <Property Name="GelStackTrace" Type="nvarchar(max)" />
-          <Property Name="GelUserName" Type="nvarchar" MaxLength="256" />
-          <Property Name="GelErrorType" Type="nvarchar" MaxLength="10" />
-          <Property Name="GelErrorDescription" Type="nvarchar" MaxLength="2000" />
-          <Property Name="GelResolution" Type="nvarchar" MaxLength="2000" />
-          <Property Name="GelErrorOwner" Type="nvarchar" MaxLength="20" />
-          <Property Name="GelFieldName" Type="nvarchar" MaxLength="100" />
-          <Property Name="GelSOSBatchNumber" Type="int" />
-          <Property Name="GelStatus" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="GKeyValues">
           <Key>
@@ -110,15 +67,6 @@
           <Property Name="LetEmailBody" Type="nvarchar(max)" Nullable="false" />
           <Property Name="LetSignature" Type="nvarchar" MaxLength="4000" />
           <Property Name="LetCompanyId" Type="int" Nullable="false" />
-        </EntityType>
-        <EntityType Name="LPasswordHistory">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Password" Type="nvarchar" MaxLength="100" />
-          <Property Name="CreatedDateTime" Type="datetime" Nullable="false" />
-          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
         </EntityType>
         <EntityType Name="LPayees">
           <Key>
@@ -259,15 +207,7 @@
           <Property Name="LuCreateLogin" Type="bit" />
           <Property Name="LuCreatedByForm" Type="bit" />
           <Property Name="WFUpdatedDateTime" Type="datetime" />
-        </EntityType>
-        <EntityType Name="MAspnetUsersGSecurityQuestions">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="MAuqsqUserId" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="MAuqsqQuestionId" Type="int" Nullable="false" />
-          <Property Name="MAugsqAnswer" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="IsSuperUser" Type="bit" />
         </EntityType>
         <Association Name="FK__AspNetUse__GcCom__3B75D760">
           <End Role="GCompanies" Type="Self.GCompanies" Multiplicity="1" />
@@ -569,26 +509,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Function Name="SpLogAudit" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="SOSProcessName" Type="nvarchar" Mode="In" />
-          <Parameter Name="L3ProcessName" Type="nvarchar" Mode="In" />
-          <Parameter Name="ControlCode" Type="nvarchar" Mode="In" />
-          <Parameter Name="ControlDecription" Type="nvarchar" Mode="In" />
-          <Parameter Name="Action" Type="nvarchar" Mode="In" />
-          <Parameter Name="ActionType" Type="nvarchar" Mode="In" />
-          <Parameter Name="ActionedById" Type="nvarchar" Mode="In" />
-          <Parameter Name="ActionDateTime" Type="datetime" Mode="In" />
-          <Parameter Name="OldStatus" Type="nvarchar" Mode="In" />
-          <Parameter Name="NewStatus" Type="nvarchar" Mode="In" />
-          <Parameter Name="EntityType" Type="nvarchar" Mode="In" />
-          <Parameter Name="EntityId" Type="int" Mode="In" />
-          <Parameter Name="EntityName" Type="nvarchar" Mode="In" />
-          <Parameter Name="WorkFlowId" Type="int" Mode="In" />
-          <Parameter Name="CompanyId" Type="int" Mode="In" />
-          <Parameter Name="Comments" Type="nvarchar" Mode="In" />
-          <Parameter Name="RoleId" Type="nvarchar" Mode="In" />
-          <Parameter Name="LaPeriod" Type="nvarchar" Mode="In" />
-        </Function>
         <Function Name="SpLogEmail" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="RecipientList" Type="nvarchar" Mode="In" />
           <Parameter Name="CCList" Type="nvarchar" Mode="In" />
@@ -609,20 +529,6 @@
           <Parameter Name="AcessKey" Type="nvarchar" Mode="In" />
           <Parameter Name="SecretKey" Type="nvarchar" Mode="In" />
         </Function>
-        <Function Name="SpLogError" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="SourceProject" Type="nvarchar" Mode="In" />
-          <Parameter Name="Controller" Type="nvarchar" Mode="In" />
-          <Parameter Name="Method" Type="nvarchar" Mode="In" />
-          <Parameter Name="StackTrace" Type="nvarchar(max)" Mode="In" />
-          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
-          <Parameter Name="ErrorType" Type="nvarchar" Mode="In" />
-          <Parameter Name="ErrorDescription" Type="nvarchar" Mode="In" />
-          <Parameter Name="Resolution" Type="nvarchar" Mode="In" />
-          <Parameter Name="ErrorOwner" Type="nvarchar" Mode="In" />
-          <Parameter Name="FieldName" Type="nvarchar" Mode="In" />
-          <Parameter Name="SOSBatchNumber" Type="int" Mode="In" />
-          <Parameter Name="Status" Type="nvarchar" Mode="In" />
-        </Function>
         <Function Name="SpLogErrorNew" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="SourceProject" Type="nvarchar" Mode="In" />
           <Parameter Name="Controller" Type="nvarchar" Mode="In" />
@@ -638,20 +544,15 @@
           <Parameter Name="Status" Type="nvarchar" Mode="In" />
           <Parameter Name="Result" Type="int" Mode="InOut" />
         </Function>
-        <EntityContainer Name="SosDbModelStoreContainer">
-          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="Debug" EntityType="Self.Debug" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GCompanies" EntityType="Self.GCompanies" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GEmailConfigurations" EntityType="Self.GEmailConfigurations" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GErrorLogs" EntityType="Self.GErrorLogs" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="GKeyValues" EntityType="Self.GKeyValues" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LEmailTemplates" EntityType="Self.LEmailTemplates" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPasswordHistory" EntityType="Self.LPasswordHistory" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LPayees" EntityType="Self.LPayees" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LUserLobby" EntityType="Self.LUserLobby" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="LUsers" EntityType="Self.LUsers" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="Self.MAspnetUsersGSecurityQuestions" Schema="dbo" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+        <EntityContainer Name="UserAccessManagementModelsStoreContainer">
+          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GCompanies" EntityType="Self.GCompanies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GKeyValues" EntityType="Self.GKeyValues" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LEmailTemplates" EntityType="Self.LEmailTemplates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LPayees" EntityType="Self.LPayees" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LUserLobby" EntityType="Self.LUserLobby" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LUsers" EntityType="Self.LUsers" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="Self.FK__AspNetUse__GcCom__3B75D760">
             <End Role="GCompanies" EntitySet="GCompanies" />
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -752,92 +653,134 @@
             <End Role="GCompanies" EntitySet="GCompanies" />
             <End Role="LUsers" EntitySet="LUsers" />
           </AssociationSet>
-        </EntityContainer>
+          </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="SosDbModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+      <Schema Namespace="UserAccessManagement.Models" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="SosDbEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="AspNetRoles" EntityType="SosDbModel.AspNetRole" />
-          <EntitySet Name="AspNetUsers" EntityType="SosDbModel.AspNetUser" />
-          <EntitySet Name="Debugs" EntityType="SosDbModel.Debug" />
-          <EntitySet Name="GCompanies" EntityType="SosDbModel.GCompany" />
-          <EntitySet Name="GEmailConfigurations" EntityType="SosDbModel.GEmailConfiguration" />
-          <EntitySet Name="GErrorLogs" EntityType="SosDbModel.GErrorLog" />
-          <EntitySet Name="GKeyValues" EntityType="SosDbModel.GKeyValue" />
-          <EntitySet Name="LPayees" EntityType="SosDbModel.LPayee" />
-          <EntitySet Name="LUserLobbies" EntityType="SosDbModel.LUserLobby" />
-          <AssociationSet Name="FK_AspnetRoles_LPayees" Association="SosDbModel.FK_AspnetRoles_LPayees">
+          <EntitySet Name="AspNetRoles" EntityType="UserAccessManagement.Models.AspNetRole" />
+          <EntitySet Name="AspNetUsers" EntityType="UserAccessManagement.Models.AspNetUser" />
+          <EntitySet Name="GCompanies" EntityType="UserAccessManagement.Models.GCompany" />
+          <EntitySet Name="GKeyValues" EntityType="UserAccessManagement.Models.GKeyValue" />
+          <EntitySet Name="LEmailTemplates" EntityType="UserAccessManagement.Models.LEmailTemplate" />
+          <EntitySet Name="LPayees" EntityType="UserAccessManagement.Models.LPayee" />
+          <EntitySet Name="LUserLobbies" EntityType="UserAccessManagement.Models.LUserLobby" />
+          <EntitySet Name="LUsers" EntityType="UserAccessManagement.Models.LUser" />
+          <AssociationSet Name="FK_AspnetRoles_LPayees" Association="UserAccessManagement.Models.FK_AspnetRoles_LPayees">
             <End Role="AspNetRole" EntitySet="AspNetRoles" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="SosDbModel.FK__AspNetUse__GcCom__3B75D760">
+          <AssociationSet Name="FK_AspnetRoles_LUsers" Association="UserAccessManagement.Models.FK_AspnetRoles_LUsers">
+            <End Role="AspNetRole" EntitySet="AspNetRoles" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__AspNetUse__GcCom__3B75D760" Association="UserAccessManagement.Models.FK__AspNetUse__GcCom__3B75D760">
             <End Role="GCompany" EntitySet="GCompanies" />
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees" Association="SosDbModel.FK_AspnetUsers_LPayees">
+          <AssociationSet Name="FK_AspnetUsers_LPayees" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_CreatedById" Association="SosDbModel.FK_AspnetUsers_LPayees_CreatedById">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_CreatedById" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_CreatedById">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_LastUpdatedById" Association="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_LastUpdatedById" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_LastUpdatedById">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_WFAnalystId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFAnalystId" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFAnalystId">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFCurrentOwnerId">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_WFManagerId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFManagerId" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFManagerId">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LPayees_WFRequesterId" Association="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId">
+          <AssociationSet Name="FK_AspnetUsers_LPayees_WFRequesterId" Association="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFRequesterId">
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_AspnetUsers" Association="SosDbModel.FK_GCompanies_AspnetUsers">
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuCreatedById" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuCreatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuReportsToId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuReportsToId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUpdatedById" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUpdatedById">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUserId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUserId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFAnalystId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFAnalystId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFCurrentOwnerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFManagerId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFManagerId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_AspnetUsers_LUsers_WFRequesterId" Association="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFRequesterId">
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_AspnetUsers" Association="UserAccessManagement.Models.FK_GCompanies_AspnetUsers">
             <End Role="GCompany" EntitySet="GCompanies" />
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
           </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_GKeyValues" Association="SosDbModel.FK_GCompanies_GKeyValues">
+          <AssociationSet Name="FK_GCompanies_GKeyValues" Association="UserAccessManagement.Models.FK_GCompanies_GKeyValues">
             <End Role="GCompany" EntitySet="GCompanies" />
             <End Role="GKeyValue" EntitySet="GKeyValues" />
           </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_LPayees" Association="SosDbModel.FK_GCompanies_LPayees">
+          <AssociationSet Name="FK_GCompanies_LEmailTemplates" Association="UserAccessManagement.Models.FK_GCompanies_LEmailTemplates">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LEmailTemplate" EntitySet="LEmailTemplates" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LPayees" Association="UserAccessManagement.Models.FK_GCompanies_LPayees">
             <End Role="GCompany" EntitySet="GCompanies" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_LPayees_WFCopanyId" Association="SosDbModel.FK_GCompanies_LPayees_WFCopanyId">
+          <AssociationSet Name="FK_GCompanies_LPayees_WFCopanyId" Association="UserAccessManagement.Models.FK_GCompanies_LPayees_WFCopanyId">
             <End Role="GCompany" EntitySet="GCompanies" />
             <End Role="LPayee" EntitySet="LPayees" />
           </AssociationSet>
-          <FunctionImport Name="SpLogAudit">
-            <Parameter Name="SOSProcessName" Mode="In" Type="String" />
-            <Parameter Name="L3ProcessName" Mode="In" Type="String" />
-            <Parameter Name="ControlCode" Mode="In" Type="String" />
-            <Parameter Name="ControlDecription" Mode="In" Type="String" />
-            <Parameter Name="Action" Mode="In" Type="String" />
-            <Parameter Name="ActionType" Mode="In" Type="String" />
-            <Parameter Name="ActionedById" Mode="In" Type="String" />
-            <Parameter Name="ActionDateTime" Mode="In" Type="DateTime" />
-            <Parameter Name="OldStatus" Mode="In" Type="String" />
-            <Parameter Name="NewStatus" Mode="In" Type="String" />
-            <Parameter Name="EntityType" Mode="In" Type="String" />
-            <Parameter Name="EntityId" Mode="In" Type="Int32" />
-            <Parameter Name="EntityName" Mode="In" Type="String" />
-            <Parameter Name="WorkFlowId" Mode="In" Type="Int32" />
-            <Parameter Name="CompanyId" Mode="In" Type="Int32" />
-            <Parameter Name="Comments" Mode="In" Type="String" />
-            <Parameter Name="RoleId" Mode="In" Type="String" />
-            <Parameter Name="LaPeriod" Mode="In" Type="String" />
+          <AssociationSet Name="FK_GCompanies_LUsers" Association="UserAccessManagement.Models.FK_GCompanies_LUsers">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GCompanies_LUsers_WFCopanyId" Association="UserAccessManagement.Models.FK_GCompanies_LUsers_WFCopanyId">
+            <End Role="GCompany" EntitySet="GCompanies" />
+            <End Role="LUser" EntitySet="LUsers" />
+          </AssociationSet>
+          <FunctionImport Name="SpLogErrorNew" ReturnType="Collection(Int32)">
+            <Parameter Name="SourceProject" Mode="In" Type="String" />
+            <Parameter Name="Controller" Mode="In" Type="String" />
+            <Parameter Name="Method" Mode="In" Type="String" />
+            <Parameter Name="StackTrace" Mode="In" Type="String" />
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="ErrorType" Mode="In" Type="String" />
+            <Parameter Name="ErrorDescription" Mode="In" Type="String" />
+            <Parameter Name="Resolution" Mode="In" Type="String" />
+            <Parameter Name="ErrorOwner" Mode="In" Type="String" />
+            <Parameter Name="FieldName" Mode="In" Type="String" />
+            <Parameter Name="SOSBatchNumber" Mode="In" Type="Int32" />
+            <Parameter Name="Status" Mode="In" Type="String" />
+            <Parameter Name="Result" Mode="InOut" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="SpLogEmail">
             <Parameter Name="RecipientList" Mode="In" Type="String" />
@@ -859,87 +802,6 @@
             <Parameter Name="AcessKey" Mode="In" Type="String" />
             <Parameter Name="SecretKey" Mode="In" Type="String" />
           </FunctionImport>
-          <FunctionImport Name="SpLogError">
-            <Parameter Name="SourceProject" Mode="In" Type="String" />
-            <Parameter Name="Controller" Mode="In" Type="String" />
-            <Parameter Name="Method" Mode="In" Type="String" />
-            <Parameter Name="StackTrace" Mode="In" Type="String" />
-            <Parameter Name="UserName" Mode="In" Type="String" />
-            <Parameter Name="ErrorType" Mode="In" Type="String" />
-            <Parameter Name="ErrorDescription" Mode="In" Type="String" />
-            <Parameter Name="Resolution" Mode="In" Type="String" />
-            <Parameter Name="ErrorOwner" Mode="In" Type="String" />
-            <Parameter Name="FieldName" Mode="In" Type="String" />
-            <Parameter Name="SOSBatchNumber" Mode="In" Type="Int32" />
-            <Parameter Name="Status" Mode="In" Type="String" />
-          </FunctionImport>
-          <EntitySet Name="LUsers" EntityType="SosDbModel.LUser" />
-          <AssociationSet Name="FK_AspnetRoles_LUsers" Association="SosDbModel.FK_AspnetRoles_LUsers">
-            <End Role="AspNetRole" EntitySet="AspNetRoles" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_LuCreatedById" Association="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_LuReportsToId" Association="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUpdatedById" Association="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_LuUserId" Association="SosDbModel.FK_AspnetUsers_LUsers_LuUserId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_WFAnalystId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_WFManagerId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_AspnetUsers_LUsers_WFRequesterId" Association="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId">
-            <End Role="AspNetUser" EntitySet="AspNetUsers" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_LUsers" Association="SosDbModel.FK_GCompanies_LUsers">
-            <End Role="GCompany" EntitySet="GCompanies" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GCompanies_LUsers_WFCopanyId" Association="SosDbModel.FK_GCompanies_LUsers_WFCopanyId">
-            <End Role="GCompany" EntitySet="GCompanies" />
-            <End Role="LUser" EntitySet="LUsers" />
-          </AssociationSet>
-          <EntitySet Name="LEmailTemplates" EntityType="SosDbModel.LEmailTemplate" />
-          <EntitySet Name="LPasswordHistories" EntityType="SosDbModel.LPasswordHistory" />
-          <EntitySet Name="MAspnetUsersGSecurityQuestions" EntityType="SosDbModel.MAspnetUsersGSecurityQuestion" />
-          <AssociationSet Name="FK_GCompanies_LEmailTemplates" Association="SosDbModel.FK_GCompanies_LEmailTemplates">
-            <End Role="GCompany" EntitySet="GCompanies" />
-            <End Role="LEmailTemplate" EntitySet="LEmailTemplates" />
-          </AssociationSet>
-          <FunctionImport Name="SpLogErrorNew" ReturnType="Collection(Int32)">
-            <Parameter Name="SourceProject" Mode="In" Type="String" />
-            <Parameter Name="Controller" Mode="In" Type="String" />
-            <Parameter Name="Method" Mode="In" Type="String" />
-            <Parameter Name="StackTrace" Mode="In" Type="String" />
-            <Parameter Name="UserName" Mode="In" Type="String" />
-            <Parameter Name="ErrorType" Mode="In" Type="String" />
-            <Parameter Name="ErrorDescription" Mode="In" Type="String" />
-            <Parameter Name="Resolution" Mode="In" Type="String" />
-            <Parameter Name="ErrorOwner" Mode="In" Type="String" />
-            <Parameter Name="FieldName" Mode="In" Type="String" />
-            <Parameter Name="SOSBatchNumber" Mode="In" Type="Int32" />
-            <Parameter Name="Status" Mode="In" Type="String" />
-            <Parameter Name="Result" Mode="InOut" Type="Int32" />
-          </FunctionImport>
         </EntityContainer>
         <EntityType Name="AspNetRole">
           <Key>
@@ -950,8 +812,8 @@
           <Property Name="CompanyCode" Type="String" Nullable="false" MaxLength="2" FixedLength="false" Unicode="true" />
           <Property Name="ShowDashboard" Type="Boolean" Nullable="false" />
           <Property Name="MFAEnabled" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_AspnetRoles_LPayees" FromRole="AspNetRole" ToRole="LPayee" />
-          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_AspnetRoles_LUsers" FromRole="AspNetRole" ToRole="LUser" />
+          <NavigationProperty Name="LPayees" Relationship="UserAccessManagement.Models.FK_AspnetRoles_LPayees" FromRole="AspNetRole" ToRole="LPayee" />
+          <NavigationProperty Name="LUsers" Relationship="UserAccessManagement.Models.FK_AspnetRoles_LUsers" FromRole="AspNetRole" ToRole="LUser" />
         </EntityType>
         <EntityType Name="AspNetUser">
           <Key>
@@ -974,32 +836,24 @@
           <Property Name="OTP" Type="String" MaxLength="8" FixedLength="false" Unicode="true" />
           <Property Name="OTPValidUpto" Type="DateTime" Precision="3" />
           <Property Name="PolicyAccepted" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK__AspNetUse__GcCom__3B75D760" FromRole="AspNetUser" ToRole="GCompany" />
-          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_AspnetUsers_LPayees" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees1" Relationship="SosDbModel.FK_AspnetUsers_LPayees_CreatedById" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees2" Relationship="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees3" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees4" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees5" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees6" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="AspNetUser" ToRole="LPayee" />
-          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_AspnetUsers" FromRole="AspNetUser" ToRole="GCompany" />
-          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers1" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers2" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers3" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUserId" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers4" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers5" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers6" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId" FromRole="AspNetUser" ToRole="LUser" />
-          <NavigationProperty Name="LUsers7" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="AspNetUser" ToRole="LUser" />
-        </EntityType>
-        <EntityType Name="Debug">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CreatedDateTime" Type="DateTime" Precision="3" />
-          <Property Name="Msg" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
-        </EntityType>
+          <NavigationProperty Name="GCompany" Relationship="UserAccessManagement.Models.FK__AspNetUse__GcCom__3B75D760" FromRole="AspNetUser" ToRole="GCompany" />
+          <NavigationProperty Name="LPayees" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees1" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_CreatedById" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees2" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees3" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees4" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees5" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFManagerId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees6" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="AspNetUser" ToRole="LPayee" />
+          <NavigationProperty Name="LUsers" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers1" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers2" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers3" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUserId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers4" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers5" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers6" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFManagerId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="LUsers7" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="AspNetUser" ToRole="LUser" />
+          <NavigationProperty Name="GCompany1" Relationship="UserAccessManagement.Models.FK_GCompanies_AspnetUsers" FromRole="AspNetUser" ToRole="GCompany" />
+          </EntityType>
         <EntityType Name="GCompany">
           <Key>
             <PropertyRef Name="Id" />
@@ -1009,49 +863,14 @@
           <Property Name="GcCode" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
           <Property Name="GcISDCode" Type="String" MaxLength="5" FixedLength="false" Unicode="true" />
           <Property Name="GcFirstNameFirst" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="AspNetUsers" Relationship="SosDbModel.FK__AspNetUse__GcCom__3B75D760" FromRole="GCompany" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUsers1" Relationship="SosDbModel.FK_GCompanies_AspnetUsers" FromRole="GCompany" ToRole="AspNetUser" />
-          <NavigationProperty Name="GKeyValues" Relationship="SosDbModel.FK_GCompanies_GKeyValues" FromRole="GCompany" ToRole="GKeyValue" />
-          <NavigationProperty Name="LPayees" Relationship="SosDbModel.FK_GCompanies_LPayees" FromRole="GCompany" ToRole="LPayee" />
-          <NavigationProperty Name="LPayees1" Relationship="SosDbModel.FK_GCompanies_LPayees_WFCopanyId" FromRole="GCompany" ToRole="LPayee" />
-          <NavigationProperty Name="LUsers" Relationship="SosDbModel.FK_GCompanies_LUsers" FromRole="GCompany" ToRole="LUser" />
-          <NavigationProperty Name="LUsers1" Relationship="SosDbModel.FK_GCompanies_LUsers_WFCopanyId" FromRole="GCompany" ToRole="LUser" />
-          <NavigationProperty Name="LEmailTemplates" Relationship="SosDbModel.FK_GCompanies_LEmailTemplates" FromRole="GCompany" ToRole="LEmailTemplate" />
-        </EntityType>
-        <EntityType Name="GEmailConfiguration">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="GecAccountName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GecAccountDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="GecEmailId" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GecDisplayName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GecReplyTo" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GelSmtpHost" Type="String" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="GecPortNumber" Type="Int32" Nullable="false" />
-          <Property Name="GecSmtpLoginId" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="GecSMTPPassword" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="GecRequiresSSL" Type="Boolean" Nullable="false" />
-        </EntityType>
-        <EntityType Name="GErrorLog">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="GelErrorDateTime" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="GelSourceProject" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="GelController" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GelMethod" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="GelStackTrace" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="GelUserName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="GelErrorType" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
-          <Property Name="GelErrorDescription" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
-          <Property Name="GelResolution" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
-          <Property Name="GelErrorOwner" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="GelFieldName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="GelSOSBatchNumber" Type="Int32" />
-          <Property Name="GelStatus" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="AspNetUsers" Relationship="UserAccessManagement.Models.FK__AspNetUse__GcCom__3B75D760" FromRole="GCompany" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUsers1" Relationship="UserAccessManagement.Models.FK_GCompanies_AspnetUsers" FromRole="GCompany" ToRole="AspNetUser" />
+          <NavigationProperty Name="GKeyValues" Relationship="UserAccessManagement.Models.FK_GCompanies_GKeyValues" FromRole="GCompany" ToRole="GKeyValue" />
+          <NavigationProperty Name="LEmailTemplates" Relationship="UserAccessManagement.Models.FK_GCompanies_LEmailTemplates" FromRole="GCompany" ToRole="LEmailTemplate" />
+          <NavigationProperty Name="LPayees" Relationship="UserAccessManagement.Models.FK_GCompanies_LPayees" FromRole="GCompany" ToRole="LPayee" />
+          <NavigationProperty Name="LPayees1" Relationship="UserAccessManagement.Models.FK_GCompanies_LPayees_WFCopanyId" FromRole="GCompany" ToRole="LPayee" />
+          <NavigationProperty Name="LUsers" Relationship="UserAccessManagement.Models.FK_GCompanies_LUsers" FromRole="GCompany" ToRole="LUser" />
+          <NavigationProperty Name="LUsers1" Relationship="UserAccessManagement.Models.FK_GCompanies_LUsers_WFCopanyId" FromRole="GCompany" ToRole="LUser" />
         </EntityType>
         <EntityType Name="GKeyValue">
           <Key>
@@ -1062,7 +881,19 @@
           <Property Name="GkvKey" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="GkvValue" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="GkvDescription" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_GKeyValues" FromRole="GKeyValue" ToRole="GCompany" />
+          <NavigationProperty Name="GCompany" Relationship="UserAccessManagement.Models.FK_GCompanies_GKeyValues" FromRole="GKeyValue" ToRole="GCompany" />
+        </EntityType>
+        <EntityType Name="LEmailTemplate">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LetTemplateName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="LetEmailSubject" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="LetEmailBody" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LetSignature" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="LetCompanyId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="GCompany" Relationship="UserAccessManagement.Models.FK_GCompanies_LEmailTemplates" FromRole="LEmailTemplate" ToRole="GCompany" />
         </EntityType>
         <EntityType Name="LPayee">
           <Key>
@@ -1121,18 +952,18 @@
           <Property Name="LpFirstName" Type="Binary" MaxLength="8000" FixedLength="false" />
           <Property Name="LpLastName" Type="Binary" MaxLength="8000" FixedLength="false" />
           <Property Name="LpTradingName" Type="Binary" MaxLength="8000" FixedLength="false" />
-          <NavigationProperty Name="AspNetRole" Relationship="SosDbModel.FK_AspnetRoles_LPayees" FromRole="LPayee" ToRole="AspNetRole" />
-          <NavigationProperty Name="AspNetUser" Relationship="SosDbModel.FK_AspnetUsers_LPayees" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser1" Relationship="SosDbModel.FK_AspnetUsers_LPayees_CreatedById" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser2" Relationship="SosDbModel.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser3" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser4" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser5" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFManagerId" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser6" Relationship="SosDbModel.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="LPayee" ToRole="AspNetUser" />
-          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LPayees" FromRole="LPayee" ToRole="GCompany" />
-          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_LPayees_WFCopanyId" FromRole="LPayee" ToRole="GCompany" />
           <Property Name="WFUpdatedDateTime" Type="DateTime" Precision="3" />
-        </EntityType>
+          <NavigationProperty Name="AspNetRole" Relationship="UserAccessManagement.Models.FK_AspnetRoles_LPayees" FromRole="LPayee" ToRole="AspNetRole" />
+          <NavigationProperty Name="AspNetUser" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser1" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_CreatedById" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser2" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_LastUpdatedById" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser3" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFAnalystId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser4" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFCurrentOwnerId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser5" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFManagerId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser6" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LPayees_WFRequesterId" FromRole="LPayee" ToRole="AspNetUser" />
+          <NavigationProperty Name="GCompany" Relationship="UserAccessManagement.Models.FK_GCompanies_LPayees" FromRole="LPayee" ToRole="GCompany" />
+          <NavigationProperty Name="GCompany1" Relationship="UserAccessManagement.Models.FK_GCompanies_LPayees_WFCopanyId" FromRole="LPayee" ToRole="GCompany" />
+          </EntityType>
         <EntityType Name="LUserLobby">
           <Key>
             <PropertyRef Name="Id" />
@@ -1163,162 +994,6 @@
           <Property Name="ResponseMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Comments" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
         </EntityType>
-        <Association Name="FK_AspnetRoles_LPayees">
-          <End Type="SosDbModel.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetRole">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFRequesterRoleId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK__AspNetUse__GcCom__3B75D760">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AspNetUser">
-              <PropertyRef Name="GcCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="LpUserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_CreatedById">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="LpCreatedById" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_LastUpdatedById">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="LpUpdatedById" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_WFAnalystId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFAnalystId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFCurrentOwnerId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_WFManagerId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFManagerId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_AspnetUsers_LPayees_WFRequesterId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="AspNetUser">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFRequesterId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GCompanies_AspnetUsers">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="AspNetUser">
-              <PropertyRef Name="GcCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GCompanies_GKeyValues">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.GKeyValue" Role="GKeyValue" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GKeyValue">
-              <PropertyRef Name="GkvCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GCompanies_LPayees">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="LpCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GCompanies_LPayees_WFCopanyId">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.LPayee" Role="LPayee" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LPayee">
-              <PropertyRef Name="WFCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="LUser">
           <Key>
             <PropertyRef Name="Id" />
@@ -1366,24 +1041,37 @@
           <Property Name="WFCompanyId" Type="Int32" Nullable="false" />
           <Property Name="WFComments" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
           <Property Name="ParameterCarrier" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="AspNetRole" Relationship="SosDbModel.FK_AspnetRoles_LUsers" FromRole="LUser" ToRole="AspNetRole" />
-          <NavigationProperty Name="AspNetUser" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser1" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser2" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser3" Relationship="SosDbModel.FK_AspnetUsers_LUsers_LuUserId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser4" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser5" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser6" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFManagerId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="AspNetUser7" Relationship="SosDbModel.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="LUser" ToRole="AspNetUser" />
-          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LUsers" FromRole="LUser" ToRole="GCompany" />
-          <NavigationProperty Name="GCompany1" Relationship="SosDbModel.FK_GCompanies_LUsers_WFCopanyId" FromRole="LUser" ToRole="GCompany" />
           <Property Name="LuCreateLogin" Type="Boolean" />
           <Property Name="LuCreatedByForm" Type="Boolean" />
           <Property Name="WFUpdatedDateTime" Type="DateTime" Precision="3" />
+          <Property Name="IsSuperUser" Type="Boolean" />
+          <NavigationProperty Name="AspNetRole" Relationship="UserAccessManagement.Models.FK_AspnetRoles_LUsers" FromRole="LUser" ToRole="AspNetRole" />
+          <NavigationProperty Name="AspNetUser" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuCreatedById" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser1" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuReportsToId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser2" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUpdatedById" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser3" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_LuUserId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser4" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFAnalystId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser5" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFCurrentOwnerId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser6" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFManagerId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="AspNetUser7" Relationship="UserAccessManagement.Models.FK_AspnetUsers_LUsers_WFRequesterId" FromRole="LUser" ToRole="AspNetUser" />
+          <NavigationProperty Name="GCompany" Relationship="UserAccessManagement.Models.FK_GCompanies_LUsers" FromRole="LUser" ToRole="GCompany" />
+          <NavigationProperty Name="GCompany1" Relationship="UserAccessManagement.Models.FK_GCompanies_LUsers_WFCopanyId" FromRole="LUser" ToRole="GCompany" />
         </EntityType>
+        <Association Name="FK_AspnetRoles_LPayees">
+          <End Type="UserAccessManagement.Models.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRole">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFRequesterRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_AspnetRoles_LUsers">
-          <End Type="SosDbModel.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetRole" Role="AspNetRole" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetRole">
               <PropertyRef Name="Id" />
@@ -1393,9 +1081,105 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK__AspNetUse__GcCom__3B75D760">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUser">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_CreatedById">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpCreatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_LastUpdatedById">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpUpdatedById" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFAnalystId">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFAnalystId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFCurrentOwnerId">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFCurrentOwnerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFManagerId">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFManagerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_AspnetUsers_LPayees_WFRequesterId">
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFRequesterId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_AspnetUsers_LUsers_LuCreatedById">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1406,8 +1190,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_LuReportsToId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1418,8 +1202,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_LuUpdatedById">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1430,8 +1214,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_LuUserId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1442,8 +1226,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_WFAnalystId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1454,8 +1238,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_WFCurrentOwnerId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1466,8 +1250,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_WFManagerId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1478,8 +1262,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_AspnetUsers_LUsers_WFRequesterId">
-          <End Type="SosDbModel.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="0..1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="AspNetUser">
               <PropertyRef Name="Id" />
@@ -1489,9 +1273,69 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_GCompanies_AspnetUsers">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.AspNetUser" Role="AspNetUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUser">
+              <PropertyRef Name="GcCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_GKeyValues">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.GKeyValue" Role="GKeyValue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GKeyValue">
+              <PropertyRef Name="GkvCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LEmailTemplates">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LEmailTemplate" Role="LEmailTemplate" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LEmailTemplate">
+              <PropertyRef Name="LetCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="LpCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GCompanies_LPayees_WFCopanyId">
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LPayee" Role="LPayee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GCompany">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="LPayee">
+              <PropertyRef Name="WFCompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_GCompanies_LUsers">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="GCompany">
               <PropertyRef Name="Id" />
@@ -1502,8 +1346,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_GCompanies_LUsers_WFCopanyId">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.LUser" Role="LUser" Multiplicity="*" />
+          <End Type="UserAccessManagement.Models.GCompany" Role="GCompany" Multiplicity="1" />
+          <End Type="UserAccessManagement.Models.LUser" Role="LUser" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="GCompany">
               <PropertyRef Name="Id" />
@@ -1513,56 +1357,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="LEmailTemplate">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="LetTemplateName" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="LetEmailSubject" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="LetEmailBody" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="LetSignature" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
-          <Property Name="LetCompanyId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="GCompany" Relationship="SosDbModel.FK_GCompanies_LEmailTemplates" FromRole="LEmailTemplate" ToRole="GCompany" />
-        </EntityType>
-        <EntityType Name="LPasswordHistory">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Password" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedDateTime" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="MAspnetUsersGSecurityQuestion">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="MAuqsqUserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="MAuqsqQuestionId" Type="Int32" Nullable="false" />
-          <Property Name="MAugsqAnswer" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <Association Name="FK_GCompanies_LEmailTemplates">
-          <End Type="SosDbModel.GCompany" Role="GCompany" Multiplicity="1" />
-          <End Type="SosDbModel.LEmailTemplate" Role="LEmailTemplate" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GCompany">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="LEmailTemplate">
-              <PropertyRef Name="LetCompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
-      <Mapping Space="C-S" xmlns="urn:schemas-microsoft-com:windows:storage:mapping:CS">
-        <EntityContainerMapping StorageEntityContainer="SosDbModelStoreContainer" CdmEntityContainer="SosDbEntities">
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="UserAccessManagementModelsStoreContainer" CdmEntityContainer="SosDbEntities">
           <EntitySetMapping Name="AspNetRoles">
-            <EntityTypeMapping TypeName="SosDbModel.AspNetRole">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.AspNetRole">
               <MappingFragment StoreEntitySet="AspNetRoles">
                 <ScalarProperty Name="MFAEnabled" ColumnName="MFAEnabled" />
                 <ScalarProperty Name="ShowDashboard" ColumnName="ShowDashboard" />
@@ -1573,7 +1375,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="AspNetUsers">
-            <EntityTypeMapping TypeName="SosDbModel.AspNetUser">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.AspNetUser">
               <MappingFragment StoreEntitySet="AspNetUsers">
                 <ScalarProperty Name="PolicyAccepted" ColumnName="PolicyAccepted" />
                 <ScalarProperty Name="OTPValidUpto" ColumnName="OTPValidUpto" />
@@ -1595,17 +1397,8 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Debugs">
-            <EntityTypeMapping TypeName="SosDbModel.Debug">
-              <MappingFragment StoreEntitySet="Debug">
-                <ScalarProperty Name="Msg" ColumnName="Msg" />
-                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GCompanies">
-            <EntityTypeMapping TypeName="SosDbModel.GCompany">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.GCompany">
               <MappingFragment StoreEntitySet="GCompanies">
                 <ScalarProperty Name="GcFirstNameFirst" ColumnName="GcFirstNameFirst" />
                 <ScalarProperty Name="GcISDCode" ColumnName="GcISDCode" />
@@ -1615,45 +1408,8 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="GEmailConfigurations">
-            <EntityTypeMapping TypeName="SosDbModel.GEmailConfiguration">
-              <MappingFragment StoreEntitySet="GEmailConfigurations">
-                <ScalarProperty Name="GecRequiresSSL" ColumnName="GecRequiresSSL" />
-                <ScalarProperty Name="GecSMTPPassword" ColumnName="GecSMTPPassword" />
-                <ScalarProperty Name="GecSmtpLoginId" ColumnName="GecSmtpLoginId" />
-                <ScalarProperty Name="GecPortNumber" ColumnName="GecPortNumber" />
-                <ScalarProperty Name="GelSmtpHost" ColumnName="GelSmtpHost" />
-                <ScalarProperty Name="GecReplyTo" ColumnName="GecReplyTo" />
-                <ScalarProperty Name="GecDisplayName" ColumnName="GecDisplayName" />
-                <ScalarProperty Name="GecEmailId" ColumnName="GecEmailId" />
-                <ScalarProperty Name="GecAccountDescription" ColumnName="GecAccountDescription" />
-                <ScalarProperty Name="GecAccountName" ColumnName="GecAccountName" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="GErrorLogs">
-            <EntityTypeMapping TypeName="SosDbModel.GErrorLog">
-              <MappingFragment StoreEntitySet="GErrorLogs">
-                <ScalarProperty Name="GelStatus" ColumnName="GelStatus" />
-                <ScalarProperty Name="GelSOSBatchNumber" ColumnName="GelSOSBatchNumber" />
-                <ScalarProperty Name="GelFieldName" ColumnName="GelFieldName" />
-                <ScalarProperty Name="GelErrorOwner" ColumnName="GelErrorOwner" />
-                <ScalarProperty Name="GelResolution" ColumnName="GelResolution" />
-                <ScalarProperty Name="GelErrorDescription" ColumnName="GelErrorDescription" />
-                <ScalarProperty Name="GelErrorType" ColumnName="GelErrorType" />
-                <ScalarProperty Name="GelUserName" ColumnName="GelUserName" />
-                <ScalarProperty Name="GelStackTrace" ColumnName="GelStackTrace" />
-                <ScalarProperty Name="GelMethod" ColumnName="GelMethod" />
-                <ScalarProperty Name="GelController" ColumnName="GelController" />
-                <ScalarProperty Name="GelSourceProject" ColumnName="GelSourceProject" />
-                <ScalarProperty Name="GelErrorDateTime" ColumnName="GelErrorDateTime" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GKeyValues">
-            <EntityTypeMapping TypeName="SosDbModel.GKeyValue">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.GKeyValue">
               <MappingFragment StoreEntitySet="GKeyValues">
                 <ScalarProperty Name="GkvDescription" ColumnName="GkvDescription" />
                 <ScalarProperty Name="GkvValue" ColumnName="GkvValue" />
@@ -1663,8 +1419,20 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="LEmailTemplates">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.LEmailTemplate">
+              <MappingFragment StoreEntitySet="LEmailTemplates">
+                <ScalarProperty Name="LetCompanyId" ColumnName="LetCompanyId" />
+                <ScalarProperty Name="LetSignature" ColumnName="LetSignature" />
+                <ScalarProperty Name="LetEmailBody" ColumnName="LetEmailBody" />
+                <ScalarProperty Name="LetEmailSubject" ColumnName="LetEmailSubject" />
+                <ScalarProperty Name="LetTemplateName" ColumnName="LetTemplateName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="LPayees">
-            <EntityTypeMapping TypeName="SosDbModel.LPayee">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.LPayee">
               <MappingFragment StoreEntitySet="LPayees">
                 <ScalarProperty Name="WFUpdatedDateTime" ColumnName="WFUpdatedDateTime" />
                 <ScalarProperty Name="LpTradingName" ColumnName="LpTradingName" />
@@ -1724,7 +1492,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="LUserLobbies">
-            <EntityTypeMapping TypeName="SosDbModel.LUserLobby">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.LUserLobby">
               <MappingFragment StoreEntitySet="LUserLobby">
                 <ScalarProperty Name="Comments" ColumnName="Comments" />
                 <ScalarProperty Name="ResponseMessage" ColumnName="ResponseMessage" />
@@ -1754,12 +1522,10 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SpLogAudit" FunctionName="SosDbModel.Store.SpLogAudit" />
-          <FunctionImportMapping FunctionImportName="SpLogEmail" FunctionName="SosDbModel.Store.SpLogEmail" />
-          <FunctionImportMapping FunctionImportName="SpLogError" FunctionName="SosDbModel.Store.SpLogError" />
           <EntitySetMapping Name="LUsers">
-            <EntityTypeMapping TypeName="SosDbModel.LUser">
+            <EntityTypeMapping TypeName="UserAccessManagement.Models.LUser">
               <MappingFragment StoreEntitySet="LUsers">
+                <ScalarProperty Name="IsSuperUser" ColumnName="IsSuperUser" />
                 <ScalarProperty Name="WFUpdatedDateTime" ColumnName="WFUpdatedDateTime" />
                 <ScalarProperty Name="LuCreatedByForm" ColumnName="LuCreatedByForm" />
                 <ScalarProperty Name="LuCreateLogin" ColumnName="LuCreateLogin" />
@@ -1809,45 +1575,14 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="LEmailTemplates">
-            <EntityTypeMapping TypeName="SosDbModel.LEmailTemplate">
-              <MappingFragment StoreEntitySet="LEmailTemplates">
-                <ScalarProperty Name="LetCompanyId" ColumnName="LetCompanyId" />
-                <ScalarProperty Name="LetSignature" ColumnName="LetSignature" />
-                <ScalarProperty Name="LetEmailBody" ColumnName="LetEmailBody" />
-                <ScalarProperty Name="LetEmailSubject" ColumnName="LetEmailSubject" />
-                <ScalarProperty Name="LetTemplateName" ColumnName="LetTemplateName" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="LPasswordHistories">
-            <EntityTypeMapping TypeName="SosDbModel.LPasswordHistory">
-              <MappingFragment StoreEntitySet="LPasswordHistory">
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="CreatedDateTime" ColumnName="CreatedDateTime" />
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="MAspnetUsersGSecurityQuestions">
-            <EntityTypeMapping TypeName="SosDbModel.MAspnetUsersGSecurityQuestion">
-              <MappingFragment StoreEntitySet="MAspnetUsersGSecurityQuestions">
-                <ScalarProperty Name="MAugsqAnswer" ColumnName="MAugsqAnswer" />
-                <ScalarProperty Name="MAuqsqQuestionId" ColumnName="MAuqsqQuestionId" />
-                <ScalarProperty Name="MAuqsqUserId" ColumnName="MAuqsqUserId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="SpLogErrorNew" FunctionName="SosDbModel.Store.SpLogErrorNew" />
+          <FunctionImportMapping FunctionImportName="SpLogErrorNew" FunctionName="UserAccessManagement.Models.Store.SpLogErrorNew" />
+          <FunctionImportMapping FunctionImportName="SpLogEmail" FunctionName="UserAccessManagement.Models.Store.SpLogEmail" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>
   <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
-  <Designer xmlns="http://schemas.microsoft.com/ado/2007/06/edmx">
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <Connection>
       <DesignerInfoPropertySet>
         <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
@@ -1856,13 +1591,13 @@
     <Options>
       <DesignerInfoPropertySet>
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
-        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
         <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
         <DesignerProperty Name="UseLegacyProvider" Value="false" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->
-    <Diagrams />
+    <Diagrams></Diagrams>
   </Designer>
 </edmx:Edmx>

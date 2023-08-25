@@ -12,10 +12,15 @@ namespace UserAccessManagement.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Debug
+    public partial class LEmailTemplate
     {
         public int Id { get; set; }
-        public Nullable<System.DateTime> CreatedDateTime { get; set; }
-        public string Msg { get; set; }
+        public string LetTemplateName { get; set; }
+        public string LetEmailSubject { get; set; }
+        public string LetEmailBody { get; set; }
+        public string LetSignature { get; set; }
+        public int LetCompanyId { get; set; }
+    
+        public virtual GCompany GCompany { get; set; }
     }
 }

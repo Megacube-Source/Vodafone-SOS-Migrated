@@ -29,93 +29,64 @@ namespace UserAccessManagement.Models
     
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
-        public virtual DbSet<Debug> Debugs { get; set; }
         public virtual DbSet<GCompany> GCompanies { get; set; }
-        public virtual DbSet<GEmailConfiguration> GEmailConfigurations { get; set; }
-        public virtual DbSet<GErrorLog> GErrorLogs { get; set; }
         public virtual DbSet<GKeyValue> GKeyValues { get; set; }
+        public virtual DbSet<LEmailTemplate> LEmailTemplates { get; set; }
         public virtual DbSet<LPayee> LPayees { get; set; }
         public virtual DbSet<LUserLobby> LUserLobbies { get; set; }
         public virtual DbSet<LUser> LUsers { get; set; }
-        public virtual DbSet<LEmailTemplate> LEmailTemplates { get; set; }
-        public virtual DbSet<LPasswordHistory> LPasswordHistories { get; set; }
-        public virtual DbSet<MAspnetUsersGSecurityQuestion> MAspnetUsersGSecurityQuestions { get; set; }
     
-        public virtual int SpLogAudit(string sOSProcessName, string l3ProcessName, string controlCode, string controlDecription, string action, string actionType, string actionedById, Nullable<System.DateTime> actionDateTime, string oldStatus, string newStatus, string entityType, Nullable<int> entityId, string entityName, Nullable<int> workFlowId, Nullable<int> companyId, string comments, string roleId, string laPeriod)
+        public virtual ObjectResult<Nullable<int>> SpLogErrorNew(string sourceProject, string controller, string method, string stackTrace, string userName, string errorType, string errorDescription, string resolution, string errorOwner, string fieldName, Nullable<int> sOSBatchNumber, string status, ObjectParameter result)
         {
-            var sOSProcessNameParameter = sOSProcessName != null ?
-                new ObjectParameter("SOSProcessName", sOSProcessName) :
-                new ObjectParameter("SOSProcessName", typeof(string));
+            var sourceProjectParameter = sourceProject != null ?
+                new ObjectParameter("SourceProject", sourceProject) :
+                new ObjectParameter("SourceProject", typeof(string));
     
-            var l3ProcessNameParameter = l3ProcessName != null ?
-                new ObjectParameter("L3ProcessName", l3ProcessName) :
-                new ObjectParameter("L3ProcessName", typeof(string));
+            var controllerParameter = controller != null ?
+                new ObjectParameter("Controller", controller) :
+                new ObjectParameter("Controller", typeof(string));
     
-            var controlCodeParameter = controlCode != null ?
-                new ObjectParameter("ControlCode", controlCode) :
-                new ObjectParameter("ControlCode", typeof(string));
+            var methodParameter = method != null ?
+                new ObjectParameter("Method", method) :
+                new ObjectParameter("Method", typeof(string));
     
-            var controlDecriptionParameter = controlDecription != null ?
-                new ObjectParameter("ControlDecription", controlDecription) :
-                new ObjectParameter("ControlDecription", typeof(string));
+            var stackTraceParameter = stackTrace != null ?
+                new ObjectParameter("StackTrace", stackTrace) :
+                new ObjectParameter("StackTrace", typeof(string));
     
-            var actionParameter = action != null ?
-                new ObjectParameter("Action", action) :
-                new ObjectParameter("Action", typeof(string));
+            var userNameParameter = userName != null ?
+                new ObjectParameter("UserName", userName) :
+                new ObjectParameter("UserName", typeof(string));
     
-            var actionTypeParameter = actionType != null ?
-                new ObjectParameter("ActionType", actionType) :
-                new ObjectParameter("ActionType", typeof(string));
+            var errorTypeParameter = errorType != null ?
+                new ObjectParameter("ErrorType", errorType) :
+                new ObjectParameter("ErrorType", typeof(string));
     
-            var actionedByIdParameter = actionedById != null ?
-                new ObjectParameter("ActionedById", actionedById) :
-                new ObjectParameter("ActionedById", typeof(string));
+            var errorDescriptionParameter = errorDescription != null ?
+                new ObjectParameter("ErrorDescription", errorDescription) :
+                new ObjectParameter("ErrorDescription", typeof(string));
     
-            var actionDateTimeParameter = actionDateTime.HasValue ?
-                new ObjectParameter("ActionDateTime", actionDateTime) :
-                new ObjectParameter("ActionDateTime", typeof(System.DateTime));
+            var resolutionParameter = resolution != null ?
+                new ObjectParameter("Resolution", resolution) :
+                new ObjectParameter("Resolution", typeof(string));
     
-            var oldStatusParameter = oldStatus != null ?
-                new ObjectParameter("OldStatus", oldStatus) :
-                new ObjectParameter("OldStatus", typeof(string));
+            var errorOwnerParameter = errorOwner != null ?
+                new ObjectParameter("ErrorOwner", errorOwner) :
+                new ObjectParameter("ErrorOwner", typeof(string));
     
-            var newStatusParameter = newStatus != null ?
-                new ObjectParameter("NewStatus", newStatus) :
-                new ObjectParameter("NewStatus", typeof(string));
+            var fieldNameParameter = fieldName != null ?
+                new ObjectParameter("FieldName", fieldName) :
+                new ObjectParameter("FieldName", typeof(string));
     
-            var entityTypeParameter = entityType != null ?
-                new ObjectParameter("EntityType", entityType) :
-                new ObjectParameter("EntityType", typeof(string));
+            var sOSBatchNumberParameter = sOSBatchNumber.HasValue ?
+                new ObjectParameter("SOSBatchNumber", sOSBatchNumber) :
+                new ObjectParameter("SOSBatchNumber", typeof(int));
     
-            var entityIdParameter = entityId.HasValue ?
-                new ObjectParameter("EntityId", entityId) :
-                new ObjectParameter("EntityId", typeof(int));
+            var statusParameter = status != null ?
+                new ObjectParameter("Status", status) :
+                new ObjectParameter("Status", typeof(string));
     
-            var entityNameParameter = entityName != null ?
-                new ObjectParameter("EntityName", entityName) :
-                new ObjectParameter("EntityName", typeof(string));
-    
-            var workFlowIdParameter = workFlowId.HasValue ?
-                new ObjectParameter("WorkFlowId", workFlowId) :
-                new ObjectParameter("WorkFlowId", typeof(int));
-    
-            var companyIdParameter = companyId.HasValue ?
-                new ObjectParameter("CompanyId", companyId) :
-                new ObjectParameter("CompanyId", typeof(int));
-    
-            var commentsParameter = comments != null ?
-                new ObjectParameter("Comments", comments) :
-                new ObjectParameter("Comments", typeof(string));
-    
-            var roleIdParameter = roleId != null ?
-                new ObjectParameter("RoleId", roleId) :
-                new ObjectParameter("RoleId", typeof(string));
-    
-            var laPeriodParameter = laPeriod != null ?
-                new ObjectParameter("LaPeriod", laPeriod) :
-                new ObjectParameter("LaPeriod", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SpLogAudit", sOSProcessNameParameter, l3ProcessNameParameter, controlCodeParameter, controlDecriptionParameter, actionParameter, actionTypeParameter, actionedByIdParameter, actionDateTimeParameter, oldStatusParameter, newStatusParameter, entityTypeParameter, entityIdParameter, entityNameParameter, workFlowIdParameter, companyIdParameter, commentsParameter, roleIdParameter, laPeriodParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("SpLogErrorNew", sourceProjectParameter, controllerParameter, methodParameter, stackTraceParameter, userNameParameter, errorTypeParameter, errorDescriptionParameter, resolutionParameter, errorOwnerParameter, fieldNameParameter, sOSBatchNumberParameter, statusParameter, result);
         }
     
         public virtual int SpLogEmail(string recipientList, string cCList, string bCCList, string replyToList, string subject, string body, Nullable<bool> isHTML, string emailType, string priority, string attachmentList, string status, string comments, string createdById, string updatedById, string senderAccountName, string bucketName, string acessKey, string secretKey)
@@ -193,112 +164,6 @@ namespace UserAccessManagement.Models
                 new ObjectParameter("SecretKey", typeof(string));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SpLogEmail", recipientListParameter, cCListParameter, bCCListParameter, replyToListParameter, subjectParameter, bodyParameter, isHTMLParameter, emailTypeParameter, priorityParameter, attachmentListParameter, statusParameter, commentsParameter, createdByIdParameter, updatedByIdParameter, senderAccountNameParameter, bucketNameParameter, acessKeyParameter, secretKeyParameter);
-        }
-    
-        public virtual int SpLogError(string sourceProject, string controller, string method, string stackTrace, string userName, string errorType, string errorDescription, string resolution, string errorOwner, string fieldName, Nullable<int> sOSBatchNumber, string status)
-        {
-            var sourceProjectParameter = sourceProject != null ?
-                new ObjectParameter("SourceProject", sourceProject) :
-                new ObjectParameter("SourceProject", typeof(string));
-    
-            var controllerParameter = controller != null ?
-                new ObjectParameter("Controller", controller) :
-                new ObjectParameter("Controller", typeof(string));
-    
-            var methodParameter = method != null ?
-                new ObjectParameter("Method", method) :
-                new ObjectParameter("Method", typeof(string));
-    
-            var stackTraceParameter = stackTrace != null ?
-                new ObjectParameter("StackTrace", stackTrace) :
-                new ObjectParameter("StackTrace", typeof(string));
-    
-            var userNameParameter = userName != null ?
-                new ObjectParameter("UserName", userName) :
-                new ObjectParameter("UserName", typeof(string));
-    
-            var errorTypeParameter = errorType != null ?
-                new ObjectParameter("ErrorType", errorType) :
-                new ObjectParameter("ErrorType", typeof(string));
-    
-            var errorDescriptionParameter = errorDescription != null ?
-                new ObjectParameter("ErrorDescription", errorDescription) :
-                new ObjectParameter("ErrorDescription", typeof(string));
-    
-            var resolutionParameter = resolution != null ?
-                new ObjectParameter("Resolution", resolution) :
-                new ObjectParameter("Resolution", typeof(string));
-    
-            var errorOwnerParameter = errorOwner != null ?
-                new ObjectParameter("ErrorOwner", errorOwner) :
-                new ObjectParameter("ErrorOwner", typeof(string));
-    
-            var fieldNameParameter = fieldName != null ?
-                new ObjectParameter("FieldName", fieldName) :
-                new ObjectParameter("FieldName", typeof(string));
-    
-            var sOSBatchNumberParameter = sOSBatchNumber.HasValue ?
-                new ObjectParameter("SOSBatchNumber", sOSBatchNumber) :
-                new ObjectParameter("SOSBatchNumber", typeof(int));
-    
-            var statusParameter = status != null ?
-                new ObjectParameter("Status", status) :
-                new ObjectParameter("Status", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SpLogError", sourceProjectParameter, controllerParameter, methodParameter, stackTraceParameter, userNameParameter, errorTypeParameter, errorDescriptionParameter, resolutionParameter, errorOwnerParameter, fieldNameParameter, sOSBatchNumberParameter, statusParameter);
-        }
-    
-        public virtual ObjectResult<Nullable<int>> SpLogErrorNew(string sourceProject, string controller, string method, string stackTrace, string userName, string errorType, string errorDescription, string resolution, string errorOwner, string fieldName, Nullable<int> sOSBatchNumber, string status, ObjectParameter result)
-        {
-            var sourceProjectParameter = sourceProject != null ?
-                new ObjectParameter("SourceProject", sourceProject) :
-                new ObjectParameter("SourceProject", typeof(string));
-    
-            var controllerParameter = controller != null ?
-                new ObjectParameter("Controller", controller) :
-                new ObjectParameter("Controller", typeof(string));
-    
-            var methodParameter = method != null ?
-                new ObjectParameter("Method", method) :
-                new ObjectParameter("Method", typeof(string));
-    
-            var stackTraceParameter = stackTrace != null ?
-                new ObjectParameter("StackTrace", stackTrace) :
-                new ObjectParameter("StackTrace", typeof(string));
-    
-            var userNameParameter = userName != null ?
-                new ObjectParameter("UserName", userName) :
-                new ObjectParameter("UserName", typeof(string));
-    
-            var errorTypeParameter = errorType != null ?
-                new ObjectParameter("ErrorType", errorType) :
-                new ObjectParameter("ErrorType", typeof(string));
-    
-            var errorDescriptionParameter = errorDescription != null ?
-                new ObjectParameter("ErrorDescription", errorDescription) :
-                new ObjectParameter("ErrorDescription", typeof(string));
-    
-            var resolutionParameter = resolution != null ?
-                new ObjectParameter("Resolution", resolution) :
-                new ObjectParameter("Resolution", typeof(string));
-    
-            var errorOwnerParameter = errorOwner != null ?
-                new ObjectParameter("ErrorOwner", errorOwner) :
-                new ObjectParameter("ErrorOwner", typeof(string));
-    
-            var fieldNameParameter = fieldName != null ?
-                new ObjectParameter("FieldName", fieldName) :
-                new ObjectParameter("FieldName", typeof(string));
-    
-            var sOSBatchNumberParameter = sOSBatchNumber.HasValue ?
-                new ObjectParameter("SOSBatchNumber", sOSBatchNumber) :
-                new ObjectParameter("SOSBatchNumber", typeof(int));
-    
-            var statusParameter = status != null ?
-                new ObjectParameter("Status", status) :
-                new ObjectParameter("Status", typeof(string));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("SpLogErrorNew", sourceProjectParameter, controllerParameter, methodParameter, stackTraceParameter, userNameParameter, errorTypeParameter, errorDescriptionParameter, resolutionParameter, errorOwnerParameter, fieldNameParameter, sOSBatchNumberParameter, statusParameter, result);
         }
     }
 }

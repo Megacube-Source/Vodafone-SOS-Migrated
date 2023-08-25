@@ -60,6 +60,7 @@ namespace UserAccessManagement.Models
         public Nullable<bool> LuCreateLogin { get; set; }
         public Nullable<bool> LuCreatedByForm { get; set; }
         public Nullable<System.DateTime> WFUpdatedDateTime { get; set; }
+        public Nullable<bool> IsSuperUser { get; set; }
     
         public virtual AspNetRole AspNetRole { get; set; }
         public virtual AspNetUser AspNetUser { get; set; }

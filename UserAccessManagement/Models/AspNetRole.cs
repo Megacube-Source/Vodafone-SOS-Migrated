@@ -19,7 +19,6 @@ namespace UserAccessManagement.Models
         {
             this.LPayees = new HashSet<LPayee>();
             this.LUsers = new HashSet<LUser>();
-            this.AspNetUserRoles = new HashSet<AspNetUserRole>();
         }
     
         public string Id { get; set; }
@@ -32,7 +31,5 @@ namespace UserAccessManagement.Models
         public virtual ICollection<LPayee> LPayees { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LUser> LUsers { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AspNetUserRole> AspNetUserRoles { get; set; }
     }
 }
