@@ -157,7 +157,7 @@ namespace Vodafone_SOS_WebApp.Helper
                 ex.Data.Add("ErrorCode", response.StatusCode);
                 string source = response.Content;
                 dynamic data = JsonConvert.DeserializeObject(source);
-                string xx = data.Message;
+                string xx = data.Message != null ? data.Message : null;
                 ex.Data.Add("ErrorMessage", xx);
                 throw ex;
             }
