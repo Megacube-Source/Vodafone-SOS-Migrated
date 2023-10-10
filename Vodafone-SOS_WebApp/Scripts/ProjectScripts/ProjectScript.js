@@ -242,7 +242,7 @@ function FnGetUploadedCommon(Files, id, Type, Code) {
                         //document.getElementById('AttachedFiles').innerHTML = '<p>Recent Attachments (Add description and click Save to add attachment)</p><ul>' + FileHtml + '</ul>'
 
                     }
-                    console.log(result);
+                    //console.log(result);
                     //location.reload();
                     
                 },
@@ -250,7 +250,7 @@ function FnGetUploadedCommon(Files, id, Type, Code) {
                     var err = "Error " + " " + status + " " + p3 + " " + p4;
                     if (xhr.responseText && xhr.responseText[0] == "{")
                         err = JSON.parse(xhr.responseText).Message;
-                    console.log(err);
+                    //console.log(err);
                     location.reload();
                 }
             });

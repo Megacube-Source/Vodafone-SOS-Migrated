@@ -389,8 +389,8 @@ License: http://jqwidgets.com/license/
                 }
             }
             catch (e) {
-                if (console)
-                    console.log(e);
+                //if (console)
+                //    console.log(e);
             }
 
             var self = self;

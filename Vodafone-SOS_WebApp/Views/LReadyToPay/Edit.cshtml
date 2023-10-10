@@ -210,7 +210,7 @@
                 for (var i = 1; i <= rowsManual.length; i++) {
                     var rowdata = $('#jqxManualGrid').jqxGrid('getrowdata', rowsManual[i - 1]);//as i is starting from 1 and not zero
                     SelectedValues = SelectedValues + rowdata.Identifier + ",ManualAdjustment|";
-                    console.log(SelectedValues);
+                    //console.log(SelectedValues);
                 }
             }
             else {
@@ -244,7 +244,7 @@
                 for (var i = 1; i <= rowsclaims.length; i++) {
                     var rowdata = $('#jqxClaimsGrid').jqxGrid('getrowdata', rowsclaims[i - 1]);//as i is starting from 1 and not zero
                     SelectedValues = SelectedValues + rowdata.Identifier + ",Claims|";
-                    console.log(SelectedValues);
+                    //console.log(SelectedValues);
                 }
             }
             else {
@@ -257,7 +257,7 @@
                     success: function (data) {
                         $.each(data, function (idx, data1) {
                             SelectedValues = SelectedValues + data1.Identifier + ",Claims|";
-                            console.log(SelectedValues);
+                            //console.log(SelectedValues);
                         });
                     },
                     error: function (error) {
@@ -364,7 +364,7 @@
                 for (var i = 1; i <= rowsManual.length; i++) {
                     var rowdata = $('#jqxManualGrid').jqxGrid('getrowdata', rowsManual[i - 1]);//as i is starting from 1 and not zero
                     SelectedValues = SelectedValues + rowdata.Identifier + ",ManualAdjustment|";
-                    console.log(SelectedValues);
+                    //console.log(SelectedValues);
                 }
             }
             else {
@@ -398,7 +398,7 @@
                 for (var i = 1; i <= rowsclaims.length; i++) {
                     var rowdata = $('#jqxClaimsGrid').jqxGrid('getrowdata', rowsclaims[i - 1]);//as i is starting from 1 and not zero
                     SelectedValues = SelectedValues + rowdata.Identifier + ",Claims|";
-                    console.log(SelectedValues);
+                    //console.log(SelectedValues);
                 }
             }
             else {
@@ -411,7 +411,7 @@
                     success: function (data) {
                         $.each(data, function (idx, data1) {
                             SelectedValues = SelectedValues + data1.Identifier + ",Claims|";
-                            console.log(SelectedValues);
+                            //console.log(SelectedValues);
                         });
                     },
                     error: function (error) {

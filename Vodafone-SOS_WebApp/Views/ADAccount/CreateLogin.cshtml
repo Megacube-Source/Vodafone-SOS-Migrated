@@ -26,7 +26,7 @@
                  data: Form.serialize() ,
                  url: "/ADAccount/CreateLogin",
                  success: function (data) {
-                     console.log(data);
+                     //console.log(data);
                      debugger;
                      if (data.ErrorMessage) {
                          alert("" + data.ErrorMessage);
@@ -36,7 +36,7 @@
                      }
                  },
                  error: function (reponse) {
-                     Console.log(reponse);
+                     ///Console.log(reponse);
                  }
              });
         }

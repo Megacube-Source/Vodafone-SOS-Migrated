@@ -928,6 +928,8 @@ namespace Vodafone_SOS_WebApp.Utilities
         //Methods introduced by Shubham for server side filtering
         public static string BuildQuery(System.Collections.Specialized.NameValueCollection FilterQuery)
         {
+            if (FilterQuery == null || FilterQuery.Count == 0)
+                return string.Empty;
             try
             {
                 //RK R2.3 17112018 to handle exception if wrong value is being passed to filterquery variable
