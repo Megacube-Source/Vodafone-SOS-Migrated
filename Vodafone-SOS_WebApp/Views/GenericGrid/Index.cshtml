@@ -312,7 +312,7 @@
         var UserRole = String('@HttpContext.Current.Session["UserRole"]').replace(/\s/g, "");
         var length = $('#jqxTabs').jqxTabs('length');
         var WFName = '@HttpContext.Current.Session["Workflow"]'
-        console.log(TabArray)
+        //console.log(TabArray)
 
         //Load data in only current tab by below code
         if (TabArray[sessionStorage.CurrentTab] && sessionStorage.Workflow == WFName) {
@@ -1006,7 +1006,7 @@
 
                     // $("#" + GridId).jqxGrid('loadstate')
                     //console.log($("#" + GridId).jqxGrid('GetGridData', 'postData').filter);
-                    console.log($("#" + GridId).jqxGrid('getfilterinformation'));
+                    //console.log($("#" + GridId).jqxGrid('getfilterinformation'));
                 }
         //    },
         //    error: function (reponse) {

@@ -160,6 +160,7 @@
         var ChkActivityType = $('#ChkActivityType').prop("checked");
         var ChkActivationOrder = $('#ChkActivationOrder').prop("checked");
         var ChkCommType = $('#ChkCommType').prop("checked");
+        var ChkPayeeFirstName = $('#ChkPayeeFirstName').prop("checked");
         var ChkChannel = $('#ChkChannel').prop("checked");
         var ChkParentPayee = $('#ChkParentPayee').prop("checked");
         var ChkSubChannel = $('#ChkSubChannel').prop("checked");
@@ -298,7 +299,6 @@
                     dataType: "json",
                     mtype: 'POST',
                     dataFields: [
-                        //{ name: 'Source', type: 'string' },
                         { name: 'AmtExtax', type: 'string' },
                         { name: 'Payee', type: 'string' },
                         { name: 'ParentPayee', type: 'string' },
@@ -307,6 +307,10 @@
                         { name: 'ActivityType', type: 'string' },
                         { name: 'ActivationOrder', type: 'string' },
                         { name: 'CommType', type: 'string' },
+                        { name: 'PayeeFirstName', type: 'string' },
+                        { name: 'PayeeLastName', type: 'string' },
+                        { name: 'ParentPayeeFirstName', type: 'string' },
+                        { name: 'ParentPayeeLastName', type: 'string' },
                         { name: 'Channel', type: 'string' },
                         { name: 'Subchannel', type: 'string' },
                         { name: 'Period', type: 'string' },
@@ -341,8 +345,7 @@
                     },
                     root: 'Rows',
                     beforeprocessing: function (data) {
-                        console.log('Vijay');
-                        console.log(sourcea);
+                        //console.log(sourcea);
                         sourcea.totalrecords = counts;
                     }
                 };

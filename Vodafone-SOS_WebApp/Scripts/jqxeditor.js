@@ -1749,7 +1749,7 @@ License: http://jqwidgets.com/license/
                 {
                     if (console)
                     {
-                        console.log(error);
+                       // console.log(error);
                     }
                 }
             });

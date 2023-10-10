@@ -31,7 +31,7 @@
         //Create array of RolebasedPortfolio ;ViewBag.RoleBasedPortfolioNameList
         RoleBasedPorfolioIdArray = @Html.Raw(Json.Encode(ViewBag.RoleBasedPortfolioIdList));
         RoleBasedPorfolioNameArray = @Html.Raw(Json.Encode(ViewBag.RoleBasedPortfolioNameList));
-        console.log(RoleBasedPorfolioIdArray)
+        //console.log(RoleBasedPorfolioIdArray)
         //Add JqxLoader when form is submitted to disable further clicks
         $("#jqxLoader").jqxLoader({ isModal: true, width: 200, height: 150, imagePosition: 'center' });
 
@@ -651,7 +651,7 @@
         PortfolioNames[0] = CurrentRole;
         for (var i = 1; i <= xx.length; i++) {
             var rowdata = $('#jqxPopupgrid').jqxGrid('getrowdata', xx[i - 1]);
-            console.log(rowdata)
+            //console.log(rowdata)
             PortfolioArray[i] = rowdata.Id;
             PortfolioNames[i] = rowdata.RcPrimaryChannel + '-' + rowdata.LpBusinessUnit + '-' + rowdata.RcName;
         }

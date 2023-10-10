@@ -1271,7 +1271,7 @@ License: http://jqwidgets.com/license/
                     throw new Error(this._invalidArgumentExceptions.invalidCloseSize);
                 }
             } catch (exception) {
-                try { console.log(exception); } catch (e) { }
+                try { //console.log(exception); } catch (e) { }
             }
         },
 
